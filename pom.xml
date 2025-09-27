@@ -22,11 +22,11 @@
     </repositories>
 
     <dependencies>
-        <!-- Paper API for Minecraft 1.21.8 -->
+        <!-- Paper API for Minecraft 1.20 -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.8-R0.1-SNAPSHOT</version>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         
