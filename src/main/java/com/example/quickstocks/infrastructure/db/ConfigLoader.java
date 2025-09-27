@@ -75,6 +75,12 @@ public class ConfigLoader {
                     String key = parts[0].trim();
                     String value = parts[1].trim();
                     
+                    // Remove inline comments
+                    int commentIndex = value.indexOf('#');
+                    if (commentIndex != -1) {
+                        value = value.substring(0, commentIndex).trim();
+                    }
+                    
                     // Handle quoted strings
                     if (value.startsWith("\"") && value.endsWith("\"")) {
                         value = value.substring(1, value.length() - 1);
