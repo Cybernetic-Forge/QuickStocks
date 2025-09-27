@@ -1,33 +1,68 @@
 package com.example.quickstocks;
 
+import com.example.quickstocks.application.queries.QueryService;
+import com.example.quickstocks.commands.StocksCommand;
+import com.example.quickstocks.core.services.SimulationEngine;
 import com.example.quickstocks.core.services.StockMarketService;
+import com.example.quickstocks.infrastructure.db.DatabaseConfig;
+import com.example.quickstocks.infrastructure.db.DatabaseManager;
+import com.example.quickstocks.infrastructure.db.Db;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.sql.SQLException;
 
 public final class QuickStocksPlugin extends JavaPlugin {
     
     private StockMarketService stockMarketService;
+    private SimulationEngine simulationEngine;
+    private DatabaseManager databaseManager;
+    private QueryService queryService;
     private BukkitRunnable marketUpdateTask;
 
     @Override
     public void onEnable() {
         getLogger().info("QuickStocks enabling (Paper 1.21.8)...");
         
-        // Initialize the stock market service
-        stockMarketService = new StockMarketService();
-        
-        // Add some default stocks for demonstration
-        initializeDefaultStocks();
-        
-        // Start the market update task (every 5 seconds = 100 ticks)
-        startMarketUpdateTask();
-        
-        getLogger().info("QuickStocks enabled successfully! Market is now running.");
+        try {
+            // Initialize database
+            initializeDatabase();
+            
+            // Initialize the stock market service
+            stockMarketService = new StockMarketService();
+            
+            // Initialize simulation engine
+            simulationEngine = new SimulationEngine(stockMarketService, databaseManager.getDb());
+            
+            // Initialize query service
+            queryService = new QueryService(databaseManager.getDb());
+            
+            // Add some default stocks for demonstration
+            initializeDefaultStocks();
+            
+            // Register commands
+            registerCommands();
+            
+            // Start the simulation engine
+            simulationEngine.start();
+            
+            getLogger().info("QuickStocks enabled successfully! Market is now running.");
+            
+        } catch (Exception e) {
+            getLogger().severe("Failed to enable QuickStocks: " + e.getMessage());
+            e.printStackTrace();
+            getServer().getPluginManager().disablePlugin(this);
+        }
     }
 
     @Override
     public void onDisable() {
         getLogger().info("QuickStocks disabling...");
+        
+        // Stop the simulation engine
+        if (simulationEngine != null) {
+            simulationEngine.stop();
+        }
         
         // Stop the market update task
         if (marketUpdateTask != null && !marketUpdateTask.isCancelled()) {
@@ -39,7 +74,50 @@ public final class QuickStocksPlugin extends JavaPlugin {
             stockMarketService.setMarketOpen(false);
         }
         
+        // Shutdown database
+        if (databaseManager != null) {
+            try {
+                databaseManager.shutdown();
+            } catch (SQLException e) {
+                getLogger().warning("Error shutting down database: " + e.getMessage());
+            }
+        }
+        
         getLogger().info("QuickStocks disabled");
+    }
+    
+    /**
+     * Initializes the database system.
+     */
+    private void initializeDatabase() throws SQLException {
+        // Create database configuration for the plugin data folder
+        DatabaseConfig config = new DatabaseConfig();
+        config.setProvider("sqlite");
+        config.setSqliteFile(getDataFolder().getAbsolutePath() + "/data.db");
+        
+        // Create the data folder if it doesn't exist
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
+        
+        // Initialize database with seeding enabled
+        databaseManager = new DatabaseManager(config, true);
+        databaseManager.initialize();
+        
+        getLogger().info("Database initialized: " + config.getSqliteFile());
+    }
+    
+    /**
+     * Registers commands with the server.
+     */
+    private void registerCommands() {
+        StocksCommand stocksCommand = new StocksCommand(queryService);
+        
+        // Register the /stocks command
+        getCommand("stocks").setExecutor(stocksCommand);
+        getCommand("stocks").setTabCompleter(stocksCommand);
+        
+        getLogger().info("Registered /stocks command");
     }
     
     /**
@@ -59,37 +137,17 @@ public final class QuickStocksPlugin extends JavaPlugin {
     }
     
     /**
-     * Starts the periodic market update task.
-     */
-    private void startMarketUpdateTask() {
-        marketUpdateTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                try {
-                    stockMarketService.updateAllStockPrices();
-                    
-                    // Log market statistics periodically (every minute)
-                    if (getServer().getCurrentTick() % 1200 == 0) {
-                        var stats = stockMarketService.getMarketStats();
-                        getLogger().info(String.format("Market Update - Avg Change: %.2f%%, Sentiment: %.2f", 
-                            stats.getAverageChange() * 100, stats.getMarketSentiment()));
-                    }
-                } catch (Exception e) {
-                    getLogger().warning("Error during market update: " + e.getMessage());
-                }
-            }
-        };
-        
-        // Start immediately and repeat every 5 seconds (100 ticks)
-        marketUpdateTask.runTaskTimer(this, 0L, 100L);
-        getLogger().info("Market update task started (updates every 5 seconds)");
-    }
-    
-    /**
      * Gets the stock market service instance.
      */
     public StockMarketService getStockMarketService() {
         return stockMarketService;
+    }
+    
+    /**
+     * Gets the query service instance.
+     */
+    public QueryService getQueryService() {
+        return queryService;
     }
 }
 
