@@ -100,6 +100,7 @@ public class SimulationEngine {
         } catch (Exception e) {
             logger.severe("Error during simulation tick: " + e.getMessage());
             e.printStackTrace();
+            // Continue running even if one tick fails
         }
     }
     
@@ -128,18 +129,42 @@ public class SimulationEngine {
         final String finalFactorReason = factorReason; // Make effectively final for lambda
         
         try {
+            // First, ensure all stocks exist as instruments (do this outside the main transaction)
+            Map<Stock, String> stockToInstrumentMap = new HashMap<>();
+            for (Stock stock : marketService.getAllStocks()) {
+                try {
+                    String instrumentId = instrumentService.ensureInstrument(stock);
+                    stockToInstrumentMap.put(stock, instrumentId);
+                } catch (Exception e) {
+                    logger.severe("Failed to ensure instrument for " + stock.getSymbol() + ": " + e.getMessage());
+                    throw new RuntimeException("Failed to ensure instrument for " + stock.getSymbol(), e);
+                }
+            }
+            
+            // Now execute the main transaction for state and history updates
             database.executeTransaction(db -> {
                 long currentTime = System.currentTimeMillis();
                 
                 for (Stock stock : marketService.getAllStocks()) {
                     try {
-                        // Ensure the stock exists as an instrument in the database
-                        String instrumentId = instrumentService.ensureInstrument(stock);
+                        String instrumentId = stockToInstrumentMap.get(stock);
+                        if (instrumentId == null) {
+                            throw new RuntimeException("No instrument ID found for " + stock.getSymbol());
+                        }
                         
-                        // Calculate derived fields
-                        double change1h = getChangePercent(instrumentId, 60);
-                        double change24h = getChangePercent(instrumentId, 1440);
-                        double volatility24h = getVolatility(instrumentId, 1440);
+                        // Calculate derived fields (with fallback for errors)
+                        double change1h = 0.0;
+                        double change24h = 0.0;
+                        double volatility24h = 0.0;
+                        
+                        try {
+                            change1h = getChangePercent(instrumentId, 60);
+                            change24h = getChangePercent(instrumentId, 1440);
+                            volatility24h = getVolatility(instrumentId, 1440);
+                        } catch (Exception e) {
+                            logger.warning("Failed to calculate rolling window metrics for " + stock.getSymbol() + ": " + e.getMessage());
+                            // Continue with zero values
+                        }
                         
                         // UPSERT instrument_state
                         upsertInstrumentState(db, instrumentId, stock, change1h, change24h, volatility24h, currentTime);
@@ -148,6 +173,7 @@ public class SimulationEngine {
                         insertPriceHistory(db, instrumentId, stock, finalFactorReason, currentTime);
                         
                     } catch (Exception e) {
+                        logger.severe("Failed to persist stock " + stock.getSymbol() + ": " + e.getMessage());
                         throw new RuntimeException("Failed to persist stock " + stock.getSymbol(), e);
                     }
                 }
@@ -157,7 +183,8 @@ public class SimulationEngine {
             
         } catch (Exception e) {
             logger.severe("Failed to persist market state: " + e.getMessage());
-            throw new RuntimeException("Database persistence failed", e);
+            e.printStackTrace();
+            // Don't re-throw - allow the simulation to continue
         }
     }
     
@@ -318,6 +345,13 @@ public class SimulationEngine {
     
     public boolean isRunning() {
         return running;
+    }
+    
+    /**
+     * Manually execute a single tick (for testing).
+     */
+    public void manualTick() {
+        tick();
     }
     
     /**
