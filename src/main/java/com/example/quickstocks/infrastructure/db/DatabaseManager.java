@@ -99,6 +99,33 @@ public class DatabaseManager {
               FOREIGN KEY (instrument_id) REFERENCES instruments(id) ON DELETE CASCADE
             )
             """);
+            
+        // Create indices for performance
+        createIndicesIfAbsent();
+    }
+    
+    /**
+     * Creates database indices for improved query performance.
+     */
+    private void createIndicesIfAbsent() throws SQLException {
+        try {
+            // Index on instrument_state.change_24h for fast top 10 queries
+            db.execute("""
+                CREATE INDEX IF NOT EXISTS idx_instrument_state_change_24h 
+                ON instrument_state(change_24h DESC)
+                """);
+            
+            // Additional indices for query optimization
+            db.execute("""
+                CREATE INDEX IF NOT EXISTS idx_instrument_price_history_instrument_ts 
+                ON instrument_price_history(instrument_id, ts DESC)
+                """);
+                
+            logger.info("Database indices created successfully");
+        } catch (SQLException e) {
+            logger.warning("Could not create indices: " + e.getMessage());
+            // Don't throw - indices are performance optimization, not critical
+        }
     }
     
     /**
