@@ -1,0 +1,8 @@
+name: QuickStocks
+main: com.example.quickstocks.QuickStocksPlugin
+version: 1.0.0-SNAPSHOT
+api-version: "1.21"
+authors:
+  - maksy
+description: "QuickStocks - Paper plugin for Minecraft 1.21.8"
+

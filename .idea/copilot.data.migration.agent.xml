@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AgentMigrationStateService">
+    <option name="pendingSessionIds">
+      <option value="a51b9dfb-eab9-406b-99a2-5199a6c632c6" />
+    </option>
+    <option name="pendingTurns">
+      <map>
+        <entry key="a51b9dfb-eab9-406b-99a2-5199a6c632c6">
+          <value>
+            <set>
+              <option value="324cce96-1c25-4b63-bd11-7c46be75e3e7" />
+            </set>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <pendingWorkingSetItems>
+      <entry key="a51b9dfb-eab9-406b-99a2-5199a6c632c6">
+        <set>
+          <option value="file://$PROJECT_DIR$/pom.xml" />
+          <option value="file://$PROJECT_DIR$/src/main/java/com/example/quickstocks/QuickStocksPlugin.java" />
+          <option value="file://$PROJECT_DIR$/src/main/resources/plugin.yml" />
+        </set>
+      </entry>
+    </pendingWorkingSetItems>
+  </component>
+</project>
