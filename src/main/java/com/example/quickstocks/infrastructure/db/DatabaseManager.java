@@ -1,5 +1,6 @@
 package com.example.quickstocks.infrastructure.db;
 
+import com.example.quickstocks.application.boot.ItemSeeder;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
@@ -39,6 +40,9 @@ public class DatabaseManager {
         
         // Create tables if absent (defensive programming)
         createTablesIfAbsent();
+        
+        // Run item seeder after migrations
+        runItemSeeder();
         
         logger.info("Database system initialized successfully");
         logDatabaseInfo();
@@ -87,6 +91,15 @@ public class DatabaseManager {
               FOREIGN KEY (instrument_id) REFERENCES instruments(id) ON DELETE CASCADE
             )
             """);
+    }
+    
+    /**
+     * Runs the item seeder to populate Minecraft items as instruments.
+     */
+    private void runItemSeeder() throws SQLException {
+        logger.info("Running item seeder...");
+        ItemSeeder itemSeeder = new ItemSeeder(db);
+        itemSeeder.seedItems();
     }
     
     /**
