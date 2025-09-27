@@ -22,15 +22,13 @@
     </repositories>
 
     <dependencies>
-        <!-- Paper API for Minecraft 1.20 (commented out temporarily due to repo issues) -->
-        <!--
+        <!-- Paper API for Minecraft 1.20 -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        -->
         
         <!-- HikariCP for connection pooling -->
         <dependency>
