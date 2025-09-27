@@ -140,5 +140,12 @@ public class ConfigLoader {
         
         String postgresPassword = props.getProperty("database.postgres.password", "");
         config.setPostgresPassword(postgresPassword);
+        
+        // Features configuration
+        String historyEnabled = props.getProperty("features.historyEnabled", "true");
+        config.setHistoryEnabled(Boolean.parseBoolean(historyEnabled));
+        
+        String topListWindowHours = props.getProperty("features.topListWindowHours", "24");
+        config.setTopListWindowHours(Integer.parseInt(topListWindowHours));
     }
 }

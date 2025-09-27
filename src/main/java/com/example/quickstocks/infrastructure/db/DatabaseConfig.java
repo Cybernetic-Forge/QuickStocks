@@ -26,6 +26,10 @@ public class DatabaseConfig {
     private String postgresUser = "postgres";
     private String postgresPassword = "";
     
+    // Feature configuration
+    private boolean historyEnabled = true;
+    private int topListWindowHours = 24;
+    
     // Getters and setters
     
     public String getProvider() {
@@ -130,5 +134,23 @@ public class DatabaseConfig {
     
     public void setPostgresPassword(String postgresPassword) {
         this.postgresPassword = postgresPassword;
+    }
+    
+    // Feature configuration getters and setters
+    
+    public boolean isHistoryEnabled() {
+        return historyEnabled;
+    }
+    
+    public void setHistoryEnabled(boolean historyEnabled) {
+        this.historyEnabled = historyEnabled;
+    }
+    
+    public int getTopListWindowHours() {
+        return topListWindowHours;
+    }
+    
+    public void setTopListWindowHours(int topListWindowHours) {
+        this.topListWindowHours = topListWindowHours;
     }
 }
