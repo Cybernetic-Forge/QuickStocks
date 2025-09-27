@@ -7,7 +7,9 @@ import com.example.quickstocks.infrastructure.db.Db;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -19,14 +21,20 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ItemSeederTest {
     
+    @TempDir
+    File tempDir;
+    
     private DatabaseManager databaseManager;
     private Db db;
     
     @BeforeEach
     void setUp() throws SQLException {
-        // Use in-memory SQLite for testing
-        DatabaseConfig config = ConfigLoader.loadDatabaseConfig();
-        databaseManager = new DatabaseManager(config);
+        // Use isolated SQLite database for testing
+        DatabaseConfig config = new DatabaseConfig();
+        config.setProvider("sqlite");
+        config.setSqliteFile(new File(tempDir, "itemseeder-test.db").getAbsolutePath());
+        
+        databaseManager = new DatabaseManager(config, false); // Disable auto-seeding for tests
         databaseManager.initialize();
         db = databaseManager.getDb();
     }
@@ -54,13 +62,13 @@ class ItemSeederTest {
         
         // Verify at least some expected items exist
         List<Map<String, Object>> results = db.query(
-            "SELECT symbol, display_name, mc_material FROM instruments WHERE type = 'ITEM' ORDER BY symbol LIMIT 10"
+            "SELECT symbol, display_name, mc_material FROM instruments WHERE type = 'ITEM' ORDER BY symbol LIMIT 20"
         );
         
         assertFalse(results.isEmpty(), "Should have created ITEM instruments");
         
         // Check a few specific items
-        boolean foundStone = false;
+        boolean foundCoal = false;
         boolean foundDiamond = false;
         
         for (Map<String, Object> item : results) {
@@ -76,10 +84,10 @@ class ItemSeederTest {
             assertTrue(Character.isUpperCase(displayName.charAt(0)), "Display name should be capitalized");
             
             // Check for specific items
-            if ("MC_STONE".equals(symbol)) {
-                foundStone = true;
-                assertEquals("Stone", displayName);
-                assertEquals("STONE", mcMaterial);
+            if ("MC_COAL".equals(symbol)) {
+                foundCoal = true;
+                assertEquals("Coal", displayName);
+                assertEquals("COAL", mcMaterial);
             } else if ("MC_DIAMOND".equals(symbol)) {
                 foundDiamond = true;
                 assertEquals("Diamond", displayName);
@@ -87,7 +95,7 @@ class ItemSeederTest {
             }
         }
         
-        assertTrue(foundStone, "Should have created MC_STONE instrument");
+        assertTrue(foundCoal, "Should have created MC_COAL instrument");
         assertTrue(foundDiamond, "Should have created MC_DIAMOND instrument");
     }
     
@@ -168,14 +176,14 @@ class ItemSeederTest {
         
         // Get a sample instrument
         Map<String, Object> instrument = db.queryOne(
-            "SELECT * FROM instruments WHERE type = 'ITEM' AND symbol = 'MC_STONE'"
+            "SELECT * FROM instruments WHERE type = 'ITEM' AND symbol = 'MC_COAL'"
         );
         
-        assertNotNull(instrument, "Should find MC_STONE instrument");
+        assertNotNull(instrument, "Should find MC_COAL instrument");
         assertEquals("ITEM", instrument.get("type"));
-        assertEquals("MC_STONE", instrument.get("symbol"));
-        assertEquals("Stone", instrument.get("display_name"));
-        assertEquals("STONE", instrument.get("mc_material"));
+        assertEquals("MC_COAL", instrument.get("symbol"));
+        assertEquals("Coal", instrument.get("display_name"));
+        assertEquals("COAL", instrument.get("mc_material"));
         assertEquals(0, ((Number) instrument.get("decimals")).intValue());
         assertNotNull(instrument.get("id"));
         assertTrue(((Number) instrument.get("created_at")).longValue() > 0);

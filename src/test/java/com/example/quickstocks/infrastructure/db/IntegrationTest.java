@@ -33,7 +33,7 @@ public class IntegrationTest {
         config.setProvider("sqlite");
         config.setSqliteFile(new File(pluginsDir, "data.db").getAbsolutePath());
         
-        databaseManager = new DatabaseManager(config);
+        databaseManager = new DatabaseManager(config, false); // Disable auto-seeding for tests
     }
     
     @AfterEach

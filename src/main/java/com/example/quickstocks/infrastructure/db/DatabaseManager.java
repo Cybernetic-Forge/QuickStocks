@@ -13,12 +13,18 @@ public class DatabaseManager {
     private static final Logger logger = Logger.getLogger(DatabaseManager.class.getName());
     
     private final DatabaseConfig config;
+    private final boolean enableSeeding;
     private DataSourceProvider dataSourceProvider;
     private Db db;
     private MigrationRunner migrationRunner;
     
     public DatabaseManager(DatabaseConfig config) {
+        this(config, true);
+    }
+    
+    public DatabaseManager(DatabaseConfig config, boolean enableSeeding) {
         this.config = config;
+        this.enableSeeding = enableSeeding;
     }
     
     /**
@@ -41,8 +47,10 @@ public class DatabaseManager {
         // Create tables if absent (defensive programming)
         createTablesIfAbsent();
         
-        // Run item seeder after migrations
-        runItemSeeder();
+        // Run item seeder after migrations (only if enabled)
+        if (enableSeeding) {
+            runItemSeeder();
+        }
         
         logger.info("Database system initialized successfully");
         logDatabaseInfo();

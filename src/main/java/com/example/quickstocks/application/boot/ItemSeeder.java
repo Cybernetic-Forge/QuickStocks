@@ -33,63 +33,103 @@ public class ItemSeeder {
         int newItems = 0;
         int skippedItems = 0;
         
-        // In production, this would be Material.values()
-        // For now, using MockMaterial for development
-        for (MockMaterial material : MockMaterial.values()) {
-            // Filter out non-items: AIR, legacy, and non-items
-            if (!material.isLegacy() && material.isItem()) {
-                totalItems++;
+        // Try to use real Bukkit Material first, fall back to MockMaterial for development
+        try {
+            // In production with Paper API available, use org.bukkit.Material
+            Class<?> materialClass = Class.forName("org.bukkit.Material");
+            Object[] materials = (Object[]) materialClass.getMethod("values").invoke(null);
+            
+            for (Object material : materials) {
+                // Use reflection to check isLegacy() and isItem()
+                boolean isLegacy = (Boolean) materialClass.getMethod("isLegacy").invoke(material);
+                boolean isItem = (Boolean) materialClass.getMethod("isItem").invoke(material);
+                String name = (String) materialClass.getMethod("name").invoke(material);
                 
-                String symbol = "MC_" + material.name(); // UPPERCASE, unique
-                String displayName = WordUtils.capitalizeFully(material.name().replace('_', ' '));
-                String mcMaterial = material.name();
-                
-                // Check if symbol already exists (upsert behavior)
-                if (instrumentExists(symbol)) {
-                    skippedItems++;
-                    logger.fine("Skipping existing instrument: " + symbol);
-                    continue;
+                if (!isLegacy && isItem) {
+                    totalItems++;
+                    if (seedSingleItem(name)) {
+                        newItems++;
+                    } else {
+                        skippedItems++;
+                    }
                 }
-                
-                // Insert new instrument
-                String instrumentId = UUID.randomUUID().toString();
-                long currentTime = System.currentTimeMillis();
-                
-                db.execute("""
-                    INSERT INTO instruments (id, type, symbol, display_name, mc_material, decimals, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """, 
-                    instrumentId, 
-                    "ITEM", 
-                    symbol, 
-                    displayName, 
-                    mcMaterial, 
-                    0, // decimals = 0 for items
-                    currentTime
-                );
-                
-                // Create corresponding instrument_state row
-                db.execute("""
-                    INSERT INTO instrument_state (instrument_id, last_price, last_volume, change_1h, change_24h, volatility_24h, market_cap, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    instrumentId,
-                    1.00, // baseline price
-                    0.0,  // last_volume
-                    0.0,  // change_1h
-                    0.0,  // change_24h
-                    0.0,  // volatility_24h
-                    0.0,  // market_cap
-                    currentTime
-                );
-                
-                newItems++;
-                logger.fine("Created instrument: " + symbol + " (" + displayName + ")");
+            }
+            
+            logger.info("Used real Bukkit Material enum for seeding");
+            
+        } catch (Exception e) {
+            // Fall back to MockMaterial for development/testing
+            logger.info("Bukkit Material not available, using MockMaterial for development");
+            
+            for (MockMaterial material : MockMaterial.values()) {
+                // Filter out non-items: AIR, legacy, and non-items
+                if (!material.isLegacy() && material.isItem()) {
+                    totalItems++;
+                    if (seedSingleItem(material.name())) {
+                        newItems++;
+                    } else {
+                        skippedItems++;
+                    }
+                }
             }
         }
         
         logger.info(String.format("Item seeding completed. Total items processed: %d, New items created: %d, Existing items skipped: %d", 
                 totalItems, newItems, skippedItems));
+    }
+    
+    /**
+     * Seeds a single item with the given material name.
+     * 
+     * @param materialName the name of the material
+     * @return true if a new item was created, false if it already existed
+     * @throws SQLException if database operations fail
+     */
+    private boolean seedSingleItem(String materialName) throws SQLException {
+        String symbol = "MC_" + materialName; // UPPERCASE, unique
+        String displayName = WordUtils.capitalizeFully(materialName.replace('_', ' '));
+        String mcMaterial = materialName;
+        
+        // Check if symbol already exists (upsert behavior)
+        if (instrumentExists(symbol)) {
+            logger.fine("Skipping existing instrument: " + symbol);
+            return false;
+        }
+        
+        // Insert new instrument
+        String instrumentId = UUID.randomUUID().toString();
+        long currentTime = System.currentTimeMillis();
+        
+        db.execute("""
+            INSERT INTO instruments (id, type, symbol, display_name, mc_material, decimals, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, 
+            instrumentId, 
+            "ITEM", 
+            symbol, 
+            displayName, 
+            mcMaterial, 
+            0, // decimals = 0 for items
+            currentTime
+        );
+        
+        // Create corresponding instrument_state row
+        db.execute("""
+            INSERT INTO instrument_state (instrument_id, last_price, last_volume, change_1h, change_24h, volatility_24h, market_cap, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            instrumentId,
+            1.00, // baseline price
+            0.0,  // last_volume
+            0.0,  // change_1h
+            0.0,  // change_24h
+            0.0,  // volatility_24h
+            0.0,  // market_cap
+            currentTime
+        );
+        
+        logger.fine("Created instrument: " + symbol + " (" + displayName + ")");
+        return true;
     }
     
     /**

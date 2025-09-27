@@ -29,7 +29,7 @@ public class SimpleMigrationTest {
         config.setProvider("sqlite");
         config.setSqliteFile(new File(tempDir, "test.db").getAbsolutePath());
         
-        databaseManager = new DatabaseManager(config);
+        databaseManager = new DatabaseManager(config, false); // Disable auto-seeding for tests
     }
     
     @AfterEach
