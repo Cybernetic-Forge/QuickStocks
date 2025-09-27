@@ -1,0 +1,26 @@
+# QuickStocks Configuration
+
+# Database Configuration
+database:
+  provider: sqlite # sqlite | mysql | postgres
+  sqlite:
+    file: plugins/QuickStocks/data.db
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    database: QuickStocks
+    user: root
+    password: ""
+    useSSL: false
+  postgres:
+    host: 127.0.0.1
+    port: 5432
+    database: QuickStocks
+    user: postgres
+    password: ""
+
+# Market Configuration
+market:
+  updateInterval: 5 # seconds
+  startOpen: true
+  defaultStocks: true
