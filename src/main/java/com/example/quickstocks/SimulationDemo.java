@@ -21,9 +21,9 @@ public class SimulationDemo {
         // Create database configuration
         DatabaseConfig config = new DatabaseConfig();
         config.setProvider("sqlite");
-        config.setSqliteFile("demo_simulation.db");
+        config.setSqliteFile("/tmp/demo_simulation.db");
         
-        System.out.println("📁 Database: demo_simulation.db");
+        System.out.println("📁 Database: /tmp/demo_simulation.db");
         
         // Initialize database
         DatabaseManager databaseManager = new DatabaseManager(config);
