@@ -19,6 +19,11 @@ database:
     user: postgres
     password: ""
 
+# Features Configuration
+features:
+  historyEnabled: true
+  topListWindowHours: 24
+
 # Market Configuration
 market:
   updateInterval: 5 # seconds
