@@ -9,7 +9,7 @@ description: "QuickStocks - Paper plugin for Minecraft 1.21.8"
 commands:
   stocks:
     description: "View stock market information and quotes"
-    usage: "/stocks [symbol|material]"
+    usage: "/stocks [symbol|material] or /stocks audit [repair]"
     aliases: [stock, quote]
   crypto:
     description: "Create and manage custom cryptocurrency instruments"
@@ -42,5 +42,11 @@ permissions:
     default: op
   quickstocks.wallet.set:
     description: "Allows players to set wallet balance"
+    default: op
+  quickstocks.admin.audit:
+    description: "Allows running integrity audits and repairs"
+    default: op
+  quickstocks.admin.backup:
+    description: "Allows managing backup operations"
     default: op
 

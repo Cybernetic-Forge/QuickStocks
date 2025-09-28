@@ -30,6 +30,19 @@ market:
   startOpen: true
   defaultStocks: true
 
+# Backup Configuration
+backup:
+  enabled: true # Enable automated backups
+  dailyBackup: true # Perform daily backups automatically
+  emergencyBackup: true # Backup on plugin shutdown
+  retentionDays: 30 # Days to keep backup files
+
+# Security & Concurrency Configuration
+security:
+  maxRetries: 3 # Max retries for optimistic locking conflicts
+  transactionTimeout: 30 # Transaction timeout in seconds
+  auditEnabled: true # Enable integrity auditing
+
 # Market Device Configuration
 marketDevice:
   recipe:
