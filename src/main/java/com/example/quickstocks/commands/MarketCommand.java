@@ -4,6 +4,7 @@ import com.example.quickstocks.application.queries.QueryService;
 import com.example.quickstocks.core.services.HoldingsService;
 import com.example.quickstocks.core.services.TradingService;
 import com.example.quickstocks.core.services.WalletService;
+import com.example.quickstocks.gui.MarketGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -109,6 +110,21 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     }
     
     private void showMarketOverview(Player player) throws Exception {
+        // Open the Market GUI instead of showing chat messages
+        try {
+            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService);
+            marketGUI.open();
+        } catch (Exception e) {
+            logger.warning("Failed to open Market GUI for " + player.getName() + ": " + e.getMessage());
+            // Fallback to chat-based display
+            showMarketOverviewInChat(player);
+        }
+    }
+    
+    /**
+     * Fallback method to show market overview in chat (when GUI fails)
+     */
+    private void showMarketOverviewInChat(Player player) throws Exception {
         List<Map<String, Object>> topGainers = queryService.getTopGainers(10);
         
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Market Overview" + ChatColor.GOLD + " ===");

@@ -16,6 +16,8 @@ import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 import com.example.quickstocks.infrastructure.db.DatabaseManager;
 import com.example.quickstocks.listeners.CraftingListener;
 import com.example.quickstocks.listeners.MarketDeviceListener;
+import com.example.quickstocks.listeners.MarketGUIListener;
+import com.example.quickstocks.listeners.PortfolioGUIListener;
 import com.example.quickstocks.utils.RecipeManager;
 import com.example.quickstocks.utils.TranslationManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -191,10 +193,16 @@ public final class QuickStocksPlugin extends JavaPlugin {
         MarketDeviceListener deviceListener = new MarketDeviceListener(this, translationManager, marketDeviceCommand);
         CraftingListener craftingListener = new CraftingListener(this, recipeManager);
         
+        // Register GUI listeners for the new market interface
+        MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService);
+        PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener(queryService, tradingService, holdingsService, walletService);
+        
         getServer().getPluginManager().registerEvents(deviceListener, this);
         getServer().getPluginManager().registerEvents(craftingListener, this);
+        getServer().getPluginManager().registerEvents(marketGUIListener, this);
+        getServer().getPluginManager().registerEvents(portfolioGUIListener, this);
         
-        getLogger().info("Registered Market Device and Crafting event listeners");
+        getLogger().info("Registered Market Device, Crafting, and GUI event listeners");
     }
     
     /**
