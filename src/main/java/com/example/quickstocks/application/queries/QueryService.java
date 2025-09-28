@@ -182,4 +182,24 @@ public class QueryService {
             instrumentId
         );
     }
+    
+    /**
+     * Gets display name for an instrument by ID.
+     */
+    public String getInstrumentDisplayName(String instrumentId) throws SQLException {
+        return database.queryValue(
+            "SELECT display_name FROM instruments WHERE id = ?", 
+            instrumentId
+        );
+    }
+    
+    /**
+     * Gets all instrument symbols for tab completion.
+     */
+    public List<String> getInstrumentSymbols() throws SQLException {
+        return database.query("SELECT symbol FROM instruments ORDER BY symbol")
+                .stream()
+                .map(row -> (String) row.get("symbol"))
+                .toList();
+    }
 }
