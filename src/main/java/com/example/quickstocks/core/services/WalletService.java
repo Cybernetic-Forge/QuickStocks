@@ -3,7 +3,7 @@ package com.example.quickstocks.core.services;
 import com.example.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -16,11 +16,56 @@ public class WalletService {
     
     private final Db database;
     private final boolean useVault;
+    private Object vaultEconomy; // Using Object to avoid compile-time dependency on Vault
     
     public WalletService(Db database) {
         this.database = database;
-        this.useVault = false; // For now, we'll use internal system
-        logger.info("WalletService initialized with internal wallet system");
+        this.useVault = setupVaultEconomy();
+        
+        if (useVault) {
+            logger.info("WalletService initialized with Vault economy integration");
+        } else {
+            logger.info("WalletService initialized with internal wallet system (Vault not available)");
+        }
+    }
+    
+    /**
+     * Attempts to set up Vault economy integration using reflection to avoid compile-time dependencies.
+     * @return true if Vault is available and economy provider found, false otherwise
+     */
+    private boolean setupVaultEconomy() {
+        try {
+            // Use reflection to check for Bukkit and Vault
+            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
+            Object server = bukkitClass.getMethod("getServer").invoke(null);
+            Object pluginManager = server.getClass().getMethod("getPluginManager").invoke(server);
+            Object vaultPlugin = pluginManager.getClass().getMethod("getPlugin", String.class).invoke(pluginManager, "Vault");
+            
+            if (vaultPlugin == null) {
+                logger.info("Vault plugin not found, using internal wallet system");
+                return false;
+            }
+            
+            // Get the services manager and economy service
+            Object servicesManager = server.getClass().getMethod("getServicesManager").invoke(server);
+            Class<?> economyClass = Class.forName("net.milkbowl.vault.economy.Economy");
+            Object registration = servicesManager.getClass().getMethod("getRegistration", Class.class).invoke(servicesManager, economyClass);
+            
+            if (registration == null) {
+                logger.warning("Vault found but no economy provider registered, using internal wallet system");
+                return false;
+            }
+            
+            vaultEconomy = registration.getClass().getMethod("getProvider").invoke(registration);
+            String economyName = (String) vaultEconomy.getClass().getMethod("getName").invoke(vaultEconomy);
+            logger.info("Vault economy provider found: " + economyName);
+            return true;
+            
+        } catch (Exception e) {
+            // Bukkit/Vault not available - this is normal in non-Bukkit environments like tests
+            logger.fine("Bukkit/Vault not available: " + e.getMessage() + ". Using internal wallet system.");
+            return false;
+        }
     }
     
     /**
@@ -49,8 +94,12 @@ public class WalletService {
      * Adds money to a player's balance.
      */
     public void addBalance(String playerUuid, double amount) throws SQLException {
-        double currentBalance = getBalance(playerUuid);
-        setBalance(playerUuid, currentBalance + amount);
+        if (useVault) {
+            addVaultBalance(playerUuid, amount);
+        } else {
+            double currentBalance = getBalance(playerUuid);
+            setBalance(playerUuid, currentBalance + amount);
+        }
     }
     
     /**
@@ -58,12 +107,16 @@ public class WalletService {
      * @return true if successful, false if insufficient funds
      */
     public boolean removeBalance(String playerUuid, double amount) throws SQLException {
-        double currentBalance = getBalance(playerUuid);
-        if (currentBalance >= amount) {
-            setBalance(playerUuid, currentBalance - amount);
-            return true;
+        if (useVault) {
+            return removeVaultBalance(playerUuid, amount);
+        } else {
+            double currentBalance = getBalance(playerUuid);
+            if (currentBalance >= amount) {
+                setBalance(playerUuid, currentBalance - amount);
+                return true;
+            }
+            return false;
         }
-        return false;
     }
     
     /**
@@ -89,13 +142,117 @@ public class WalletService {
         logger.fine("Set balance for " + playerUuid + " to $" + String.format("%.2f", amount));
     }
     
-    // Placeholder methods for Vault integration (future implementation)
+    // Vault integration methods using reflection to avoid compile-time dependencies
     private double getVaultBalance(String playerUuid) {
-        // TODO: Integrate with Vault API
-        return 0.0;
+        try {
+            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
+            Object offlinePlayer = bukkitClass.getMethod("getOfflinePlayer", UUID.class)
+                    .invoke(null, UUID.fromString(playerUuid));
+            
+            double balance = (Double) vaultEconomy.getClass().getMethod("getBalance", 
+                    Class.forName("org.bukkit.OfflinePlayer"))
+                    .invoke(vaultEconomy, offlinePlayer);
+            
+            logger.fine("Retrieved Vault balance for " + playerUuid + ": $" + String.format("%.2f", balance));
+            return balance;
+        } catch (Exception e) {
+            logger.warning("Failed to get Vault balance for " + playerUuid + ": " + e.getMessage());
+            return 0.0;
+        }
     }
     
     private void setVaultBalance(String playerUuid, double amount) {
-        // TODO: Integrate with Vault API
+        try {
+            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
+            Object offlinePlayer = bukkitClass.getMethod("getOfflinePlayer", UUID.class)
+                    .invoke(null, UUID.fromString(playerUuid));
+            
+            // Get current balance first
+            double currentBalance = (Double) vaultEconomy.getClass().getMethod("getBalance", 
+                    Class.forName("org.bukkit.OfflinePlayer"))
+                    .invoke(vaultEconomy, offlinePlayer);
+            
+            if (amount > currentBalance) {
+                // Need to deposit money
+                vaultEconomy.getClass().getMethod("depositPlayer", 
+                        Class.forName("org.bukkit.OfflinePlayer"), double.class)
+                        .invoke(vaultEconomy, offlinePlayer, amount - currentBalance);
+            } else if (amount < currentBalance) {
+                // Need to withdraw money
+                vaultEconomy.getClass().getMethod("withdrawPlayer", 
+                        Class.forName("org.bukkit.OfflinePlayer"), double.class)
+                        .invoke(vaultEconomy, offlinePlayer, currentBalance - amount);
+            }
+            
+            logger.fine("Set Vault balance for " + playerUuid + " to $" + String.format("%.2f", amount));
+        } catch (Exception e) {
+            logger.warning("Failed to set Vault balance for " + playerUuid + ": " + e.getMessage());
+        }
+    }
+    
+    private void addVaultBalance(String playerUuid, double amount) {
+        try {
+            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
+            Object offlinePlayer = bukkitClass.getMethod("getOfflinePlayer", UUID.class)
+                    .invoke(null, UUID.fromString(playerUuid));
+            
+            vaultEconomy.getClass().getMethod("depositPlayer", 
+                    Class.forName("org.bukkit.OfflinePlayer"), double.class)
+                    .invoke(vaultEconomy, offlinePlayer, amount);
+            
+            logger.fine("Added $" + String.format("%.2f", amount) + " to Vault balance for " + playerUuid);
+        } catch (Exception e) {
+            logger.warning("Failed to add Vault balance for " + playerUuid + ": " + e.getMessage());
+        }
+    }
+    
+    private boolean removeVaultBalance(String playerUuid, double amount) {
+        try {
+            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
+            Object offlinePlayer = bukkitClass.getMethod("getOfflinePlayer", UUID.class)
+                    .invoke(null, UUID.fromString(playerUuid));
+            
+            // Check balance first
+            double currentBalance = (Double) vaultEconomy.getClass().getMethod("getBalance", 
+                    Class.forName("org.bukkit.OfflinePlayer"))
+                    .invoke(vaultEconomy, offlinePlayer);
+            
+            if (currentBalance >= amount) {
+                Object result = vaultEconomy.getClass().getMethod("withdrawPlayer", 
+                        Class.forName("org.bukkit.OfflinePlayer"), double.class)
+                        .invoke(vaultEconomy, offlinePlayer, amount);
+                
+                logger.fine("Removed $" + String.format("%.2f", amount) + " from Vault balance for " + playerUuid);
+                return true;
+            }
+            
+            logger.fine("Insufficient Vault balance for " + playerUuid + " to remove $" + String.format("%.2f", amount));
+            return false;
+        } catch (Exception e) {
+            logger.warning("Failed to remove Vault balance for " + playerUuid + ": " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Returns true if this service is using Vault for economy operations.
+     */
+    public boolean isUsingVault() {
+        return useVault;
+    }
+    
+    /**
+     * Gets the name of the economy provider being used.
+     */
+    public String getEconomyProviderName() {
+        if (useVault && vaultEconomy != null) {
+            try {
+                return (String) vaultEconomy.getClass().getMethod("getName").invoke(vaultEconomy);
+            } catch (Exception e) {
+                logger.warning("Failed to get economy provider name: " + e.getMessage());
+                return "Vault (Unknown Provider)";
+            }
+        }
+        return "Internal Wallet System";
     }
 }
