@@ -35,6 +35,16 @@ public class MarketTradingDemo {
             TradingServiceStandalone tradingService = new TradingServiceStandalone(db, walletService, holdingsService);
             QueryService queryService = new QueryService(db);
             
+            // Display Vault integration status
+            System.out.println("💰 Economy System Information:");
+            System.out.println("Provider: " + walletService.getEconomyProviderName());
+            System.out.println("Using Vault: " + (walletService.isUsingVault() ? "Yes ✓" : "No (Internal System)"));
+            if (!walletService.isUsingVault()) {
+                System.out.println("Note: Vault plugin not detected. Using internal wallet system.");
+                System.out.println("      In a Minecraft server with Vault installed, this would use Vault automatically.");
+            }
+            System.out.println();
+            
             // Test player UUID
             String testPlayerUuid = UUID.randomUUID().toString();
             System.out.println("Test Player UUID: " + testPlayerUuid.substring(0, 8) + "...\n");

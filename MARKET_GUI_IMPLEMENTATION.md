@@ -158,15 +158,26 @@ double newAvgCost = totalValue / (existingQty + newQty);
 
 ## Economy Integration
 
-### Vault Integration (Future)
-- Placeholder methods for Vault economy plugin integration
-- Automatic fallback to internal wallet system
-- Configurable via service initialization
+### Vault Integration ✅ IMPLEMENTED
+- **Automatic Detection**: WalletService automatically detects Vault plugin availability at runtime
+- **Seamless Integration**: Uses reflection to integrate with any Vault-compatible economy provider
+- **Zero Configuration**: No setup required - works automatically when Vault is present
+- **Full API Support**: Complete integration with deposit, withdraw, and balance operations
+- **Economy Provider Info**: Reports which economy system is active (`isUsingVault()`, `getEconomyProviderName()`)
 
-### Internal Wallet System
-- SQLite-based wallet storage
-- Default balance: $0.00
-- Admin commands for balance management
+### Internal Wallet System (Fallback)
+- **Automatic Fallback**: When Vault is not available, seamlessly uses internal SQLite-based storage
+- **SQLite-based wallet storage**: Lightweight and reliable backup system
+- **Default balance**: $0.00 for new players
+- **Admin commands**: Full balance management for administrators
+- **Migration Ready**: Internal balances can be migrated to Vault when plugin is installed
+
+### How It Works
+1. **Plugin Startup**: WalletService automatically detects if Vault plugin is installed
+2. **Economy Provider Check**: Verifies that an economy provider is registered with Vault
+3. **Automatic Selection**: Uses Vault if available, otherwise falls back to internal system
+4. **Transparent Operation**: All wallet operations work identically regardless of backend
+5. **Runtime Switching**: Can handle Vault being installed/removed between server restarts
 
 ## Usage Examples
 
