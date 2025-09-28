@@ -195,7 +195,7 @@ public class PortfolioGUI implements InventoryHolder {
         // Create detailed lore
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.YELLOW + "Shares Owned: " + ChatColor.WHITE + String.format("%.2f", holding.getQty()));
-        lore.add(ChatColor.YELLOW + "Average Cost: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getAvgCost()));
+        lore.add(ChatColor.YELLOW + "Purchase Price: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getAvgCost()));
         lore.add(ChatColor.YELLOW + "Current Price: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getCurrentPrice()));
         lore.add(ChatColor.YELLOW + "Total Value: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getQty() * holding.getCurrentPrice()));
         lore.add("");
@@ -206,7 +206,7 @@ public class PortfolioGUI implements InventoryHolder {
         ChatColor pnlColor = pnl >= 0 ? ChatColor.GREEN : ChatColor.RED;
         String pnlArrow = pnl >= 0 ? "▲" : "▼";
         
-        lore.add(ChatColor.YELLOW + "Unrealized P&L:");
+        lore.add(ChatColor.YELLOW + "Gain/Loss from Purchase:");
         lore.add(pnlColor + pnlArrow + " $" + String.format("%.2f", Math.abs(pnl)) + " (" + String.format("%.1f%%", Math.abs(pnlPercent)) + ")");
         lore.add("");
         lore.add(ChatColor.GRAY + "Right-click to sell all shares");
