@@ -1,0 +1,26 @@
+# QuickStocks Translations
+# Used for localization and customizable messages
+
+market:
+  device:
+    name: "&dMarket Link Device"
+    given: "&aMarket Device granted to {player}."
+    opened: "&7Opening Market..."
+    cooldown: "&cPlease wait a moment."
+    wrong_owner: "&cThis device is bound to {owner}."
+    drop_prevented: "&cThis device is soulbound and cannot be dropped."
+    lore:
+      usage: "&7Right-click to open the market."
+      bound: "&8Bound to: {player}"
+
+commands:
+  marketdevice:
+    no_permission: "&cYou don't have permission to use this command."
+    usage: "&cUsage: /marketdevice give [player]"
+    player_not_found: "&cPlayer '{player}' not found."
+    self_given: "&aYou received a Market Link Device!"
+    other_given: "&aGave Market Link Device to {player}."
+
+errors:
+  database: "&cDatabase error occurred. Please contact an administrator."
+  internal: "&cAn internal error occurred. Please try again."

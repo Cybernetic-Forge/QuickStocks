@@ -3,6 +3,7 @@ package com.example.quickstocks;
 import com.example.quickstocks.application.queries.QueryService;
 import com.example.quickstocks.commands.CryptoCommand;
 import com.example.quickstocks.commands.MarketCommand;
+import com.example.quickstocks.commands.MarketDeviceCommand;
 import com.example.quickstocks.commands.StocksCommand;
 import com.example.quickstocks.commands.WalletCommand;
 import com.example.quickstocks.core.services.CryptoService;
@@ -13,6 +14,10 @@ import com.example.quickstocks.core.services.TradingService;
 import com.example.quickstocks.core.services.WalletService;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 import com.example.quickstocks.infrastructure.db.DatabaseManager;
+import com.example.quickstocks.listeners.CraftingListener;
+import com.example.quickstocks.listeners.MarketDeviceListener;
+import com.example.quickstocks.utils.RecipeManager;
+import com.example.quickstocks.utils.TranslationManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -25,6 +30,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private DatabaseManager databaseManager;
     private QueryService queryService;
     private CryptoService cryptoService;
+    private TranslationManager translationManager;
+    private RecipeManager recipeManager;
     private WalletService walletService;
     private HoldingsService holdingsService;
     private TradingService tradingService;
@@ -37,6 +44,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
         try {
             // Initialize database
             initializeDatabase();
+            
+            // Initialize translation manager
+            translationManager = new TranslationManager(this);
             
             // Initialize the stock market service
             stockMarketService = new StockMarketService();
@@ -64,6 +74,16 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Register commands
             registerCommands();
+            
+            // Initialize recipe manager
+            MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
+            recipeManager = new RecipeManager(this, marketDeviceCommand, translationManager);
+            
+            // Register listeners
+            registerListeners();
+            
+            // Register recipes
+            registerRecipes();
             
             // Start the simulation engine
             simulationEngine.start();
@@ -94,6 +114,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Close the market
         if (stockMarketService != null) {
             stockMarketService.setMarketOpen(false);
+        }
+        
+        // Remove recipes
+        if (recipeManager != null) {
+            recipeManager.removeRecipes();
         }
         
         // Shutdown database
@@ -133,6 +158,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         WalletCommand walletCommand = new WalletCommand(walletService);
         MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService);
+        MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
         
         // Register the /stocks command
         getCommand("stocks").setExecutor(stocksCommand);
@@ -150,7 +176,34 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getCommand("market").setExecutor(marketCommand);
         getCommand("market").setTabCompleter(marketCommand);
         
-        getLogger().info("Registered /stocks, /crypto, /wallet, and /market commands");
+        // Register the /marketdevice command
+        getCommand("marketdevice").setExecutor(marketDeviceCommand);
+        getCommand("marketdevice").setTabCompleter(marketDeviceCommand);
+        
+        getLogger().info("Registered /stocks, /crypto, /wallet, /market, and /marketdevice commands");
+    }
+    
+    /**
+     * Registers event listeners with the server.
+     */
+    private void registerListeners() {
+        MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
+        MarketDeviceListener deviceListener = new MarketDeviceListener(this, translationManager, marketDeviceCommand);
+        CraftingListener craftingListener = new CraftingListener(this, recipeManager);
+        
+        getServer().getPluginManager().registerEvents(deviceListener, this);
+        getServer().getPluginManager().registerEvents(craftingListener, this);
+        
+        getLogger().info("Registered Market Device and Crafting event listeners");
+    }
+    
+    /**
+     * Registers crafting recipes if enabled in config.
+     */
+    private void registerRecipes() {
+        if (recipeManager != null) {
+            recipeManager.registerRecipes();
+        }
     }
     
     /**

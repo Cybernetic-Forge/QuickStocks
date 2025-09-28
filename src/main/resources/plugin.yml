@@ -22,11 +22,21 @@ commands:
     description: "Browse and trade in the market"
     usage: "/market [browse|buy|sell|portfolio|history]"
     aliases: [trade, trading]
+  marketdevice:
+    description: "Grant Market Link Device items to players"
+    usage: "/marketdevice give [player]"
+    aliases: [mdevice]
     
 permissions:
   quickstocks.command.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments"
     default: false
+  maksy.stocks.crypto.create:
+    description: "Allows players to create custom cryptocurrency instruments (legacy)"
+    default: false
+  maksy.stocks.marketdevice.give:
+    description: "Allows giving Market Link Device items to players"
+    default: op
   quickstocks.wallet.add:
     description: "Allows players to add money to their wallet"
     default: op
