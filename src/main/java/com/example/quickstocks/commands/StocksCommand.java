@@ -1,6 +1,7 @@
 package com.example.quickstocks.commands;
 
 import com.example.quickstocks.application.queries.QueryService;
+import com.example.quickstocks.core.services.AuditService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -28,10 +29,12 @@ import java.util.Optional;
 public class StocksCommand implements CommandExecutor, TabCompleter {
     
     private final QueryService queryService;
+    private final AuditService auditService;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     
-    public StocksCommand(QueryService queryService) {
+    public StocksCommand(QueryService queryService, AuditService auditService) {
         this.queryService = queryService;
+        this.auditService = auditService;
     }
     
     @Override
@@ -39,6 +42,10 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         if (args.length == 0) {
             // No args → show top 10 gainers
             showTopGainers(sender);
+        } else if (args.length >= 1 && "audit".equalsIgnoreCase(args[0])) {
+            // /stocks audit [repair] - integrity check and optional repair
+            boolean repair = args.length > 1 && "repair".equalsIgnoreCase(args[1]);
+            handleAuditCommand(sender, repair);
         } else {
             // With arg → show specific stock card
             String query = String.join(" ", args);
@@ -299,20 +306,127 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         return sparkline.toString();
     }
     
+    /**
+     * Handles the audit command for integrity checking and repair.
+     */
+    private void handleAuditCommand(CommandSender sender, boolean repair) {
+        // Check if sender has permission for audit operations
+        if (sender instanceof Player player && !player.hasPermission("quickstocks.admin.audit")) {
+            sender.sendMessage(Component.text("❌ You don't have permission to run audit operations.", NamedTextColor.RED));
+            return;
+        }
+        
+        sender.sendMessage(Component.text("🔍 Starting portfolio integrity audit" + (repair ? " with auto-repair..." : "..."), NamedTextColor.YELLOW));
+        
+        try {
+            AuditService.AuditResult result = auditService.auditAllHoldings(repair);
+            
+            // Display results
+            sender.sendMessage(Component.text("━".repeat(50), NamedTextColor.GRAY));
+            sender.sendMessage(Component.text("📊 AUDIT RESULTS", NamedTextColor.GOLD, TextDecoration.BOLD));
+            sender.sendMessage(Component.text("━".repeat(50), NamedTextColor.GRAY));
+            
+            sender.sendMessage(Component.text()
+                .append(Component.text("👥 Total players checked: ", NamedTextColor.YELLOW))
+                .append(Component.text(String.valueOf(result.totalPlayersChecked), NamedTextColor.WHITE))
+                .build());
+            
+            sender.sendMessage(Component.text()
+                .append(Component.text("⚠️ Players with issues: ", NamedTextColor.YELLOW))
+                .append(Component.text(String.valueOf(result.playersWithIssues), 
+                    result.playersWithIssues > 0 ? NamedTextColor.RED : NamedTextColor.GREEN))
+                .build());
+            
+            sender.sendMessage(Component.text()
+                .append(Component.text("🔍 Total discrepancies: ", NamedTextColor.YELLOW))
+                .append(Component.text(String.valueOf(result.totalDiscrepancies), 
+                    result.totalDiscrepancies > 0 ? NamedTextColor.RED : NamedTextColor.GREEN))
+                .build());
+            
+            if (repair) {
+                sender.sendMessage(Component.text()
+                    .append(Component.text("🔧 Total repairs applied: ", NamedTextColor.YELLOW))
+                    .append(Component.text(String.valueOf(result.totalRepairs), NamedTextColor.BLUE))
+                    .build());
+            }
+            
+            // Show specific issues if any
+            if (result.playersWithIssues > 0) {
+                sender.sendMessage(Component.text());
+                sender.sendMessage(Component.text("⚠️ DISCREPANCY DETAILS:", NamedTextColor.RED, TextDecoration.BOLD));
+                
+                int count = 0;
+                for (Map.Entry<String, AuditService.AuditPlayerResult> entry : result.playerResults.entrySet()) {
+                    if (!entry.getValue().discrepancies.isEmpty() && count < 10) { // Limit to first 10
+                        String playerUuid = entry.getKey();
+                        AuditService.AuditPlayerResult playerResult = entry.getValue();
+                        
+                        sender.sendMessage(Component.text()
+                            .append(Component.text("Player " + playerUuid.substring(0, 8) + "...: ", NamedTextColor.GRAY))
+                            .append(Component.text(playerResult.discrepancies.size() + " issues", NamedTextColor.RED))
+                            .build());
+                        
+                        for (AuditService.Discrepancy disc : playerResult.discrepancies) {
+                            sender.sendMessage(Component.text("  • " + disc.toString(), NamedTextColor.YELLOW));
+                        }
+                        
+                        count++;
+                    }
+                }
+                
+                if (result.playerResults.size() > 10) {
+                    sender.sendMessage(Component.text("... and " + (result.playerResults.size() - 10) + " more players with issues", NamedTextColor.GRAY));
+                }
+                
+                if (!repair) {
+                    sender.sendMessage(Component.text());
+                    sender.sendMessage(Component.text("💡 Run '/stocks audit repair' to automatically fix these issues.", NamedTextColor.AQUA));
+                }
+            } else {
+                sender.sendMessage(Component.text());
+                sender.sendMessage(Component.text("✅ All portfolios are consistent!", NamedTextColor.GREEN, TextDecoration.BOLD));
+            }
+            
+            sender.sendMessage(Component.text("━".repeat(50), NamedTextColor.GRAY));
+            
+        } catch (SQLException e) {
+            sender.sendMessage(Component.text("❌ Audit failed: " + e.getMessage(), NamedTextColor.RED));
+        }
+    }
+    
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length <= 1) {
+        if (args.length == 1) {
+            String prefix = args[0].toLowerCase();
+            List<String> suggestions = new ArrayList<>();
+            
+            // Add audit command for admin users
+            if (sender instanceof Player player && player.hasPermission("quickstocks.admin.audit")) {
+                if ("audit".startsWith(prefix)) {
+                    suggestions.add("audit");
+                }
+            }
+            
             try {
-                String prefix = args.length == 0 ? "" : args[0];
-                List<String> suggestions = queryService.getMatchingSymbolsAndMaterials(prefix);
+                // Add stock symbols and materials
+                List<String> stockSuggestions = queryService.getMatchingSymbolsAndMaterials(args[0]);
+                suggestions.addAll(stockSuggestions);
                 
                 // Limit to 20 suggestions to avoid spam
                 return suggestions.size() > 20 ? suggestions.subList(0, 20) : suggestions;
                 
             } catch (SQLException e) {
-                // If database error, return empty list
-                return new ArrayList<>();
+                // If database error, return just the commands
+                return suggestions;
             }
+        } else if (args.length == 2 && "audit".equalsIgnoreCase(args[0])) {
+            // Tab completion for audit subcommands
+            List<String> auditSuggestions = new ArrayList<>();
+            String prefix = args[1].toLowerCase();
+            if ("repair".startsWith(prefix)) {
+                auditSuggestions.add("repair");
+            }
+            return auditSuggestions;
         }
         
         return new ArrayList<>();

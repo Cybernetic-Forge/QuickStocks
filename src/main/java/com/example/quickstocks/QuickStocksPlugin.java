@@ -6,6 +6,8 @@ import com.example.quickstocks.commands.MarketCommand;
 import com.example.quickstocks.commands.MarketDeviceCommand;
 import com.example.quickstocks.commands.StocksCommand;
 import com.example.quickstocks.commands.WalletCommand;
+import com.example.quickstocks.core.services.AuditService;
+import com.example.quickstocks.core.services.BackupService;
 import com.example.quickstocks.core.services.CryptoService;
 import com.example.quickstocks.core.services.HoldingsService;
 import com.example.quickstocks.core.services.SimulationEngine;
@@ -37,6 +39,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private WalletService walletService;
     private HoldingsService holdingsService;
     private TradingService tradingService;
+    private AuditService auditService;
+    private BackupService backupService;
     private BukkitRunnable marketUpdateTask;
 
     @Override
@@ -71,6 +75,14 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Initialize trading service
             tradingService = new TradingService(databaseManager.getDb(), walletService, holdingsService);
             
+            // Initialize audit service
+            auditService = new AuditService(databaseManager.getDb(), holdingsService);
+            
+            // Initialize backup service
+            String dataPath = getDataFolder().getAbsolutePath();
+            boolean backupEnabled = getConfig().getBoolean("backup.enabled", true);
+            backupService = new BackupService(databaseManager.getDb(), dataPath, backupEnabled);
+            
             // Add some default stocks for demonstration
             initializeDefaultStocks();
             
@@ -103,18 +115,39 @@ public final class QuickStocksPlugin extends JavaPlugin {
     public void onDisable() {
         getLogger().info("QuickStocks disabling...");
         
-        // Stop the simulation engine
+        // Perform emergency backup before shutdown
+        if (backupService != null) {
+            getLogger().info("Performing emergency backup...");
+            BackupService.BackupResult backupResult = backupService.performEmergencyBackup();
+            if (backupResult.success) {
+                getLogger().info("Emergency backup completed: " + backupResult.fileCount + " files, " + backupResult.totalSize + " bytes");
+            } else {
+                getLogger().warning("Emergency backup failed: " + backupResult.message);
+            }
+        }
+        
+        // Stop the simulation engine and wait for current operations to complete
         if (simulationEngine != null) {
+            getLogger().info("Stopping simulation engine...");
             simulationEngine.stop();
+            
+            // Give simulation engine time to finish current operations
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
         
         // Stop the market update task
         if (marketUpdateTask != null && !marketUpdateTask.isCancelled()) {
+            getLogger().info("Cancelling market update task...");
             marketUpdateTask.cancel();
         }
         
-        // Close the market
+        // Close the market to prevent new trades
         if (stockMarketService != null) {
+            getLogger().info("Closing market...");
             stockMarketService.setMarketOpen(false);
         }
         
@@ -123,12 +156,24 @@ public final class QuickStocksPlugin extends JavaPlugin {
             recipeManager.removeRecipes();
         }
         
-        // Shutdown database
+        // Log final statistics
+        try {
+            if (queryService != null) {
+                int totalOrders = queryService.getTotalOrderCount();
+                int totalPlayers = queryService.getTotalPlayerCount();
+                getLogger().info(String.format("Final statistics: %d total orders, %d total players", totalOrders, totalPlayers));
+            }
+        } catch (Exception e) {
+            getLogger().warning("Failed to log final statistics: " + e.getMessage());
+        }
+        
+        // Shutdown database with graceful connection closing
         if (databaseManager != null) {
+            getLogger().info("Shutting down database...");
             databaseManager.shutdown();
         }
         
-        getLogger().info("QuickStocks disabled");
+        getLogger().info("QuickStocks disabled gracefully");
     }
     
     /**
@@ -156,7 +201,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Registers commands with the server.
      */
     private void registerCommands() {
-        StocksCommand stocksCommand = new StocksCommand(queryService);
+        StocksCommand stocksCommand = new StocksCommand(queryService, auditService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         WalletCommand walletCommand = new WalletCommand(walletService);
         MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService);
