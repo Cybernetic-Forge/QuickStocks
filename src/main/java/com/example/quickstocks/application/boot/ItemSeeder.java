@@ -59,19 +59,7 @@ public class ItemSeeder {
             
         } catch (Exception e) {
             // Fall back to MockMaterial for development/testing
-            logger.info("Bukkit Material not available, using MockMaterial for development");
-            
-            for (MockMaterial material : MockMaterial.values()) {
-                // Filter out non-items: AIR, legacy, and non-items
-                if (!material.isLegacy() && material.isItem()) {
-                    totalItems++;
-                    if (seedSingleItem(material.name())) {
-                        newItems++;
-                    } else {
-                        skippedItems++;
-                    }
-                }
-            }
+            logger.info("Bukkit Material not available");
         }
         
         logger.info(String.format("Item seeding completed. Total items processed: %d, New items created: %d, Existing items skipped: %d", 

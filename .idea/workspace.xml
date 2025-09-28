@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="initial commit">
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="removed stuff">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/commands/MarketCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/commands/MarketCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/HoldingsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/HoldingsService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/infrastructure/db/Db.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/infrastructure/db/Db.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/application/boot/ItemSeeder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/application/boot/ItemSeeder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/application/boot/MockMaterial.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/listeners/CraftingListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/listeners/CraftingListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +139,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759008626401</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Changes">
+      <option name="closed" value="true" />
+      <created>1759062910001</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1759062910001</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -158,6 +166,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="initial commit" />
+    <MESSAGE value="Changes" />
+    <MESSAGE value="removed stuff" />
+    <option name="LAST_COMMIT_MESSAGE" value="removed stuff" />
   </component>
 </project>

@@ -31,7 +31,7 @@ public class CraftingListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         
         // Check if this is a Market Device recipe
-        if (event.getRecipe().getKey().equals(new NamespacedKey(plugin, "market_device_recipe"))) {
+        /*if (event.getRecipe().getResult().equals(new NamespacedKey(plugin, "market_device_recipe"))) {
             // Cancel the default crafting
             event.setCancelled(true);
             
@@ -46,6 +46,6 @@ public class CraftingListener implements Listener {
             
             // Notify the player
             player.sendMessage("§aYou crafted a Market Link Device!");
-        }
+        }*/
     }
 }
