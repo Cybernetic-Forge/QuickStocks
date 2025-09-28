@@ -1,5 +1,6 @@
 package com.example.quickstocks.commands;
 
+import com.example.quickstocks.I18n;
 import com.example.quickstocks.core.services.CryptoService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * /crypto command implementation for creating custom cryptocurrency instruments.
@@ -59,21 +61,22 @@ public class CryptoCommand implements CommandExecutor, TabCompleter {
     private void handleCreateCommand(CommandSender sender, String[] args) {
         // Check if sender is a player
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text("❌ Only players can create custom crypto.", NamedTextColor.RED));
+            sender.sendMessage(I18n.component("crypto.only_players"));
             return;
         }
         
         // Check permission
         if (!player.hasPermission(PERMISSION_CREATE)) {
-            sender.sendMessage(Component.text("❌ You don't have permission to create custom crypto.", NamedTextColor.RED));
-            sender.sendMessage(Component.text("💡 Required permission: " + PERMISSION_CREATE, NamedTextColor.GRAY));
+            sender.sendMessage(I18n.component("crypto.no_permission"));
+            Map<String, Object> placeholders = Map.of("permission", PERMISSION_CREATE);
+            sender.sendMessage(I18n.component("crypto.permission_required", placeholders));
             return;
         }
         
         // Validate arguments
         if (args.length < 2) {
-            sender.sendMessage(Component.text("❌ Usage: /crypto create <symbol> <name>", NamedTextColor.RED));
-            sender.sendMessage(Component.text("💡 Example: /crypto create MYCOIN \"My Custom Coin\"", NamedTextColor.GRAY));
+            sender.sendMessage(I18n.component("crypto.usage_error"));
+            sender.sendMessage(I18n.component("crypto.usage_example"));
             return;
         }
         
@@ -86,39 +89,43 @@ public class CryptoCommand implements CommandExecutor, TabCompleter {
             
             // Success message
             sender.sendMessage(Component.text(""));
-            sender.sendMessage(Component.text("🎉 Custom Crypto Created Successfully!", NamedTextColor.GREEN, TextDecoration.BOLD));
+            sender.sendMessage(I18n.component("crypto.success_title"));
             sender.sendMessage(Component.text("━".repeat(40), NamedTextColor.GRAY));
             
-            sender.sendMessage(Component.text()
-                    .append(Component.text("💰 Symbol: ", NamedTextColor.YELLOW))
-                    .append(Component.text(symbol.toUpperCase(), NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
-                    .build());
+            Map<String, Object> symbolPlaceholders = Map.of("symbol", symbol.toUpperCase());
+            sender.sendMessage(I18n.component("crypto.success_symbol", symbolPlaceholders));
             
-            sender.sendMessage(Component.text()
-                    .append(Component.text("📝 Name: ", NamedTextColor.YELLOW))
-                    .append(Component.text(displayName, NamedTextColor.WHITE))
-                    .build());
+            Map<String, Object> namePlaceholders = Map.of("name", displayName);
+            sender.sendMessage(I18n.component("crypto.success_name", namePlaceholders));
             
-            sender.sendMessage(Component.text()
-                    .append(Component.text("💲 Starting Price: ", NamedTextColor.YELLOW))
-                    .append(Component.text("$1.00", NamedTextColor.GOLD))
-                    .build());
+            sender.sendMessage(I18n.component("crypto.success_price"));
             
-            sender.sendMessage(Component.text()
-                    .append(Component.text("🆔 Instrument ID: ", NamedTextColor.YELLOW))
-                    .append(Component.text(instrumentId, NamedTextColor.DARK_GRAY))
-                    .build());
+            Map<String, Object> idPlaceholders = Map.of("id", instrumentId);
+            sender.sendMessage(I18n.component("crypto.success_id", idPlaceholders));
             
             sender.sendMessage(Component.text("━".repeat(40), NamedTextColor.GRAY));
-            sender.sendMessage(Component.text("💡 Your crypto is now tradeable on the market!", NamedTextColor.GREEN));
-            sender.sendMessage(Component.text("💡 Use /stocks " + symbol.toUpperCase() + " to view details", NamedTextColor.GRAY));
+            sender.sendMessage(I18n.component("crypto.success_footer1"));
+            
+            Map<String, Object> footerPlaceholders = Map.of("symbol", symbol.toUpperCase());
+            sender.sendMessage(I18n.component("crypto.success_footer2", footerPlaceholders));
             
         } catch (IllegalArgumentException e) {
-            sender.sendMessage(Component.text("❌ " + e.getMessage(), NamedTextColor.RED));
+            // Handle specific validation errors
+            if (e.getMessage().contains("Invalid symbol")) {
+                sender.sendMessage(I18n.component("crypto.invalid_symbol"));
+            } else if (e.getMessage().contains("already exists")) {
+                Map<String, Object> placeholders = Map.of("symbol", symbol);
+                sender.sendMessage(I18n.component("crypto.symbol_exists", placeholders));
+            } else {
+                Map<String, Object> placeholders = Map.of("error", e.getMessage());
+                sender.sendMessage(I18n.component("crypto.creation_error", placeholders));
+            }
         } catch (SQLException e) {
-            sender.sendMessage(Component.text("❌ Database error: " + e.getMessage(), NamedTextColor.RED));
+            Map<String, Object> placeholders = Map.of("error", e.getMessage());
+            sender.sendMessage(I18n.component("crypto.creation_error", placeholders));
         } catch (Exception e) {
-            sender.sendMessage(Component.text("❌ Unexpected error: " + e.getMessage(), NamedTextColor.RED));
+            Map<String, Object> placeholders = Map.of("error", e.getMessage());
+            sender.sendMessage(I18n.component("crypto.creation_error", placeholders));
         }
     }
     
@@ -127,33 +134,27 @@ public class CryptoCommand implements CommandExecutor, TabCompleter {
      */
     private void showUsage(CommandSender sender) {
         sender.sendMessage(Component.text(""));
-        sender.sendMessage(Component.text("🪙 Crypto Commands", NamedTextColor.GOLD, TextDecoration.BOLD));
+        sender.sendMessage(I18n.component("crypto.title"));
         sender.sendMessage(Component.text("━".repeat(30), NamedTextColor.GRAY));
         
-        sender.sendMessage(Component.text()
-                .append(Component.text("• /crypto create ", NamedTextColor.YELLOW))
-                .append(Component.text("<symbol> <name>", NamedTextColor.AQUA))
-                .build());
-        
-        sender.sendMessage(Component.text("  Creates a custom cryptocurrency", NamedTextColor.GRAY));
+        sender.sendMessage(I18n.component("crypto.create_usage"));
+        sender.sendMessage(I18n.component("crypto.create_description"));
         sender.sendMessage(Component.text(""));
         
-        sender.sendMessage(Component.text("Examples:", NamedTextColor.WHITE, TextDecoration.BOLD));
-        sender.sendMessage(Component.text("  /crypto create MYCOIN \"My Custom Coin\"", NamedTextColor.DARK_AQUA));
-        sender.sendMessage(Component.text("  /crypto create GOLD \"Digital Gold\"", NamedTextColor.DARK_AQUA));
+        sender.sendMessage(I18n.component("crypto.examples_title"));
+        sender.sendMessage(I18n.component("crypto.example1"));
+        sender.sendMessage(I18n.component("crypto.example2"));
         sender.sendMessage(Component.text(""));
         
         if (sender instanceof Player player) {
             boolean hasPermission = player.hasPermission(PERMISSION_CREATE);
-            Component permissionStatus = Component.text()
-                    .append(Component.text("Permission: ", NamedTextColor.YELLOW))
-                    .append(Component.text(PERMISSION_CREATE, NamedTextColor.GRAY))
-                    .append(Component.text(" - ", NamedTextColor.GRAY))
-                    .append(Component.text(hasPermission ? "✅ Granted" : "❌ Denied", 
-                            hasPermission ? NamedTextColor.GREEN : NamedTextColor.RED))
-                    .build();
+            String status = hasPermission ? I18n.tr("crypto.permission_granted") : I18n.tr("crypto.permission_denied");
             
-            sender.sendMessage(permissionStatus);
+            Map<String, Object> placeholders = Map.of(
+                "permission", PERMISSION_CREATE,
+                "status", status
+            );
+            sender.sendMessage(I18n.component("crypto.permission_status", placeholders));
         }
     }
     

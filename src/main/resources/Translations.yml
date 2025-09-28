@@ -1,0 +1,101 @@
+# QuickStocks Plugin Translations
+# 
+# Placeholders: Use {placeholder} format, e.g., {symbol}, {price}, {balance}
+# Color codes: Use & format, e.g., &a for green, &c for red, &b for aqua
+# 
+# Available placeholders:
+# - {symbol}: Stock/crypto symbol
+# - {name}: Display name
+# - {price}: Price value
+# - {balance}: Player balance
+# - {qty}: Quantity
+# - {change}: Percentage change
+# - {rank}: Ranking number
+# - {needed}: Amount needed
+# - {have}: Amount player has
+# - {owned}: Amount player owns
+# - {side}: Buy/sell side
+# - {query}: Search query
+# - {permission}: Permission node
+# - {status}: Status message
+# - {error}: Error message
+# - {count}: Count/number
+# - {time}: Time/timestamp
+# - {volume}: Trading volume
+# - {marketCap}: Market capitalization
+# - {sparkline}: Price chart sparkline
+# - {type}: Instrument type
+# - {id}: Identifier
+
+general:
+  no_permission: "&cYou don't have permission."
+  reloaded: "&aConfiguration reloaded."
+  invalid_number: "&cPlease enter a valid number."
+  only_players: "&cOnly players can use this command."
+
+market:
+  open_title_items: "&bMarket — Items"
+  open_title_crypto: "&bMarket — Crypto"
+  balance: "&7Balance: &a{balance}"
+  buy_title: "&aBuy {symbol}"
+  sell_title: "&cSell {symbol}"
+  qty_prompt: "&7Enter quantity:"
+  confirm_buy: "&aConfirmed buy: {qty} × {symbol} @ {price}"
+  confirm_sell: "&cConfirmed sell: {qty} × {symbol} @ {price}"
+  insufficient_funds: "&cNot enough funds. Need {needed}, have {have}."
+  insufficient_holdings: "&cYou only own {owned} {symbol}."
+  order_logged: "&7Order saved: {side} {qty} {symbol}."
+
+stocks:
+  top10_header: "&6📈 TOP 10 GAINERS (24H)"
+  no_stocks: "&6📊 No stocks found in the market."
+  header_rank: "RANK"
+  header_symbol: "SYMBOL"
+  header_name: "NAME"
+  header_price: "PRICE"
+  header_change: "24H CHANGE"
+  not_found: "&cInstrument '{query}' not found."
+  card_header: "&6📊 {name} ({symbol}) [{type}]"
+  current_price: "&e💲 Current Price: &f${price}"
+  change_1h: "1H Change"
+  change_24h: "24H Change"
+  change_7d: "7D Change"
+  volume_24h: "&e📊 24H Volume: &f{volume}"
+  market_cap: "&e🏦 Market Cap: &f${marketCap}"
+  last_updated: "&7⏰ Last Updated: {time}"
+  price_history: "&e📈 Price History (7 days): &f{sparkline}"
+
+crypto:
+  title: "&6🪙 Crypto Commands"
+  create_usage: "&e• /crypto create &b<symbol> <name>"
+  create_description: "&7  Creates a custom cryptocurrency"
+  examples_title: "&fExamples:"
+  example1: "&3  /crypto create MYCOIN \"My Custom Coin\""
+  example2: "&3  /crypto create GOLD \"Digital Gold\""
+  permission_status: "&ePermission: &7{permission} &7- {status}"
+  permission_granted: "&a✅ Granted"
+  permission_denied: "&c❌ Denied"
+  only_players: "&c❌ Only players can create custom crypto."
+  no_permission: "&c❌ You don't have permission to create custom crypto."
+  permission_required: "&7💡 Required permission: {permission}"
+  usage_error: "&c❌ Usage: /crypto create <symbol> <name>"
+  usage_example: "&7💡 Example: /crypto create MYCOIN \"My Custom Coin\""
+  invalid_symbol: "&c❌ Invalid symbol. Use A-Z, 0-9, underscore, 2-12 chars."
+  symbol_exists: "&c❌ Symbol '{symbol}' already exists."
+  creation_error: "&c❌ Failed to create crypto: {error}"
+  success_title: "&a🎉 Custom Crypto Created Successfully!"
+  success_symbol: "&e💰 Symbol: &3{symbol}"
+  success_name: "&e📝 Name: &f{name}"
+  success_price: "&e💲 Starting Price: &6$1.00"
+  success_id: "&e🆔 Instrument ID: &8{id}"
+  success_footer1: "&a💡 Your crypto is now tradeable on the market!"
+  success_footer2: "&7💡 Use /stocks {symbol} to view details"
+
+plugin:
+  enabling: "QuickStocks enabling (Paper 1.21.8)..."
+  enabled: "QuickStocks enabled successfully! Market is now running."
+  enable_failed: "Failed to enable QuickStocks: {error}"
+  disabling: "QuickStocks disabling..."
+  disabled: "QuickStocks disabled successfully."
+  initialized_stocks: "Initialized {count} default stocks"
+  failed_initialize_stocks: "Failed to initialize default stocks: {error}"

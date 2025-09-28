@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 public final class QuickStocksPlugin extends JavaPlugin {
     
@@ -24,9 +25,12 @@ public final class QuickStocksPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getLogger().info("QuickStocks enabling (Paper 1.21.8)...");
+        getLogger().info(I18n.tr("plugin.enabling"));
         
         try {
+            // Initialize I18n system first
+            I18n.initialize(this);
+            
             // Initialize database
             initializeDatabase();
             
@@ -51,10 +55,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Start the simulation engine
             simulationEngine.start();
             
-            getLogger().info("QuickStocks enabled successfully! Market is now running.");
+            getLogger().info(I18n.tr("plugin.enabled"));
             
         } catch (Exception e) {
-            getLogger().severe("Failed to enable QuickStocks: " + e.getMessage());
+            Map<String, Object> placeholders = Map.of("error", e.getMessage());
+            getLogger().severe(I18n.tr("plugin.enable_failed", placeholders));
             e.printStackTrace();
             getServer().getPluginManager().disablePlugin(this);
         }
@@ -62,7 +67,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info("QuickStocks disabling...");
+        getLogger().info(I18n.tr("plugin.disabling"));
         
         // Stop the simulation engine
         if (simulationEngine != null) {
@@ -136,9 +141,12 @@ public final class QuickStocksPlugin extends JavaPlugin {
             stockMarketService.addStock("BLOCK", "BlockChain Energy", "Energy", 120.25);
             stockMarketService.addStock("PIXEL", "Pixel Healthcare", "Healthcare", 85.75);
             
-            getLogger().info("Initialized " + stockMarketService.getAllStocks().size() + " default stocks");
+            int stockCount = stockMarketService.getAllStocks().size();
+            Map<String, Object> placeholders = Map.of("count", stockCount);
+            getLogger().info(I18n.tr("plugin.initialized_stocks", placeholders));
         } catch (Exception e) {
-            getLogger().severe("Failed to initialize default stocks: " + e.getMessage());
+            Map<String, Object> placeholders = Map.of("error", e.getMessage());
+            getLogger().severe(I18n.tr("plugin.failed_initialize_stocks", placeholders));
         }
     }
     
