@@ -171,6 +171,13 @@ public class MarketGUI implements InventoryHolder {
         Double volatility = (Double) stock.get("volatility_24h");
         String type = (String) stock.get("type");
         
+        // Handle null values with defaults
+        if (symbol == null) symbol = "UNKNOWN";
+        if (displayName == null) displayName = "Unknown Stock";
+        if (price == null) price = 0.0;
+        if (change24h == null) change24h = 0.0;
+        if (type == null) type = "other";
+        
         // Choose material based on stock type and performance
         Material material = getMaterialForStock(type, change24h);
         
@@ -213,6 +220,9 @@ public class MarketGUI implements InventoryHolder {
      * Determines the appropriate material for a stock based on type and performance
      */
     private Material getMaterialForStock(String type, Double change24h) {
+        if (type == null) type = "other";
+        if (change24h == null) change24h = 0.0;
+        
         // Base material on type
         Material baseMaterial;
         switch (type.toLowerCase()) {
@@ -243,16 +253,14 @@ public class MarketGUI implements InventoryHolder {
         }
         
         // Modify based on performance for visual feedback
-        if (change24h != null) {
-            if (change24h >= 5.0) {
-                // High positive performance - use diamond variant if available
-                if (baseMaterial == Material.PAPER) return Material.DIAMOND;
-                if (baseMaterial == Material.EMERALD) return Material.EMERALD_BLOCK;
-            } else if (change24h <= -5.0) {
-                // High negative performance - use coal/dark variant
-                if (baseMaterial == Material.PAPER) return Material.COAL;
-                if (baseMaterial == Material.EMERALD) return Material.COAL_BLOCK;
-            }
+        if (change24h >= 5.0) {
+            // High positive performance - use diamond variant if available
+            if (baseMaterial == Material.PAPER) return Material.DIAMOND;
+            if (baseMaterial == Material.EMERALD) return Material.EMERALD_BLOCK;
+        } else if (change24h <= -5.0) {
+            // High negative performance - use coal/dark variant
+            if (baseMaterial == Material.PAPER) return Material.COAL;
+            if (baseMaterial == Material.EMERALD) return Material.COAL_BLOCK;
         }
         
         return baseMaterial;

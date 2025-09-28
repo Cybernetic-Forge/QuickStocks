@@ -174,6 +174,10 @@ public class MarketGUIListener implements Listener {
         
         if (balance < price) {
             player.sendMessage(ChatColor.RED + "Insufficient funds! Need $" + String.format("%.2f", price - balance) + " more.");
+            // Play error sound if available
+            try {
+                player.playSound(player.getLocation(), "entity.villager.no", 1.0f, 1.0f);
+            } catch (Exception ignored) {}
             return;
         }
         
@@ -183,8 +187,15 @@ public class MarketGUIListener implements Listener {
         if (result.isSuccess()) {
             player.sendMessage(ChatColor.GREEN + "✓ Bought 1x " + symbol + " for $" + String.format("%.2f", price));
             player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid)));
+            // Play success sound if available
+            try {
+                player.playSound(player.getLocation(), "entity.experience_orb.pickup", 1.0f, 1.2f);
+            } catch (Exception ignored) {}
         } else {
             player.sendMessage(ChatColor.RED + "✗ Purchase failed: " + result.getMessage());
+            try {
+                player.playSound(player.getLocation(), "entity.villager.no", 1.0f, 1.0f);
+            } catch (Exception ignored) {}
         }
     }
     
@@ -198,6 +209,9 @@ public class MarketGUIListener implements Listener {
             double availableQty = holding != null ? holding.getQty() : 0;
             player.sendMessage(ChatColor.RED + "Insufficient shares! You have " + 
                               String.format("%.2f", availableQty) + " shares of " + symbol);
+            try {
+                player.playSound(player.getLocation(), "entity.villager.no", 1.0f, 1.0f);
+            } catch (Exception ignored) {}
             return;
         }
         
@@ -207,8 +221,14 @@ public class MarketGUIListener implements Listener {
         if (result.isSuccess()) {
             player.sendMessage(ChatColor.GREEN + "✓ Sold 1x " + symbol + " for $" + String.format("%.2f", price));
             player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid)));
+            try {
+                player.playSound(player.getLocation(), "entity.experience_orb.pickup", 1.0f, 0.8f);
+            } catch (Exception ignored) {}
         } else {
             player.sendMessage(ChatColor.RED + "✗ Sale failed: " + result.getMessage());
+            try {
+                player.playSound(player.getLocation(), "entity.villager.no", 1.0f, 1.0f);
+            } catch (Exception ignored) {}
         }
     }
     
