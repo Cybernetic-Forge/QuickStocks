@@ -1,5 +1,6 @@
 package com.example.quickstocks.commands;
 
+import com.example.quickstocks.I18n;
 import com.example.quickstocks.application.queries.QueryService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -55,25 +56,25 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
             List<Map<String, Object>> gainers = queryService.getTopGainersByChange24h(10);
             
             if (gainers.isEmpty()) {
-                sender.sendMessage(Component.text("📊 No stocks found in the market.", NamedTextColor.YELLOW));
+                sender.sendMessage(I18n.component("stocks.no_stocks"));
                 return;
             }
             
             // Header
-            sender.sendMessage(Component.text("📈 TOP 10 GAINERS (24H)", NamedTextColor.GOLD, TextDecoration.BOLD));
+            sender.sendMessage(I18n.component("stocks.top10_header"));
             sender.sendMessage(Component.text("═".repeat(60), NamedTextColor.GRAY));
             
             // Table header
             Component header = Component.text()
-                    .append(Component.text("RANK", NamedTextColor.WHITE, TextDecoration.BOLD))
+                    .append(Component.text(I18n.tr("stocks.header_rank"), NamedTextColor.WHITE, TextDecoration.BOLD))
                     .append(Component.text(" │ ", NamedTextColor.GRAY))
-                    .append(Component.text("SYMBOL", NamedTextColor.WHITE, TextDecoration.BOLD))
+                    .append(Component.text(I18n.tr("stocks.header_symbol"), NamedTextColor.WHITE, TextDecoration.BOLD))
                     .append(Component.text(" │ ", NamedTextColor.GRAY))
-                    .append(Component.text("NAME", NamedTextColor.WHITE, TextDecoration.BOLD))
+                    .append(Component.text(I18n.tr("stocks.header_name"), NamedTextColor.WHITE, TextDecoration.BOLD))
                     .append(Component.text(" │ ", NamedTextColor.GRAY))
-                    .append(Component.text("PRICE", NamedTextColor.WHITE, TextDecoration.BOLD))
+                    .append(Component.text(I18n.tr("stocks.header_price"), NamedTextColor.WHITE, TextDecoration.BOLD))
                     .append(Component.text(" │ ", NamedTextColor.GRAY))
-                    .append(Component.text("24H CHANGE", NamedTextColor.WHITE, TextDecoration.BOLD))
+                    .append(Component.text(I18n.tr("stocks.header_change"), NamedTextColor.WHITE, TextDecoration.BOLD))
                     .build();
             
             sender.sendMessage(header);
@@ -86,10 +87,11 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
             }
             
             sender.sendMessage(Component.text("─".repeat(60), NamedTextColor.GRAY));
-            sender.sendMessage(Component.text("💡 Use /stocks <symbol> for detailed information", NamedTextColor.GRAY));
+            sender.sendMessage(I18n.component("stocks.detail_hint"));
             
         } catch (SQLException e) {
-            sender.sendMessage(Component.text("❌ Database error: " + e.getMessage(), NamedTextColor.RED));
+            Map<String, Object> placeholders = Map.of("error", e.getMessage());
+            sender.sendMessage(I18n.component("general.database_error", placeholders));
         }
     }
     
@@ -137,8 +139,9 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
             }
             
             if (stockOpt.isEmpty()) {
-                sender.sendMessage(Component.text("❌ Stock not found: " + query, NamedTextColor.RED));
-                sender.sendMessage(Component.text("💡 Use /stocks to see available stocks", NamedTextColor.GRAY));
+                Map<String, Object> placeholders = Map.of("query", query);
+                sender.sendMessage(I18n.component("stocks.not_found", placeholders));
+                sender.sendMessage(I18n.component("stocks.not_found_hint"));
                 return;
             }
             
@@ -146,7 +149,8 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
             displayStockCard(sender, stock);
             
         } catch (SQLException e) {
-            sender.sendMessage(Component.text("❌ Database error: " + e.getMessage(), NamedTextColor.RED));
+            Map<String, Object> placeholders = Map.of("error", e.getMessage());
+            sender.sendMessage(I18n.component("general.database_error", placeholders));
         }
     }
     
@@ -166,39 +170,29 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         
         // Header with stock name and symbol
         sender.sendMessage(Component.text(""));
-        Component header = Component.text()
-                .append(Component.text("📊 ", NamedTextColor.GOLD))
-                .append(Component.text(displayName, NamedTextColor.WHITE, TextDecoration.BOLD))
-                .append(Component.text(" (", NamedTextColor.GRAY))
-                .append(Component.text(symbol, NamedTextColor.DARK_BLUE, TextDecoration.BOLD))
-                .append(Component.text(") ", NamedTextColor.GRAY))
-                .append(Component.text("[" + type + "]", NamedTextColor.DARK_GRAY))
-                .build();
-        
-        sender.sendMessage(header);
+        Map<String, Object> headerPlaceholders = Map.of(
+            "name", displayName,
+            "symbol", symbol,
+            "type", type
+        );
+        sender.sendMessage(I18n.component("stocks.card_header", headerPlaceholders));
         sender.sendMessage(Component.text("━".repeat(50), NamedTextColor.GRAY));
         
         // Price information
-        sender.sendMessage(Component.text()
-                .append(Component.text("💰 Price: ", NamedTextColor.YELLOW))
-                .append(Component.text(String.format("$%.2f", lastPrice), NamedTextColor.GOLD, TextDecoration.BOLD))
-                .build());
+        Map<String, Object> pricePlaceholders = Map.of("price", String.format("%.2f", lastPrice));
+        sender.sendMessage(I18n.component("stocks.current_price", pricePlaceholders));
         
         // Changes
-        displayChangeRow(sender, "📈 Δ1h:", change1h);
-        displayChangeRow(sender, "📊 Δ24h:", change24h);
+        displayChangeRow(sender, I18n.tr("stocks.change_1h") + ":", change1h);
+        displayChangeRow(sender, I18n.tr("stocks.change_24h") + ":", change24h);
         
         // Volatility and Market Cap
-        sender.sendMessage(Component.text()
-                .append(Component.text("⚡ Volatility 24h: ", NamedTextColor.YELLOW))
-                .append(Component.text(String.format("%.4f", volatility24h), NamedTextColor.WHITE))
-                .build());
+        Map<String, Object> volatilityPlaceholders = Map.of("volatility", String.format("%.4f", volatility24h));
+        sender.sendMessage(I18n.component("stocks.volatility_24h", volatilityPlaceholders));
         
         if (marketCap > 0) {
-            sender.sendMessage(Component.text()
-                    .append(Component.text("🏢 Market Cap: ", NamedTextColor.YELLOW))
-                    .append(Component.text(String.format("$%.0f", marketCap), NamedTextColor.WHITE))
-                    .build());
+            Map<String, Object> marketCapPlaceholders = Map.of("marketCap", String.format("%.0f", marketCap));
+            sender.sendMessage(I18n.component("stocks.market_cap", marketCapPlaceholders));
         }
         
         // Recent price history
@@ -229,7 +223,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
             return;
         }
         
-        sender.sendMessage(Component.text("📋 Last 10 history points:", NamedTextColor.YELLOW));
+        sender.sendMessage(I18n.component("stocks.history_header"));
         
         // Create mini sparkline
         String sparkline = createSparkline(history);
@@ -251,17 +245,12 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
             
             String timeStr = dateFormat.format(new Date(timestamp));
             
-            Component latestInfo = Component.text()
-                    .append(Component.text("   Latest: ", NamedTextColor.GRAY))
-                    .append(Component.text(String.format("$%.2f", price), NamedTextColor.WHITE))
-                    .append(Component.text(" at ", NamedTextColor.GRAY))
-                    .append(Component.text(timeStr, NamedTextColor.AQUA))
-                    .append(Component.text(" (", NamedTextColor.GRAY))
-                    .append(Component.text(reason != null ? reason : "unknown", NamedTextColor.DARK_GRAY))
-                    .append(Component.text(")", NamedTextColor.GRAY))
-                    .build();
-            
-            sender.sendMessage(latestInfo);
+            Map<String, Object> placeholders = Map.of(
+                "price", String.format("%.2f", price),
+                "time", timeStr,
+                "reason", reason != null ? reason : "unknown"
+            );
+            sender.sendMessage(I18n.component("stocks.history_latest", placeholders));
         }
     }
     

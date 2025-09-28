@@ -2,6 +2,7 @@ package com.example.quickstocks;
 
 import com.example.quickstocks.application.queries.QueryService;
 import com.example.quickstocks.commands.CryptoCommand;
+import com.example.quickstocks.commands.QuickStocksCommand;
 import com.example.quickstocks.commands.StocksCommand;
 import com.example.quickstocks.core.services.CryptoService;
 import com.example.quickstocks.core.services.SimulationEngine;
@@ -119,6 +120,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private void registerCommands() {
         StocksCommand stocksCommand = new StocksCommand(queryService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
+        QuickStocksCommand quickStocksCommand = new QuickStocksCommand();
         
         // Register the /stocks command
         getCommand("stocks").setExecutor(stocksCommand);
@@ -128,7 +130,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getCommand("crypto").setExecutor(cryptoCommand);
         getCommand("crypto").setTabCompleter(cryptoCommand);
         
-        getLogger().info("Registered /stocks and /crypto commands");
+        // Register the /quickstocks command
+        getCommand("quickstocks").setExecutor(quickStocksCommand);
+        getCommand("quickstocks").setTabCompleter(quickStocksCommand);
+        
+        getLogger().info("Registered /stocks, /crypto, and /quickstocks commands");
     }
     
     /**

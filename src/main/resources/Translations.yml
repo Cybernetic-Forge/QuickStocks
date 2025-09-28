@@ -30,8 +30,10 @@
 general:
   no_permission: "&cYou don't have permission."
   reloaded: "&aConfiguration reloaded."
+  translations_reloaded: "&aTranslations reloaded successfully!"
   invalid_number: "&cPlease enter a valid number."
   only_players: "&cOnly players can use this command."
+  database_error: "&c❌ Database error: {error}"
 
 market:
   open_title_items: "&bMarket — Items"
@@ -54,16 +56,21 @@ stocks:
   header_name: "NAME"
   header_price: "PRICE"
   header_change: "24H CHANGE"
-  not_found: "&cInstrument '{query}' not found."
-  card_header: "&6📊 {name} ({symbol}) [{type}]"
-  current_price: "&e💲 Current Price: &f${price}"
+  not_found: "&c❌ Stock not found: {query}"
+  not_found_hint: "&7💡 Use /stocks to see available stocks"
+  detail_hint: "&7💡 Use /stocks <symbol> for detailed information"
+  card_header: "&6📊 {name} ({symbol}) [{type}]" 
+  current_price: "&e💰 Price: &6${price}"
+  volatility_24h: "&e⚡ Volatility 24h: &f{volatility}"
+  market_cap: "&e🏢 Market Cap: &f${marketCap}"
   change_1h: "1H Change"
   change_24h: "24H Change"
   change_7d: "7D Change"
   volume_24h: "&e📊 24H Volume: &f{volume}"
-  market_cap: "&e🏦 Market Cap: &f${marketCap}"
   last_updated: "&7⏰ Last Updated: {time}"
   price_history: "&e📈 Price History (7 days): &f{sparkline}"
+  history_header: "&e📋 Last 10 history points:"
+  history_latest: "&7   Latest: &f${price} &7at &b{time} &7({reason})"
 
 crypto:
   title: "&6🪙 Crypto Commands"
@@ -99,3 +106,8 @@ plugin:
   disabled: "QuickStocks disabled successfully."
   initialized_stocks: "Initialized {count} default stocks"
   failed_initialize_stocks: "Failed to initialize default stocks: {error}"
+
+quickstocks:
+  usage_title: "&6⚙️ QuickStocks Admin Commands"
+  reload_usage: "&e• /quickstocks reload"
+  reload_description: "&7  Reloads translations and configuration"
