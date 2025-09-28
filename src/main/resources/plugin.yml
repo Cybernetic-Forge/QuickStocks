@@ -11,4 +11,12 @@ commands:
     description: "View stock market information and quotes"
     usage: "/stocks [symbol|material]"
     aliases: [stock, quote]
+  crypto:
+    description: "Create and manage custom cryptocurrency instruments"
+    usage: "/crypto create <symbol> <name>"
+    
+permissions:
+  maksy.stocks.crypto.create:
+    description: "Allows players to create custom cryptocurrency instruments"
+    default: false
 
