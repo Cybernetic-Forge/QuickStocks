@@ -111,3 +111,14 @@ quickstocks:
   usage_title: "&6⚙️ QuickStocks Admin Commands"
   reload_usage: "&e• /quickstocks reload"
   reload_description: "&7  Reloads translations and configuration"
+
+market_device:
+  no_permission: "&cYou don't have permission to use market device commands."
+  player_not_found: "&cPlayer '{player}' not found or not online."
+  device_given: "&aMarket Link Device given to {player}."
+  device_received: "&aYou received a Market Link Device! Right-click to use."
+  other_given: "&aGave Market Link Device to {player}."
+
+errors:
+  database: "&cDatabase error occurred. Please contact an administrator."
+  internal: "&cAn internal error occurred. Please try again."

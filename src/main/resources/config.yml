@@ -29,3 +29,8 @@ market:
   updateInterval: 5 # seconds
   startOpen: true
   defaultStocks: true
+
+# Market Device Configuration
+marketDevice:
+  enabled: true
+  craftingEnabled: true

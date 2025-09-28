@@ -253,4 +253,10 @@ System: Your balance: $1,500.00
 - Default settings ensure proper access control
 - Admin commands restricted to operators
 
+### Plugin Integration
+- All commands registered in `plugin.yml`
+- Services initialized in main plugin class
+- Database migrations run automatically
+- Permissions system integration
+
 This implementation provides a solid foundation for a complete trading system within Minecraft, with room for future enhancements and integrations.

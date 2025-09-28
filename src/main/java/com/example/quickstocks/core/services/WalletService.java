@@ -3,6 +3,7 @@ package com.example.quickstocks.core.services;
 import com.example.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -13,6 +14,7 @@ public class WalletService {
     
     private final Db database;
     private final Logger logger = Logger.getLogger(getClass().getName());
+    private final boolean useVault = false; // TODO: Implement Vault detection
     
     public WalletService(Db database) {
         this.database = database;
@@ -23,16 +25,22 @@ public class WalletService {
      * Falls back to internal wallet if Vault is not available.
      */
     public double getBalance(String playerUuid) throws SQLException {
-        // TODO: Check for Vault integration first
-        return getInternalBalance(playerUuid);
+        if (useVault) {
+            return getVaultBalance(playerUuid);
+        } else {
+            return getInternalBalance(playerUuid);
+        }
     }
     
     /**
      * Sets a player's balance.
      */
     public void setBalance(String playerUuid, double amount) throws SQLException {
-        // TODO: Check for Vault integration first
-        setInternalBalance(playerUuid, Math.max(0, amount));
+        if (useVault) {
+            setVaultBalance(playerUuid, amount);
+        } else {
+            setInternalBalance(playerUuid, Math.max(0, amount));
+        }
     }
     
     /**
