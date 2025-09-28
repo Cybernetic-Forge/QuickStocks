@@ -35,3 +35,11 @@ marketDevice:
   recipe:
     enabled: false # Enable crafting recipe for Market Device
     shapedRecipe: true # Use shaped recipe (3x3 grid)
+
+# Analytics Configuration
+analytics:
+  lambda: 0.94
+  defaultWindowsMinutes:
+    change: 1440  # 24 hours
+    volatility: 1440  # 24 hours  
+    correlation: 1440  # 24 hours

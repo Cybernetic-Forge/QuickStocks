@@ -1,5 +1,7 @@
 package com.example.quickstocks.infrastructure.db;
 
+import com.example.quickstocks.infrastructure.config.AnalyticsConfig;
+
 /**
  * Configuration holder for database settings.
  * Supports SQLite, MySQL, and PostgreSQL configurations.
@@ -29,6 +31,9 @@ public class DatabaseConfig {
     // Feature configuration
     private boolean historyEnabled = true;
     private int topListWindowHours = 24;
+    
+    // Analytics configuration
+    private AnalyticsConfig analytics = new AnalyticsConfig();
     
     // Getters and setters
     
@@ -152,5 +157,13 @@ public class DatabaseConfig {
     
     public void setTopListWindowHours(int topListWindowHours) {
         this.topListWindowHours = topListWindowHours;
+    }
+    
+    public AnalyticsConfig getAnalytics() {
+        return analytics;
+    }
+    
+    public void setAnalytics(AnalyticsConfig analytics) {
+        this.analytics = analytics;
     }
 }

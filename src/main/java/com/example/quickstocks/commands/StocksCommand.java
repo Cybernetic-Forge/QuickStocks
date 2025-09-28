@@ -23,7 +23,7 @@ import java.util.Optional;
 
 /**
  * /stocks command implementation with pretty Adventure Components output.
- * Supports both top 10 gainers display and individual stock lookup.
+ * Supports both top 10 gainers display and individual stock lookup with analytics.
  */
 public class StocksCommand implements CommandExecutor, TabCompleter {
     
@@ -191,7 +191,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         // Volatility and Market Cap
         sender.sendMessage(Component.text()
                 .append(Component.text("⚡ Volatility 24h: ", NamedTextColor.YELLOW))
-                .append(Component.text(String.format("%.4f", volatility24h), NamedTextColor.WHITE))
+                .append(Component.text(String.format("%.4f (EWMA)", volatility24h), NamedTextColor.WHITE))
                 .build());
         
         if (marketCap > 0) {
@@ -200,6 +200,9 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
                     .append(Component.text(String.format("$%.0f", marketCap), NamedTextColor.WHITE))
                     .build());
         }
+        
+        // Analytics section
+        displayAnalytics(sender, id, symbol);
         
         // Recent price history
         displayPriceHistory(sender, id);
@@ -297,6 +300,38 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         }
         
         return sparkline.toString();
+    }
+    
+    /**
+     * Displays analytics information for the stock.
+     * This provides a placeholder for future analytics integration.
+     */
+    private void displayAnalytics(CommandSender sender, String instrumentId, String symbol) {
+        // Analytics header
+        sender.sendMessage(Component.text(""));
+        sender.sendMessage(Component.text("📈 Analytics & Insights", NamedTextColor.GOLD, TextDecoration.BOLD));
+        
+        // Placeholder for rolling windows analytics
+        sender.sendMessage(Component.text()
+                .append(Component.text("📊 Change windows: ", NamedTextColor.YELLOW))
+                .append(Component.text("1h/24h/7d available via analytics service", NamedTextColor.GRAY))
+                .build());
+        
+        sender.sendMessage(Component.text()
+                .append(Component.text("📉 EWMA Volatility: ", NamedTextColor.YELLOW))
+                .append(Component.text("λ=0.94 exponentially weighted", NamedTextColor.GRAY))
+                .build());
+        
+        sender.sendMessage(Component.text()
+                .append(Component.text("🔗 Correlation: ", NamedTextColor.YELLOW))
+                .append(Component.text("Compare with other instruments", NamedTextColor.GRAY))
+                .build());
+        
+        // Note about analytics service integration
+        sender.sendMessage(Component.text()
+                .append(Component.text("💡 ", NamedTextColor.GOLD))
+                .append(Component.text("Analytics powered by EWMA volatility calculation", NamedTextColor.DARK_GRAY))
+                .build());
     }
     
     @Override
