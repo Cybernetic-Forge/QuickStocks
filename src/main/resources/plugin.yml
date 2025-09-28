@@ -14,9 +14,23 @@ commands:
   crypto:
     description: "Create and manage custom cryptocurrency instruments"
     usage: "/crypto create <symbol> <name>"
+  wallet:
+    description: "Manage your wallet balance"
+    usage: "/wallet [balance|add|set] [amount]"
+    aliases: [money, balance]
+  market:
+    description: "Browse and trade in the market"
+    usage: "/market [browse|buy|sell|portfolio|history]"
+    aliases: [trade, trading]
     
 permissions:
   quickstocks.command.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments"
     default: false
+  quickstocks.wallet.add:
+    description: "Allows players to add money to their wallet"
+    default: op
+  quickstocks.wallet.set:
+    description: "Allows players to set wallet balance"
+    default: op
 

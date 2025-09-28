@@ -22,6 +22,13 @@ public class QueryService {
     /**
      * Gets top N gainers based on 24h change.
      */
+    public List<Map<String, Object>> getTopGainers(int limit) throws SQLException {
+        return getTopGainersByChange24h(limit);
+    }
+    
+    /**
+     * Gets top N gainers based on 24h change.
+     */
     public List<Map<String, Object>> getTopGainersByChange24h(int limit) throws SQLException {
         return database.query("""
             SELECT 
@@ -153,5 +160,26 @@ public class QueryService {
         return java.util.stream.Stream.concat(symbols.stream(), materials.stream())
                 .distinct()
                 .toList();
+    }
+    
+    /**
+     * Gets instrument ID by symbol lookup.
+     */
+    public String getInstrumentIdBySymbol(String symbol) throws SQLException {
+        Map<String, Object> result = database.queryOne(
+            "SELECT id FROM instruments WHERE UPPER(symbol) = UPPER(?)", 
+            symbol
+        );
+        return result != null ? (String) result.get("id") : null;
+    }
+    
+    /**
+     * Gets current price for an instrument.
+     */
+    public Double getCurrentPrice(String instrumentId) throws SQLException {
+        return database.queryValue(
+            "SELECT last_price FROM instrument_state WHERE instrument_id = ?", 
+            instrumentId
+        );
     }
 }

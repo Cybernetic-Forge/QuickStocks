@@ -93,7 +93,8 @@ public class MigrationRunner {
         // In a real implementation, we'd scan the classpath for migration files
         // For now, we'll explicitly list the migrations we expect
         String[] expectedMigrations = {
-            "V1__init.sql"
+            "V1__init.sql",
+            "V2__holdings_orders.sql"
         };
         
         for (String filename : expectedMigrations) {
