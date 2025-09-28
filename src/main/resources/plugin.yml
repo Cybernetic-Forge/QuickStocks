@@ -14,9 +14,19 @@ commands:
   crypto:
     description: "Create and manage custom cryptocurrency instruments"
     usage: "/crypto create <symbol> <name>"
+  marketdevice:
+    description: "Grant Market Link Device items to players"
+    usage: "/marketdevice give [player]"
+    aliases: [mdevice]
     
 permissions:
   quickstocks.command.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments"
     default: false
+  maksy.stocks.crypto.create:
+    description: "Allows players to create custom cryptocurrency instruments (legacy)"
+    default: false
+  maksy.stocks.marketdevice.give:
+    description: "Allows giving Market Link Device items to players"
+    default: op
 
