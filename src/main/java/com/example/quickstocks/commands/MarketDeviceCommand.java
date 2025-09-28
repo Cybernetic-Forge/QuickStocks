@@ -119,7 +119,7 @@ public class MarketDeviceCommand implements CommandExecutor, TabCompleter {
             
             // Set lore
             List<String> lore = Arrays.asList(
-                translations.getMessage("market.device.lore.usage", "player", owner.getName()),
+                translations.getMessage("market.device.lore.usage"),
                 translations.getMessage("market.device.lore.bound", "player", owner.getName())
             );
             meta.setLore(lore);

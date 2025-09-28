@@ -97,16 +97,13 @@ public class MarketDeviceListener implements Listener {
     
     /**
      * Opens the market GUI/command for the player
-     * Since the issue mentions the GUI exists from Prompt A, we'll implement 
-     * a fallback that calls the stocks command for now
+     * Now properly opens the /market command interface
      */
     private void openMarketForPlayer(Player player) {
         player.sendMessage(translations.getMessage("market.device.opened"));
         
-        // Try to find and execute a market command
-        // For now, we'll use the stocks command as a market interface
-        // This can be replaced with actual GUI opening when available
-        player.performCommand("stocks");
+        // Execute the market command to open the market interface
+        player.performCommand("market");
     }
     
     /**

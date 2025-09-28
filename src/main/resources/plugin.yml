@@ -14,6 +14,10 @@ commands:
   crypto:
     description: "Create and manage custom cryptocurrency instruments"
     usage: "/crypto create <symbol> <name>"
+  market:
+    description: "Open the market interface and view trading information"
+    usage: "/market [symbol|material]"
+    aliases: [trading, trade]
   marketdevice:
     description: "Grant Market Link Device items to players"
     usage: "/marketdevice give [player]"

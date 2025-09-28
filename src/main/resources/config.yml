@@ -29,3 +29,9 @@ market:
   updateInterval: 5 # seconds
   startOpen: true
   defaultStocks: true
+
+# Market Device Configuration
+marketDevice:
+  recipe:
+    enabled: false # Enable crafting recipe for Market Device
+    shapedRecipe: true # Use shaped recipe (3x3 grid)
