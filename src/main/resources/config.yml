@@ -32,5 +32,6 @@ market:
 
 # Market Device Configuration
 marketDevice:
-  enabled: true
-  craftingEnabled: true
+  recipe:
+    enabled: false # Enable crafting recipe for Market Device
+    shapedRecipe: true # Use shaped recipe (3x3 grid)

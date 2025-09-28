@@ -14,10 +14,6 @@ commands:
   crypto:
     description: "Create and manage custom cryptocurrency instruments"
     usage: "/crypto create <symbol> <name>"
-  quickstocks:
-    description: "QuickStocks administration commands"
-    usage: "/quickstocks <reload>"
-    aliases: [qs]
   wallet:
     description: "Manage your wallet balance"
     usage: "/wallet [balance|add|set] [amount]"
@@ -35,9 +31,6 @@ permissions:
   quickstocks.command.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments"
     default: false
-  quickstocks.admin.reload:
-    description: "Allows reloading plugin configuration and translations"
-    default: op
   maksy.stocks.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments (legacy)"
     default: false

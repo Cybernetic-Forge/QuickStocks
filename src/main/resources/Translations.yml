@@ -1,23 +1,14 @@
-# QuickStocks Plugin Translations
+# QuickStocks Translations
+# Used for localization and customizable messages
 # 
-# Placeholders: Use {placeholder} format, e.g., {symbol}, {price}, {balance}
-# Color codes: Use & format, e.g., &a for green, &c for red, &b for aqua
-# 
-# Available placeholders:
-# - {symbol}: Stock/crypto symbol
-# - {name}: Display name
-# - {price}: Price value
-# - {balance}: Player balance
-# - {qty}: Quantity
-# - {change}: Percentage change
-# - {rank}: Ranking number
-# - {needed}: Amount needed
-# - {have}: Amount player has
-# - {owned}: Amount player owns
-# - {side}: Buy/sell side
-# - {query}: Search query
-# - {permission}: Permission node
-# - {status}: Status message
+# Color Codes: Use & for colors (&c = red, &a = green, &e = yellow, &7 = gray, etc.)
+# Placeholders: Use {placeholder} format for dynamic values (e.g., {symbol}, {price}, {player})
+#
+# Examples:
+#   message: "&aHello {player}!"     # Green text with player name
+#   price: "&e${price}"              # Yellow dollar amount
+#   error: "&cError: {error}"        # Red error message
+#
 # - {error}: Error message
 # - {count}: Count/number
 # - {time}: Time/timestamp
@@ -114,7 +105,9 @@ quickstocks:
 
 market_device:
   no_permission: "&cYou don't have permission to use market device commands."
-  player_not_found: "&cPlayer '{player}' not found or not online."
+  usage: "&cUsage: /marketdevice give [player]"
+  player_not_found: "&cPlayer '{player}' not found."
+  self_given: "&aYou received a Market Link Device!"
   device_given: "&aMarket Link Device given to {player}."
   device_received: "&aYou received a Market Link Device! Right-click to use."
   other_given: "&aGave Market Link Device to {player}."

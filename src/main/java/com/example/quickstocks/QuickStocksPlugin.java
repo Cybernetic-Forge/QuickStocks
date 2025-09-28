@@ -4,7 +4,6 @@ import com.example.quickstocks.application.queries.QueryService;
 import com.example.quickstocks.commands.CryptoCommand;
 import com.example.quickstocks.commands.MarketCommand;
 import com.example.quickstocks.commands.MarketDeviceCommand;
-import com.example.quickstocks.commands.QuickStocksCommand;
 import com.example.quickstocks.commands.StocksCommand;
 import com.example.quickstocks.commands.WalletCommand;
 import com.example.quickstocks.core.services.CryptoService;
@@ -84,11 +83,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
             MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
             recipeManager = new RecipeManager(this, marketDeviceCommand, translationManager);
             
-            // Register recipes
-            registerRecipes();
-            
             // Register listeners
             registerListeners();
+            
+            // Register recipes
+            registerRecipes();
             
             // Start the simulation engine
             simulationEngine.start();
@@ -120,6 +119,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Close the market
         if (stockMarketService != null) {
             stockMarketService.setMarketOpen(false);
+        }
+        
+        // Remove recipes
+        if (recipeManager != null) {
+            recipeManager.removeRecipes();
         }
         
         // Shutdown database
@@ -157,7 +161,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private void registerCommands() {
         StocksCommand stocksCommand = new StocksCommand(queryService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
-        QuickStocksCommand quickStocksCommand = new QuickStocksCommand();
         WalletCommand walletCommand = new WalletCommand(walletService);
         MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService);
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
@@ -169,10 +172,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Register the /crypto command
         getCommand("crypto").setExecutor(cryptoCommand);
         getCommand("crypto").setTabCompleter(cryptoCommand);
-        
-        // Register the /quickstocks command
-        getCommand("quickstocks").setExecutor(quickStocksCommand);
-        getCommand("quickstocks").setTabCompleter(quickStocksCommand);
         
         // Register the /wallet command
         getCommand("wallet").setExecutor(walletCommand);
@@ -186,7 +185,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getCommand("marketdevice").setExecutor(marketDeviceCommand);
         getCommand("marketdevice").setTabCompleter(marketDeviceCommand);
         
-        getLogger().info("Registered /stocks, /crypto, /quickstocks, /wallet, /market, and /marketdevice commands");
+        getLogger().info("Registered /stocks, /crypto, /wallet, /market, and /marketdevice commands");
     }
     
     /**

@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS wallets (
 4. Debit wallet balance
 5. Add shares to holdings (with average cost calculation)
 6. Record order in history
+7. Rollback on any failure
 
 ### Sell Order Execution
 1. Get current price from `instrument_state`
@@ -252,6 +253,12 @@ System: Your balance: $1,500.00
 - New permissions added to `plugin.yml`
 - Default settings ensure proper access control
 - Admin commands restricted to operators
+
+### Existing Systems
+- Uses existing `instruments` and `instrument_state` tables
+- Integrates with simulation engine for live prices  
+- Compatible with existing `/stocks` command
+- Works with crypto creation system
 
 ### Plugin Integration
 - All commands registered in `plugin.yml`
