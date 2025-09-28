@@ -35,3 +35,25 @@ marketDevice:
   recipe:
     enabled: false # Enable crafting recipe for Market Device
     shapedRecipe: true # Use shaped recipe (3x3 grid)
+
+# Trading Economy Configuration
+trading:
+  fee:
+    mode: percent   # percent | flat | mixed
+    percent: 0.25   # % of notional
+    flat: 0.0
+  limits:
+    maxOrderQty: 10000
+    maxNotionalPerMinute: 250000
+    perPlayerCooldownMs: 750
+  circuitBreakers:
+    enable: true
+    levels: [7, 13, 20]     # halt thresholds in % move from daily open
+    haltMinutes: [15, 15, -1] # -1 = rest of session
+  orders:
+    allowMarket: true
+    allowLimit: true
+    allowStop: true
+  slippage:
+    mode: linear            # none | linear | sqrtImpact
+    k: 0.0005               # impact coefficient (tune)
