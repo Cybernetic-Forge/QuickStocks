@@ -4,7 +4,14 @@ import com.example.quickstocks.application.queries.QueryService;
 import com.example.quickstocks.commands.CryptoCommand;
 import com.example.quickstocks.commands.QuickStocksCommand;
 import com.example.quickstocks.commands.StocksCommand;
+// TODO: Add these when the respective command classes are created
+// import com.example.quickstocks.commands.WalletCommand; 
+// import com.example.quickstocks.commands.MarketCommand;
 import com.example.quickstocks.core.services.CryptoService;
+// TODO: Add these when the respective service classes are created
+// import com.example.quickstocks.core.services.HoldingsService;
+// import com.example.quickstocks.core.services.TradingService;
+import com.example.quickstocks.core.services.WalletService;
 import com.example.quickstocks.core.services.SimulationEngine;
 import com.example.quickstocks.core.services.StockMarketService;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
@@ -22,6 +29,10 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private DatabaseManager databaseManager;
     private QueryService queryService;
     private CryptoService cryptoService;
+    private WalletService walletService;
+    // TODO: Add these when the respective service classes are created
+    // private HoldingsService holdingsService;
+    // private TradingService tradingService;
     private BukkitRunnable marketUpdateTask;
 
     @Override
@@ -46,6 +57,13 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Initialize crypto service
             cryptoService = new CryptoService(databaseManager.getDb());
+            
+            // Initialize wallet service
+            walletService = new WalletService(databaseManager.getDb());
+            
+            // TODO: Initialize additional services when created
+            // holdingsService = new HoldingsService(databaseManager.getDb());
+            // tradingService = new TradingService(databaseManager.getDb(), walletService, holdingsService);
             
             // Add some default stocks for demonstration
             initializeDefaultStocks();
@@ -133,6 +151,15 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Register the /quickstocks command
         getCommand("quickstocks").setExecutor(quickStocksCommand);
         getCommand("quickstocks").setTabCompleter(quickStocksCommand);
+        
+        // TODO: Register additional commands when their classes are created
+        // WalletCommand walletCommand = new WalletCommand(walletService);
+        // getCommand("wallet").setExecutor(walletCommand);
+        // getCommand("wallet").setTabCompleter(walletCommand);
+        
+        // MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService);
+        // getCommand("market").setExecutor(marketCommand);
+        // getCommand("market").setTabCompleter(marketCommand);
         
         getLogger().info("Registered /stocks, /crypto, and /quickstocks commands");
     }
