@@ -317,17 +317,16 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(ChatColor.RED + "Invalid quantity: " + qtyStr);
         }
     }
-    }
-    
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
             return Arrays.asList("browse", "buy", "sell", "portfolio", "history", "confirm")
-                .stream()
-                .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
         }
-        
+
         return null;
     }
 }

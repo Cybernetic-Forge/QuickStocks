@@ -55,7 +55,7 @@ public class HoldingsService {
     /**
      * Gets a specific holding for a player and instrument.
      */
-    public Holding getHolding(String playerUuid, String instrumentId) throws SQLException {
+    public Holding getHolding(String playerUuid, String instrumentId) {
         Map<String, Object> result = database.queryRow(
             """
             SELECT h.instrument_id, h.qty, h.avg_cost, i.symbol, i.display_name, s.last_price

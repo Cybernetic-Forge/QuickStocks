@@ -173,7 +173,11 @@ public class Db {
             stmt.setObject(i + 1, params[i]);
         }
     }
-    
+
+    public Map<String, Object> queryRow(String s, String playerUuid, String instrumentId) {
+        return null;
+    }
+
     /**
      * Functional interface for transaction blocks.
      */
