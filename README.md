@@ -67,6 +67,7 @@ mvn exec:java -Dexec.mainClass="com.example.quickstocks.StocksCommandDemo"
 - **Stock Details**: `/stocks SYMBOL` displays comprehensive stock information
 - **Material Lookup**: `/stocks diamond` finds stocks by Minecraft materials
 - **Crypto Creation**: `/crypto create SYMBOL "Name"` for custom cryptocurrencies
+- **Admin Reload**: `/quickstocks reload` reloads translations and configuration
 
 ### 🔧 Technical Features
 - **Multi-Database**: SQLite (default), MySQL, PostgreSQL support
@@ -74,6 +75,15 @@ mvn exec:java -Dexec.mainClass="com.example.quickstocks.StocksCommandDemo"
 - **Schema Migrations**: Automatic database versioning
 - **Comprehensive Testing**: 40+ unit and integration tests
 - **Performance Optimized**: Async operations and efficient queries
+
+### 🌐 Internationalization (I18n) System
+- **Translation Support**: All player-facing messages extracted to YAML files
+- **Hot Reload**: `/quickstocks reload` updates translations without server restart
+- **Fallback System**: Missing translations fall back to English defaults gracefully
+- **Color Code Support**: Full Adventure Component integration with `&` color codes
+- **Placeholder System**: Dynamic values like `{symbol}`, `{price}`, `{player}`
+- **Developer Friendly**: Simple `I18n.tr()` and `I18n.component()` methods
+- **No Hardcoded Strings**: Enforced coding standard for maintainable messages
 
 ## Plugin Configuration
 
@@ -139,6 +149,44 @@ mvn exec:java -Dexec.mainClass="com.example.quickstocks.SimulationDemo"
 - **Database Abstraction**: Multi-provider support with migration system
 - **Service Layer**: CryptoService, StockMarketService, QueryService
 - **Command Pattern**: Proper Bukkit command executors with tab completion
+
+## Customizing Messages & Translations
+
+The plugin includes a comprehensive I18n system for customizing all player-facing messages:
+
+### Translation File Location
+```
+plugins/QuickStocks/Translations.yml
+```
+
+### Example Translations
+```yaml
+general:
+  no_permission: "&cYou don't have permission."
+  database_error: "&c❌ Database error: {error}"
+
+stocks:
+  top10_header: "&6📈 TOP 10 GAINERS (24H)"
+  not_found: "&c❌ Stock not found: {query}"
+  current_price: "&e💰 Price: &6${price}"
+
+crypto:
+  success_title: "&a🎉 Custom Crypto Created Successfully!"
+  invalid_symbol: "&c❌ Invalid symbol. Use A-Z, 0-9, underscore, 2-12 chars."
+```
+
+### Customization Features
+- **Color Codes**: Use `&` format (`&a` = green, `&c` = red, `&e` = yellow)
+- **Placeholders**: Dynamic values like `{symbol}`, `{price}`, `{player}`, `{error}`
+- **Hot Reload**: Use `/quickstocks reload` to update messages without restart
+- **Fallback Safety**: Missing keys automatically use English defaults
+
+### Developer Guidelines
+See [COPILOT.md](COPILOT.md) for complete I18n development guidelines including:
+- Translation key naming conventions
+- Placeholder usage patterns  
+- Color code standards
+- **Rule**: No hardcoded strings in new code
 
 ## Migration from Demo to Production
 
