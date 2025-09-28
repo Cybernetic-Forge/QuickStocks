@@ -174,8 +174,8 @@ public class Db {
         }
     }
 
-    public Map<String, Object> queryRow(String s, String playerUuid, String instrumentId) {
-        return null;
+    public Map<String, Object> queryRow(String sql, Object... params) throws SQLException {
+        return queryOne(sql, params);
     }
 
     /**

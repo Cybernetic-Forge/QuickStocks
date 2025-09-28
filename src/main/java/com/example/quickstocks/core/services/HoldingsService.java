@@ -56,29 +56,34 @@ public class HoldingsService {
      * Gets a specific holding for a player and instrument.
      */
     public Holding getHolding(String playerUuid, String instrumentId) {
-        Map<String, Object> result = database.queryRow(
-            """
-            SELECT h.instrument_id, h.qty, h.avg_cost, i.symbol, i.display_name, s.last_price
-            FROM user_holdings h
-            JOIN instruments i ON h.instrument_id = i.id
-            LEFT JOIN instrument_state s ON h.instrument_id = s.instrument_id
-            WHERE h.player_uuid = ? AND h.instrument_id = ?
-            """,
-            playerUuid, instrumentId
-        );
-        
-        if (result == null) {
+        try {
+            Map<String, Object> result = database.queryRow(
+                """
+                SELECT h.instrument_id, h.qty, h.avg_cost, i.symbol, i.display_name, s.last_price
+                FROM user_holdings h
+                JOIN instruments i ON h.instrument_id = i.id
+                LEFT JOIN instrument_state s ON h.instrument_id = s.instrument_id
+                WHERE h.player_uuid = ? AND h.instrument_id = ?
+                """,
+                playerUuid, instrumentId
+            );
+            
+            if (result == null) {
+                return null;
+            }
+            
+            return new Holding(
+                (String) result.get("instrument_id"),
+                (String) result.get("symbol"),
+                (String) result.get("display_name"),
+                ((Number) result.get("qty")).doubleValue(),
+                ((Number) result.get("avg_cost")).doubleValue(),
+                result.get("last_price") != null ? ((Number) result.get("last_price")).doubleValue() : 0.0
+            );
+        } catch (SQLException e) {
+            logger.warning("Error getting holding for player " + playerUuid + " and instrument " + instrumentId + ": " + e.getMessage());
             return null;
         }
-        
-        return new Holding(
-            (String) result.get("instrument_id"),
-            (String) result.get("symbol"),
-            (String) result.get("display_name"),
-            ((Number) result.get("qty")).doubleValue(),
-            ((Number) result.get("avg_cost")).doubleValue(),
-            result.get("last_price") != null ? ((Number) result.get("last_price")).doubleValue() : 0.0
-        );
     }
     
     /**
