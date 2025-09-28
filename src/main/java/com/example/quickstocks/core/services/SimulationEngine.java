@@ -447,4 +447,28 @@ public class SimulationEngine {
     public AnalyticsService getAnalyticsService() {
         return analyticsService;
     }
+    
+    /**
+     * Records portfolio values for all players (for Sharpe ratio calculations).
+     * This should be called periodically, e.g., once per hour or day.
+     * Note: This is a placeholder - real implementation would query actual player portfolios.
+     */
+    public void recordPortfolioSnapshots() {
+        try {
+            logger.fine("Recording portfolio snapshots for Sharpe ratio calculations");
+            
+            // TODO: In real implementation, query actual player portfolios from holdings/wallet data
+            // For now, this is a placeholder that shows the integration pattern
+            
+            // Example of how this would work:
+            // 1. Query all active players
+            // 2. Calculate their current portfolio value (cash + holdings)
+            // 3. Record the snapshot using analyticsService.recordPortfolioValue()
+            
+            logger.fine("Portfolio snapshot recording placeholder - integrate with actual portfolio service");
+            
+        } catch (Exception e) {
+            logger.warning("Failed to record portfolio snapshots: " + e.getMessage());
+        }
+    }
 }

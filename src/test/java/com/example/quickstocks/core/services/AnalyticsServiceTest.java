@@ -193,12 +193,107 @@ class AnalyticsServiceTest {
     }
 
     @Test
-    void testGetSharpe_ReturnsZeroForNow() {
-        // Act - getSharpe currently returns 0.0 as portfolio tracking is not implemented
-        double sharpe = analyticsService.getSharpe("player-uuid", 30, 0.02);
+    void testGetSharpe_WithPortfolioData() throws Exception {
+        // Arrange - mock portfolio data with decent returns and volatility
+        String playerUuid = "test-player";
+        int windowDays = 30;
+        double riskFree = 0.02; // 2% annual risk-free rate
+        
+        List<Map<String, Object>> sharpeData = new ArrayList<>();
+        Map<String, Object> sharpeRow = new HashMap<>();
+        sharpeRow.put("avg_return", 0.001); // 0.1% daily return
+        sharpeRow.put("return_std_dev", 0.01); // 1% daily volatility
+        sharpeRow.put("return_count", 10);
+        sharpeRow.put("total_return", 0.10); // 10% total return
+        sharpeData.add(sharpeRow);
+
+        when(database.query(contains("sharpe_ratio_data"), eq(playerUuid)))
+            .thenReturn(sharpeData);
+
+        // Act
+        double sharpe = analyticsService.getSharpe(playerUuid, windowDays, riskFree);
 
         // Assert
-        assertEquals(0.0, sharpe, "Sharpe ratio should return 0.0 until portfolio tracking is implemented");
+        assertTrue(sharpe > 0, "Player with positive excess returns should have positive Sharpe ratio, got: " + sharpe);
+        // Expected: (0.001 - 0.02/365) / 0.01 ≈ (0.001 - 0.0000548) / 0.01 ≈ 0.094
+        assertTrue(sharpe > 0.09 && sharpe < 0.1, "Sharpe ratio should be around 0.094, got: " + sharpe);
+    }
+
+    @Test
+    void testGetSharpe_WithNoData() throws Exception {
+        // Arrange
+        String playerUuid = "no-data-player";
+        int windowDays = 30;
+        double riskFree = 0.02;
+        
+        when(database.query(contains("sharpe_ratio_data"), eq(playerUuid)))
+            .thenReturn(new ArrayList<>());
+
+        // Act
+        double sharpe = analyticsService.getSharpe(playerUuid, windowDays, riskFree);
+
+        // Assert
+        assertEquals(0.0, sharpe, "Player with no data should have Sharpe ratio of 0.0");
+    }
+
+    @Test
+    void testRecordPortfolioValue() throws Exception {
+        // Arrange
+        String playerUuid = "test-player";
+        double totalValue = 1000.0;
+        double cashBalance = 200.0;
+        double holdingsValue = 800.0;
+
+        // Act
+        analyticsService.recordPortfolioValue(playerUuid, totalValue, cashBalance, holdingsValue);
+
+        // Assert
+        verify(database).execute(
+            contains("INSERT INTO portfolio_history"),
+            any(String.class), // id
+            eq(playerUuid),
+            any(Long.class), // ts
+            eq(totalValue),
+            eq(cashBalance),
+            eq(holdingsValue),
+            any(Long.class) // created_at
+        );
+    }
+
+    @Test
+    void testGetSharpeLeaderboard() throws Exception {
+        // Arrange
+        int limit = 5;
+        double riskFreeRate = 0.02;
+        
+        List<Map<String, Object>> leaderboardData = new ArrayList<>();
+        
+        // Add some mock leaderboard data
+        Map<String, Object> player1 = new HashMap<>();
+        player1.put("player_uuid", "player1");
+        player1.put("avg_return", 0.002);
+        player1.put("return_std_dev", 0.01);
+        player1.put("sharpe_ratio", 0.194);
+        leaderboardData.add(player1);
+        
+        Map<String, Object> player2 = new HashMap<>();
+        player2.put("player_uuid", "player2");
+        player2.put("avg_return", 0.001);
+        player2.put("return_std_dev", 0.01);
+        player2.put("sharpe_ratio", 0.094);
+        leaderboardData.add(player2);
+
+        when(database.query(contains("sharpe_ratio_data"), anyDouble(), eq(limit)))
+            .thenReturn(leaderboardData);
+
+        // Act
+        List<Map<String, Object>> leaderboard = analyticsService.getSharpeLeaderboard(limit, riskFreeRate);
+
+        // Assert
+        assertEquals(2, leaderboard.size());
+        assertEquals("player1", leaderboard.get(0).get("player_uuid"));
+        assertTrue(((Number) leaderboard.get(0).get("sharpe_ratio")).doubleValue() > 
+                  ((Number) leaderboard.get(1).get("sharpe_ratio")).doubleValue());
     }
 
     @Test

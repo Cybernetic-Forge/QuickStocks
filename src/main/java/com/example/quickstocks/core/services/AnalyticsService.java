@@ -200,14 +200,41 @@ public class AnalyticsService {
      */
     public double getSharpe(String playerUuid, int windowDays, double riskFree) {
         try {
-            long windowStart = System.currentTimeMillis() - (windowDays * 24 * 60 * 60 * 1000L);
+            // Query portfolio performance data for the player within the window
+            var results = database.query("""
+                SELECT 
+                    avg_return,
+                    return_std_dev,
+                    return_count,
+                    total_return
+                FROM sharpe_ratio_data 
+                WHERE player_uuid = ?
+                """, playerUuid);
             
-            // Get player's portfolio performance over time
-            // This would require portfolio value tracking - for now return 0.0
-            // TODO: Implement portfolio value tracking
-            logger.info("Sharpe ratio calculation requires portfolio tracking - returning 0.0 for now");
+            if (results.isEmpty()) {
+                logger.info("No portfolio data found for player " + playerUuid + " - Sharpe ratio cannot be calculated");
+                return 0.0;
+            }
             
-            return 0.0;
+            var result = results.get(0);
+            double avgReturn = ((Number) result.get("avg_return")).doubleValue();
+            double stdDev = ((Number) result.get("return_std_dev")).doubleValue();
+            int returnCount = ((Number) result.get("return_count")).intValue();
+            
+            // Need sufficient data points and non-zero standard deviation
+            if (returnCount < 5 || stdDev <= 0.0) {
+                logger.fine("Insufficient data or zero volatility for Sharpe calculation for player " + playerUuid);
+                return 0.0;
+            }
+            
+            // Calculate Sharpe ratio: (Average Return - Risk Free Rate) / Standard Deviation
+            double excessReturn = avgReturn - (riskFree / 365.0); // Convert annual risk-free rate to daily
+            double sharpeRatio = excessReturn / stdDev;
+            
+            logger.fine(String.format("Calculated Sharpe ratio for %s: %.4f (avg_return=%.6f, std_dev=%.6f, excess=%.6f)", 
+                playerUuid, sharpeRatio, avgReturn, stdDev, excessReturn));
+            
+            return sharpeRatio;
             
         } catch (Exception e) {
             logger.warning("Failed to calculate Sharpe ratio for player " + playerUuid + ": " + e.getMessage());
@@ -265,4 +292,94 @@ public class AnalyticsService {
     public int getDefaultChangeWindow() { return defaultChangeWindow; }
     public int getDefaultVolatilityWindow() { return defaultVolatilityWindow; }
     public int getDefaultCorrelationWindow() { return defaultCorrelationWindow; }
+    
+    /**
+     * Records a portfolio value snapshot for Sharpe ratio calculations.
+     * This should be called periodically to build portfolio history.
+     * @param playerUuid Player UUID
+     * @param totalValue Current total portfolio value
+     * @param cashBalance Cash balance
+     * @param holdingsValue Value of all holdings
+     */
+    public void recordPortfolioValue(String playerUuid, double totalValue, double cashBalance, double holdingsValue) {
+        try {
+            String id = java.util.UUID.randomUUID().toString();
+            long currentTime = System.currentTimeMillis();
+            
+            database.execute("""
+                INSERT INTO portfolio_history 
+                (id, player_uuid, ts, total_value, cash_balance, holdings_value, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, id, playerUuid, currentTime, totalValue, cashBalance, holdingsValue, currentTime);
+                
+            logger.fine(String.format("Recorded portfolio value for %s: total=%.2f, cash=%.2f, holdings=%.2f", 
+                playerUuid, totalValue, cashBalance, holdingsValue));
+                
+        } catch (Exception e) {
+            logger.warning("Failed to record portfolio value for player " + playerUuid + ": " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Gets portfolio performance summary for a player.
+     * @param playerUuid Player UUID
+     * @return Map containing performance metrics, or empty map if no data
+     */
+    public Map<String, Object> getPortfolioPerformance(String playerUuid) {
+        try {
+            var results = database.query("""
+                SELECT 
+                    avg_return,
+                    return_std_dev,
+                    return_count,
+                    total_return
+                FROM sharpe_ratio_data 
+                WHERE player_uuid = ?
+                """, playerUuid);
+            
+            if (results.isEmpty()) {
+                return new HashMap<>();
+            }
+            
+            return results.get(0);
+            
+        } catch (Exception e) {
+            logger.warning("Failed to get portfolio performance for player " + playerUuid + ": " + e.getMessage());
+            return new HashMap<>();
+        }
+    }
+    
+    /**
+     * Gets Sharpe ratio leaderboard - players with best risk-adjusted returns.
+     * @param limit Maximum number of players to return
+     * @param riskFreeRate Risk-free rate for Sharpe calculation
+     * @return List of player performance data ordered by Sharpe ratio (descending)
+     */
+    public List<Map<String, Object>> getSharpeLeaderboard(int limit, double riskFreeRate) {
+        try {
+            var results = database.query("""
+                SELECT 
+                    player_uuid,
+                    avg_return,
+                    return_std_dev,
+                    return_count,
+                    total_return,
+                    CASE 
+                        WHEN return_std_dev > 0 THEN (avg_return - ?) / return_std_dev
+                        ELSE 0.0
+                    END as sharpe_ratio
+                FROM sharpe_ratio_data 
+                WHERE return_count >= 5 AND return_std_dev > 0
+                ORDER BY sharpe_ratio DESC
+                LIMIT ?
+                """, riskFreeRate / 365.0, limit); // Convert annual rate to daily
+            
+            logger.fine("Retrieved " + results.size() + " players for Sharpe leaderboard");
+            return results;
+            
+        } catch (Exception e) {
+            logger.warning("Failed to get Sharpe leaderboard: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
 }
