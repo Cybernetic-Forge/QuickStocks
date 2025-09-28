@@ -16,7 +16,7 @@ commands:
     usage: "/crypto create <symbol> <name>"
     
 permissions:
-  maksy.stocks.crypto.create:
+  quickstocks.command.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments"
     default: false
 

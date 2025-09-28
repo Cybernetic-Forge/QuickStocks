@@ -60,9 +60,9 @@ Choose one of the following dependency configurations in `pom.xml`:
 
 Rename the following files to activate them:
 ```bash
-mv src/main/java/com/example/quickstocks/QuickStocksPlugin.java.ready src/main/java/com/example/quickstocks/QuickStocksPlugin.java
-mv src/main/java/com/example/quickstocks/commands/StocksCommand.java.ready src/main/java/com/example/quickstocks/commands/StocksCommand.java
-mv src/main/java/com/example/quickstocks/commands/CryptoCommand.java.ready src/main/java/com/example/quickstocks/commands/CryptoCommand.java
+mv src/main/java/com/example/quickstocks/QuickStocksPlugin.java src/main/java/com/example/quickstocks/QuickStocksPlugin.java
+mv src/main/java/com/example/quickstocks/commands/StocksCommand.java src/main/java/com/example/quickstocks/commands/StocksCommand.java
+mv src/main/java/com/example/quickstocks/commands/CryptoCommand.java src/main/java/com/example/quickstocks/commands/CryptoCommand.java
 ```
 
 ### Step 3: Build the Plugin

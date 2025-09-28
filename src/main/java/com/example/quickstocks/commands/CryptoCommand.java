@@ -91,7 +91,7 @@ public class CryptoCommand implements CommandExecutor, TabCompleter {
             
             sender.sendMessage(Component.text()
                     .append(Component.text("💰 Symbol: ", NamedTextColor.YELLOW))
-                    .append(Component.text(symbol.toUpperCase(), NamedTextColor.CYAN, TextDecoration.BOLD))
+                    .append(Component.text(symbol.toUpperCase(), NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
                     .build());
             
             sender.sendMessage(Component.text()

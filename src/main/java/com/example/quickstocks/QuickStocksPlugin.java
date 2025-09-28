@@ -8,7 +8,6 @@ import com.example.quickstocks.core.services.SimulationEngine;
 import com.example.quickstocks.core.services.StockMarketService;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 import com.example.quickstocks.infrastructure.db.DatabaseManager;
-import com.example.quickstocks.infrastructure.db.Db;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -82,11 +81,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         
         // Shutdown database
         if (databaseManager != null) {
-            try {
-                databaseManager.shutdown();
-            } catch (SQLException e) {
-                getLogger().warning("Error shutting down database: " + e.getMessage());
-            }
+            databaseManager.shutdown();
         }
         
         getLogger().info("QuickStocks disabled");

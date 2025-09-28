@@ -112,7 +112,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         Component row = Component.text()
                 .append(Component.text(String.format("%2d", rank), NamedTextColor.YELLOW))
                 .append(Component.text("   │ ", NamedTextColor.GRAY))
-                .append(Component.text(String.format("%-6s", symbol), NamedTextColor.CYAN))
+                .append(Component.text(String.format("%-6s", symbol), NamedTextColor.DARK_BLUE))
                 .append(Component.text(" │ ", NamedTextColor.GRAY))
                 .append(Component.text(String.format("%-15s", shortName), NamedTextColor.WHITE))
                 .append(Component.text(" │ ", NamedTextColor.GRAY))
@@ -170,7 +170,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
                 .append(Component.text("📊 ", NamedTextColor.GOLD))
                 .append(Component.text(displayName, NamedTextColor.WHITE, TextDecoration.BOLD))
                 .append(Component.text(" (", NamedTextColor.GRAY))
-                .append(Component.text(symbol, NamedTextColor.CYAN, TextDecoration.BOLD))
+                .append(Component.text(symbol, NamedTextColor.DARK_BLUE, TextDecoration.BOLD))
                 .append(Component.text(") ", NamedTextColor.GRAY))
                 .append(Component.text("[" + type + "]", NamedTextColor.DARK_GRAY))
                 .build();
