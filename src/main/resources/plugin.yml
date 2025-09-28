@@ -20,7 +20,7 @@ commands:
     aliases: [money, balance]
   market:
     description: "Browse and trade in the market"
-    usage: "/market [browse|buy|sell|portfolio|history]"
+    usage: "/market [browse|buy|sell|portfolio|history|watchlist]"
     aliases: [trade, trading]
   marketdevice:
     description: "Grant Market Link Device items to players"
