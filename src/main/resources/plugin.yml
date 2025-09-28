@@ -14,10 +14,14 @@ commands:
   crypto:
     description: "Create and manage custom cryptocurrency instruments"
     usage: "/crypto create <symbol> <name>"
+  wallet:
+    description: "Manage your wallet balance"
+    usage: "/wallet [balance|add|set] [amount]"
+    aliases: [money, balance]
   market:
-    description: "Open the market interface and view trading information"
-    usage: "/market [symbol|material]"
-    aliases: [trading, trade]
+    description: "Browse and trade in the market"
+    usage: "/market [browse|buy|sell|portfolio|history]"
+    aliases: [trade, trading]
   marketdevice:
     description: "Grant Market Link Device items to players"
     usage: "/marketdevice give [player]"
@@ -32,5 +36,11 @@ permissions:
     default: false
   maksy.stocks.marketdevice.give:
     description: "Allows giving Market Link Device items to players"
+    default: op
+  quickstocks.wallet.add:
+    description: "Allows players to add money to their wallet"
+    default: op
+  quickstocks.wallet.set:
+    description: "Allows players to set wallet balance"
     default: op
 

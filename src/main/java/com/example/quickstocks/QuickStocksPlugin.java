@@ -5,9 +5,13 @@ import com.example.quickstocks.commands.CryptoCommand;
 import com.example.quickstocks.commands.MarketCommand;
 import com.example.quickstocks.commands.MarketDeviceCommand;
 import com.example.quickstocks.commands.StocksCommand;
+import com.example.quickstocks.commands.WalletCommand;
 import com.example.quickstocks.core.services.CryptoService;
+import com.example.quickstocks.core.services.HoldingsService;
 import com.example.quickstocks.core.services.SimulationEngine;
 import com.example.quickstocks.core.services.StockMarketService;
+import com.example.quickstocks.core.services.TradingService;
+import com.example.quickstocks.core.services.WalletService;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 import com.example.quickstocks.infrastructure.db.DatabaseManager;
 import com.example.quickstocks.listeners.CraftingListener;
@@ -28,6 +32,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private CryptoService cryptoService;
     private TranslationManager translationManager;
     private RecipeManager recipeManager;
+    private WalletService walletService;
+    private HoldingsService holdingsService;
+    private TradingService tradingService;
     private BukkitRunnable marketUpdateTask;
 
     @Override
@@ -52,6 +59,15 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Initialize crypto service
             cryptoService = new CryptoService(databaseManager.getDb());
+            
+            // Initialize wallet service
+            walletService = new WalletService(databaseManager.getDb());
+            
+            // Initialize holdings service
+            holdingsService = new HoldingsService(databaseManager.getDb());
+            
+            // Initialize trading service
+            tradingService = new TradingService(databaseManager.getDb(), walletService, holdingsService);
             
             // Add some default stocks for demonstration
             initializeDefaultStocks();
@@ -140,7 +156,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private void registerCommands() {
         StocksCommand stocksCommand = new StocksCommand(queryService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
-        MarketCommand marketCommand = new MarketCommand(queryService, translationManager);
+        WalletCommand walletCommand = new WalletCommand(walletService);
+        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService);
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
         
         // Register the /stocks command
@@ -151,6 +168,10 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getCommand("crypto").setExecutor(cryptoCommand);
         getCommand("crypto").setTabCompleter(cryptoCommand);
         
+        // Register the /wallet command
+        getCommand("wallet").setExecutor(walletCommand);
+        getCommand("wallet").setTabCompleter(walletCommand);
+        
         // Register the /market command
         getCommand("market").setExecutor(marketCommand);
         getCommand("market").setTabCompleter(marketCommand);
@@ -159,7 +180,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getCommand("marketdevice").setExecutor(marketDeviceCommand);
         getCommand("marketdevice").setTabCompleter(marketDeviceCommand);
         
-        getLogger().info("Registered /stocks, /crypto, /market, and /marketdevice commands");
+        getLogger().info("Registered /stocks, /crypto, /wallet, /market, and /marketdevice commands");
     }
     
     /**
