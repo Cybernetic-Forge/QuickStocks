@@ -1,7 +1,9 @@
 package com.example.quickstocks;
 
 import com.example.quickstocks.application.queries.QueryService;
+import com.example.quickstocks.commands.CryptoCommand;
 import com.example.quickstocks.commands.StocksCommand;
+import com.example.quickstocks.core.services.CryptoService;
 import com.example.quickstocks.core.services.SimulationEngine;
 import com.example.quickstocks.core.services.StockMarketService;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
@@ -18,6 +20,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private SimulationEngine simulationEngine;
     private DatabaseManager databaseManager;
     private QueryService queryService;
+    private CryptoService cryptoService;
     private BukkitRunnable marketUpdateTask;
 
     @Override
@@ -36,6 +39,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Initialize query service
             queryService = new QueryService(databaseManager.getDb());
+            
+            // Initialize crypto service
+            cryptoService = new CryptoService(databaseManager.getDb());
             
             // Add some default stocks for demonstration
             initializeDefaultStocks();
@@ -112,12 +118,17 @@ public final class QuickStocksPlugin extends JavaPlugin {
      */
     private void registerCommands() {
         StocksCommand stocksCommand = new StocksCommand(queryService);
+        CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         
         // Register the /stocks command
         getCommand("stocks").setExecutor(stocksCommand);
         getCommand("stocks").setTabCompleter(stocksCommand);
         
-        getLogger().info("Registered /stocks command");
+        // Register the /crypto command
+        getCommand("crypto").setExecutor(cryptoCommand);
+        getCommand("crypto").setTabCompleter(cryptoCommand);
+        
+        getLogger().info("Registered /stocks and /crypto commands");
     }
     
     /**
@@ -148,6 +159,13 @@ public final class QuickStocksPlugin extends JavaPlugin {
      */
     public QueryService getQueryService() {
         return queryService;
+    }
+    
+    /**
+     * Gets the crypto service instance.
+     */
+    public CryptoService getCryptoService() {
+        return cryptoService;
     }
 }
 
