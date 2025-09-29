@@ -4,23 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="updates">
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="fixes">
       <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PRICE_THRESHOLD_CONFIGURATION.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/TRADING_ECONOMY_USAGE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/VAULT_INTEGRATION_SUMMARY.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/EnhancedTradingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/EnhancedTradingService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/commands/StocksCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/commands/StocksCommand.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/TradingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/TradingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/TradingServiceStandalone.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/infrastructure/db/DatabaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/infrastructure/db/DatabaseConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/listeners/PortfolioGUIListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/listeners/PortfolioGUIListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/PriceThresholdControllerTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/core/services/AnalyticsServiceTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/core/services/TradingEconomyTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/core/services/WalletServiceTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/core/services/WalletServiceVaultIntegrationTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/core/services/AuditServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/core/services/BackupServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/core/services/TradingServiceIdempotencyTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/integration/SecurityIntegrationTest.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,7 +122,7 @@
       <workItem from="1759008198710" duration="405000" />
       <workItem from="1759008610851" duration="1560000" />
       <workItem from="1759054071414" duration="2713000" />
-      <workItem from="1759137963420" duration="2018000" />
+      <workItem from="1759137963420" duration="3266000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />
@@ -180,7 +172,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759137989913</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="fixes">
+      <option name="closed" value="true" />
+      <created>1759140617483</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1759140617483</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -202,6 +202,7 @@
     <MESSAGE value="Changes" />
     <MESSAGE value="removed stuff" />
     <MESSAGE value="updates" />
-    <option name="LAST_COMMIT_MESSAGE" value="updates" />
+    <MESSAGE value="fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixes" />
   </component>
 </project>
