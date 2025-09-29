@@ -141,33 +141,73 @@ public class MigrationRunner {
         return content.toString();
     }
     
+    /**
+     * Cleans SQL by removing all types of comments (both line comments -- and block comments /* */)
+     * while preserving string literals and other important content.
+     */
+    private String cleanSqlComments(String sql) {
+        StringBuilder result = new StringBuilder();
+        boolean inSingleQuote = false;
+        boolean inDoubleQuote = false;
+        boolean inBlockComment = false;
+        
+        for (int i = 0; i < sql.length(); i++) {
+            char currentChar = sql.charAt(i);
+            char nextChar = (i + 1 < sql.length()) ? sql.charAt(i + 1) : '\0';
+            
+            // Handle string literals to avoid removing comments inside strings
+            if (currentChar == '\'' && !inDoubleQuote && !inBlockComment) {
+                inSingleQuote = !inSingleQuote;
+                result.append(currentChar);
+            } else if (currentChar == '"' && !inSingleQuote && !inBlockComment) {
+                inDoubleQuote = !inDoubleQuote;
+                result.append(currentChar);
+            }
+            // Handle block comments /* ... */
+            else if (currentChar == '/' && nextChar == '*' && !inSingleQuote && !inDoubleQuote) {
+                inBlockComment = true;
+                i++; // Skip the '*'
+            } else if (currentChar == '*' && nextChar == '/' && inBlockComment) {
+                inBlockComment = false;
+                i++; // Skip the '/'
+            }
+            // Handle line comments -- ...
+            else if (currentChar == '-' && nextChar == '-' && !inSingleQuote && !inDoubleQuote && !inBlockComment) {
+                // Skip everything until end of line
+                while (i < sql.length() && sql.charAt(i) != '\n' && sql.charAt(i) != '\r') {
+                    i++;
+                }
+                // Don't increment i again in the main loop
+                i--;
+            }
+            // Add character if not in a comment
+            else if (!inBlockComment) {
+                result.append(currentChar);
+            }
+        }
+        
+        return result.toString();
+    }
+    
     private void executeMigration(Migration migration) throws SQLException {
         logger.info("Executing migration V" + migration.getVersion() + "__" + migration.getName());
         
         long startTime = System.currentTimeMillis();
         
         try {
-            // Parse SQL more carefully
+            // Parse SQL more carefully with improved comment handling
             String sql = migration.getSql();
             
-            // Remove comments and normalize whitespace
-            String[] lines = sql.split("\n");
-            StringBuilder cleanSql = new StringBuilder();
-            
-            for (String line : lines) {
-                String trimmed = line.trim();
-                // Skip comment lines and empty lines
-                if (!trimmed.startsWith("--") && !trimmed.isEmpty()) {
-                    cleanSql.append(line).append("\n");
-                }
-            }
+            // Clean SQL by removing all types of comments
+            String cleanedSql = cleanSqlComments(sql);
             
             // Split by semicolon and execute each statement
-            String[] statements = cleanSql.toString().split(";");
+            String[] statements = cleanedSql.split(";");
             
             for (int i = 0; i < statements.length; i++) {
                 String statement = statements[i].trim();
                 if (!statement.isEmpty()) {
+                    logger.fine("Executing SQL statement: " + statement.substring(0, Math.min(50, statement.length())) + "...");
                     db.execute(statement);
                 }
             }
