@@ -224,5 +224,4 @@ public class DatabaseConfig {
     public void setVolumeSensitivity(double volumeSensitivity) {
         this.volumeSensitivity = volumeSensitivity;
     }
-    }
 }

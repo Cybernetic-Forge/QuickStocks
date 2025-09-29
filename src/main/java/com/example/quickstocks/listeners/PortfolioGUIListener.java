@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -61,7 +62,7 @@ public class PortfolioGUIListener implements Listener {
         int slot = event.getSlot();
         
         try {
-            handlePortfolioClick(player, portfolioGUI, slot, clickedItem);
+            handlePortfolioClick(player, portfolioGUI, slot, clickedItem, event.getClick());
         } catch (Exception e) {
             logger.warning("Error handling portfolio GUI click for " + player.getName() + ": " + e.getMessage());
             player.sendMessage(ChatColor.RED + "An error occurred while processing your request.");
@@ -71,7 +72,7 @@ public class PortfolioGUIListener implements Listener {
     /**
      * Handles clicks in the Portfolio GUI
      */
-    private void handlePortfolioClick(Player player, PortfolioGUI portfolioGUI, int slot, ItemStack item) throws Exception {
+    private void handlePortfolioClick(Player player, PortfolioGUI portfolioGUI, int slot, ItemStack item, ClickType clickType) throws Exception {
         // Handle navigation buttons
         if (slot == 45 && item.getType() == Material.COMPASS) {
             // Back to market button
@@ -96,7 +97,7 @@ public class PortfolioGUIListener implements Listener {
         if (slot >= 9 && slot < 45) {
             String symbol = portfolioGUI.getHoldingSymbolFromSlot(slot);
             if (symbol != null && !symbol.isEmpty()) {
-                handleHoldingClick(player, symbol, event.getClick());
+                handleHoldingClick(player, symbol, clickType);
             }
         }
     }

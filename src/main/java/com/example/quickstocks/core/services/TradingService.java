@@ -49,8 +49,6 @@ public class TradingService {
     public void setStockMarketService(StockMarketService stockMarketService) {
         this.stockMarketService = stockMarketService;
     }
-        this.holdingsService = holdingsService;
-    }
     
     /**
      * Executes a market buy order at current price.
@@ -266,7 +264,27 @@ public class TradingService {
         
         return orders;
     }
-    
+
+    /**
+     * Records trading activity for a stock symbol to be used in threshold calculations.
+     */
+    private void recordTradingActivity(String instrumentId, int volume) {
+        if (stockMarketService != null && stockMarketService.getThresholdController() != null) {
+            // Convert instrument ID to symbol if needed
+            try {
+                String symbol = database.queryValue(
+                        "SELECT symbol FROM instrument_state WHERE instrument_id = ?",
+                        instrumentId
+                );
+                if (symbol != null) {
+                    stockMarketService.getThresholdController().recordTradingActivity(symbol, volume);
+                }
+            } catch (SQLException e) {
+                logger.fine("Could not record trading activity for " + instrumentId + ": " + e.getMessage());
+            }
+        }
+    }
+
     /**
      * Result of a trading operation.
      */
@@ -317,25 +335,5 @@ public class TradingService {
         public double getPrice() { return price; }
         public long getTimestamp() { return timestamp; }
         public double getTotalValue() { return qty * price; }
-    }
-    
-    /**
-     * Records trading activity for a stock symbol to be used in threshold calculations.
-     */
-    private void recordTradingActivity(String instrumentId, int volume) {
-        if (stockMarketService != null && stockMarketService.getThresholdController() != null) {
-            // Convert instrument ID to symbol if needed
-            try {
-                String symbol = database.queryValue(
-                    "SELECT symbol FROM instrument_state WHERE instrument_id = ?", 
-                    instrumentId
-                );
-                if (symbol != null) {
-                    stockMarketService.getThresholdController().recordTradingActivity(symbol, volume);
-                }
-            } catch (SQLException e) {
-                logger.fine("Could not record trading activity for " + instrumentId + ": " + e.getMessage());
-            }
-        }
     }
 }

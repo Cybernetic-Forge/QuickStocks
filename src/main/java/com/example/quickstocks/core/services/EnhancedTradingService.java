@@ -4,6 +4,7 @@ import com.example.quickstocks.core.config.TradingConfig;
 import com.example.quickstocks.core.model.OrderRequest;
 import com.example.quickstocks.core.model.OrderType;
 import com.example.quickstocks.infrastructure.db.Db;
+import com.example.quickstocks.core.services.TradingService.TradeResult;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -372,21 +373,5 @@ public class EnhancedTradingService {
         public double getExecutionPrice() { return executionPrice; }
         public double getTotalValue() { return qty * executionPrice; }
         public double getNetValue() { return getTotalValue() - feePaid; }
-    }
-    
-    /**
-     * Result of a trading operation.
-     */
-    public static class TradeResult {
-        private final boolean success;
-        private final String message;
-        
-        public TradeResult(boolean success, String message) {
-            this.success = success;
-            this.message = message;
-        }
-        
-        public boolean isSuccess() { return success; }
-        public String getMessage() { return message; }
     }
 }
