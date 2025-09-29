@@ -1,5 +1,7 @@
 package com.example.quickstocks.infrastructure.db;
 
+import com.example.quickstocks.infrastructure.config.AnalyticsConfig;
+
 /**
  * Configuration holder for database settings.
  * Supports SQLite, MySQL, and PostgreSQL configurations.
@@ -29,6 +31,9 @@ public class DatabaseConfig {
     // Feature configuration
     private boolean historyEnabled = true;
     private int topListWindowHours = 24;
+    
+    // Analytics configuration
+    private AnalyticsConfig analytics = new AnalyticsConfig();
     
     // Price threshold configuration
     private boolean priceThresholdEnabled = true;
@@ -162,6 +167,14 @@ public class DatabaseConfig {
         this.topListWindowHours = topListWindowHours;
     }
     
+    public AnalyticsConfig getAnalytics() {
+        return analytics;
+    }
+    
+    public void setAnalytics(AnalyticsConfig analytics) {
+        this.analytics = analytics;
+    }
+    
     // Price threshold configuration getters and setters
     
     public boolean isPriceThresholdEnabled() {
@@ -210,5 +223,6 @@ public class DatabaseConfig {
     
     public void setVolumeSensitivity(double volumeSensitivity) {
         this.volumeSensitivity = volumeSensitivity;
+    }
     }
 }
