@@ -8,12 +8,14 @@ import com.example.quickstocks.commands.StocksCommand;
 import com.example.quickstocks.commands.WalletCommand;
 import com.example.quickstocks.core.services.AuditService;
 import com.example.quickstocks.core.services.BackupService;
+import com.example.quickstocks.core.algorithms.PriceThresholdController;
 import com.example.quickstocks.core.services.CryptoService;
 import com.example.quickstocks.core.services.HoldingsService;
 import com.example.quickstocks.core.services.SimulationEngine;
 import com.example.quickstocks.core.services.StockMarketService;
 import com.example.quickstocks.core.services.TradingService;
 import com.example.quickstocks.core.services.WalletService;
+import com.example.quickstocks.infrastructure.db.ConfigLoader;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 import com.example.quickstocks.infrastructure.db.DatabaseManager;
 import com.example.quickstocks.listeners.CraftingListener;
@@ -54,8 +56,12 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Initialize translation manager
             translationManager = new TranslationManager(this);
             
-            // Initialize the stock market service
-            stockMarketService = new StockMarketService();
+            // Load configuration for threshold controller
+            DatabaseConfig config = ConfigLoader.loadDatabaseConfig();
+            PriceThresholdController thresholdController = new PriceThresholdController(config);
+            
+            // Initialize the stock market service with threshold controller
+            stockMarketService = new StockMarketService(thresholdController);
             
             // Initialize simulation engine
             simulationEngine = new SimulationEngine(stockMarketService, databaseManager.getDb());
@@ -82,6 +88,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
             String dataPath = getDataFolder().getAbsolutePath();
             boolean backupEnabled = getConfig().getBoolean("backup.enabled", true);
             backupService = new BackupService(databaseManager.getDb(), dataPath, backupEnabled);
+            // Connect trading service to market service for threshold tracking
+            tradingService.setStockMarketService(stockMarketService);
             
             // Add some default stocks for demonstration
             initializeDefaultStocks();
@@ -180,10 +188,13 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Initializes the database system.
      */
     private void initializeDatabase() throws SQLException {
-        // Create database configuration for the plugin data folder
-        DatabaseConfig config = new DatabaseConfig();
-        config.setProvider("sqlite");
-        config.setSqliteFile(getDataFolder().getAbsolutePath() + "/data.db");
+        // Load configuration from config.yml (with fallback to defaults)
+        DatabaseConfig config = ConfigLoader.loadDatabaseConfig();
+        
+        // Override with plugin-specific paths for SQLite
+        if ("sqlite".equals(config.getProvider())) {
+            config.setSqliteFile(getDataFolder().getAbsolutePath() + "/data.db");
+        }
         
         // Create the data folder if it doesn't exist
         if (!getDataFolder().exists()) {
@@ -191,10 +202,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
         }
         
         // Initialize database with seeding enabled
-        databaseManager = new DatabaseManager(config, true);
+        databaseManager = new DatabaseManager(config, false);
         databaseManager.initialize();
         
         getLogger().info("Database initialized: " + config.getSqliteFile());
+        getLogger().info("Price threshold enabled: " + config.isPriceThresholdEnabled());
     }
     
     /**

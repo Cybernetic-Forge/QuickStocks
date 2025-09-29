@@ -1,5 +1,6 @@
 package com.example.quickstocks.core.services;
 
+import com.example.quickstocks.core.algorithms.PriceThresholdController;
 import com.example.quickstocks.core.algorithms.StockPriceCalculator;
 import com.example.quickstocks.core.enums.MarketFactor;
 import com.example.quickstocks.core.models.MarketInfluence;
@@ -18,12 +19,22 @@ public class StockMarketService {
     private final Map<String, Stock> stocks;
     private final List<MarketInfluence> marketInfluences;
     private final StockPriceCalculator priceCalculator;
+    private final PriceThresholdController thresholdController;
     private volatile boolean marketOpen;
     
     public StockMarketService() {
         this.stocks = new ConcurrentHashMap<>();
         this.marketInfluences = initializeMarketInfluences();
+        this.thresholdController = null;
         this.priceCalculator = new StockPriceCalculator();
+        this.marketOpen = true;
+    }
+    
+    public StockMarketService(PriceThresholdController thresholdController) {
+        this.stocks = new ConcurrentHashMap<>();
+        this.marketInfluences = initializeMarketInfluences();
+        this.thresholdController = thresholdController;
+        this.priceCalculator = new StockPriceCalculator(thresholdController);
         this.marketOpen = true;
     }
     
@@ -57,6 +68,11 @@ public class StockMarketService {
         
         // Set volatility based on sector
         stock.setVolatilityRating(getSectorVolatility(sector));
+        
+        // Record initial price for threshold calculations
+        if (thresholdController != null) {
+            thresholdController.recordInitialPrice(stock);
+        }
         
         stocks.put(symbol.toUpperCase(), stock);
     }
@@ -265,5 +281,12 @@ public class StockMarketService {
             return String.format("MarketStats{stocks: %d, avgChange: %.2f%%, sentiment: %.2f}", 
                 totalStocks, averageChange * 100, marketSentiment);
         }
+    }
+    
+    /**
+     * Gets the price threshold controller.
+     */
+    public PriceThresholdController getThresholdController() {
+        return thresholdController;
     }
 }

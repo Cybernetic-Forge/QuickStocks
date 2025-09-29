@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -71,7 +72,7 @@ public class PortfolioGUIListener implements Listener {
     /**
      * Handles clicks in the Portfolio GUI
      */
-    private void handlePortfolioClick(Player player, PortfolioGUI portfolioGUI, int slot, ItemStack item, org.bukkit.event.inventory.ClickType clickType) throws Exception {
+    private void handlePortfolioClick(Player player, PortfolioGUI portfolioGUI, int slot, ItemStack item, ClickType clickType) throws Exception {
         // Handle navigation buttons
         if (slot == 45 && item.getType() == Material.COMPASS) {
             // Back to market button
@@ -96,7 +97,7 @@ public class PortfolioGUIListener implements Listener {
         if (slot >= 9 && slot < 45) {
             String symbol = portfolioGUI.getHoldingSymbolFromSlot(slot);
             if (symbol != null && !symbol.isEmpty()) {
-                handleHoldingClick(player, symbol, portfolioGUI, clickType);
+                handleHoldingClick(player, symbol, clickType);
             }
         }
     }
@@ -104,7 +105,7 @@ public class PortfolioGUIListener implements Listener {
     /**
      * Handles clicks on holding items
      */
-    private void handleHoldingClick(Player player, String symbol, PortfolioGUI portfolioGUI, org.bukkit.event.inventory.ClickType clickType) throws Exception {
+    private void handleHoldingClick(Player player, String symbol, org.bukkit.event.inventory.ClickType clickType) throws Exception {
         String playerUuid = player.getUniqueId().toString();
         
         // Get instrument ID
@@ -123,7 +124,7 @@ public class PortfolioGUIListener implements Listener {
         
         if (clickType == org.bukkit.event.inventory.ClickType.RIGHT) {
             // Sell all shares
-            handleSellAllShares(player, playerUuid, instrumentId, symbol, holding, portfolioGUI);
+            handleSellAllShares(player, playerUuid, instrumentId, symbol, holding);
         } else {
             // Show holding details
             showHoldingDetails(player, holding);
@@ -133,7 +134,7 @@ public class PortfolioGUIListener implements Listener {
     /**
      * Handles selling all shares of a holding
      */
-    private void handleSellAllShares(Player player, String playerUuid, String instrumentId, String symbol, HoldingsService.Holding holding, PortfolioGUI portfolioGUI) throws Exception {
+    private void handleSellAllShares(Player player, String playerUuid, String instrumentId, String symbol, HoldingsService.Holding holding) throws Exception {
         double qty = holding.getQty();
         
         // Execute the trade
@@ -145,8 +146,7 @@ public class PortfolioGUIListener implements Listener {
             player.sendMessage(ChatColor.GREEN + "Received: $" + String.format("%.2f", totalValue));
             player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid)));
             
-            // Refresh the GUI immediately after successful sale
-            portfolioGUI.refresh();
+            // Note: GUI will be refreshed on next view
         } else {
             player.sendMessage(ChatColor.RED + "✗ Sale failed: " + result.getMessage());
         }
@@ -158,7 +158,7 @@ public class PortfolioGUIListener implements Listener {
     private void showHoldingDetails(Player player, HoldingsService.Holding holding) {
         player.sendMessage(ChatColor.GOLD + "=== " + holding.getSymbol() + " Holdings ===");
         player.sendMessage(ChatColor.YELLOW + "Shares: " + ChatColor.WHITE + String.format("%.2f", holding.getQty()));
-        player.sendMessage(ChatColor.YELLOW + "Purchase Price: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getAvgCost()));
+        player.sendMessage(ChatColor.YELLOW + "Average Cost: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getAvgCost()));
         player.sendMessage(ChatColor.YELLOW + "Current Price: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getCurrentPrice()));
         player.sendMessage(ChatColor.YELLOW + "Total Value: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getQty() * holding.getCurrentPrice()));
         
@@ -166,7 +166,7 @@ public class PortfolioGUIListener implements Listener {
         ChatColor pnlColor = pnl >= 0 ? ChatColor.GREEN : ChatColor.RED;
         String pnlArrow = pnl >= 0 ? "▲" : "▼";
         
-        player.sendMessage(ChatColor.YELLOW + "Gain/Loss from Purchase: " + pnlColor + pnlArrow + "$" + String.format("%.2f", Math.abs(pnl)) + 
+        player.sendMessage(ChatColor.YELLOW + "P&L: " + pnlColor + pnlArrow + "$" + String.format("%.2f", Math.abs(pnl)) + 
                           " (" + String.format("%.1f%%", Math.abs(holding.getUnrealizedPnLPercent())) + ")");
         
         player.sendMessage(ChatColor.GRAY + "Right-click to sell all shares");

@@ -1,5 +1,7 @@
 package com.example.quickstocks.infrastructure.db;
 
+import com.example.quickstocks.infrastructure.config.AnalyticsConfig;
+
 /**
  * Configuration holder for database settings.
  * Supports SQLite, MySQL, and PostgreSQL configurations.
@@ -29,6 +31,17 @@ public class DatabaseConfig {
     // Feature configuration
     private boolean historyEnabled = true;
     private int topListWindowHours = 24;
+    
+    // Analytics configuration
+    private AnalyticsConfig analytics = new AnalyticsConfig();
+    
+    // Price threshold configuration
+    private boolean priceThresholdEnabled = true;
+    private double maxChangePercent = 0.15;
+    private double priceMultiplierThreshold = 5.0;
+    private double dampeningFactor = 0.3;
+    private int minVolumeThreshold = 100;
+    private double volumeSensitivity = 0.5;
     
     // Getters and setters
     
@@ -152,5 +165,63 @@ public class DatabaseConfig {
     
     public void setTopListWindowHours(int topListWindowHours) {
         this.topListWindowHours = topListWindowHours;
+    }
+    
+    public AnalyticsConfig getAnalytics() {
+        return analytics;
+    }
+    
+    public void setAnalytics(AnalyticsConfig analytics) {
+        this.analytics = analytics;
+    }
+    
+    // Price threshold configuration getters and setters
+    
+    public boolean isPriceThresholdEnabled() {
+        return priceThresholdEnabled;
+    }
+    
+    public void setPriceThresholdEnabled(boolean priceThresholdEnabled) {
+        this.priceThresholdEnabled = priceThresholdEnabled;
+    }
+    
+    public double getMaxChangePercent() {
+        return maxChangePercent;
+    }
+    
+    public void setMaxChangePercent(double maxChangePercent) {
+        this.maxChangePercent = maxChangePercent;
+    }
+    
+    public double getPriceMultiplierThreshold() {
+        return priceMultiplierThreshold;
+    }
+    
+    public void setPriceMultiplierThreshold(double priceMultiplierThreshold) {
+        this.priceMultiplierThreshold = priceMultiplierThreshold;
+    }
+    
+    public double getDampeningFactor() {
+        return dampeningFactor;
+    }
+    
+    public void setDampeningFactor(double dampeningFactor) {
+        this.dampeningFactor = dampeningFactor;
+    }
+    
+    public int getMinVolumeThreshold() {
+        return minVolumeThreshold;
+    }
+    
+    public void setMinVolumeThreshold(int minVolumeThreshold) {
+        this.minVolumeThreshold = minVolumeThreshold;
+    }
+    
+    public double getVolumeSensitivity() {
+        return volumeSensitivity;
+    }
+    
+    public void setVolumeSensitivity(double volumeSensitivity) {
+        this.volumeSensitivity = volumeSensitivity;
     }
 }

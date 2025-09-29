@@ -24,6 +24,7 @@ public class SimulationEngine {
     private final StockMarketService marketService;
     private final Db database;
     private final InstrumentPersistenceService instrumentService;
+    private final AnalyticsService analyticsService;
     private final ScheduledExecutorService scheduler;
     private volatile boolean running = false;
     
@@ -31,6 +32,23 @@ public class SimulationEngine {
         this.marketService = Objects.requireNonNull(marketService, "StockMarketService cannot be null");
         this.database = Objects.requireNonNull(database, "Database cannot be null");
         this.instrumentService = new InstrumentPersistenceService(database);
+        // Initialize AnalyticsService with default configuration
+        this.analyticsService = new AnalyticsService(database, 0.94, 1440, 1440, 1440);
+        this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "SimulationEngine-Ticker");
+            t.setDaemon(true);
+            return t;
+        });
+    }
+    
+    /**
+     * Constructor with custom analytics configuration.
+     */
+    public SimulationEngine(StockMarketService marketService, Db database, AnalyticsService analyticsService) {
+        this.marketService = Objects.requireNonNull(marketService, "StockMarketService cannot be null");
+        this.database = Objects.requireNonNull(database, "Database cannot be null");
+        this.instrumentService = new InstrumentPersistenceService(database);
+        this.analyticsService = Objects.requireNonNull(analyticsService, "AnalyticsService cannot be null");
         this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "SimulationEngine-Ticker");
             t.setDaemon(true);
@@ -55,6 +73,9 @@ public class SimulationEngine {
         
         // Schedule periodic ticks
         scheduler.scheduleAtFixedRate(this::tick, 0, TICK_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        
+        // Schedule periodic reset of trading activity (every 60 seconds)
+        scheduler.scheduleAtFixedRate(this::resetTradingActivity, 60, 60, TimeUnit.SECONDS);
     }
     
     /**
@@ -158,9 +179,9 @@ public class SimulationEngine {
                         double volatility24h = 0.0;
                         
                         try {
-                            change1h = getChangePercent(instrumentId, 60);
-                            change24h = getChangePercent(instrumentId, 1440);
-                            volatility24h = getVolatility(instrumentId, 1440);
+                            change1h = analyticsService.getChangePct(instrumentId, 60);
+                            change24h = analyticsService.getChangePct(instrumentId, 1440);
+                            volatility24h = analyticsService.getVolatilityEWMA(instrumentId, 1440);
                         } catch (Exception e) {
                             logger.warning("Failed to calculate rolling window metrics for " + stock.getSymbol() + ": " + e.getMessage());
                             // Continue with zero values
@@ -363,5 +384,109 @@ public class SimulationEngine {
             .map(Map.Entry::getKey)
             .findFirst()
             .orElse(null);
+    }
+    
+    // Analytics methods delegation
+    
+    /**
+     * Gets price change percentage over the default time window.
+     */
+    public double getChangePct(String instrumentId) {
+        return analyticsService.getChangePct(instrumentId, analyticsService.getDefaultChangeWindow());
+    }
+    
+    /**
+     * Gets price change percentage over a given time window.
+     */
+    public double getChangePct(String instrumentId, int windowMinutes) {
+        return analyticsService.getChangePct(instrumentId, windowMinutes);
+    }
+    
+    /**
+     * Gets EWMA volatility using default parameters.
+     */
+    public double getVolatilityEWMA(String instrumentId) {
+        return analyticsService.getVolatilityEWMA(instrumentId, analyticsService.getDefaultVolatilityWindow());
+    }
+    
+    /**
+     * Gets EWMA volatility over a given time window.
+     */
+    public double getVolatilityEWMA(String instrumentId, int windowMinutes) {
+        return analyticsService.getVolatilityEWMA(instrumentId, windowMinutes);
+    }
+    
+    /**
+     * Gets EWMA volatility with custom lambda.
+     */
+    public double getVolatilityEWMA(String instrumentId, int windowMinutes, double lambda) {
+        return analyticsService.getVolatilityEWMA(instrumentId, windowMinutes, lambda);
+    }
+    
+    /**
+     * Gets correlation between two instruments.
+     */
+    public double getCorrelation(String instrumentA, String instrumentB, int windowMinutes) {
+        return analyticsService.getCorrelation(instrumentA, instrumentB, windowMinutes);
+    }
+    
+    /**
+     * Gets Sharpe ratio for a player's portfolio.
+     */
+    public double getSharpe(String playerUuid, int windowDays, double riskFree) {
+        return analyticsService.getSharpe(playerUuid, windowDays, riskFree);
+    }
+    
+    /**
+     * Gets Sharpe ratio with default risk-free rate (0).
+     */
+    public double getSharpe(String playerUuid, int windowDays) {
+        return getSharpe(playerUuid, windowDays, 0.0);
+    }
+    
+    /**
+     * Get the analytics service for direct access.
+     */
+    public AnalyticsService getAnalyticsService() {
+        return analyticsService;
+    }
+    
+    /**
+     * Records portfolio values for all players (for Sharpe ratio calculations).
+     * This should be called periodically, e.g., once per hour or day.
+     * Note: This is a placeholder - real implementation would query actual player portfolios.
+     */
+    public void recordPortfolioSnapshots() {
+        try {
+            logger.fine("Recording portfolio snapshots for Sharpe ratio calculations");
+            
+            // TODO: In real implementation, query actual player portfolios from holdings/wallet data
+            // For now, this is a placeholder that shows the integration pattern
+            
+            // Example of how this would work:
+            // 1. Query all active players
+            // 2. Calculate their current portfolio value (cash + holdings)
+            // 3. Record the snapshot using analyticsService.recordPortfolioValue()
+            
+            logger.fine("Portfolio snapshot recording placeholder - integrate with actual portfolio service");
+            
+        } catch (Exception e) {
+            logger.warning("Failed to record portfolio snapshots: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Resets trading activity counters for threshold calculations.
+     * Called periodically to track recent trading activity.
+     */
+    private void resetTradingActivity() {
+        try {
+            if (marketService.getThresholdController() != null) {
+                marketService.getThresholdController().resetTradingActivity();
+                logger.fine("Reset trading activity counters");
+            }
+        } catch (Exception e) {
+            logger.warning("Error resetting trading activity: " + e.getMessage());
+        }
     }
 }

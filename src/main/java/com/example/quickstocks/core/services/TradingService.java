@@ -1,5 +1,7 @@
 package com.example.quickstocks.core.services;
 
+import com.example.quickstocks.core.config.TradingConfig;
+import com.example.quickstocks.core.model.OrderRequest;
 import com.example.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
@@ -11,6 +13,7 @@ import java.util.logging.Logger;
 
 /**
  * Handles trading operations including buy/sell orders and execution.
+ * Now includes enhanced economy features when TradingConfig is provided.
  */
 public class TradingService {
     
@@ -18,12 +21,33 @@ public class TradingService {
     
     private final Db database;
     private final WalletService walletService;
-    private final HoldingsService holdingsService;
+    private final HoldingsService holdingsService;    
+    private final EnhancedTradingService enhancedTradingService;
+    private StockMarketService stockMarketService; // For recording trading activity
+
     
+    // Constructor with enhanced features
+    public TradingService(Db database, WalletService walletService, HoldingsService holdingsService, TradingConfig tradingConfig) {
+        this.database = database;
+        this.walletService = walletService;
+        this.holdingsService = holdingsService;
+        this.enhancedTradingService = new EnhancedTradingService(database, walletService, holdingsService, tradingConfig);
+    }
+    
+    // Legacy constructor for backward compatibility
     public TradingService(Db database, WalletService walletService, HoldingsService holdingsService) {
         this.database = database;
         this.walletService = walletService;
         this.holdingsService = holdingsService;
+        this.enhancedTradingService = null; // No enhanced features
+    }
+    
+    /**
+     * Sets the stock market service for recording trading activity.
+     * This is called after both services are initialized.
+     */
+    public void setStockMarketService(StockMarketService stockMarketService) {
+        this.stockMarketService = stockMarketService;
     }
     
     /**
@@ -37,6 +61,33 @@ public class TradingService {
                 logger.info("Returning cached result for idempotency key: " + idempotencyKey);
                 return existingResult;
             }
+        }
+    }
+     * Executes a market buy order at current price.
+     * Uses enhanced trading features if available.
+     */
+    public TradeResult executeBuyOrder(String playerUuid, String instrumentId, double qty) throws SQLException {
+        // Use enhanced service if available
+        if (enhancedTradingService != null) {
+            return enhancedTradingService.executeBuyOrder(playerUuid, instrumentId, qty);
+        }
+        
+        // Legacy implementation
+        return executeBuyOrderLegacy(playerUuid, instrumentId, qty);
+    }
+    
+    /**
+     * Legacy buy order implementation for backward compatibility.
+     */
+    private TradeResult executeBuyOrderLegacy(String playerUuid, String instrumentId, double qty) throws SQLException {
+        // Get current price
+        Double currentPrice = database.queryValue(
+            "SELECT last_price FROM instrument_state WHERE instrument_id = ?",
+            instrumentId
+        );
+        
+        if (currentPrice == null) {
+            return new TradeResult(false, "Instrument not found or price unavailable");
         }
         
         // Execute trade in atomic transaction with SERIALIZABLE isolation
@@ -88,6 +139,9 @@ public class TradingService {
             String message = String.format("BUY %.2f shares at $%.2f per share (Total: $%.2f)", 
                 qty, currentPrice, totalCost);
             
+            // Record trading activity for threshold calculations
+            recordTradingActivity(instrumentId, (int) qty);
+            
             logger.info("Executed buy order for " + playerUuid + ": " + message);
             result[0] = new TradeResult(true, message);
         });
@@ -117,6 +171,41 @@ public class TradingService {
                 logger.info("Returning cached result for idempotency key: " + idempotencyKey);
                 return existingResult;
             }
+        }
+    }
+          
+     * Executes a market sell order at current price.
+     * Uses enhanced trading features if available.
+     */
+    public TradeResult executeSellOrder(String playerUuid, String instrumentId, double qty) throws SQLException {
+        // Use enhanced service if available
+        if (enhancedTradingService != null) {
+            return enhancedTradingService.executeSellOrder(playerUuid, instrumentId, qty);
+        }
+        
+        // Legacy implementation
+        return executeSellOrderLegacy(playerUuid, instrumentId, qty);
+    }
+    
+    /**
+     * Legacy sell order implementation for backward compatibility.
+     */
+    private TradeResult executeSellOrderLegacy(String playerUuid, String instrumentId, double qty) throws SQLException {
+        // Get current price
+        Double currentPrice = database.queryValue(
+            "SELECT last_price FROM instrument_state WHERE instrument_id = ?",
+            instrumentId
+        );
+        
+        if (currentPrice == null) {
+            return new TradeResult(false, "Instrument not found or price unavailable");
+        }
+        
+        // Check if player has sufficient shares
+        HoldingsService.Holding holding = holdingsService.getHolding(playerUuid, instrumentId);
+        if (holding == null || holding.getQty() < qty) {
+            return new TradeResult(false, "Insufficient shares. Available: " + 
+                (holding != null ? String.format("%.2f", holding.getQty()) : "0"));
         }
         
         // Execute trade in atomic transaction with SERIALIZABLE isolation
@@ -167,6 +256,9 @@ public class TradingService {
             String message = String.format("SELL %.2f shares at $%.2f per share (Total: $%.2f)", 
                 qty, currentPrice, totalValue);
             
+            // Record trading activity for threshold calculations
+            recordTradingActivity(instrumentId, (int) qty);
+            
             logger.info("Executed sell order for " + playerUuid + ": " + message);
             result[0] = new TradeResult(true, message);
         });
@@ -211,9 +303,43 @@ public class TradingService {
     }
     
     /**
+     * Executes an enhanced order with full economy features.
+     * Only available if TradingConfig was provided during construction.
+     */
+    public TradeResult executeOrder(OrderRequest orderRequest) throws SQLException {
+        if (enhancedTradingService == null) {
+            throw new UnsupportedOperationException("Enhanced trading features not available. Provide TradingConfig during construction.");
+        }
+        return enhancedTradingService.executeOrder(orderRequest);
+    }
+    
+    /**
      * Gets trading history for a player.
+     * Uses enhanced service if available for better order details.
      */
     public List<Order> getOrderHistory(String playerUuid, int limit) throws SQLException {
+        // Use enhanced service if available for richer order data
+        if (enhancedTradingService != null) {
+            List<EnhancedTradingService.Order> enhancedOrders = enhancedTradingService.getOrderHistory(playerUuid, limit);
+            List<Order> orders = new ArrayList<>();
+            
+            // Convert enhanced orders to legacy format
+            for (EnhancedTradingService.Order enhancedOrder : enhancedOrders) {
+                orders.add(new Order(
+                    enhancedOrder.getId(),
+                    enhancedOrder.getInstrumentId(), 
+                    enhancedOrder.getSymbol(),
+                    enhancedOrder.getDisplayName(),
+                    enhancedOrder.getSide(),
+                    enhancedOrder.getQty(),
+                    enhancedOrder.getPrice(),
+                    enhancedOrder.getTimestamp()
+                ));
+            }
+            return orders;
+        }
+        
+        // Legacy implementation
         List<Map<String, Object>> results = database.query(
             """
             SELECT o.id, o.instrument_id, o.side, o.qty, o.price, o.ts, i.symbol, i.display_name
@@ -242,7 +368,27 @@ public class TradingService {
         
         return orders;
     }
-    
+
+    /**
+     * Records trading activity for a stock symbol to be used in threshold calculations.
+     */
+    private void recordTradingActivity(String instrumentId, int volume) {
+        if (stockMarketService != null && stockMarketService.getThresholdController() != null) {
+            // Convert instrument ID to symbol if needed
+            try {
+                String symbol = database.queryValue(
+                        "SELECT symbol FROM instrument_state WHERE instrument_id = ?",
+                        instrumentId
+                );
+                if (symbol != null) {
+                    stockMarketService.getThresholdController().recordTradingActivity(symbol, volume);
+                }
+            } catch (SQLException e) {
+                logger.fine("Could not record trading activity for " + instrumentId + ": " + e.getMessage());
+            }
+        }
+    }
+
     /**
      * Result of a trading operation.
      */
