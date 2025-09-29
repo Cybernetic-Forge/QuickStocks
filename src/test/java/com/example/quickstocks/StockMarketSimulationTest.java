@@ -1,9 +1,11 @@
 package com.example.quickstocks;
 
+import com.example.quickstocks.core.algorithms.PriceThresholdController;
 import com.example.quickstocks.core.enums.MarketFactor;
 import com.example.quickstocks.core.models.MarketInfluence;
 import com.example.quickstocks.core.models.Stock;
 import com.example.quickstocks.core.services.StockMarketService;
+import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +26,17 @@ public class StockMarketSimulationTest {
     private int updateCount = 0;
     
     public StockMarketSimulationTest() {
-        this.marketService = new StockMarketService();
+        // Create threshold controller with test configuration
+        DatabaseConfig config = new DatabaseConfig();
+        config.setPriceThresholdEnabled(true);
+        config.setMaxChangePercent(0.20);           // 20% for more visible testing
+        config.setPriceMultiplierThreshold(3.0);    // 300% threshold for faster testing
+        config.setDampeningFactor(0.4);             // 40% dampening
+        config.setMinVolumeThreshold(50);           // 50 shares minimum
+        config.setVolumeSensitivity(0.5);
+        
+        PriceThresholdController thresholdController = new PriceThresholdController(config);
+        this.marketService = new StockMarketService(thresholdController);
         this.scheduler = Executors.newScheduledThreadPool(1);
         setupTestStocks();
     }
@@ -125,6 +137,20 @@ public class StockMarketSimulationTest {
                 stock.getCurrentPrice(), 
                 stock.getPriceChangePercent() * 100)
         );
+        
+        // Show threshold information if available
+        if (marketService.getThresholdController() != null) {
+            System.out.println("🚦 Threshold Status:");
+            marketService.getAllStocks().stream()
+                .filter(stock -> marketService.getThresholdController().getPriceMultiplier(stock) > 2.0)
+                .forEach(stock -> {
+                    double multiplier = marketService.getThresholdController().getPriceMultiplier(stock);
+                    int activity = marketService.getThresholdController().getTradingActivity(stock.getSymbol());
+                    String status = multiplier > 3.0 ? "⚠️ THRESHOLD" : "📈 ELEVATED";
+                    System.out.printf("   %s %s: %.1fx growth, %d volume%n", 
+                        status, stock.getSymbol(), multiplier, activity);
+                });
+        }
         
         // Show top market influences
         if (updateCount % 5 == 0) {

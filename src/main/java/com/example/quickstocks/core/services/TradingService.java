@@ -19,10 +19,21 @@ public class TradingService {
     private final Db database;
     private final WalletService walletService;
     private final HoldingsService holdingsService;
+    private StockMarketService stockMarketService; // For recording trading activity
     
     public TradingService(Db database, WalletService walletService, HoldingsService holdingsService) {
         this.database = database;
         this.walletService = walletService;
+        this.holdingsService = holdingsService;
+    }
+    
+    /**
+     * Sets the stock market service for recording trading activity.
+     * This is called after both services are initialized.
+     */
+    public void setStockMarketService(StockMarketService stockMarketService) {
+        this.stockMarketService = stockMarketService;
+    }
         this.holdingsService = holdingsService;
     }
     
@@ -66,6 +77,9 @@ public class TradingService {
             
             String message = String.format("BUY %.2f shares at $%.2f per share (Total: $%.2f)", 
                 qty, currentPrice, totalCost);
+            
+            // Record trading activity for threshold calculations
+            recordTradingActivity(instrumentId, (int) qty);
             
             logger.info("Executed buy order for " + playerUuid + ": " + message);
             return new TradeResult(true, message);
@@ -124,6 +138,9 @@ public class TradingService {
             
             String message = String.format("SELL %.2f shares at $%.2f per share (Total: $%.2f)", 
                 qty, currentPrice, totalValue);
+            
+            // Record trading activity for threshold calculations
+            recordTradingActivity(instrumentId, (int) qty);
             
             logger.info("Executed sell order for " + playerUuid + ": " + message);
             return new TradeResult(true, message);
@@ -223,5 +240,25 @@ public class TradingService {
         public double getPrice() { return price; }
         public long getTimestamp() { return timestamp; }
         public double getTotalValue() { return qty * price; }
+    }
+    
+    /**
+     * Records trading activity for a stock symbol to be used in threshold calculations.
+     */
+    private void recordTradingActivity(String instrumentId, int volume) {
+        if (stockMarketService != null && stockMarketService.getThresholdController() != null) {
+            // Convert instrument ID to symbol if needed
+            try {
+                String symbol = database.queryValue(
+                    "SELECT symbol FROM instrument_state WHERE instrument_id = ?", 
+                    instrumentId
+                );
+                if (symbol != null) {
+                    stockMarketService.getThresholdController().recordTradingActivity(symbol, volume);
+                }
+            } catch (SQLException e) {
+                logger.fine("Could not record trading activity for " + instrumentId + ": " + e.getMessage());
+            }
+        }
     }
 }
