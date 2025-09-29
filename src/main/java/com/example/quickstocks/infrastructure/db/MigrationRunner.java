@@ -212,9 +212,9 @@ public class MigrationRunner {
                 }
             }
             
-            // Record the migration
+            // Only record success after ALL statements have executed successfully
             db.execute(
-                "INSERT INTO schema_version (version, name, executed_at, success) VALUES (?, ?, ?, ?)",
+                "INSERT OR REPLACE INTO schema_version (version, name, executed_at, success) VALUES (?, ?, ?, ?)",
                 migration.getVersion(),
                 migration.getName(),
                 System.currentTimeMillis(),
@@ -226,10 +226,10 @@ public class MigrationRunner {
                        " completed successfully in " + duration + "ms");
             
         } catch (SQLException e) {
-            // Record failed migration
+            // Record failed migration - use INSERT OR REPLACE to handle retries
             try {
                 db.execute(
-                    "INSERT INTO schema_version (version, name, executed_at, success) VALUES (?, ?, ?, ?)",
+                    "INSERT OR REPLACE INTO schema_version (version, name, executed_at, success) VALUES (?, ?, ?, ?)",
                     migration.getVersion(),
                     migration.getName(),
                     System.currentTimeMillis(),

@@ -56,10 +56,14 @@ SELECT
     pdr.player_uuid,
     COUNT(pdr.daily_return) as return_count,
     AVG(pdr.daily_return) as avg_return,
-    -- Standard deviation of returns
+    -- Standard deviation of returns using the mathematical identity: Var(X) = E[X²] - E[X]²
     CASE 
         WHEN COUNT(pdr.daily_return) > 1 THEN
-            SQRT(SUM((pdr.daily_return - AVG(pdr.daily_return)) * (pdr.daily_return - AVG(pdr.daily_return))) / (COUNT(pdr.daily_return) - 1))
+            SQRT(
+                (SUM(pdr.daily_return * pdr.daily_return) - 
+                 COUNT(pdr.daily_return) * AVG(pdr.daily_return) * AVG(pdr.daily_return)) 
+                / (COUNT(pdr.daily_return) - 1)
+            )
         ELSE 0.0
     END as return_std_dev,
     -- Total return calculated from performance view
