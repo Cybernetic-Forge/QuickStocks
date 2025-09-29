@@ -141,8 +141,8 @@ public class MigrationRunner {
         return content.toString();
     }
     
-    /**
-     * Cleans SQL by removing all types of comments (both line comments -- and block comments /* */)
+    /*
+     * Cleans SQL by removing all types of comments (both line comments -- and block comments )
      * while preserving string literals and other important content.
      */
     private String cleanSqlComments(String sql) {
