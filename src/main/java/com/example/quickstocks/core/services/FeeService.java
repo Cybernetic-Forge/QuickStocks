@@ -1,0 +1,59 @@
+package com.example.quickstocks.core.services;
+
+import com.example.quickstocks.core.config.TradingConfig;
+
+/**
+ * Service for calculating trading fees based on configuration.
+ */
+public class FeeService {
+    
+    private final TradingConfig.FeeConfig feeConfig;
+    
+    public FeeService(TradingConfig.FeeConfig feeConfig) {
+        this.feeConfig = feeConfig;
+    }
+    
+    /**
+     * Calculates the trading fee for a given notional value.
+     * 
+     * @param notionalValue The total value of the trade (qty * price)
+     * @return The fee amount to be charged
+     */
+    public double calculateFee(double notionalValue) {
+        if (notionalValue <= 0) {
+            return 0.0;
+        }
+        
+        switch (feeConfig.getMode().toLowerCase()) {
+            case "percent":
+                return notionalValue * (feeConfig.getPercent() / 100.0);
+            case "flat":
+                return feeConfig.getFlat();
+            case "mixed":
+                return notionalValue * (feeConfig.getPercent() / 100.0) + feeConfig.getFlat();
+            default:
+                // Default to percentage if mode is unknown
+                return notionalValue * (feeConfig.getPercent() / 100.0);
+        }
+    }
+    
+    /**
+     * Calculates the total cost including fees for a buy order.
+     * 
+     * @param notionalValue The base trade value (qty * price)
+     * @return The total cost including fees
+     */
+    public double calculateTotalCostWithFees(double notionalValue) {
+        return notionalValue + calculateFee(notionalValue);
+    }
+    
+    /**
+     * Calculates the net proceeds after fees for a sell order.
+     * 
+     * @param notionalValue The base trade value (qty * price)
+     * @return The net proceeds after deducting fees
+     */
+    public double calculateNetProceedsAfterFees(double notionalValue) {
+        return notionalValue - calculateFee(notionalValue);
+    }
+}

@@ -73,6 +73,9 @@ public class SimulationEngine {
         
         // Schedule periodic ticks
         scheduler.scheduleAtFixedRate(this::tick, 0, TICK_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        
+        // Schedule periodic reset of trading activity (every 60 seconds)
+        scheduler.scheduleAtFixedRate(this::resetTradingActivity, 60, 60, TimeUnit.SECONDS);
     }
     
     /**
@@ -469,6 +472,21 @@ public class SimulationEngine {
             
         } catch (Exception e) {
             logger.warning("Failed to record portfolio snapshots: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Resets trading activity counters for threshold calculations.
+     * Called periodically to track recent trading activity.
+     */
+    private void resetTradingActivity() {
+        try {
+            if (marketService.getThresholdController() != null) {
+                marketService.getThresholdController().resetTradingActivity();
+                logger.fine("Reset trading activity counters");
+            }
+        } catch (Exception e) {
+            logger.warning("Error resetting trading activity: " + e.getMessage());
         }
     }
 }
