@@ -397,8 +397,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         }
 
     }
-
-    /*
+  
      * Displays analytics information for the stock.
      * This provides analytics insights including mini charts.
      */

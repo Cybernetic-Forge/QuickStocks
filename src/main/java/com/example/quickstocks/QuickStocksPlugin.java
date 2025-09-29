@@ -6,8 +6,7 @@ import com.example.quickstocks.commands.MarketCommand;
 import com.example.quickstocks.commands.MarketDeviceCommand;
 import com.example.quickstocks.commands.StocksCommand;
 import com.example.quickstocks.commands.WalletCommand;
-import com.example.quickstocks.core.services.AuditService;
-import com.example.quickstocks.core.services.BackupService;
+import com.example.quickstocks.commands.WatchCommand;
 import com.example.quickstocks.core.algorithms.PriceThresholdController;
 import com.example.quickstocks.core.services.CryptoService;
 import com.example.quickstocks.core.services.HoldingsService;
@@ -15,6 +14,7 @@ import com.example.quickstocks.core.services.SimulationEngine;
 import com.example.quickstocks.core.services.StockMarketService;
 import com.example.quickstocks.core.services.TradingService;
 import com.example.quickstocks.core.services.WalletService;
+import com.example.quickstocks.core.services.WatchlistService;
 import com.example.quickstocks.infrastructure.db.ConfigLoader;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 import com.example.quickstocks.infrastructure.db.DatabaseManager;
@@ -41,8 +41,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private WalletService walletService;
     private HoldingsService holdingsService;
     private TradingService tradingService;
-    private AuditService auditService;
-    private BackupService backupService;
+    private WatchlistService watchlistService;
     private BukkitRunnable marketUpdateTask;
 
     @Override
@@ -81,13 +80,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Initialize trading service
             tradingService = new TradingService(databaseManager.getDb(), walletService, holdingsService);
             
-            // Initialize audit service
-            auditService = new AuditService(databaseManager.getDb(), holdingsService);
-            
-            // Initialize backup service
-            String dataPath = getDataFolder().getAbsolutePath();
-            boolean backupEnabled = getConfig().getBoolean("backup.enabled", true);
-            backupService = new BackupService(databaseManager.getDb(), dataPath, backupEnabled);
+            // Initialize watchlist service
+            watchlistService = new WatchlistService(databaseManager);
             // Connect trading service to market service for threshold tracking
             tradingService.setStockMarketService(stockMarketService);
             
@@ -123,39 +117,18 @@ public final class QuickStocksPlugin extends JavaPlugin {
     public void onDisable() {
         getLogger().info("QuickStocks disabling...");
         
-        // Perform emergency backup before shutdown
-        if (backupService != null) {
-            getLogger().info("Performing emergency backup...");
-            BackupService.BackupResult backupResult = backupService.performEmergencyBackup();
-            if (backupResult.success) {
-                getLogger().info("Emergency backup completed: " + backupResult.fileCount + " files, " + backupResult.totalSize + " bytes");
-            } else {
-                getLogger().warning("Emergency backup failed: " + backupResult.message);
-            }
-        }
-        
-        // Stop the simulation engine and wait for current operations to complete
+        // Stop the simulation engine
         if (simulationEngine != null) {
-            getLogger().info("Stopping simulation engine...");
             simulationEngine.stop();
-            
-            // Give simulation engine time to finish current operations
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
         }
         
         // Stop the market update task
         if (marketUpdateTask != null && !marketUpdateTask.isCancelled()) {
-            getLogger().info("Cancelling market update task...");
             marketUpdateTask.cancel();
         }
         
-        // Close the market to prevent new trades
+        // Close the market
         if (stockMarketService != null) {
-            getLogger().info("Closing market...");
             stockMarketService.setMarketOpen(false);
         }
         
@@ -164,24 +137,12 @@ public final class QuickStocksPlugin extends JavaPlugin {
             recipeManager.removeRecipes();
         }
         
-        // Log final statistics
-        try {
-            if (queryService != null) {
-                int totalOrders = queryService.getTotalOrderCount();
-                int totalPlayers = queryService.getTotalPlayerCount();
-                getLogger().info(String.format("Final statistics: %d total orders, %d total players", totalOrders, totalPlayers));
-            }
-        } catch (Exception e) {
-            getLogger().warning("Failed to log final statistics: " + e.getMessage());
-        }
-        
-        // Shutdown database with graceful connection closing
+        // Shutdown database
         if (databaseManager != null) {
-            getLogger().info("Shutting down database...");
             databaseManager.shutdown();
         }
         
-        getLogger().info("QuickStocks disabled gracefully");
+        getLogger().info("QuickStocks disabled");
     }
     
     /**
@@ -213,11 +174,12 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Registers commands with the server.
      */
     private void registerCommands() {
-        StocksCommand stocksCommand = new StocksCommand(queryService, auditService);
+        StocksCommand stocksCommand = new StocksCommand(queryService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         WalletCommand walletCommand = new WalletCommand(walletService);
-        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService);
+        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService);
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
+        WatchCommand watchCommand = new WatchCommand(watchlistService, queryService);
         
         // Register the /stocks command
         getCommand("stocks").setExecutor(stocksCommand);
@@ -239,7 +201,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getCommand("marketdevice").setExecutor(marketDeviceCommand);
         getCommand("marketdevice").setTabCompleter(marketDeviceCommand);
         
-        getLogger().info("Registered /stocks, /crypto, /wallet, /market, and /marketdevice commands");
+        // Register the /watch command
+        getCommand("watch").setExecutor(watchCommand);
+        getCommand("watch").setTabCompleter(watchCommand);
+        
+        getLogger().info("Registered /stocks, /crypto, /wallet, /market, /marketdevice, and /watch commands");
     }
     
     /**

@@ -184,18 +184,22 @@ public class QueryService {
     }
     
     /**
-     * Gets total number of orders in the system.
+     * Gets display name for an instrument by ID.
      */
-    public int getTotalOrderCount() throws SQLException {
-        Integer count = database.queryValue("SELECT COUNT(*) FROM orders");
-        return count != null ? count : 0;
+    public String getInstrumentDisplayName(String instrumentId) throws SQLException {
+        return database.queryValue(
+            "SELECT display_name FROM instruments WHERE id = ?", 
+            instrumentId
+        );
     }
     
     /**
-     * Gets total number of unique players who have traded.
+     * Gets all instrument symbols for tab completion.
      */
-    public int getTotalPlayerCount() throws SQLException {
-        Integer count = database.queryValue("SELECT COUNT(DISTINCT player_uuid) FROM orders");
-        return count != null ? count : 0;
+    public List<String> getInstrumentSymbols() throws SQLException {
+        return database.query("SELECT symbol FROM instruments ORDER BY symbol")
+                .stream()
+                .map(row -> (String) row.get("symbol"))
+                .toList();
     }
 }
