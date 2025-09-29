@@ -95,11 +95,11 @@ public class TradingService {
             // Add shares to holdings
             holdingsService.addHolding(playerUuid, instrumentId, qty, currentPrice);
             
-            // Record the order
+            // Record the order with enhanced fields for compatibility
             String orderId = UUID.randomUUID().toString();
             database.execute(
-                "INSERT INTO orders (id, player_uuid, instrument_id, side, qty, price, ts) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                orderId, playerUuid, instrumentId, "BUY", qty, currentPrice, System.currentTimeMillis()
+                "INSERT INTO orders (id, player_uuid, instrument_id, side, qty, price, ts, order_type, execution_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                orderId, playerUuid, instrumentId, "BUY", qty, currentPrice, System.currentTimeMillis(), "MARKET", currentPrice
             );
             
             String message = String.format("BUY %.2f shares at $%.2f per share (Total: $%.2f)", 
@@ -170,11 +170,11 @@ public class TradingService {
             // Add money to wallet
             walletService.addBalance(playerUuid, totalValue);
             
-            // Record the order
+            // Record the order with enhanced fields for compatibility
             String orderId = UUID.randomUUID().toString();
             database.execute(
-                "INSERT INTO orders (id, player_uuid, instrument_id, side, qty, price, ts) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                orderId, playerUuid, instrumentId, "SELL", qty, currentPrice, System.currentTimeMillis()
+                "INSERT INTO orders (id, player_uuid, instrument_id, side, qty, price, ts, order_type, execution_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                orderId, playerUuid, instrumentId, "SELL", qty, currentPrice, System.currentTimeMillis(), "MARKET", currentPrice
             );
             
             String message = String.format("SELL %.2f shares at $%.2f per share (Total: $%.2f)", 
@@ -228,17 +228,18 @@ public class TradingService {
                     enhancedOrder.getDisplayName(),
                     enhancedOrder.getSide(),
                     enhancedOrder.getQty(),
-                    enhancedOrder.getPrice(),
+                    enhancedOrder.getExecutionPrice(), // Use execution price instead of original price
                     enhancedOrder.getTimestamp()
                 ));
             }
             return orders;
         }
         
-        // Legacy implementation
+        // Legacy implementation with enhanced field support
         List<Map<String, Object>> results = database.query(
             """
-            SELECT o.id, o.instrument_id, o.side, o.qty, o.price, o.ts, i.symbol, i.display_name
+            SELECT o.id, o.instrument_id, o.side, o.qty, o.price, o.ts, i.symbol, i.display_name,
+                   COALESCE(o.execution_price, o.price) as execution_price
             FROM orders o
             JOIN instruments i ON o.instrument_id = i.id
             WHERE o.player_uuid = ?
@@ -250,6 +251,11 @@ public class TradingService {
         
         List<Order> orders = new ArrayList<>();
         for (Map<String, Object> row : results) {
+            // Use execution_price if available, otherwise fall back to price
+            double effectivePrice = row.get("execution_price") != null ? 
+                ((Number) row.get("execution_price")).doubleValue() : 
+                ((Number) row.get("price")).doubleValue();
+                
             orders.add(new Order(
                 (String) row.get("id"),
                 (String) row.get("instrument_id"),
@@ -257,7 +263,7 @@ public class TradingService {
                 (String) row.get("display_name"),
                 (String) row.get("side"),
                 ((Number) row.get("qty")).doubleValue(),
-                ((Number) row.get("price")).doubleValue(),
+                effectivePrice,
                 ((Number) row.get("ts")).longValue()
             ));
         }
