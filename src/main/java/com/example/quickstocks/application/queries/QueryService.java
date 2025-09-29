@@ -182,20 +182,4 @@ public class QueryService {
             instrumentId
         );
     }
-    
-    /**
-     * Gets total number of orders in the system.
-     */
-    public int getTotalOrderCount() throws SQLException {
-        Integer count = database.queryValue("SELECT COUNT(*) FROM orders");
-        return count != null ? count : 0;
-    }
-    
-    /**
-     * Gets total number of unique players who have traded.
-     */
-    public int getTotalPlayerCount() throws SQLException {
-        Integer count = database.queryValue("SELECT COUNT(DISTINCT player_uuid) FROM orders");
-        return count != null ? count : 0;
-    }
 }
