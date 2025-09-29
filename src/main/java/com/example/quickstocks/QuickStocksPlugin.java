@@ -158,7 +158,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         }
         
         // Initialize database with seeding enabled
-        databaseManager = new DatabaseManager(config, true);
+        databaseManager = new DatabaseManager(config, false);
         databaseManager.initialize();
         
         getLogger().info("Database initialized: " + config.getSqliteFile());

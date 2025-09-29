@@ -6,9 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="removed stuff">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/application/boot/ItemSeeder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/application/boot/ItemSeeder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/application/boot/MockMaterial.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/listeners/CraftingListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/listeners/CraftingListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CRYPTO_CREATION_IMPLEMENTATION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MARKET_GUI_IMPLEMENTATION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MARKET_GUI_USAGE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MINECRAFT_PLUGIN_SETUP.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SOLUTION_SUMMARY.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/STOCKS_COMMAND_IMPLEMENTATION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/MarketTradingDemo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/QuickStocksPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/QuickStocksPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/VaultIntegrationDemo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/listeners/PortfolioGUIListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/listeners/PortfolioGUIListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +155,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759062910001</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="removed stuff">
+      <option name="closed" value="true" />
+      <created>1759090055181</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1759090055181</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
