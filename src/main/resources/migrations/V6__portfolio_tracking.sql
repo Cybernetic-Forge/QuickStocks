@@ -14,17 +14,12 @@ CREATE TABLE IF NOT EXISTS portfolio_history (
 
 CREATE INDEX IF NOT EXISTS idx_portfolio_history_player_ts ON portfolio_history(player_uuid, ts);
 
--- Portfolio performance summary view
-CREATE VIEW IF NOT EXISTS portfolio_performance AS
+-- Portfolio daily returns view (separated from aggregations for SQLite compatibility)
+CREATE VIEW IF NOT EXISTS portfolio_daily_returns AS
 SELECT 
     ph.player_uuid,
-    COUNT(*) as data_points,
-    MIN(ph.ts) as start_time,
-    MAX(ph.ts) as end_time,
-    -- Performance metrics
-    FIRST_VALUE(ph.total_value) OVER (PARTITION BY ph.player_uuid ORDER BY ph.ts ASC) as initial_value,
-    LAST_VALUE(ph.total_value) OVER (PARTITION BY ph.player_uuid ORDER BY ph.ts ASC 
-        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as final_value,
+    ph.ts,
+    ph.total_value,
     -- Calculate daily returns (approximation)
     LAG(ph.total_value) OVER (PARTITION BY ph.player_uuid ORDER BY ph.ts) as prev_value,
     CASE 
@@ -37,25 +32,44 @@ FROM portfolio_history ph
 WHERE ph.ts >= (strftime('%s', 'now') * 1000 - 30 * 24 * 60 * 60 * 1000) -- Last 30 days
 ORDER BY ph.player_uuid, ph.ts;
 
+-- Portfolio performance summary view (aggregated metrics)
+CREATE VIEW IF NOT EXISTS portfolio_performance AS
+SELECT 
+    pdr.player_uuid,
+    COUNT(*) as data_points,
+    MIN(pdr.ts) as start_time,
+    MAX(pdr.ts) as end_time,
+    -- Get initial and final values using subqueries for better SQLite compatibility
+    (SELECT pdr2.total_value FROM portfolio_daily_returns pdr2 
+     WHERE pdr2.player_uuid = pdr.player_uuid 
+     ORDER BY pdr2.ts ASC LIMIT 1) as initial_value,
+    (SELECT pdr2.total_value FROM portfolio_daily_returns pdr2 
+     WHERE pdr2.player_uuid = pdr.player_uuid 
+     ORDER BY pdr2.ts DESC LIMIT 1) as final_value,
+    AVG(pdr.daily_return) as avg_daily_return
+FROM portfolio_daily_returns pdr
+GROUP BY pdr.player_uuid;
+
 -- Sharpe ratio calculation helper view (for players with sufficient data)
 CREATE VIEW IF NOT EXISTS sharpe_ratio_data AS
 SELECT 
-    pp.player_uuid,
-    COUNT(pp.daily_return) as return_count,
-    AVG(pp.daily_return) as avg_return,
+    pdr.player_uuid,
+    COUNT(pdr.daily_return) as return_count,
+    AVG(pdr.daily_return) as avg_return,
     -- Standard deviation of returns
     CASE 
-        WHEN COUNT(pp.daily_return) > 1 THEN
-            SQRT(SUM((pp.daily_return - AVG(pp.daily_return)) * (pp.daily_return - AVG(pp.daily_return))) / (COUNT(pp.daily_return) - 1))
+        WHEN COUNT(pdr.daily_return) > 1 THEN
+            SQRT(SUM((pdr.daily_return - AVG(pdr.daily_return)) * (pdr.daily_return - AVG(pdr.daily_return))) / (COUNT(pdr.daily_return) - 1))
         ELSE 0.0
     END as return_std_dev,
-    -- Total return
+    -- Total return calculated from performance view
     CASE 
         WHEN pp.initial_value > 0 THEN
             (pp.final_value - pp.initial_value) / pp.initial_value
         ELSE 0.0
     END as total_return
-FROM portfolio_performance pp
-WHERE pp.daily_return IS NOT NULL
-GROUP BY pp.player_uuid
-HAVING COUNT(pp.daily_return) >= 5; -- Need at least 5 data points for meaningful Sharpe ratio
+FROM portfolio_daily_returns pdr
+JOIN portfolio_performance pp ON pdr.player_uuid = pp.player_uuid
+WHERE pdr.daily_return IS NOT NULL
+GROUP BY pdr.player_uuid, pp.initial_value, pp.final_value
+HAVING COUNT(pdr.daily_return) >= 5; -- Need at least 5 data points for meaningful Sharpe ratio
