@@ -8,13 +8,7 @@ import com.example.quickstocks.commands.StocksCommand;
 import com.example.quickstocks.commands.WalletCommand;
 import com.example.quickstocks.commands.WatchCommand;
 import com.example.quickstocks.core.algorithms.PriceThresholdController;
-import com.example.quickstocks.core.services.CryptoService;
-import com.example.quickstocks.core.services.HoldingsService;
-import com.example.quickstocks.core.services.SimulationEngine;
-import com.example.quickstocks.core.services.StockMarketService;
-import com.example.quickstocks.core.services.TradingService;
-import com.example.quickstocks.core.services.WalletService;
-import com.example.quickstocks.core.services.WatchlistService;
+import com.example.quickstocks.core.services.*;
 import com.example.quickstocks.infrastructure.db.ConfigLoader;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 import com.example.quickstocks.infrastructure.db.DatabaseManager;
@@ -42,6 +36,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private HoldingsService holdingsService;
     private TradingService tradingService;
     private WatchlistService watchlistService;
+    private AuditService auditService;
     private BukkitRunnable marketUpdateTask;
 
     @Override
@@ -82,6 +77,10 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Initialize watchlist service
             watchlistService = new WatchlistService(databaseManager);
+
+            // Initialize audit service
+            auditService = new AuditService(databaseManager.getDb(), holdingsService);
+
             // Connect trading service to market service for threshold tracking
             tradingService.setStockMarketService(stockMarketService);
             
@@ -174,7 +173,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Registers commands with the server.
      */
     private void registerCommands() {
-        StocksCommand stocksCommand = new StocksCommand(queryService);
+        StocksCommand stocksCommand = new StocksCommand(queryService, auditService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         WalletCommand walletCommand = new WalletCommand(walletService);
         MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService);

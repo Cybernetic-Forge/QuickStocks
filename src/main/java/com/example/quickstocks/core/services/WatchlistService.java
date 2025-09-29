@@ -39,7 +39,7 @@ public class WatchlistService {
         
         String sql = "INSERT INTO user_watchlists (player_uuid, instrument_id, added_at) VALUES (?, ?, ?)";
         
-        try (Connection conn = databaseManager.getConnection();
+        try (Connection conn = databaseManager.getDb().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, playerUuid);
@@ -63,7 +63,7 @@ public class WatchlistService {
     public boolean removeFromWatchlist(String playerUuid, String instrumentId) throws SQLException {
         String sql = "DELETE FROM user_watchlists WHERE player_uuid = ? AND instrument_id = ?";
         
-        try (Connection conn = databaseManager.getConnection();
+        try (Connection conn = databaseManager.getDb().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, playerUuid);
@@ -86,7 +86,7 @@ public class WatchlistService {
     public boolean isInWatchlist(String playerUuid, String instrumentId) throws SQLException {
         String sql = "SELECT 1 FROM user_watchlists WHERE player_uuid = ? AND instrument_id = ?";
         
-        try (Connection conn = databaseManager.getConnection();
+        try (Connection conn = databaseManager.getDb().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, playerUuid);
@@ -126,7 +126,7 @@ public class WatchlistService {
         
         List<WatchlistItem> items = new ArrayList<>();
         
-        try (Connection conn = databaseManager.getConnection();
+        try (Connection conn = databaseManager.getDb().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, playerUuid);
@@ -162,7 +162,7 @@ public class WatchlistService {
     public int getWatchlistCount(String playerUuid) throws SQLException {
         String sql = "SELECT COUNT(*) FROM user_watchlists WHERE player_uuid = ?";
         
-        try (Connection conn = databaseManager.getConnection();
+        try (Connection conn = databaseManager.getDb().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, playerUuid);
@@ -183,7 +183,7 @@ public class WatchlistService {
     public int clearWatchlist(String playerUuid) throws SQLException {
         String sql = "DELETE FROM user_watchlists WHERE player_uuid = ?";
         
-        try (Connection conn = databaseManager.getConnection();
+        try (Connection conn = databaseManager.getDb().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, playerUuid);
