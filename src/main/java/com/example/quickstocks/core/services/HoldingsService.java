@@ -155,6 +155,144 @@ public class HoldingsService {
     }
     
     /**
+     * Gets a specific holding for a player and instrument with version for locking.
+     */
+    public Holding getHoldingWithLock(String playerUuid, String instrumentId) {
+        try {
+            Map<String, Object> result = database.queryRow(
+                """
+                SELECT h.instrument_id, h.qty, h.avg_cost, h.version, i.symbol, i.display_name, s.last_price
+                FROM user_holdings h
+                JOIN instruments i ON h.instrument_id = i.id
+                LEFT JOIN instrument_state s ON h.instrument_id = s.instrument_id
+                WHERE h.player_uuid = ? AND h.instrument_id = ?
+                """,
+                playerUuid, instrumentId
+            );
+            
+            if (result == null) {
+                return null;
+            }
+            
+            return new Holding(
+                (String) result.get("instrument_id"),
+                (String) result.get("symbol"),
+                (String) result.get("display_name"),
+                ((Number) result.get("qty")).doubleValue(),
+                ((Number) result.get("avg_cost")).doubleValue(),
+                result.get("last_price") != null ? ((Number) result.get("last_price")).doubleValue() : 0.0,
+                ((Number) result.get("version")).intValue()
+            );
+        } catch (SQLException e) {
+            logger.warning("Failed to get holding with lock for " + playerUuid + ": " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Adds shares to a holding with optimistic versioning (for use within transactions).
+     */
+    public boolean addHoldingWithVersioning(Db.TransactionDb db, String playerUuid, String instrumentId, double qty, double price) throws SQLException {
+        // Get existing holding
+        Holding existing = getHolding(playerUuid, instrumentId);
+        
+        int retries = 3;
+        while (retries > 0) {
+            try {
+                if (existing == null || existing.getQty() == 0) {
+                    // New holding
+                    int rowsAffected = db.execute(
+                        "INSERT OR REPLACE INTO user_holdings (player_uuid, instrument_id, qty, avg_cost, version) VALUES (?, ?, ?, ?, ?)",
+                        playerUuid, instrumentId, qty, price, 1
+                    );
+                    return rowsAffected > 0;
+                } else {
+                    // Update existing holding with new average cost and increment version
+                    double totalValue = (existing.getQty() * existing.getAvgCost()) + (qty * price);
+                    double newQty = existing.getQty() + qty;
+                    double newAvgCost = totalValue / newQty;
+                    
+                    int rowsAffected = db.execute(
+                        "UPDATE user_holdings SET qty = ?, avg_cost = ?, version = version + 1 WHERE player_uuid = ? AND instrument_id = ? AND version = ?",
+                        newQty, newAvgCost, playerUuid, instrumentId, existing.getVersion()
+                    );
+                    
+                    if (rowsAffected == 0) {
+                        // Version conflict, retry
+                        logger.fine("Version conflict when adding holding, retrying... (" + retries + " retries left)");
+                        existing = getHolding(playerUuid, instrumentId);
+                        retries--;
+                        continue;
+                    }
+                    
+                    return true;
+                }
+            } catch (SQLException e) {
+                logger.warning("Failed to add holding with versioning: " + e.getMessage());
+                throw e;
+            }
+        }
+        
+        logger.warning("Failed to add holding after retries due to version conflicts");
+        return false;
+    }
+    
+    /**
+     * Removes shares from a holding with optimistic versioning (for use within transactions).
+     */
+    public boolean removeHoldingWithVersioning(Db.TransactionDb db, String playerUuid, String instrumentId, double qty, int expectedVersion) throws SQLException {
+        int retries = 3;
+        while (retries > 0) {
+            try {
+                Holding existing = getHolding(playerUuid, instrumentId);
+                
+                if (existing == null || existing.getQty() < qty) {
+                    return false; // Insufficient shares
+                }
+                
+                double newQty = existing.getQty() - qty;
+                
+                if (newQty <= 0) {
+                    // Remove holding entirely
+                    int rowsAffected = db.execute(
+                        "DELETE FROM user_holdings WHERE player_uuid = ? AND instrument_id = ? AND version = ?",
+                        playerUuid, instrumentId, expectedVersion
+                    );
+                    
+                    if (rowsAffected == 0) {
+                        // Version conflict, retry
+                        logger.fine("Version conflict when removing holding, retrying... (" + retries + " retries left)");
+                        retries--;
+                        continue;
+                    }
+                } else {
+                    // Update quantity and increment version (keep same average cost)
+                    int rowsAffected = db.execute(
+                        "UPDATE user_holdings SET qty = ?, version = version + 1 WHERE player_uuid = ? AND instrument_id = ? AND version = ?",
+                        newQty, playerUuid, instrumentId, expectedVersion
+                    );
+                    
+                    if (rowsAffected == 0) {
+                        // Version conflict, retry
+                        logger.fine("Version conflict when updating holding, retrying... (" + retries + " retries left)");
+                        retries--;
+                        continue;
+                    }
+                }
+                
+                return true;
+                
+            } catch (SQLException e) {
+                logger.warning("Failed to remove holding with versioning: " + e.getMessage());
+                throw e;
+            }
+        }
+        
+        logger.warning("Failed to remove holding after retries due to version conflicts");
+        return false;
+    }
+    
+    /**
      * Represents a player's holding in an instrument.
      */
     public static class Holding {
@@ -164,15 +302,22 @@ public class HoldingsService {
         private final double qty;
         private final double avgCost;
         private final double currentPrice;
+        private final int version;
         
-        public Holding(String instrumentId, String symbol, String displayName, 
+        public Holding(String instrumentId, String symbol, String displayName,
                       double qty, double avgCost, double currentPrice) {
+            this(instrumentId, symbol, displayName, qty, avgCost, currentPrice, 1);
+        }
+        
+        public Holding(String instrumentId, String symbol, String displayName,
+                      double qty, double avgCost, double currentPrice, int version) {
             this.instrumentId = instrumentId;
             this.symbol = symbol;
             this.displayName = displayName;
             this.qty = qty;
             this.avgCost = avgCost;
             this.currentPrice = currentPrice;
+            this.version = version;
         }
         
         public String getInstrumentId() { return instrumentId; }
@@ -181,6 +326,7 @@ public class HoldingsService {
         public double getQty() { return qty; }
         public double getAvgCost() { return avgCost; }
         public double getCurrentPrice() { return currentPrice; }
+        public int getVersion() { return version; }
         
         public double getTotalValue() { return qty * currentPrice; }
         public double getTotalCost() { return qty * avgCost; }

@@ -51,6 +51,18 @@ public class TradingService {
     }
     
     /**
+     * Executes a market buy order at current price with idempotency support.
+     */
+    public TradeResult executeBuyOrder(String playerUuid, String instrumentId, double qty, String idempotencyKey) throws SQLException {
+        // Check for existing order with same idempotency key
+        if (idempotencyKey != null) {
+            TradeResult existingResult = checkExistingOrder(idempotencyKey);
+            if (existingResult != null) {
+                logger.info("Returning cached result for idempotency key: " + idempotencyKey);
+                return existingResult;
+            }
+        }
+    }
      * Executes a market buy order at current price.
      * Uses enhanced trading features if available.
      */
@@ -78,28 +90,50 @@ public class TradingService {
             return new TradeResult(false, "Instrument not found or price unavailable");
         }
         
-        double totalCost = qty * currentPrice;
+        // Execute trade in atomic transaction with SERIALIZABLE isolation
+        final TradeResult[] result = new TradeResult[1];
         
-        // Check if player has sufficient balance
-        if (!walletService.hasBalance(playerUuid, totalCost)) {
-            return new TradeResult(false, "Insufficient funds. Required: $" + String.format("%.2f", totalCost));
-        }
-        
-        // Execute the trade in a transaction-like manner
-        try {
-            // Remove money from wallet
-            if (!walletService.removeBalance(playerUuid, totalCost)) {
-                return new TradeResult(false, "Failed to debit wallet");
+        database.executeTransaction(db -> {
+            // Set SERIALIZABLE isolation for this transaction
+            db.execute("PRAGMA read_uncommitted = false");
+            
+            // Get current price with row lock
+            Double currentPrice = database.queryValue(
+                "SELECT last_price FROM instrument_state WHERE instrument_id = ?",
+                instrumentId
+            );
+            
+            if (currentPrice == null) {
+                result[0] = new TradeResult(false, "Instrument not found or price unavailable");
+                return;
             }
             
-            // Add shares to holdings
-            holdingsService.addHolding(playerUuid, instrumentId, qty, currentPrice);
+            double totalCost = qty * currentPrice;
             
-            // Record the order
+            // Check balance
+            if (!walletService.hasBalance(playerUuid, totalCost)) {
+                result[0] = new TradeResult(false, "Insufficient funds. Required: $" + String.format("%.2f", totalCost));
+                return;
+            }
+            
+            // Remove money from wallet (within transaction)
+            if (!walletService.removeBalance(playerUuid, totalCost)) {
+                result[0] = new TradeResult(false, "Failed to debit wallet");
+                return;
+            }
+            
+            // Add shares to holdings with optimistic locking
+            boolean holdingUpdated = holdingsService.addHoldingWithVersioning(db, playerUuid, instrumentId, qty, currentPrice);
+            if (!holdingUpdated) {
+                result[0] = new TradeResult(false, "Failed to update holdings due to concurrent modification");
+                return;
+            }
+            
+            // Record the order with idempotency key
             String orderId = UUID.randomUUID().toString();
-            database.execute(
-                "INSERT INTO orders (id, player_uuid, instrument_id, side, qty, price, ts) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                orderId, playerUuid, instrumentId, "BUY", qty, currentPrice, System.currentTimeMillis()
+            db.execute(
+                "INSERT INTO orders (id, player_uuid, instrument_id, side, qty, price, ts, client_idempotency) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                orderId, playerUuid, instrumentId, "BUY", qty, currentPrice, System.currentTimeMillis(), idempotencyKey
             );
             
             String message = String.format("BUY %.2f shares at $%.2f per share (Total: $%.2f)", 
@@ -109,21 +143,37 @@ public class TradingService {
             recordTradingActivity(instrumentId, (int) qty);
             
             logger.info("Executed buy order for " + playerUuid + ": " + message);
-            return new TradeResult(true, message);
-            
-        } catch (SQLException e) {
-            logger.warning("Failed to execute buy order: " + e.getMessage());
-            // Try to rollback wallet debit (basic attempt)
-            try {
-                walletService.addBalance(playerUuid, totalCost);
-            } catch (SQLException rollbackError) {
-                logger.severe("Failed to rollback wallet debit: " + rollbackError.getMessage());
-            }
-            return new TradeResult(false, "Trade execution failed: " + e.getMessage());
+            result[0] = new TradeResult(true, message);
+        });
+        
+        if (result[0] == null) {
+            result[0] = new TradeResult(false, "Transaction failed unexpectedly");
         }
+        
+        return result[0];
     }
     
     /**
+     * Legacy method for backward compatibility.
+     */
+    public TradeResult executeBuyOrder(String playerUuid, String instrumentId, double qty) throws SQLException {
+        return executeBuyOrder(playerUuid, instrumentId, qty, null);
+    }
+    
+    /**
+     * Executes a market sell order at current price with idempotency support.
+     */
+    public TradeResult executeSellOrder(String playerUuid, String instrumentId, double qty, String idempotencyKey) throws SQLException {
+        // Check for existing order with same idempotency key
+        if (idempotencyKey != null) {
+            TradeResult existingResult = checkExistingOrder(idempotencyKey);
+            if (existingResult != null) {
+                logger.info("Returning cached result for idempotency key: " + idempotencyKey);
+                return existingResult;
+            }
+        }
+    }
+          
      * Executes a market sell order at current price.
      * Uses enhanced trading features if available.
      */
@@ -158,23 +208,49 @@ public class TradingService {
                 (holding != null ? String.format("%.2f", holding.getQty()) : "0"));
         }
         
-        double totalValue = qty * currentPrice;
+        // Execute trade in atomic transaction with SERIALIZABLE isolation
+        final TradeResult[] result = new TradeResult[1];
         
-        // Execute the trade
-        try {
-            // Remove shares from holdings
-            if (!holdingsService.removeHolding(playerUuid, instrumentId, qty)) {
-                return new TradeResult(false, "Failed to remove shares from portfolio");
+        database.executeTransaction(db -> {
+            // Set SERIALIZABLE isolation for this transaction
+            db.execute("PRAGMA read_uncommitted = false");
+            
+            // Get current price
+            Double currentPrice = database.queryValue(
+                "SELECT last_price FROM instrument_state WHERE instrument_id = ?",
+                instrumentId
+            );
+            
+            if (currentPrice == null) {
+                result[0] = new TradeResult(false, "Instrument not found or price unavailable");
+                return;
             }
             
-            // Add money to wallet
+            // Check holdings with optimistic locking
+            HoldingsService.Holding holding = holdingsService.getHoldingWithLock(playerUuid, instrumentId);
+            if (holding == null || holding.getQty() < qty) {
+                result[0] = new TradeResult(false, "Insufficient shares. Available: " + 
+                    (holding != null ? String.format("%.2f", holding.getQty()) : "0"));
+                return;
+            }
+            
+            double totalValue = qty * currentPrice;
+            
+            // Remove shares from holdings with versioning
+            boolean holdingUpdated = holdingsService.removeHoldingWithVersioning(db, playerUuid, instrumentId, qty, holding.getVersion());
+            if (!holdingUpdated) {
+                result[0] = new TradeResult(false, "Failed to update holdings due to concurrent modification");
+                return;
+            }
+            
+            // Add money to wallet (within transaction)
             walletService.addBalance(playerUuid, totalValue);
             
-            // Record the order
+            // Record the order with idempotency key
             String orderId = UUID.randomUUID().toString();
-            database.execute(
-                "INSERT INTO orders (id, player_uuid, instrument_id, side, qty, price, ts) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                orderId, playerUuid, instrumentId, "SELL", qty, currentPrice, System.currentTimeMillis()
+            db.execute(
+                "INSERT INTO orders (id, player_uuid, instrument_id, side, qty, price, ts, client_idempotency) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                orderId, playerUuid, instrumentId, "SELL", qty, currentPrice, System.currentTimeMillis(), idempotencyKey
             );
             
             String message = String.format("SELL %.2f shares at $%.2f per share (Total: $%.2f)", 
@@ -184,18 +260,46 @@ public class TradingService {
             recordTradingActivity(instrumentId, (int) qty);
             
             logger.info("Executed sell order for " + playerUuid + ": " + message);
-            return new TradeResult(true, message);
-            
-        } catch (SQLException e) {
-            logger.warning("Failed to execute sell order: " + e.getMessage());
-            // Try to rollback share removal (basic attempt)
-            try {
-                holdingsService.addHolding(playerUuid, instrumentId, qty, currentPrice);
-            } catch (SQLException rollbackError) {
-                logger.severe("Failed to rollback share removal: " + rollbackError.getMessage());
-            }
-            return new TradeResult(false, "Trade execution failed: " + e.getMessage());
+            result[0] = new TradeResult(true, message);
+        });
+        
+        if (result[0] == null) {
+            result[0] = new TradeResult(false, "Transaction failed unexpectedly");
         }
+        
+        return result[0];
+    }
+    
+    /**
+     * Legacy method for backward compatibility.
+     */
+    public TradeResult executeSellOrder(String playerUuid, String instrumentId, double qty) throws SQLException {
+        return executeSellOrder(playerUuid, instrumentId, qty, null);
+    }
+    
+    /**
+     * Checks if an order with the given idempotency key already exists.
+     * @return existing TradeResult if found, null otherwise
+     */
+    private TradeResult checkExistingOrder(String idempotencyKey) throws SQLException {
+        Map<String, Object> existingOrder = database.queryRow(
+            "SELECT side, qty, price FROM orders WHERE client_idempotency = ?",
+            idempotencyKey
+        );
+        
+        if (existingOrder != null) {
+            String side = (String) existingOrder.get("side");
+            double qty = ((Number) existingOrder.get("qty")).doubleValue();
+            double price = ((Number) existingOrder.get("price")).doubleValue();
+            double totalValue = qty * price;
+            
+            String message = String.format("%s %.2f shares at $%.2f per share (Total: $%.2f) [CACHED]", 
+                side, qty, price, totalValue);
+            
+            return new TradeResult(true, message);
+        }
+        
+        return null;
     }
     
     /**
