@@ -7,6 +7,7 @@ import com.example.quickstocks.core.models.Stock;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -15,17 +16,32 @@ import java.util.stream.Collectors;
  */
 public class StockPriceCalculator {
     
+    private static final Logger logger = Logger.getLogger(StockPriceCalculator.class.getName());
+    
     private final Random random;
+    private final PriceThresholdController thresholdController;
     private static final double BASE_VOLATILITY = 0.02; // 2% base daily volatility
     private static final double MAX_PRICE_CHANGE = 0.20; // 20% maximum change per update
     private static final double MOMENTUM_DECAY = 0.95; // How quickly momentum fades
     
     public StockPriceCalculator() {
         this.random = new Random();
+        this.thresholdController = null; // Will be set later via setter
     }
     
     public StockPriceCalculator(long seed) {
         this.random = new Random(seed); // Deterministic for testing
+        this.thresholdController = null; // Will be set later via setter
+    }
+    
+    public StockPriceCalculator(PriceThresholdController thresholdController) {
+        this.random = new Random();
+        this.thresholdController = thresholdController;
+    }
+    
+    public StockPriceCalculator(long seed, PriceThresholdController thresholdController) {
+        this.random = new Random(seed);
+        this.thresholdController = thresholdController;
     }
     
     /**
@@ -58,6 +74,16 @@ public class StockPriceCalculator {
         
         // Apply stock-specific volatility multiplier
         totalImpact *= (1.0 + stock.getVolatilityRating());
+        
+        // Apply price threshold dampening if controller is available
+        if (thresholdController != null) {
+            double dampeningFactor = thresholdController.calculateDampeningFactor(stock, totalImpact);
+            if (dampeningFactor < 1.0) {
+                totalImpact *= dampeningFactor;
+                logger.fine(String.format("Applied threshold dampening to %s: factor=%.2f, original impact=%.4f, dampened impact=%.4f", 
+                    stock.getSymbol(), dampeningFactor, totalImpact / dampeningFactor, totalImpact));
+            }
+        }
         
         // Ensure changes don't exceed maximum limits
         totalImpact = Math.max(-MAX_PRICE_CHANGE, Math.min(MAX_PRICE_CHANGE, totalImpact));
@@ -282,5 +308,22 @@ public class StockPriceCalculator {
             Math.max(-1.0, Math.min(1.0, influence.getCurrentValue() + eventStrength)),
             newIntensity
         );
+    }
+    
+    /**
+     * Records trading activity for a stock, which affects threshold dampening.
+     * Should be called when buy/sell orders are executed.
+     */
+    public void recordTradingActivity(String symbol, int volume) {
+        if (thresholdController != null) {
+            thresholdController.recordTradingActivity(symbol, volume);
+        }
+    }
+    
+    /**
+     * Gets the threshold controller for direct access.
+     */
+    public PriceThresholdController getThresholdController() {
+        return thresholdController;
     }
 }

@@ -29,6 +29,20 @@ market:
   updateInterval: 5 # seconds
   startOpen: true
   defaultStocks: true
+  
+  # Price growth threshold configuration
+  priceThreshold:
+    enabled: true
+    # Maximum price change per update before dampening kicks in (as percentage, e.g., 0.15 = 15%)
+    maxChangePercent: 0.15
+    # Price threshold above which dampening starts (multiplier of initial price, e.g., 5.0 = 500% of initial)
+    priceMultiplierThreshold: 5.0
+    # Dampening factor when threshold is exceeded (0.1 = reduce impact to 10%)
+    dampeningFactor: 0.3
+    # Minimum trading volume required to ignore threshold (trades per update cycle)
+    minVolumeThreshold: 100
+    # How quickly dampening decreases when volume increases (higher = more sensitive to volume)
+    volumeSensitivity: 0.5
 
 # Market Device Configuration
 marketDevice:

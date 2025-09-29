@@ -147,5 +147,24 @@ public class ConfigLoader {
         
         String topListWindowHours = props.getProperty("features.topListWindowHours", "24");
         config.setTopListWindowHours(Integer.parseInt(topListWindowHours));
+        
+        // Price threshold configuration
+        String priceThresholdEnabled = props.getProperty("market.priceThreshold.enabled", "true");
+        config.setPriceThresholdEnabled(Boolean.parseBoolean(priceThresholdEnabled));
+        
+        String maxChangePercent = props.getProperty("market.priceThreshold.maxChangePercent", "0.15");
+        config.setMaxChangePercent(Double.parseDouble(maxChangePercent));
+        
+        String priceMultiplierThreshold = props.getProperty("market.priceThreshold.priceMultiplierThreshold", "5.0");
+        config.setPriceMultiplierThreshold(Double.parseDouble(priceMultiplierThreshold));
+        
+        String dampeningFactor = props.getProperty("market.priceThreshold.dampeningFactor", "0.3");
+        config.setDampeningFactor(Double.parseDouble(dampeningFactor));
+        
+        String minVolumeThreshold = props.getProperty("market.priceThreshold.minVolumeThreshold", "100");
+        config.setMinVolumeThreshold(Integer.parseInt(minVolumeThreshold));
+        
+        String volumeSensitivity = props.getProperty("market.priceThreshold.volumeSensitivity", "0.5");
+        config.setVolumeSensitivity(Double.parseDouble(volumeSensitivity));
     }
 }
