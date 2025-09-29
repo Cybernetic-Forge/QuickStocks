@@ -4,6 +4,7 @@ import com.example.quickstocks.application.queries.QueryService;
 import com.example.quickstocks.core.services.HoldingsService;
 import com.example.quickstocks.core.services.TradingService;
 import com.example.quickstocks.core.services.WalletService;
+import com.example.quickstocks.core.services.WatchlistService;
 import com.example.quickstocks.gui.MarketGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -29,13 +30,16 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     private final TradingService tradingService;
     private final HoldingsService holdingsService;
     private final WalletService walletService;
+    private final WatchlistService watchlistService;
     
     public MarketCommand(QueryService queryService, TradingService tradingService, 
-                        HoldingsService holdingsService, WalletService walletService) {
+                        HoldingsService holdingsService, WalletService walletService,
+                        WatchlistService watchlistService) {
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
         this.walletService = walletService;
+        this.watchlistService = watchlistService;
     }
     
     @Override
@@ -88,6 +92,11 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                     showOrderHistory(player, playerUuid);
                     break;
                     
+                case "watchlist":
+                case "watch":
+                    showWatchlistSummary(player, playerUuid);
+                    break;
+                    
                 case "confirm":
                     if (args.length < 4) {
                         player.sendMessage(ChatColor.RED + "Usage: /market confirm <buy|sell> <symbol> <quantity>");
@@ -97,7 +106,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                     break;
                     
                 default:
-                    player.sendMessage(ChatColor.RED + "Unknown subcommand. Usage: /market [browse|buy|sell|portfolio|history|confirm]");
+                    player.sendMessage(ChatColor.RED + "Unknown subcommand. Usage: /market [browse|buy|sell|portfolio|history|watchlist|confirm]");
                     break;
             }
             
@@ -145,13 +154,29 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             ChatColor changeColor = change24h >= 0 ? ChatColor.GREEN : ChatColor.RED;
             String changeArrow = change24h >= 0 ? "▲" : "▼";
             
-            player.sendMessage(String.format(ChatColor.GRAY + "%d. " + ChatColor.WHITE + "%s " + 
+            // Check if this instrument is in the player's watchlist
+            String instrumentId = queryService.getInstrumentIdBySymbol(symbol);
+            boolean inWatchlist = false;
+            if (instrumentId != null) {
+                try {
+                    inWatchlist = watchlistService.isInWatchlist(player.getUniqueId().toString(), instrumentId);
+                } catch (Exception e) {
+                    // Ignore watchlist check errors
+                }
+            }
+            
+            String watchlistIndicator = inWatchlist ? ChatColor.YELLOW + "★ " : "";
+            
+            player.sendMessage(String.format(ChatColor.GRAY + "%d. " + watchlistIndicator + ChatColor.WHITE + "%s " + 
                 ChatColor.GRAY + "(%s) " + ChatColor.YELLOW + "$%.2f " + changeColor + "%s%.2f%%",
                 rank++, displayName, symbol, price, changeArrow, Math.abs(change24h)));
         }
         
         player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/market buy <symbol> <qty>" + 
                           ChatColor.GRAY + " to purchase shares.");
+        player.sendMessage(ChatColor.GRAY + "Items with " + ChatColor.YELLOW + "★" + ChatColor.GRAY + 
+                          " are in your watchlist. Use " + ChatColor.WHITE + "/watch" + 
+                          ChatColor.GRAY + " to manage your watchlist.");
     }
     
     private void handleBuyOrder(Player player, String playerUuid, String symbol, String qtyStr) throws Exception {
@@ -333,11 +358,39 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(ChatColor.RED + "Invalid quantity: " + qtyStr);
         }
     }
+    
+    private void showWatchlistSummary(Player player, String playerUuid) throws Exception {
+        List<WatchlistService.WatchlistItem> watchlist = watchlistService.getWatchlist(playerUuid);
+        
+        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Watchlist Summary" + ChatColor.GOLD + " ===");
+        
+        if (watchlist.isEmpty()) {
+            player.sendMessage(ChatColor.GRAY + "Your watchlist is empty.");
+            player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/watch add <symbol>" + 
+                              ChatColor.GRAY + " to add instruments to your watchlist.");
+            return;
+        }
+        
+        player.sendMessage(ChatColor.YELLOW + "Watching " + watchlist.size() + " instruments:");
+        
+        for (WatchlistService.WatchlistItem item : watchlist) {
+            ChatColor changeColor = item.getChange24h() >= 0 ? ChatColor.GREEN : ChatColor.RED;
+            String changeArrow = item.getChange24h() >= 0 ? "▲" : "▼";
+            
+            player.sendMessage(String.format(ChatColor.YELLOW + "★ " + ChatColor.WHITE + "%s " + 
+                ChatColor.GRAY + "(%s) " + ChatColor.YELLOW + "$%.2f " + changeColor + "%s%.2f%%",
+                item.getSymbol(), item.getDisplayName(), item.getLastPrice(), 
+                changeArrow, Math.abs(item.getChange24h())));
+        }
+        
+        player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/watch" + ChatColor.GRAY + 
+                          " for detailed watchlist management.");
+    }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("browse", "buy", "sell", "portfolio", "history", "confirm")
+            return Arrays.asList("browse", "buy", "sell", "portfolio", "history", "watchlist", "confirm")
                     .stream()
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());

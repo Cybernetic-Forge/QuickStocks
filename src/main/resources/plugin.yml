@@ -20,12 +20,16 @@ commands:
     aliases: [money, balance]
   market:
     description: "Browse and trade in the market"
-    usage: "/market [browse|buy|sell|portfolio|history]"
+    usage: "/market [browse|buy|sell|portfolio|history|watchlist]"
     aliases: [trade, trading]
   marketdevice:
     description: "Grant Market Link Device items to players"
     usage: "/marketdevice give [player]"
     aliases: [mdevice]
+  watch:
+    description: "Manage your stock watchlist"
+    usage: "/watch [add|remove|list|info|clear] [symbol]"
+    aliases: [watchlist, wl]
     
 permissions:
   quickstocks.command.crypto.create:
