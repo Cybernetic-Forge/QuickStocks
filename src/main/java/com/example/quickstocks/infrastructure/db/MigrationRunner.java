@@ -94,7 +94,11 @@ public class MigrationRunner {
         // For now, we'll explicitly list the migrations we expect
         String[] expectedMigrations = {
             "V1__init.sql",
-            "V2__holdings_orders.sql"
+            "V2__holdings_orders.sql",
+            "V3__trading_economy.sql",
+            "V4__watchlists.sql",
+            "V5__analytics_views.sql",
+            "V6__portfolio_tracking.sql"
         };
         
         for (String filename : expectedMigrations) {
