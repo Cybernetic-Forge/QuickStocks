@@ -248,7 +248,7 @@ public class CompanySettingsGUI implements InventoryHolder {
                 createJobItem.setItemMeta(createJobMeta);
                 inventory.setItem(25, createJobItem);
             }
-            
+
             // Edit Job button (if player has permission)
             if (jobOpt.isPresent() && jobOpt.get().canCreateTitles()) {
                 ItemStack editJobItem = new ItemStack(Material.WRITABLE_BOOK);
@@ -262,7 +262,7 @@ public class CompanySettingsGUI implements InventoryHolder {
                 editJobItem.setItemMeta(editJobMeta);
                 inventory.setItem(26, editJobItem);
             }
-            
+
             // Assign Job button (if player has permission)
             if (jobOpt.isPresent() && jobOpt.get().canManageCompany()) {
                 ItemStack assignJobItem = new ItemStack(Material.ENCHANTED_BOOK);
