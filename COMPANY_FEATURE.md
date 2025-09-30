@@ -127,7 +127,7 @@ The feature adds 5 new tables:
 4. **company_invitations** - Invitation tracking
 5. **company_tx** - Transaction history
 
-See `src/main/resources/migrations/V7__companies.sql` for details.
+See `src/main/resources/migrations/V8__companies.sql` for details.
 
 ## Usage Examples
 
