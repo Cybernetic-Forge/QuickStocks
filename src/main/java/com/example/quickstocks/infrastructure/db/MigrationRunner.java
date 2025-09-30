@@ -99,7 +99,7 @@ public class MigrationRunner {
             "V4__watchlists.sql",
             "V5__analytics_views.sql",
             "V6__portfolio_tracking.sql",
-            "V7__fix_strftime_indexes.sql"
+            "V7__fix_strftime_indexes.sql",
             "V8__companies.sql"
         };
         
