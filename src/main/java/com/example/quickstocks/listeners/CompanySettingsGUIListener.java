@@ -120,5 +120,13 @@ public class CompanySettingsGUIListener implements Listener {
             player.sendMessage(ChatColor.GRAY + "Permissions: invite, createjobs, withdraw, manage (comma-separated)");
             return;
         }
+        
+        // Edit Job button (slot 26)
+        if (slot == 26 && item.getType() == Material.WRITABLE_BOOK) {
+            player.closeInventory();
+            player.sendMessage(ChatColor.YELLOW + "Use command: " + ChatColor.WHITE + "/company editjob " + company.getName() + " <title> <permissions>");
+            player.sendMessage(ChatColor.GRAY + "Permissions: invite, createjobs, withdraw, manage (comma-separated)");
+            return;
+        }
     }
 }
