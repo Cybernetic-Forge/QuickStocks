@@ -105,7 +105,7 @@ public class CompanyService {
      */
     public Optional<Company> getCompanyByName(String name) throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT id, name, type, owner_uuid, balance, created_at FROM companies WHERE name = ?", name);
+            "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout FROM companies WHERE name = ?", name);
         
         if (results.isEmpty()) {
             return Optional.empty();
@@ -118,7 +118,11 @@ public class CompanyService {
             (String) row.get("type"),
             (String) row.get("owner_uuid"),
             ((Number) row.get("balance")).doubleValue(),
-            ((Number) row.get("created_at")).longValue()
+            ((Number) row.get("created_at")).longValue(),
+            (String) row.get("symbol"),
+            ((Number) row.get("on_market")).intValue() != 0,
+            ((Number) row.get("market_percentage")).doubleValue(),
+            ((Number) row.get("allow_buyout")).intValue() != 0
         ));
     }
     
@@ -127,7 +131,7 @@ public class CompanyService {
      */
     public Optional<Company> getCompanyById(String companyId) throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT id, name, type, owner_uuid, balance, created_at FROM companies WHERE id = ?", companyId);
+            "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout FROM companies WHERE id = ?", companyId);
         
         if (results.isEmpty()) {
             return Optional.empty();
@@ -140,7 +144,11 @@ public class CompanyService {
             (String) row.get("type"),
             (String) row.get("owner_uuid"),
             ((Number) row.get("balance")).doubleValue(),
-            ((Number) row.get("created_at")).longValue()
+            ((Number) row.get("created_at")).longValue(),
+            (String) row.get("symbol"),
+            ((Number) row.get("on_market")).intValue() != 0,
+            ((Number) row.get("market_percentage")).doubleValue(),
+            ((Number) row.get("allow_buyout")).intValue() != 0
         ));
     }
     
@@ -149,7 +157,7 @@ public class CompanyService {
      */
     public List<Company> getCompaniesByPlayer(String playerUuid) throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT c.id, c.name, c.type, c.owner_uuid, c.balance, c.created_at " +
+            "SELECT c.id, c.name, c.type, c.owner_uuid, c.balance, c.created_at, c.symbol, c.on_market, c.market_percentage, c.allow_buyout " +
             "FROM companies c " +
             "INNER JOIN company_employees ce ON c.id = ce.company_id " +
             "WHERE ce.player_uuid = ?",
@@ -164,7 +172,11 @@ public class CompanyService {
                 (String) row.get("type"),
                 (String) row.get("owner_uuid"),
                 ((Number) row.get("balance")).doubleValue(),
-                ((Number) row.get("created_at")).longValue()
+                ((Number) row.get("created_at")).longValue(),
+                (String) row.get("symbol"),
+                ((Number) row.get("on_market")).intValue() != 0,
+                ((Number) row.get("market_percentage")).doubleValue(),
+                ((Number) row.get("allow_buyout")).intValue() != 0
             ));
         }
         
@@ -178,7 +190,7 @@ public class CompanyService {
         int offset = page * pageSize;
         
         List<Map<String, Object>> results = database.query(
-            "SELECT id, name, type, owner_uuid, balance, created_at FROM companies " +
+            "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout FROM companies " +
             "ORDER BY created_at DESC LIMIT ? OFFSET ?",
             pageSize, offset
         );
@@ -191,7 +203,11 @@ public class CompanyService {
                 (String) row.get("type"),
                 (String) row.get("owner_uuid"),
                 ((Number) row.get("balance")).doubleValue(),
-                ((Number) row.get("created_at")).longValue()
+                ((Number) row.get("created_at")).longValue(),
+                (String) row.get("symbol"),
+                ((Number) row.get("on_market")).intValue() != 0,
+                ((Number) row.get("market_percentage")).doubleValue(),
+                ((Number) row.get("allow_buyout")).intValue() != 0
             ));
         }
         
@@ -449,6 +465,17 @@ public class CompanyService {
         Optional<CompanyJob> actorJob = getPlayerJob(companyId, actorUuid);
         if (actorJob.isEmpty() || !actorJob.get().canManageCompany()) {
             throw new IllegalArgumentException("Player does not have permission to assign job titles");
+        }
+        
+        // Prevent CEO from demoting themselves
+        if (actorUuid.equals(targetUuid)) {
+            Optional<CompanyJob> currentJob = getPlayerJob(companyId, targetUuid);
+            if (currentJob.isPresent() && "CEO".equalsIgnoreCase(currentJob.get().getTitle())) {
+                Optional<CompanyJob> newJob = getJobByTitle(companyId, title);
+                if (newJob.isPresent() && !"CEO".equalsIgnoreCase(newJob.get().getTitle())) {
+                    throw new IllegalArgumentException("CEO cannot demote themselves. Transfer ownership first.");
+                }
+            }
         }
         
         // Get the job

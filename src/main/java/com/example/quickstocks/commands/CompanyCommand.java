@@ -2,6 +2,7 @@ package com.example.quickstocks.commands;
 
 import com.example.quickstocks.core.model.*;
 import com.example.quickstocks.core.services.CompanyService;
+import com.example.quickstocks.core.services.CompanyMarketService;
 import com.example.quickstocks.core.services.InvitationService;
 import com.example.quickstocks.gui.CompanySettingsGUI;
 import org.bukkit.Bukkit;
@@ -27,11 +28,14 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     
     private final CompanyService companyService;
     private final InvitationService invitationService;
+    private final CompanyMarketService companyMarketService;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     
-    public CompanyCommand(CompanyService companyService, InvitationService invitationService) {
+    public CompanyCommand(CompanyService companyService, InvitationService invitationService, 
+                         CompanyMarketService companyMarketService) {
         this.companyService = companyService;
         this.invitationService = invitationService;
+        this.companyMarketService = companyMarketService;
     }
     
     @Override
@@ -113,6 +117,30 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handleSettings(player, playerUuid, args);
                     break;
                     
+                case "setsymbol":
+                    handleSetSymbol(player, playerUuid, args);
+                    break;
+                    
+                case "market":
+                    handleMarket(player, playerUuid, args);
+                    break;
+                    
+                case "buyshares":
+                    handleBuyShares(player, playerUuid, args);
+                    break;
+                    
+                case "sellshares":
+                    handleSellShares(player, playerUuid, args);
+                    break;
+                    
+                case "shareholders":
+                    handleShareholders(player, args);
+                    break;
+                    
+                case "notifications":
+                    handleNotifications(player, playerUuid);
+                    break;
+                    
                 default:
                     player.sendMessage(ChatColor.RED + "Unknown subcommand. Use /company for help.");
                     break;
@@ -143,6 +171,15 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "/company editjob <company> <title> <perms>" + ChatColor.GRAY + " - Edit job");
         player.sendMessage(ChatColor.YELLOW + "/company assignjob <company> <player> <job>" + ChatColor.GRAY + " - Assign job");
         player.sendMessage(ChatColor.YELLOW + "/company settings [company]" + ChatColor.GRAY + " - Open settings GUI");
+        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Market Commands" + ChatColor.GOLD + " ===");
+        player.sendMessage(ChatColor.YELLOW + "/company setsymbol <company> <symbol>" + ChatColor.GRAY + " - Set trading symbol");
+        player.sendMessage(ChatColor.YELLOW + "/company market enable <company>" + ChatColor.GRAY + " - Enable market");
+        player.sendMessage(ChatColor.YELLOW + "/company market disable <company>" + ChatColor.GRAY + " - Disable market");
+        player.sendMessage(ChatColor.YELLOW + "/company market settings <company>" + ChatColor.GRAY + " - View/edit settings");
+        player.sendMessage(ChatColor.YELLOW + "/company buyshares <company> <qty>" + ChatColor.GRAY + " - Buy shares");
+        player.sendMessage(ChatColor.YELLOW + "/company sellshares <company> <qty>" + ChatColor.GRAY + " - Sell shares");
+        player.sendMessage(ChatColor.YELLOW + "/company shareholders <company>" + ChatColor.GRAY + " - View shareholders");
+        player.sendMessage(ChatColor.YELLOW + "/company notifications" + ChatColor.GRAY + " - View notifications");
     }
     
     private void handleCreate(Player player, String playerUuid, String[] args) throws Exception {
@@ -724,5 +761,263 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             .map(Player::getName)
             .filter(name -> name.toLowerCase().startsWith(prefix.toLowerCase()))
             .collect(Collectors.toList());
+    }
+    
+    /**
+     * Handles setting the trading symbol for a company.
+     */
+    private void handleSetSymbol(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 3) {
+            player.sendMessage(ChatColor.RED + "Usage: /company setsymbol <company> <symbol>");
+            return;
+        }
+        
+        String companyName = args[1];
+        String symbol = args[2];
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        // Check permission
+        if (!company.getOwnerUuid().equals(playerUuid)) {
+            player.sendMessage(ChatColor.RED + "Only the company owner can set the trading symbol.");
+            return;
+        }
+        
+        companyMarketService.setSymbol(company.getId(), symbol);
+        player.sendMessage(ChatColor.GREEN + "Trading symbol set to: " + ChatColor.WHITE + symbol.toUpperCase());
+    }
+    
+    /**
+     * Handles market operations (enable/disable/settings).
+     */
+    private void handleMarket(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 3) {
+            player.sendMessage(ChatColor.RED + "Usage: /company market <enable|disable|settings> <company> [options]");
+            return;
+        }
+        
+        String action = args[1].toLowerCase();
+        String companyName = args[2];
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        switch (action) {
+            case "enable":
+                companyMarketService.enableMarket(company.getId(), playerUuid);
+                player.sendMessage(ChatColor.GREEN + "Company is now on the market!");
+                player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + company.getSymbol());
+                player.sendMessage(ChatColor.YELLOW + "Players can now buy shares with: " + 
+                    ChatColor.WHITE + "/company buyshares " + companyName + " <quantity>");
+                break;
+                
+            case "disable":
+                companyMarketService.disableMarket(company.getId(), playerUuid);
+                player.sendMessage(ChatColor.GREEN + "Company has been delisted from the market.");
+                player.sendMessage(ChatColor.YELLOW + "All shareholders have been paid out.");
+                break;
+                
+            case "settings":
+                if (args.length < 4) {
+                    // Show current settings
+                    player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + company.getName() + " Market Settings" + ChatColor.GOLD + " ===");
+                    player.sendMessage(ChatColor.YELLOW + "On Market: " + ChatColor.WHITE + (company.isOnMarket() ? "Yes" : "No"));
+                    player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + (company.getSymbol() != null ? company.getSymbol() : "Not set"));
+                    player.sendMessage(ChatColor.YELLOW + "Market Percentage: " + ChatColor.WHITE + String.format("%.1f%%", company.getMarketPercentage()));
+                    player.sendMessage(ChatColor.YELLOW + "Buyout Protection: " + ChatColor.WHITE + (company.isAllowBuyout() ? "Disabled" : "Enabled"));
+                    
+                    double sharePrice = companyMarketService.calculateSharePrice(company);
+                    double issuedShares = companyMarketService.getPlayerShares(company.getId(), playerUuid); // This gets player's shares, need to sum all
+                    player.sendMessage(ChatColor.YELLOW + "Share Price: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
+                } else {
+                    // Update settings: /company market settings <company> <percentage|buyout> <value>
+                    String setting = args[3].toLowerCase();
+                    
+                    if (setting.equals("percentage") && args.length >= 5) {
+                        double percentage = Double.parseDouble(args[4]);
+                        companyMarketService.updateMarketSettings(company.getId(), playerUuid, percentage, null);
+                        player.sendMessage(ChatColor.GREEN + "Market percentage updated to " + String.format("%.1f%%", percentage));
+                    } else if (setting.equals("buyout") && args.length >= 5) {
+                        boolean allowBuyout = Boolean.parseBoolean(args[4]);
+                        companyMarketService.updateMarketSettings(company.getId(), playerUuid, null, allowBuyout);
+                        player.sendMessage(ChatColor.GREEN + "Buyout protection " + (allowBuyout ? "disabled" : "enabled"));
+                    } else {
+                        player.sendMessage(ChatColor.RED + "Usage: /company market settings <company> <percentage|buyout> <value>");
+                    }
+                }
+                break;
+                
+            default:
+                player.sendMessage(ChatColor.RED + "Unknown market action. Use: enable, disable, or settings");
+                break;
+        }
+    }
+    
+    /**
+     * Handles buying shares of a company.
+     */
+    private void handleBuyShares(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 3) {
+            player.sendMessage(ChatColor.RED + "Usage: /company buyshares <company> <quantity>");
+            return;
+        }
+        
+        String companyName = args[1];
+        double quantity;
+        
+        try {
+            quantity = Double.parseDouble(args[2]);
+        } catch (NumberFormatException e) {
+            player.sendMessage(ChatColor.RED + "Invalid quantity: " + args[2]);
+            return;
+        }
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        double sharePrice = companyMarketService.calculateSharePrice(company);
+        double totalCost = quantity * sharePrice;
+        
+        companyMarketService.buyShares(company.getId(), playerUuid, quantity);
+        
+        player.sendMessage(ChatColor.GREEN + "Successfully purchased " + String.format("%.2f", quantity) + " shares!");
+        player.sendMessage(ChatColor.YELLOW + "Company: " + ChatColor.WHITE + company.getName());
+        player.sendMessage(ChatColor.YELLOW + "Price per share: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
+        player.sendMessage(ChatColor.YELLOW + "Total cost: " + ChatColor.WHITE + "$" + String.format("%.2f", totalCost));
+    }
+    
+    /**
+     * Handles selling shares of a company.
+     */
+    private void handleSellShares(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 3) {
+            player.sendMessage(ChatColor.RED + "Usage: /company sellshares <company> <quantity>");
+            return;
+        }
+        
+        String companyName = args[1];
+        double quantity;
+        
+        try {
+            quantity = Double.parseDouble(args[2]);
+        } catch (NumberFormatException e) {
+            player.sendMessage(ChatColor.RED + "Invalid quantity: " + args[2]);
+            return;
+        }
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        double sharePrice = companyMarketService.calculateSharePrice(company);
+        double totalValue = quantity * sharePrice;
+        
+        companyMarketService.sellShares(company.getId(), playerUuid, quantity);
+        
+        player.sendMessage(ChatColor.GREEN + "Successfully sold " + String.format("%.2f", quantity) + " shares!");
+        player.sendMessage(ChatColor.YELLOW + "Company: " + ChatColor.WHITE + company.getName());
+        player.sendMessage(ChatColor.YELLOW + "Price per share: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
+        player.sendMessage(ChatColor.YELLOW + "Total received: " + ChatColor.WHITE + "$" + String.format("%.2f", totalValue));
+    }
+    
+    /**
+     * Handles viewing shareholders of a company.
+     */
+    private void handleShareholders(Player player, String[] args) throws Exception {
+        if (args.length < 2) {
+            player.sendMessage(ChatColor.RED + "Usage: /company shareholders <company>");
+            return;
+        }
+        
+        String companyName = args[1];
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        if (!company.isOnMarket()) {
+            player.sendMessage(ChatColor.RED + "Company is not on the market.");
+            return;
+        }
+        
+        List<Map<String, Object>> shareholders = companyMarketService.getShareholders(company.getId());
+        
+        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + company.getName() + " Shareholders" + ChatColor.GOLD + " ===");
+        
+        if (shareholders.isEmpty()) {
+            player.sendMessage(ChatColor.GRAY + "No shareholders yet.");
+            return;
+        }
+        
+        double sharePrice = companyMarketService.calculateSharePrice(company);
+        
+        for (Map<String, Object> holder : shareholders) {
+            String playerUuidStr = (String) holder.get("player_uuid");
+            double shares = ((Number) holder.get("shares")).doubleValue();
+            double avgCost = ((Number) holder.get("avg_cost")).doubleValue();
+            
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(playerUuidStr));
+            String playerName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown";
+            
+            double currentValue = shares * sharePrice;
+            double totalCost = shares * avgCost;
+            double pnl = currentValue - totalCost;
+            double pnlPercent = (pnl / totalCost) * 100;
+            
+            ChatColor pnlColor = pnl >= 0 ? ChatColor.GREEN : ChatColor.RED;
+            
+            player.sendMessage(ChatColor.YELLOW + playerName + ": " + 
+                ChatColor.WHITE + String.format("%.2f", shares) + " shares " +
+                ChatColor.GRAY + "(avg $" + String.format("%.2f", avgCost) + ") " +
+                pnlColor + String.format("%+.2f%%", pnlPercent));
+        }
+    }
+    
+    /**
+     * Handles viewing player notifications.
+     */
+    private void handleNotifications(Player player, String playerUuid) throws Exception {
+        List<Map<String, Object>> notifications = companyMarketService.getUnreadNotifications(playerUuid);
+        
+        if (notifications.isEmpty()) {
+            player.sendMessage(ChatColor.GRAY + "No new notifications.");
+            return;
+        }
+        
+        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Company Notifications" + ChatColor.GOLD + " ===");
+        
+        for (Map<String, Object> notif : notifications) {
+            String message = (String) notif.get("message");
+            long createdAt = ((Number) notif.get("created_at")).longValue();
+            String timeStr = dateFormat.format(new Date(createdAt));
+            
+            player.sendMessage(ChatColor.YELLOW + "[" + timeStr + "] " + ChatColor.WHITE + message);
+        }
+        
+        // Mark all as read
+        companyMarketService.markAllNotificationsRead(playerUuid);
+        player.sendMessage(ChatColor.GRAY + "All notifications marked as read.");
     }
 }

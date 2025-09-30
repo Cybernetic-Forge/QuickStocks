@@ -13,6 +13,11 @@ public class CompanyConfig {
     private List<String> defaultJobTitles = Arrays.asList("CEO", "CFO", "EMPLOYEE");
     private Map<String, JobPermissions> permissionsByTitle = new HashMap<>();
     
+    // Market-related settings
+    private List<String> marketableTypes = Arrays.asList("PUBLIC", "DAO");
+    private Map<String, Double> marketBalanceThresholds = new HashMap<>();
+    private double defaultMarketPercentage = 70.0;
+    
     public CompanyConfig() {
         // Set default permissions
         JobPermissions ceoPerms = new JobPermissions();
@@ -28,6 +33,10 @@ public class CompanyConfig {
         
         JobPermissions employeePerms = new JobPermissions();
         permissionsByTitle.put("EMPLOYEE", employeePerms);
+        
+        // Set default market balance thresholds
+        marketBalanceThresholds.put("PUBLIC", 10000.0);
+        marketBalanceThresholds.put("DAO", 15000.0);
     }
     
     public boolean isEnabled() {
@@ -68,6 +77,30 @@ public class CompanyConfig {
     
     public void setPermissionsByTitle(Map<String, JobPermissions> permissionsByTitle) {
         this.permissionsByTitle = permissionsByTitle;
+    }
+    
+    public List<String> getMarketableTypes() {
+        return marketableTypes;
+    }
+    
+    public void setMarketableTypes(List<String> marketableTypes) {
+        this.marketableTypes = marketableTypes;
+    }
+    
+    public Map<String, Double> getMarketBalanceThresholds() {
+        return marketBalanceThresholds;
+    }
+    
+    public void setMarketBalanceThresholds(Map<String, Double> marketBalanceThresholds) {
+        this.marketBalanceThresholds = marketBalanceThresholds;
+    }
+    
+    public double getDefaultMarketPercentage() {
+        return defaultMarketPercentage;
+    }
+    
+    public void setDefaultMarketPercentage(double defaultMarketPercentage) {
+        this.defaultMarketPercentage = defaultMarketPercentage;
     }
     
     public static class JobPermissions {
