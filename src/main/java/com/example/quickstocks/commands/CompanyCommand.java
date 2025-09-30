@@ -3,6 +3,7 @@ package com.example.quickstocks.commands;
 import com.example.quickstocks.core.model.*;
 import com.example.quickstocks.core.services.CompanyService;
 import com.example.quickstocks.core.services.InvitationService;
+import com.example.quickstocks.gui.CompanySettingsGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -104,6 +105,10 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handleAssignJob(player, playerUuid, args);
                     break;
                     
+                case "settings":
+                    handleSettings(player, playerUuid, args);
+                    break;
+                    
                 default:
                     player.sendMessage(ChatColor.RED + "Unknown subcommand. Use /company for help.");
                     break;
@@ -132,6 +137,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "/company jobs <company>" + ChatColor.GRAY + " - List job titles");
         player.sendMessage(ChatColor.YELLOW + "/company createjob <company> <title> <perms>" + ChatColor.GRAY + " - Create job");
         player.sendMessage(ChatColor.YELLOW + "/company assignjob <company> <player> <job>" + ChatColor.GRAY + " - Assign job");
+        player.sendMessage(ChatColor.YELLOW + "/company settings [company]" + ChatColor.GRAY + " - Open settings GUI");
     }
     
     private void handleCreate(Player player, String playerUuid, String[] args) throws Exception {
@@ -495,24 +501,184 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.GREEN + "Assigned job " + jobTitle + " to " + targetPlayerName);
     }
     
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (args.length == 1) {
-            return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
-                               "invitations", "deposit", "withdraw", "employees", "jobs", 
-                               "createjob", "assignjob")
-                .stream()
-                .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
-                .collect(Collectors.toList());
+    private void handleSettings(Player player, String playerUuid, String[] args) throws Exception {
+        String companyName;
+        
+        if (args.length < 2) {
+            // Show settings for player's first company
+            List<Company> companies = companyService.getCompaniesByPlayer(playerUuid);
+            
+            if (companies.isEmpty()) {
+                player.sendMessage(ChatColor.YELLOW + "You are not part of any company.");
+                player.sendMessage(ChatColor.GRAY + "Use: /company settings <company-name>");
+                return;
+            }
+            
+            // Use first company
+            companyName = companies.get(0).getName();
+        } else {
+            companyName = args[1];
         }
         
-        if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
-            return Arrays.asList("PRIVATE", "PUBLIC", "DAO")
-                .stream()
-                .filter(option -> option.toLowerCase().startsWith(args[1].toLowerCase()))
-                .collect(Collectors.toList());
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        // Check if player is an employee
+        Optional<CompanyJob> playerJob = companyService.getPlayerJob(company.getId(), playerUuid);
+        if (playerJob.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "You are not an employee of " + companyName);
+            return;
+        }
+        
+        // Open the GUI
+        CompanySettingsGUI gui = new CompanySettingsGUI(player, companyService, company);
+        gui.open();
+    }
+    
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (!(sender instanceof Player)) {
+            return null;
+        }
+        
+        Player player = (Player) sender;
+        String playerUuid = player.getUniqueId().toString();
+        
+        try {
+            // Main subcommands
+            if (args.length == 1) {
+                return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
+                                   "invitations", "deposit", "withdraw", "employees", "jobs", 
+                                   "createjob", "assignjob", "settings")
+                    .stream()
+                    .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+            }
+            
+            // Company types for create command
+            if (args.length == 3 && args[0].equalsIgnoreCase("create")) {
+                return Arrays.asList("PRIVATE", "PUBLIC", "DAO")
+                    .stream()
+                    .filter(option -> option.toLowerCase().startsWith(args[2].toLowerCase()))
+                    .collect(Collectors.toList());
+            }
+            
+            // Company names for commands that need them
+            if (args.length == 2) {
+                String subcommand = args[0].toLowerCase();
+                if (subcommand.equals("info") || subcommand.equals("employees") || subcommand.equals("jobs") ||
+                    subcommand.equals("deposit") || subcommand.equals("withdraw") || subcommand.equals("settings")) {
+                    return getCompanyNames(args[1]);
+                }
+                
+                // For invite, createjob, assignjob - suggest player's companies
+                if (subcommand.equals("invite") || subcommand.equals("createjob") || subcommand.equals("assignjob")) {
+                    return getPlayerCompanyNames(playerUuid, args[1]);
+                }
+            }
+            
+            // Player names for invite command (3rd arg)
+            if (args.length == 3 && args[0].equalsIgnoreCase("invite")) {
+                return getOnlinePlayerNames(args[2]);
+            }
+            
+            // Job titles for invite command (4th arg)
+            if (args.length == 4 && args[0].equalsIgnoreCase("invite")) {
+                String companyName = args[1];
+                return getJobTitles(companyName, args[3]);
+            }
+            
+            // Player names for assignjob command (3rd arg)
+            if (args.length == 3 && args[0].equalsIgnoreCase("assignjob")) {
+                return getOnlinePlayerNames(args[2]);
+            }
+            
+            // Job titles for assignjob command (4th arg)
+            if (args.length == 4 && args[0].equalsIgnoreCase("assignjob")) {
+                String companyName = args[1];
+                return getJobTitles(companyName, args[3]);
+            }
+            
+            // Permission suggestions for createjob (4th arg)
+            if (args.length == 4 && args[0].equalsIgnoreCase("createjob")) {
+                return Arrays.asList("invite", "createjobs", "withdraw", "manage", "invite,createjobs", 
+                                   "invite,withdraw", "manage,invite,createjobs,withdraw")
+                    .stream()
+                    .filter(option -> option.toLowerCase().startsWith(args[3].toLowerCase()))
+                    .collect(Collectors.toList());
+            }
+            
+        } catch (Exception e) {
+            // Silently fail for tab completion
+            logger.fine("Error in tab completion: " + e.getMessage());
         }
         
         return null;
+    }
+    
+    /**
+     * Gets all company names starting with the given prefix
+     */
+    private List<String> getCompanyNames(String prefix) {
+        try {
+            List<Company> companies = companyService.listCompanies(0, 100);
+            return companies.stream()
+                .map(Company::getName)
+                .filter(name -> name.toLowerCase().startsWith(prefix.toLowerCase()))
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Gets company names where the player is an employee
+     */
+    private List<String> getPlayerCompanyNames(String playerUuid, String prefix) {
+        try {
+            List<Company> companies = companyService.getCompaniesByPlayer(playerUuid);
+            return companies.stream()
+                .map(Company::getName)
+                .filter(name -> name.toLowerCase().startsWith(prefix.toLowerCase()))
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Gets job titles for a company
+     */
+    private List<String> getJobTitles(String companyName, String prefix) {
+        try {
+            Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+            if (companyOpt.isEmpty()) {
+                return new ArrayList<>();
+            }
+            
+            List<CompanyJob> jobs = companyService.getCompanyJobs(companyOpt.get().getId());
+            return jobs.stream()
+                .map(CompanyJob::getTitle)
+                .filter(title -> title.toLowerCase().startsWith(prefix.toLowerCase()))
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Gets online player names starting with the given prefix
+     */
+    private List<String> getOnlinePlayerNames(String prefix) {
+        return Bukkit.getOnlinePlayers().stream()
+            .map(Player::getName)
+            .filter(name -> name.toLowerCase().startsWith(prefix.toLowerCase()))
+            .collect(Collectors.toList());
     }
 }

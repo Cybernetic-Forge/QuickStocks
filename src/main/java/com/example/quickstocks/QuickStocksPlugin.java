@@ -8,6 +8,7 @@ import com.example.quickstocks.infrastructure.config.CompanyConfig;
 import com.example.quickstocks.infrastructure.db.ConfigLoader;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 import com.example.quickstocks.infrastructure.db.DatabaseManager;
+import com.example.quickstocks.listeners.CompanySettingsGUIListener;
 import com.example.quickstocks.listeners.CraftingListener;
 import com.example.quickstocks.listeners.MarketDeviceListener;
 import com.example.quickstocks.listeners.MarketGUIListener;
@@ -226,11 +227,13 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Register GUI listeners for the new market interface
         MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService);
         PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener(queryService, tradingService, holdingsService, walletService);
+        CompanySettingsGUIListener companySettingsGUIListener = new CompanySettingsGUIListener();
         
         getServer().getPluginManager().registerEvents(deviceListener, this);
         getServer().getPluginManager().registerEvents(craftingListener, this);
         getServer().getPluginManager().registerEvents(marketGUIListener, this);
         getServer().getPluginManager().registerEvents(portfolioGUIListener, this);
+        getServer().getPluginManager().registerEvents(companySettingsGUIListener, this);
         
         getLogger().info("Registered Market Device, Crafting, and GUI event listeners");
     }
