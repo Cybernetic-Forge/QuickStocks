@@ -100,6 +100,7 @@ public class MigrationRunner {
             "V5__analytics_views.sql",
             "V6__portfolio_tracking.sql",
             "V7__fix_strftime_indexes.sql"
+            "V8__companies.sql"
         };
         
         for (String filename : expectedMigrations) {
@@ -142,8 +143,8 @@ public class MigrationRunner {
         return content.toString();
     }
     
-    /**
-     * Cleans SQL by removing all types of comments (both line comments -- and block comments /* */)
+    /*
+     * Cleans SQL by removing all types of comments (both line comments -- and block comments )
      * while preserving string literals and other important content.
      */
     private String cleanSqlComments(String sql) {

@@ -5,11 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="fixes">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/AuditService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/QuickStocksPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/QuickStocksPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/commands/StocksCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/commands/StocksCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/WatchlistService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/core/services/WatchlistService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WATCHLIST_IMPLEMENTATION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo_output.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/migrations/V6__portfolio_tracking.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/migrations/V6__portfolio_tracking.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/StockMarketSimulationTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/WatchlistDemo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/quickstocks/WatchlistStandaloneDemo.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,30 +55,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Application.CryptoCommandDemo.executor&quot;: &quot;Run&quot;,
-    &quot;Application.SimulationDemo.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.QuickStocks [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.QuickStocks [package].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.web.browsers&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Application.CryptoCommandDemo.executor": "Run",
+    "Application.SimulationDemo.executor": "Run",
+    "Maven.QuickStocks [clean].executor": "Run",
+    "Maven.QuickStocks [package].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "reference.settings.ide.settings.web.browsers",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "sqlite"
+    ]
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="CryptoCommandDemo" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.example.quickstocks.commands.CryptoCommandDemo" />
@@ -184,7 +192,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759140617483</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="fixes">
+      <option name="closed" value="true" />
+      <created>1759161946419</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1759161946419</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

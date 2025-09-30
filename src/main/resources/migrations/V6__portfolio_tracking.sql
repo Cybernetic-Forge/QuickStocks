@@ -16,13 +16,13 @@ CREATE INDEX IF NOT EXISTS idx_portfolio_history_player_ts ON portfolio_history(
 
 -- Portfolio daily returns view (separated from aggregations for SQLite compatibility)
 CREATE VIEW IF NOT EXISTS portfolio_daily_returns AS
-SELECT 
+SELECT
     ph.player_uuid,
     ph.ts,
     ph.total_value,
     -- Calculate daily returns (approximation)
     LAG(ph.total_value) OVER (PARTITION BY ph.player_uuid ORDER BY ph.ts) as prev_value,
-    CASE 
+    CASE
         WHEN LAG(ph.total_value) OVER (PARTITION BY ph.player_uuid ORDER BY ph.ts) > 0 THEN
             (ph.total_value - LAG(ph.total_value) OVER (PARTITION BY ph.player_uuid ORDER BY ph.ts)) /
             LAG(ph.total_value) OVER (PARTITION BY ph.player_uuid ORDER BY ph.ts)
@@ -34,17 +34,17 @@ ORDER BY ph.player_uuid, ph.ts;
 
 -- Portfolio performance summary view (aggregated metrics)
 CREATE VIEW IF NOT EXISTS portfolio_performance AS
-SELECT 
+SELECT
     pdr.player_uuid,
     COUNT(*) as data_points,
     MIN(pdr.ts) as start_time,
     MAX(pdr.ts) as end_time,
     -- Get initial and final values using subqueries for better SQLite compatibility
-    (SELECT pdr2.total_value FROM portfolio_daily_returns pdr2 
-     WHERE pdr2.player_uuid = pdr.player_uuid 
+    (SELECT pdr2.total_value FROM portfolio_daily_returns pdr2
+     WHERE pdr2.player_uuid = pdr.player_uuid
      ORDER BY pdr2.ts ASC LIMIT 1) as initial_value,
-    (SELECT pdr2.total_value FROM portfolio_daily_returns pdr2 
-     WHERE pdr2.player_uuid = pdr.player_uuid 
+    (SELECT pdr2.total_value FROM portfolio_daily_returns pdr2
+     WHERE pdr2.player_uuid = pdr.player_uuid
      ORDER BY pdr2.ts DESC LIMIT 1) as final_value,
     AVG(pdr.daily_return) as avg_daily_return
 FROM portfolio_daily_returns pdr
@@ -52,12 +52,12 @@ GROUP BY pdr.player_uuid;
 
 -- Sharpe ratio calculation helper view (for players with sufficient data)
 CREATE VIEW IF NOT EXISTS sharpe_ratio_data AS
-SELECT 
+SELECT
     pdr.player_uuid,
     COUNT(pdr.daily_return) as return_count,
     AVG(pdr.daily_return) as avg_return,
     -- Standard deviation of returns using the mathematical identity: Var(X) = E[X²] - E[X]²
-    CASE 
+    CASE
         WHEN COUNT(pdr.daily_return) > 1 THEN
             SQRT(
                 (SUM(pdr.daily_return * pdr.daily_return) - 
@@ -67,7 +67,7 @@ SELECT
         ELSE 0.0
     END as return_std_dev,
     -- Total return calculated from performance view
-    CASE 
+    CASE
         WHEN pp.initial_value > 0 THEN
             (pp.final_value - pp.initial_value) / pp.initial_value
         ELSE 0.0
