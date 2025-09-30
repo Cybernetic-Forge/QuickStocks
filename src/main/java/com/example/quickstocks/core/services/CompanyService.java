@@ -406,6 +406,42 @@ public class CompanyService {
     }
     
     /**
+     * Updates an existing job title's permissions.
+     */
+    public CompanyJob updateJobTitle(String companyId, String actorUuid, String title,
+                                     boolean canInvite, boolean canCreateTitles,
+                                     boolean canWithdraw, boolean canManageCompany) throws SQLException {
+        // Check if actor has permission
+        Optional<CompanyJob> actorJob = getPlayerJob(companyId, actorUuid);
+        if (actorJob.isEmpty() || !actorJob.get().canCreateTitles()) {
+            throw new IllegalArgumentException("Player does not have permission to edit job titles");
+        }
+        
+        // Get the job to update
+        Optional<CompanyJob> jobOpt = getJobByTitle(companyId, title);
+        if (jobOpt.isEmpty()) {
+            throw new IllegalArgumentException("Job title does not exist");
+        }
+        
+        CompanyJob job = jobOpt.get();
+        
+        // Update job permissions
+        database.execute(
+            "UPDATE company_jobs SET can_invite = ?, can_create_titles = ?, can_withdraw = ?, can_manage_company = ? " +
+            "WHERE id = ?",
+            canInvite ? 1 : 0,
+            canCreateTitles ? 1 : 0,
+            canWithdraw ? 1 : 0,
+            canManageCompany ? 1 : 0,
+            job.getId()
+        );
+        
+        logger.info("Updated job title '" + title + "' in company " + companyId);
+        
+        return new CompanyJob(job.getId(), companyId, title, canInvite, canCreateTitles, canWithdraw, canManageCompany);
+    }
+    
+    /**
      * Assigns a job title to a player.
      */
     public void assignJobTitle(String companyId, String actorUuid, String targetUuid, String title) throws SQLException {

@@ -105,6 +105,10 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handleAssignJob(player, playerUuid, args);
                     break;
                     
+                case "editjob":
+                    handleEditJob(player, playerUuid, args);
+                    break;
+                    
                 case "settings":
                     handleSettings(player, playerUuid, args);
                     break;
@@ -136,6 +140,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "/company employees <company>" + ChatColor.GRAY + " - List employees");
         player.sendMessage(ChatColor.YELLOW + "/company jobs <company>" + ChatColor.GRAY + " - List job titles");
         player.sendMessage(ChatColor.YELLOW + "/company createjob <company> <title> <perms>" + ChatColor.GRAY + " - Create job");
+        player.sendMessage(ChatColor.YELLOW + "/company editjob <company> <title> <perms>" + ChatColor.GRAY + " - Edit job");
         player.sendMessage(ChatColor.YELLOW + "/company assignjob <company> <player> <job>" + ChatColor.GRAY + " - Assign job");
         player.sendMessage(ChatColor.YELLOW + "/company settings [company]" + ChatColor.GRAY + " - Open settings GUI");
     }
@@ -477,6 +482,39 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.GREEN + "Created job title: " + title);
     }
     
+    private void handleEditJob(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 4) {
+            player.sendMessage(ChatColor.RED + "Usage: /company editjob <company> <title> <permissions>");
+            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage (comma-separated)");
+            return;
+        }
+        
+        String companyName = args[1];
+        String title = args[2];
+        String permsStr = args[3].toLowerCase();
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        boolean canInvite = permsStr.contains("invite");
+        boolean canCreateTitles = permsStr.contains("createjobs");
+        boolean canWithdraw = permsStr.contains("withdraw");
+        boolean canManage = permsStr.contains("manage");
+        
+        companyService.updateJobTitle(companyOpt.get().getId(), playerUuid, title,
+                                     canInvite, canCreateTitles, canWithdraw, canManage);
+        
+        player.sendMessage(ChatColor.GREEN + "Updated job title: " + title);
+        player.sendMessage(ChatColor.GRAY + "New permissions: " + 
+                         (canManage ? "Manage " : "") +
+                         (canInvite ? "Invite " : "") +
+                         (canCreateTitles ? "CreateJobs " : "") +
+                         (canWithdraw ? "Withdraw" : ""));
+    }
+    
     private void handleAssignJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             player.sendMessage(ChatColor.RED + "Usage: /company assignjob <company> <player> <job>");
@@ -555,7 +593,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             if (args.length == 1) {
                 return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
                                    "invitations", "deposit", "withdraw", "employees", "jobs", 
-                                   "createjob", "assignjob", "settings")
+                                   "createjob", "editjob", "assignjob", "settings")
                     .stream()
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
@@ -577,8 +615,8 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     return getCompanyNames(args[1]);
                 }
                 
-                // For invite, createjob, assignjob - suggest player's companies
-                if (subcommand.equals("invite") || subcommand.equals("createjob") || subcommand.equals("assignjob")) {
+                // For invite, createjob, editjob, assignjob - suggest player's companies
+                if (subcommand.equals("invite") || subcommand.equals("createjob") || subcommand.equals("editjob") || subcommand.equals("assignjob")) {
                     return getPlayerCompanyNames(playerUuid, args[1]);
                 }
             }
@@ -605,8 +643,14 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 return getJobTitles(companyName, args[3]);
             }
             
-            // Permission suggestions for createjob (4th arg)
-            if (args.length == 4 && args[0].equalsIgnoreCase("createjob")) {
+            // Job titles for editjob command (3rd arg)
+            if (args.length == 3 && args[0].equalsIgnoreCase("editjob")) {
+                String companyName = args[1];
+                return getJobTitles(companyName, args[2]);
+            }
+            
+            // Permission suggestions for createjob and editjob (4th arg)
+            if (args.length == 4 && (args[0].equalsIgnoreCase("createjob") || args[0].equalsIgnoreCase("editjob"))) {
                 return Arrays.asList("invite", "createjobs", "withdraw", "manage", "invite,createjobs", 
                                    "invite,withdraw", "manage,invite,createjobs,withdraw")
                     .stream()

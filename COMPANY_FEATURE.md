@@ -37,6 +37,7 @@ Default roles:
 
 ### Job Management
 - Create custom job titles with specific permissions
+- Edit existing job titles to change permissions
 - Assign jobs to employees
 - View all job titles and their permissions
 
@@ -68,6 +69,7 @@ Default roles:
 ```
 /company jobs <company>                         - List all job titles
 /company createjob <company> <title> <perms>    - Create a new job title
+/company editjob <company> <title> <perms>      - Edit an existing job title
 /company assignjob <company> <player> <job>     - Assign job to employee
 ```
 
@@ -160,6 +162,13 @@ Steve will receive an invitation notification.
 /company createjob TechCorp Developer invite,withdraw
 /company assignjob TechCorp Alex Developer
 ```
+
+### Editing Existing Jobs
+If you need to change permissions for an existing job:
+```
+/company editjob TechCorp Developer invite,createjobs,withdraw
+```
+This updates the "Developer" job to have invite, createjobs, and withdraw permissions.
 
 ## Architecture
 
