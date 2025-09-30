@@ -69,4 +69,7 @@ LEFT JOIN rolling_window_stats rws_7d ON i.id = rws_7d.instrument_id AND rws_7d.
 
 -- Create indexes for better performance on analytics queries
 CREATE INDEX IF NOT EXISTS idx_price_history_instrument_ts_price ON instrument_price_history(instrument_id, ts, price);
-CREATE INDEX IF NOT EXISTS idx_price_history_ts_recent ON instrument_price_history(ts) WHERE ts >= (strftime('%s', 'now') * 1000 - 7 * 24 * 60 * 60 * 1000);
+-- Drop the problematic partial index if it exists
+DROP INDEX IF EXISTS idx_price_history_ts_recent;
+-- Create a simple index instead (removed partial index with strftime() due to SQLite non-deterministic function restriction)
+CREATE INDEX IF NOT EXISTS idx_price_history_ts ON instrument_price_history(ts);
