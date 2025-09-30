@@ -30,6 +30,10 @@ commands:
     description: "Manage your stock watchlist"
     usage: "/watch [add|remove|list|info|clear] [symbol]"
     aliases: [watchlist, wl]
+  company:
+    description: "Manage companies and corporations"
+    usage: "/company [create|info|invite|accept|decline|deposit|withdraw|employees|jobs]"
+    aliases: [corp, corporation]
     
 permissions:
   quickstocks.command.crypto.create:
@@ -47,4 +51,10 @@ permissions:
   quickstocks.wallet.set:
     description: "Allows players to set wallet balance"
     default: op
+  quickstocks.company.create:
+    description: "Allows players to create companies"
+    default: true
+  quickstocks.company.manage:
+    description: "Allows players to manage companies they are part of"
+    default: true
 
