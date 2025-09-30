@@ -104,6 +104,10 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handleAssignJob(player, playerUuid, args);
                     break;
                     
+                case "editjob":
+                    handleEditJob(player, playerUuid, args);
+                    break;
+                    
                 default:
                     player.sendMessage(ChatColor.RED + "Unknown subcommand. Use /company for help.");
                     break;
@@ -131,6 +135,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "/company employees <company>" + ChatColor.GRAY + " - List employees");
         player.sendMessage(ChatColor.YELLOW + "/company jobs <company>" + ChatColor.GRAY + " - List job titles");
         player.sendMessage(ChatColor.YELLOW + "/company createjob <company> <title> <perms>" + ChatColor.GRAY + " - Create job");
+        player.sendMessage(ChatColor.YELLOW + "/company editjob <company> <title> <perms>" + ChatColor.GRAY + " - Edit job");
         player.sendMessage(ChatColor.YELLOW + "/company assignjob <company> <player> <job>" + ChatColor.GRAY + " - Assign job");
     }
     
@@ -471,6 +476,39 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.GREEN + "Created job title: " + title);
     }
     
+    private void handleEditJob(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 4) {
+            player.sendMessage(ChatColor.RED + "Usage: /company editjob <company> <title> <permissions>");
+            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage (comma-separated)");
+            return;
+        }
+        
+        String companyName = args[1];
+        String title = args[2];
+        String permsStr = args[3].toLowerCase();
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        boolean canInvite = permsStr.contains("invite");
+        boolean canCreateTitles = permsStr.contains("createjobs");
+        boolean canWithdraw = permsStr.contains("withdraw");
+        boolean canManage = permsStr.contains("manage");
+        
+        companyService.updateJobTitle(companyOpt.get().getId(), playerUuid, title,
+                                     canInvite, canCreateTitles, canWithdraw, canManage);
+        
+        player.sendMessage(ChatColor.GREEN + "Updated job title: " + title);
+        player.sendMessage(ChatColor.GRAY + "New permissions: " + 
+                         (canManage ? "Manage " : "") +
+                         (canInvite ? "Invite " : "") +
+                         (canCreateTitles ? "CreateJobs " : "") +
+                         (canWithdraw ? "Withdraw" : ""));
+    }
+    
     private void handleAssignJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             player.sendMessage(ChatColor.RED + "Usage: /company assignjob <company> <player> <job>");
@@ -500,19 +538,91 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
                                "invitations", "deposit", "withdraw", "employees", "jobs", 
-                               "createjob", "assignjob")
+                               "createjob", "editjob", "assignjob")
                 .stream()
                 .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                 .collect(Collectors.toList());
         }
         
-        if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
-            return Arrays.asList("PRIVATE", "PUBLIC", "DAO")
-                .stream()
-                .filter(option -> option.toLowerCase().startsWith(args[1].toLowerCase()))
-                .collect(Collectors.toList());
+        if (args.length == 2) {
+            // For create command, suggest company types
+            if (args[0].equalsIgnoreCase("create")) {
+                return Arrays.asList("PRIVATE", "PUBLIC", "DAO")
+                    .stream()
+                    .filter(option -> option.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .collect(Collectors.toList());
+            }
+            
+            // For commands that need a company name, suggest company names
+            if (args[0].equalsIgnoreCase("jobs") || args[0].equalsIgnoreCase("employees") ||
+                args[0].equalsIgnoreCase("createjob") || args[0].equalsIgnoreCase("editjob") ||
+                args[0].equalsIgnoreCase("assignjob") || args[0].equalsIgnoreCase("deposit") ||
+                args[0].equalsIgnoreCase("withdraw") || args[0].equalsIgnoreCase("invite")) {
+                return getCompanyNames(args[1]);
+            }
+        }
+        
+        if (args.length == 3) {
+            // For editjob and assignjob, suggest job titles
+            if (args[0].equalsIgnoreCase("editjob") || args[0].equalsIgnoreCase("assignjob")) {
+                return getJobTitles(args[1], args[2]);
+            }
+            
+            // For invite and assignjob, suggest player names
+            if (args[0].equalsIgnoreCase("assignjob")) {
+                return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(name -> name.toLowerCase().startsWith(args[2].toLowerCase()))
+                    .collect(Collectors.toList());
+            }
+        }
+        
+        if (args.length == 4) {
+            // For createjob and editjob, suggest permission combinations
+            if (args[0].equalsIgnoreCase("createjob") || args[0].equalsIgnoreCase("editjob")) {
+                return Arrays.asList("invite", "createjobs", "withdraw", "manage", 
+                                   "invite,withdraw", "invite,createjobs,withdraw", 
+                                   "invite,createjobs,withdraw,manage")
+                    .stream()
+                    .filter(option -> option.toLowerCase().startsWith(args[3].toLowerCase()))
+                    .collect(Collectors.toList());
+            }
+            
+            // For invite and assignjob, suggest job titles
+            if (args[0].equalsIgnoreCase("invite") || args[0].equalsIgnoreCase("assignjob")) {
+                return getJobTitles(args[1], args[3]);
+            }
         }
         
         return null;
+    }
+    
+    private List<String> getCompanyNames(String prefix) {
+        try {
+            List<Company> companies = companyService.listCompanies(0, 100);
+            return companies.stream()
+                .map(Company::getName)
+                .filter(name -> name.toLowerCase().startsWith(prefix.toLowerCase()))
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    private List<String> getJobTitles(String companyName, String prefix) {
+        try {
+            Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+            if (companyOpt.isEmpty()) {
+                return null;
+            }
+            
+            List<CompanyJob> jobs = companyService.getCompanyJobs(companyOpt.get().getId());
+            return jobs.stream()
+                .map(CompanyJob::getTitle)
+                .filter(title -> title.toLowerCase().startsWith(prefix.toLowerCase()))
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
