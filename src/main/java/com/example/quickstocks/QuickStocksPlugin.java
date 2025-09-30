@@ -1,14 +1,10 @@
 package com.example.quickstocks;
 
 import com.example.quickstocks.application.queries.QueryService;
-import com.example.quickstocks.commands.CryptoCommand;
-import com.example.quickstocks.commands.MarketCommand;
-import com.example.quickstocks.commands.MarketDeviceCommand;
-import com.example.quickstocks.commands.StocksCommand;
-import com.example.quickstocks.commands.WalletCommand;
-import com.example.quickstocks.commands.WatchCommand;
+import com.example.quickstocks.commands.*;
 import com.example.quickstocks.core.algorithms.PriceThresholdController;
 import com.example.quickstocks.core.services.*;
+import com.example.quickstocks.infrastructure.config.CompanyConfig;
 import com.example.quickstocks.infrastructure.db.ConfigLoader;
 import com.example.quickstocks.infrastructure.db.DatabaseConfig;
 import com.example.quickstocks.infrastructure.db.DatabaseManager;
@@ -37,6 +33,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private TradingService tradingService;
     private WatchlistService watchlistService;
     private AuditService auditService;
+    private CompanyService companyService;
+    private InvitationService invitationService;
     private BukkitRunnable marketUpdateTask;
 
     @Override
@@ -80,6 +78,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
 
             // Initialize audit service
             auditService = new AuditService(databaseManager.getDb(), holdingsService);
+
+            // Initialize company services
+            CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
+            companyService = new CompanyService(databaseManager.getDb(), walletService, companyConfig);
+            invitationService = new InvitationService(databaseManager.getDb(), companyService);
 
             // Connect trading service to market service for threshold tracking
             tradingService.setStockMarketService(stockMarketService);
@@ -179,6 +182,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService);
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
         WatchCommand watchCommand = new WatchCommand(watchlistService, queryService);
+        CompanyCommand companyCommand = new CompanyCommand(companyService, invitationService);
         
         // Register the /stocks command
         getCommand("stocks").setExecutor(stocksCommand);
@@ -204,7 +208,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getCommand("watch").setExecutor(watchCommand);
         getCommand("watch").setTabCompleter(watchCommand);
         
-        getLogger().info("Registered /stocks, /crypto, /wallet, /market, /marketdevice, and /watch commands");
+        // Register the /company command
+        getCommand("company").setExecutor(companyCommand);
+        getCommand("company").setTabCompleter(companyCommand);
+        
+        getLogger().info("Registered /stocks, /crypto, /wallet, /market, /marketdevice, /watch, and /company commands");
     }
     
     /**

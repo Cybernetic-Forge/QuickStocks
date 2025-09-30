@@ -79,3 +79,31 @@ trading:
   slippage:
     mode: linear            # none | linear | sqrtImpact
     k: 0.0005               # impact coefficient (tune)
+
+# Companies / Corporations Configuration
+companies:
+  enabled: true
+  creationCost: 1000.0         # cost to create a new company (0 = free)
+  defaultTypes:
+    - PRIVATE
+    - PUBLIC
+    - DAO
+  defaultJobTitles:
+    - CEO
+    - CFO
+    - EMPLOYEE
+  # which job titles are allowed to withdraw / deposit / manage
+  permissionsByTitle:
+    CEO:
+      canManageCompany: true
+      canInvite: true
+      canCreateJobTitles: true
+      canWithdraw: true
+    CFO:
+      canWithdraw: true
+      canInvite: false
+      canCreateJobTitles: false
+    EMPLOYEE:
+      canInvite: false
+      canWithdraw: false
+      canCreateJobTitles: false

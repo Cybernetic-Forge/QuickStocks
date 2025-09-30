@@ -98,7 +98,8 @@ public class MigrationRunner {
             "V3__trading_economy.sql",
             "V4__watchlists.sql",
             "V5__analytics_views.sql",
-            "V6__portfolio_tracking.sql"
+            "V6__portfolio_tracking.sql",
+            "V7__companies.sql"
         };
         
         for (String filename : expectedMigrations) {
