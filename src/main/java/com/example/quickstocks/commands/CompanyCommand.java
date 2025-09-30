@@ -630,9 +630,19 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             if (args.length == 1) {
                 return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
                                    "invitations", "deposit", "withdraw", "employees", "jobs", 
-                                   "createjob", "editjob", "assignjob", "settings")
+                                   "createjob", "editjob", "assignjob", "settings",
+                                   "setsymbol", "market", "buyshares", "sellshares", 
+                                   "shareholders", "notifications")
                     .stream()
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+            }
+            
+            // Market subcommands
+            if (args.length == 2 && args[0].equalsIgnoreCase("market")) {
+                return Arrays.asList("enable", "disable", "settings")
+                    .stream()
+                    .filter(option -> option.toLowerCase().startsWith(args[1].toLowerCase()))
                     .collect(Collectors.toList());
             }
             
@@ -648,7 +658,9 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             if (args.length == 2) {
                 String subcommand = args[0].toLowerCase();
                 if (subcommand.equals("info") || subcommand.equals("employees") || subcommand.equals("jobs") ||
-                    subcommand.equals("deposit") || subcommand.equals("withdraw") || subcommand.equals("settings")) {
+                    subcommand.equals("deposit") || subcommand.equals("withdraw") || subcommand.equals("settings") ||
+                    subcommand.equals("setsymbol") || subcommand.equals("buyshares") || 
+                    subcommand.equals("sellshares") || subcommand.equals("shareholders")) {
                     return getCompanyNames(args[1]);
                 }
                 
@@ -656,6 +668,19 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 if (subcommand.equals("invite") || subcommand.equals("createjob") || subcommand.equals("editjob") || subcommand.equals("assignjob")) {
                     return getPlayerCompanyNames(playerUuid, args[1]);
                 }
+            }
+            
+            // Company names for market commands (3rd arg)
+            if (args.length == 3 && args[0].equalsIgnoreCase("market")) {
+                return getCompanyNames(args[2]);
+            }
+            
+            // Market settings subcommands (4th arg)
+            if (args.length == 4 && args[0].equalsIgnoreCase("market") && args[1].equalsIgnoreCase("settings")) {
+                return Arrays.asList("percentage", "buyout")
+                    .stream()
+                    .filter(option -> option.toLowerCase().startsWith(args[3].toLowerCase()))
+                    .collect(Collectors.toList());
             }
             
             // Player names for invite command (3rd arg)

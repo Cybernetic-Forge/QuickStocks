@@ -41,6 +41,15 @@ Default roles:
 - Assign jobs to employees
 - View all job titles and their permissions
 
+### Market Operations (NEW)
+- **Go Public**: Companies of specific types can sell shares on the market
+- **Trading Symbols**: Set unique trading symbols for companies
+- **Share Trading**: Players can buy and sell company shares
+- **Buyout Protection**: Optional protection against hostile takeovers
+- **Shareholder Management**: Track all shareholders and their holdings
+- **Market Settings**: Configure market percentage and buyout rules
+- **Notifications**: Offline notifications for market events
+
 ## Commands
 
 ### Basic Operations
@@ -71,6 +80,20 @@ Default roles:
 /company createjob <company> <title> <perms>    - Create a new job title
 /company editjob <company> <title> <perms>      - Edit an existing job title
 /company assignjob <company> <player> <job>     - Assign job to employee
+```
+
+### Market Operations (NEW)
+```
+/company setsymbol <company> <symbol>              - Set trading symbol (required before IPO)
+/company market enable <company>                   - Enable market trading (IPO)
+/company market disable <company>                  - Disable market (delist, pays out shareholders)
+/company market settings <company>                 - View market settings
+/company market settings <company> percentage <n>  - Set market percentage (1-100)
+/company market settings <company> buyout <bool>   - Enable/disable buyout protection
+/company buyshares <company> <quantity>            - Buy company shares
+/company sellshares <company> <quantity>           - Sell company shares
+/company shareholders <company>                    - View all shareholders
+/company notifications                             - View unread notifications
 ```
 
 ### Permission Format
@@ -112,6 +135,14 @@ companies:
       canInvite: false
       canWithdraw: false
       canCreateJobTitles: false
+  # Market settings (NEW)
+  marketableTypes:           # company types that can go on the market
+    - PUBLIC
+    - DAO
+  marketBalanceThresholds:   # minimum balance required to enable market
+    PUBLIC: 10000.0
+    DAO: 15000.0
+  defaultMarketPercentage: 70.0  # default percentage of company on market
 ```
 
 ## Permissions
@@ -121,23 +152,49 @@ companies:
 
 ## Database Schema
 
-The feature adds 5 new tables:
+The feature adds 8 tables:
 
-1. **companies** - Company registry
+1. **companies** - Company registry (extended with market fields)
 2. **company_jobs** - Job titles with permissions
 3. **company_employees** - Employee memberships
 4. **company_invitations** - Invitation tracking
 5. **company_tx** - Transaction history
+6. **company_shareholders** - Shareholder tracking (NEW)
+7. **company_share_tx** - Share transaction history (NEW)
+8. **player_notifications** - Offline notification system (NEW)
 
-See `src/main/resources/migrations/V7__companies.sql` for details.
+See `src/main/resources/migrations/V7__companies.sql` and `V8__company_market.sql` for details.
 
 ## Usage Examples
 
 ### Creating a Company
 ```
-/company create TechCorp PRIVATE
+/company create TechCorp PUBLIC
 ```
-This creates a private company called "TechCorp" and assigns you as CEO.
+This creates a public company called "TechCorp" and assigns you as CEO.
+
+### Going on the Market (IPO)
+```
+/company setsymbol TechCorp TECH
+/company deposit TechCorp 15000
+/company market enable TechCorp
+```
+This sets the trading symbol, deposits enough funds to meet the threshold, and enables market trading.
+
+### Configuring Market Settings
+```
+/company market settings TechCorp percentage 60
+/company market settings TechCorp buyout false
+```
+This sets 60% of the company on the market and enables buyout protection.
+
+### Trading Shares
+```
+/company buyshares TechCorp 100
+/company sellshares TechCorp 50
+/company shareholders TechCorp
+```
+Buy shares, sell shares, and view all shareholders.
 
 ### Inviting Members
 ```
@@ -175,17 +232,52 @@ This updates the "Developer" job to have invite, createjobs, and withdraw permis
 ### Services
 - **CompanyService**: Core company operations (create, manage, transactions)
 - **InvitationService**: Invitation lifecycle management
+- **CompanyMarketService**: Market operations (IPO, trading, buyouts) (NEW)
 
 ### Models
-- **Company**: Company entity
+- **Company**: Company entity (extended with market fields)
 - **CompanyJob**: Job title with permissions
 - **CompanyEmployee**: Employee membership
 - **CompanyInvitation**: Invitation with status tracking
+
+### Key Features
+
+#### CEO Protection
+CEOs cannot demote themselves to prevent accidental loss of company control. To transfer ownership, use the buyout mechanism or manually transfer ownership first.
+
+#### Market Mechanics
+- **Share Price**: Calculated as company balance / 10,000 shares
+- **Market Percentage**: Controls how much of the company can be traded (default 70%)
+- **Buyout Protection**: When disabled, players can buy >50% shares and gain ownership
+- **Automatic Ownership Transfer**: When buyout occurs, the new majority shareholder becomes CEO
+
+#### Notification System
+All market events trigger notifications that are delivered:
+- Immediately to online players
+- Stored for offline players to see when they log in
+- Accessible via `/company notifications`
 
 ### Integration
 - Integrates with WalletService for financial operations
 - Uses existing database infrastructure
 - Follows plugin's IoC pattern
+
+## Market Requirements & Edge Cases
+
+### Requirements to Go on Market
+1. Company must be of a marketable type (PUBLIC or DAO by default)
+2. Company must have sufficient balance (thresholds: PUBLIC $10k, DAO $15k)
+3. Company must have a trading symbol set
+4. Only the company owner can enable/disable the market
+
+### Edge Cases Handled
+1. **CEO Self-Demotion**: Prevented to avoid loss of control
+2. **Market Disable**: All shareholders are automatically paid out at current share price
+3. **Buyout Protection**: Optional setting prevents hostile takeovers by limiting ownership to 50%
+4. **Insufficient Liquidity**: Company must have enough balance to buy back shares when players sell
+5. **Ownership Transfer**: When buyout occurs, new owner is automatically assigned CEO role
+6. **Offline Notifications**: Market events are stored for offline players
+7. **Symbol Uniqueness**: Trading symbols must be unique across all companies
 
 ## Future Enhancements
 
@@ -196,3 +288,6 @@ Potential additions (not implemented):
 - Company rankings and leaderboards
 - Inter-company trading
 - Merger and acquisition mechanics
+- Stock splits and reverse splits
+- Secondary market (player-to-player trading)
+- Limit orders for share purchases
