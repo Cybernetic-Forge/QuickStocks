@@ -14,6 +14,9 @@ import java.util.logging.Logger;
 /**
  * Handles trading operations including buy/sell orders and execution.
  * Now includes enhanced economy features when TradingConfig is provided.
+ * 
+ * NOTE: This service is for traditional instruments (items, crypto, etc.).
+ * For market stocks (company shares), use CompanyMarketService instead.
  */
 public class TradingService {
     

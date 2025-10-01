@@ -3,6 +3,8 @@ package com.example.quickstocks.application.queries;
 import com.example.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -10,6 +12,7 @@ import java.util.Optional;
 /**
  * Query service for stock-related database operations.
  * Handles data access for commands and other query operations.
+ * Now supports both traditional instruments and company shares (market stocks).
  */
 public class QueryService {
     
@@ -20,7 +23,127 @@ public class QueryService {
     }
     
     /**
+     * Gets top N market performers (companies on market) based on balance growth.
+     * This is the new method for market stocks which are now company shares.
+     */
+    public List<Map<String, Object>> getTopCompaniesOnMarket(int limit) throws SQLException {
+        return database.query("""
+            SELECT 
+                c.id,
+                c.name,
+                c.symbol,
+                c.balance,
+                c.market_percentage,
+                c.type,
+                c.on_market
+            FROM companies c
+            WHERE c.on_market = 1
+            ORDER BY c.balance DESC
+            LIMIT ?
+            """, limit);
+    }
+    
+    /**
+     * Finds a company (market stock) by symbol.
+     * This is the new method for market operations.
+     */
+    public Optional<Map<String, Object>> findCompanyBySymbol(String symbol) throws SQLException {
+        Map<String, Object> result = database.queryOne("""
+            SELECT 
+                c.id,
+                c.name,
+                c.symbol,
+                c.balance,
+                c.market_percentage,
+                c.allow_buyout,
+                c.type,
+                c.on_market,
+                c.created_at
+            FROM companies c
+            WHERE UPPER(c.symbol) = UPPER(?) AND c.on_market = 1
+            """, symbol);
+        
+        return Optional.ofNullable(result);
+    }
+    
+    /**
+     * Gets all company symbols that are on the market (for tab completion).
+     */
+    public List<String> getMarketCompanySymbols() throws SQLException {
+        return database.query("SELECT symbol FROM companies WHERE on_market = 1 AND symbol IS NOT NULL ORDER BY symbol")
+                .stream()
+                .map(row -> (String) row.get("symbol"))
+                .toList();
+    }
+    
+    /**
+     * Gets company symbols matching a prefix (for tab completion).
+     */
+    public List<String> getMatchingCompanySymbols(String prefix) throws SQLException {
+        String upperPrefix = prefix.toUpperCase() + "%";
+        
+        return database.query("""
+            SELECT symbol FROM companies 
+            WHERE on_market = 1 AND symbol IS NOT NULL AND UPPER(symbol) LIKE ?
+            ORDER BY symbol
+            """, upperPrefix)
+                .stream()
+                .map(row -> (String) row.get("symbol"))
+                .toList();
+    }
+    
+    /**
+     * Gets company ID by symbol lookup (market stocks).
+     */
+    public String getCompanyIdBySymbol(String symbol) throws SQLException {
+        Map<String, Object> result = database.queryOne(
+            "SELECT id FROM companies WHERE UPPER(symbol) = UPPER(?) AND on_market = 1", 
+            symbol
+        );
+        return result != null ? (String) result.get("id") : null;
+    }
+    
+    /**
+     * Gets current share price for a company (market stock).
+     */
+    public Double getCompanySharePrice(String companyId) throws SQLException {
+        Map<String, Object> result = database.queryOne(
+            "SELECT balance FROM companies WHERE id = ?", 
+            companyId
+        );
+        if (result == null) return null;
+        
+        double balance = ((Number) result.get("balance")).doubleValue();
+        // Share price = balance / 10000 shares (as per CompanyMarketService)
+        return balance / 10000.0;
+    }
+    
+    /**
+     * Gets recent share transaction history for a company.
+     */
+    public List<Map<String, Object>> getRecentShareTransactions(String companyId, int limit) throws SQLException {
+        return database.query("""
+            SELECT 
+                tx.type,
+                tx.shares,
+                tx.price,
+                tx.ts
+            FROM company_share_tx tx
+            WHERE tx.company_id = ?
+            ORDER BY tx.ts DESC
+            LIMIT ?
+            """, companyId, limit);
+    }
+    
+    // ========================================================================
+    // Legacy Instrument Methods (for items, crypto, etc. - NOT market stocks)
+    // Market stocks are now company shares - use getTopCompaniesOnMarket() instead
+    // ========================================================================
+    
+    /**
      * Gets top N gainers based on 24h change.
+     * NOTE: This is for traditional instruments (items, crypto), NOT market stocks.
+     * For market stocks, use getTopCompaniesOnMarket().
      */
     public List<Map<String, Object>> getTopGainers(int limit) throws SQLException {
         return getTopGainersByChange24h(limit);
