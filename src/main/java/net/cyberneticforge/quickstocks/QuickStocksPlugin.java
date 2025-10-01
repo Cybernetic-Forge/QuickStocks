@@ -1,10 +1,8 @@
 package net.cyberneticforge.quickstocks;
 
 import net.cyberneticforge.quickstocks.application.queries.QueryService;
-import com.example.quickstocks.commands.*;
 import net.cyberneticforge.quickstocks.commands.*;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
-import com.example.quickstocks.core.services.*;
 import net.cyberneticforge.quickstocks.core.services.*;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
