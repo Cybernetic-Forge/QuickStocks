@@ -303,7 +303,7 @@ public class CompanyMarketService {
         updateInstrumentPrice(instrumentId, company);
         
         // Check if player now owns majority and buyout is allowed
-        double totalShares = calculateTotalShares(company);
+        totalShares = calculateTotalShares(company);
         if (company.isAllowBuyout()) {
             double playerShares = getPlayerSharesFromHoldings(instrumentId, playerUuid);
             if (playerShares > totalShares * 0.5 && !playerUuid.equals(company.getOwnerUuid())) {

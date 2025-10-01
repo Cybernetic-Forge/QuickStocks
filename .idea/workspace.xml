@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="resolving some conflicts">
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom-test.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyMarketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyMarketService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,19 +79,6 @@
   }
 }]]></component>
   <component name="RunManager">
-    <configuration name="CryptoCommandDemo" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.example.quickstocks.commands.CryptoCommandDemo" />
-      <module name="QuickStocks" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.example.quickstocks.commands.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration default="true" type="JetRunConfigurationType">
       <module name="mcdev-temp-root" />
       <method v="2">
@@ -107,7 +92,6 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.CryptoCommandDemo" />
         <item itemvalue="Application.CryptoCommandDemo" />
       </list>
     </recent_temporary>
@@ -230,7 +214,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759344756925</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="fixes">
+      <option name="closed" value="true" />
+      <created>1759346629042</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1759346629042</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -252,9 +244,9 @@
     <MESSAGE value="Changes" />
     <MESSAGE value="removed stuff" />
     <MESSAGE value="updates" />
-    <MESSAGE value="fixes" />
     <MESSAGE value="updated namespace" />
     <MESSAGE value="resolving some conflicts" />
-    <option name="LAST_COMMIT_MESSAGE" value="resolving some conflicts" />
+    <MESSAGE value="fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixes" />
   </component>
 </project>
