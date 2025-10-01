@@ -52,7 +52,7 @@ public class CompanyService {
                 throw new IllegalArgumentException("Insufficient funds. Required: $" + 
                     String.format("%.2f", config.getCreationCost()));
             }
-            walletService.withdraw(playerUuid, config.getCreationCost());
+            walletService.removeBalance(playerUuid, config.getCreationCost());
         }
         
         // Create company
@@ -223,7 +223,7 @@ public class CompanyService {
         }
         
         // Withdraw from player wallet
-        walletService.withdraw(playerUuid, amount);
+        walletService.removeBalance(playerUuid, amount);
         
         // Add to company balance
         database.execute(
@@ -272,7 +272,7 @@ public class CompanyService {
         );
         
         // Add to player wallet
-        walletService.deposit(playerUuid, amount);
+        walletService.addBalance(playerUuid, amount);
         
         // Record transaction
         String txId = UUID.randomUUID().toString();
