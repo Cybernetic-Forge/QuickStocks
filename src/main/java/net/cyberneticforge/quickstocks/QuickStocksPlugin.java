@@ -86,6 +86,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             companyService = new CompanyService(databaseManager.getDb(), walletService, companyConfig);
             invitationService = new InvitationService(databaseManager.getDb(), companyService);
             companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyService, walletService, companyConfig);
+            
+            // Wire up trading services for company market operations
+            companyMarketService.setTradingServices(tradingService, holdingsService);
 
             // Connect trading service to market service for threshold tracking
             tradingService.setStockMarketService(stockMarketService);
