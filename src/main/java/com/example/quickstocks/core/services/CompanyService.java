@@ -153,6 +153,51 @@ public class CompanyService {
     }
     
     /**
+     * Gets a company by trading symbol.
+     */
+    public Optional<Company> getCompanyBySymbol(String symbol) throws SQLException {
+        if (symbol == null || symbol.trim().isEmpty()) {
+            return Optional.empty();
+        }
+        
+        List<Map<String, Object>> results = database.query(
+            "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout FROM companies WHERE UPPER(symbol) = UPPER(?)", 
+            symbol.trim());
+        
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Map<String, Object> row = results.get(0);
+        return Optional.of(new Company(
+            (String) row.get("id"),
+            (String) row.get("name"),
+            (String) row.get("type"),
+            (String) row.get("owner_uuid"),
+            ((Number) row.get("balance")).doubleValue(),
+            ((Number) row.get("created_at")).longValue(),
+            (String) row.get("symbol"),
+            ((Number) row.get("on_market")).intValue() != 0,
+            ((Number) row.get("market_percentage")).doubleValue(),
+            ((Number) row.get("allow_buyout")).intValue() != 0
+        ));
+    }
+    
+    /**
+     * Gets a company by name or symbol (tries symbol first, then name).
+     */
+    public Optional<Company> getCompanyByNameOrSymbol(String nameOrSymbol) throws SQLException {
+        // Try symbol first
+        Optional<Company> company = getCompanyBySymbol(nameOrSymbol);
+        if (company.isPresent()) {
+            return company;
+        }
+        
+        // Fall back to name
+        return getCompanyByName(nameOrSymbol);
+    }
+    
+    /**
      * Gets companies where the player is an employee.
      */
     public List<Company> getCompaniesByPlayer(String playerUuid) throws SQLException {
