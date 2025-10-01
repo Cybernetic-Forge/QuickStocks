@@ -170,14 +170,18 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     }
     
     private void showPortfolio(Player player, String playerUuid) throws Exception {
-        // Get company shares instead of old instrument holdings
+        // Get company shares from user_holdings (instruments infrastructure)
         List<Map<String, Object>> companyShares = database.query(
             """
-            SELECT cs.company_id, cs.shares, cs.avg_cost, c.name, c.symbol, c.balance
-            FROM company_shareholders cs
-            JOIN companies c ON cs.company_id = c.id
-            WHERE cs.player_uuid = ? AND cs.shares > 0
-            ORDER BY c.symbol
+            SELECT 
+                uh.instrument_id, uh.qty as shares, uh.avg_cost, 
+                i.symbol, i.display_name as name,
+                c.id as company_id, c.balance
+            FROM user_holdings uh
+            JOIN instruments i ON uh.instrument_id = i.id
+            LEFT JOIN companies c ON i.id = 'COMPANY_' || c.id
+            WHERE uh.player_uuid = ? AND uh.qty > 0 AND i.type = 'EQUITY'
+            ORDER BY i.symbol
             """,
             playerUuid
         );
@@ -190,11 +194,13 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             String companyId = (String) share.get("company_id");
             double shares = ((Number) share.get("shares")).doubleValue();
             
-            // Get company to calculate current share price
-            Optional<Company> companyOpt = companyService.getCompanyById(companyId);
-            if (companyOpt.isPresent()) {
-                double currentPrice = companyMarketService.calculateSharePrice(companyOpt.get());
-                portfolioValue += shares * currentPrice;
+            if (companyId != null) {
+                // Get company to calculate current share price
+                Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+                if (companyOpt.isPresent()) {
+                    double currentPrice = companyMarketService.calculateSharePrice(companyOpt.get());
+                    portfolioValue += shares * currentPrice;
+                }
             }
         }
         
@@ -235,14 +241,16 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     }
     
     private void showOrderHistory(Player player, String playerUuid) throws Exception {
-        // Get company share transaction history
+        // Get company share transaction history from orders table (instruments infrastructure)
         List<Map<String, Object>> transactions = database.query(
             """
-            SELECT tx.type, tx.shares, tx.price, tx.ts, c.name, c.symbol
-            FROM company_share_tx tx
-            JOIN companies c ON tx.company_id = c.id
-            WHERE tx.player_uuid = ?
-            ORDER BY tx.ts DESC
+            SELECT 
+                o.side as type, o.qty as shares, o.price, o.ts,
+                i.display_name as name, i.symbol
+            FROM orders o
+            JOIN instruments i ON o.instrument_id = i.id
+            WHERE o.player_uuid = ? AND i.type = 'EQUITY'
+            ORDER BY o.ts DESC
             LIMIT 10
             """,
             playerUuid

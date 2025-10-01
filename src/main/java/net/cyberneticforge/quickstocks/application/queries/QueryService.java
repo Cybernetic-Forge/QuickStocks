@@ -119,20 +119,21 @@ public class QueryService {
     }
     
     /**
-     * Gets recent share transaction history for a company.
+     * Gets recent share transaction history for a company (from instruments infrastructure).
      */
     public List<Map<String, Object>> getRecentShareTransactions(String companyId, int limit) throws SQLException {
+        String instrumentId = "COMPANY_" + companyId;
         return database.query("""
             SELECT 
-                tx.type,
-                tx.shares,
-                tx.price,
-                tx.ts
-            FROM company_share_tx tx
-            WHERE tx.company_id = ?
-            ORDER BY tx.ts DESC
+                o.side as type,
+                o.qty as shares,
+                o.price,
+                o.ts
+            FROM orders o
+            WHERE o.instrument_id = ?
+            ORDER BY o.ts DESC
             LIMIT ?
-            """, companyId, limit);
+            """, instrumentId, limit);
     }
     
     // ========================================================================
