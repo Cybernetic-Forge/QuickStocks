@@ -227,7 +227,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         CraftingListener craftingListener = new CraftingListener(this, recipeManager);
         
         // Register GUI listeners for the new market interface
-        MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService, companyService);
+        MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService, companyService, companyMarketService);
         PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener(queryService, tradingService, holdingsService, walletService, companyService);
         CompanySettingsGUIListener companySettingsGUIListener = new CompanySettingsGUIListener();
         
