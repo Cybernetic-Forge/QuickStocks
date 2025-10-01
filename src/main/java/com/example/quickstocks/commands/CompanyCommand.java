@@ -176,9 +176,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "/company market enable <company>" + ChatColor.GRAY + " - Enable market");
         player.sendMessage(ChatColor.YELLOW + "/company market disable <company>" + ChatColor.GRAY + " - Disable market");
         player.sendMessage(ChatColor.YELLOW + "/company market settings <company>" + ChatColor.GRAY + " - View/edit settings");
-        player.sendMessage(ChatColor.YELLOW + "/company buyshares <company> <qty>" + ChatColor.GRAY + " - Buy shares");
-        player.sendMessage(ChatColor.YELLOW + "/company sellshares <company> <qty>" + ChatColor.GRAY + " - Sell shares");
-        player.sendMessage(ChatColor.YELLOW + "/company shareholders <company>" + ChatColor.GRAY + " - View shareholders");
+        player.sendMessage(ChatColor.GRAY + "For buying/selling shares, use " + ChatColor.WHITE + "/market buyshares" + ChatColor.GRAY + " or " + ChatColor.WHITE + "/market sellshares");
         player.sendMessage(ChatColor.YELLOW + "/company notifications" + ChatColor.GRAY + " - View notifications");
     }
     
@@ -844,7 +842,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(ChatColor.GREEN + "Company is now on the market!");
                 player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + company.getSymbol());
                 player.sendMessage(ChatColor.YELLOW + "Players can now buy shares with: " + 
-                    ChatColor.WHITE + "/company buyshares " + companyName + " <quantity>");
+                    ChatColor.WHITE + "/market buyshares " + companyName + " <quantity>");
                 break;
                 
             case "disable":
@@ -891,133 +889,32 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     
     /**
      * Handles buying shares of a company.
+     * @deprecated Use /market buyshares instead
      */
     private void handleBuyShares(Player player, String playerUuid, String[] args) throws Exception {
-        if (args.length < 3) {
-            player.sendMessage(ChatColor.RED + "Usage: /company buyshares <company> <quantity>");
-            return;
-        }
-        
-        String companyName = args[1];
-        double quantity;
-        
-        try {
-            quantity = Double.parseDouble(args[2]);
-        } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Invalid quantity: " + args[2]);
-            return;
-        }
-        
-        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
-        if (companyOpt.isEmpty()) {
-            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
-            return;
-        }
-        
-        Company company = companyOpt.get();
-        double sharePrice = companyMarketService.calculateSharePrice(company);
-        double totalCost = quantity * sharePrice;
-        
-        companyMarketService.buyShares(company.getId(), playerUuid, quantity);
-        
-        player.sendMessage(ChatColor.GREEN + "Successfully purchased " + String.format("%.2f", quantity) + " shares!");
-        player.sendMessage(ChatColor.YELLOW + "Company: " + ChatColor.WHITE + company.getName());
-        player.sendMessage(ChatColor.YELLOW + "Price per share: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
-        player.sendMessage(ChatColor.YELLOW + "Total cost: " + ChatColor.WHITE + "$" + String.format("%.2f", totalCost));
+        player.sendMessage(ChatColor.YELLOW + "⚠ This command has been moved to /market");
+        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market buyshares <company> <quantity>");
+        player.sendMessage(ChatColor.GRAY + "You can use either the company name or symbol.");
     }
     
     /**
      * Handles selling shares of a company.
+     * @deprecated Use /market sellshares instead
      */
     private void handleSellShares(Player player, String playerUuid, String[] args) throws Exception {
-        if (args.length < 3) {
-            player.sendMessage(ChatColor.RED + "Usage: /company sellshares <company> <quantity>");
-            return;
-        }
-        
-        String companyName = args[1];
-        double quantity;
-        
-        try {
-            quantity = Double.parseDouble(args[2]);
-        } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Invalid quantity: " + args[2]);
-            return;
-        }
-        
-        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
-        if (companyOpt.isEmpty()) {
-            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
-            return;
-        }
-        
-        Company company = companyOpt.get();
-        double sharePrice = companyMarketService.calculateSharePrice(company);
-        double totalValue = quantity * sharePrice;
-        
-        companyMarketService.sellShares(company.getId(), playerUuid, quantity);
-        
-        player.sendMessage(ChatColor.GREEN + "Successfully sold " + String.format("%.2f", quantity) + " shares!");
-        player.sendMessage(ChatColor.YELLOW + "Company: " + ChatColor.WHITE + company.getName());
-        player.sendMessage(ChatColor.YELLOW + "Price per share: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
-        player.sendMessage(ChatColor.YELLOW + "Total received: " + ChatColor.WHITE + "$" + String.format("%.2f", totalValue));
+        player.sendMessage(ChatColor.YELLOW + "⚠ This command has been moved to /market");
+        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market sellshares <company> <quantity>");
+        player.sendMessage(ChatColor.GRAY + "You can use either the company name or symbol.");
     }
     
     /**
      * Handles viewing shareholders of a company.
+     * @deprecated Use /market shareholders instead
      */
     private void handleShareholders(Player player, String[] args) throws Exception {
-        if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /company shareholders <company>");
-            return;
-        }
-        
-        String companyName = args[1];
-        
-        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
-        if (companyOpt.isEmpty()) {
-            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
-            return;
-        }
-        
-        Company company = companyOpt.get();
-        
-        if (!company.isOnMarket()) {
-            player.sendMessage(ChatColor.RED + "Company is not on the market.");
-            return;
-        }
-        
-        List<Map<String, Object>> shareholders = companyMarketService.getShareholders(company.getId());
-        
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + company.getName() + " Shareholders" + ChatColor.GOLD + " ===");
-        
-        if (shareholders.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "No shareholders yet.");
-            return;
-        }
-        
-        double sharePrice = companyMarketService.calculateSharePrice(company);
-        
-        for (Map<String, Object> holder : shareholders) {
-            String playerUuidStr = (String) holder.get("player_uuid");
-            double shares = ((Number) holder.get("shares")).doubleValue();
-            double avgCost = ((Number) holder.get("avg_cost")).doubleValue();
-            
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(playerUuidStr));
-            String playerName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown";
-            
-            double currentValue = shares * sharePrice;
-            double totalCost = shares * avgCost;
-            double pnl = currentValue - totalCost;
-            double pnlPercent = (pnl / totalCost) * 100;
-            
-            ChatColor pnlColor = pnl >= 0 ? ChatColor.GREEN : ChatColor.RED;
-            
-            player.sendMessage(ChatColor.YELLOW + playerName + ": " + 
-                ChatColor.WHITE + String.format("%.2f", shares) + " shares " +
-                ChatColor.GRAY + "(avg $" + String.format("%.2f", avgCost) + ") " +
-                pnlColor + String.format("%+.2f%%", pnlPercent));
-        }
+        player.sendMessage(ChatColor.YELLOW + "⚠ This command has been moved to /market");
+        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market shareholders <company>");
+        player.sendMessage(ChatColor.GRAY + "You can use either the company name or symbol.");
     }
     
     /**

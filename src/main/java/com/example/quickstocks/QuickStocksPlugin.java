@@ -182,7 +182,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         StocksCommand stocksCommand = new StocksCommand(queryService, auditService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         WalletCommand walletCommand = new WalletCommand(walletService);
-        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService, companyService);
+        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService, companyService, companyMarketService);
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
         WatchCommand watchCommand = new WatchCommand(watchlistService, queryService);
         CompanyCommand companyCommand = new CompanyCommand(companyService, invitationService, companyMarketService);
@@ -251,18 +251,14 @@ public final class QuickStocksPlugin extends JavaPlugin {
     
     /**
      * Initializes some default stocks for testing and demonstration.
+     * DEPRECATED: Example stocks have been removed. The system uses real Minecraft items and company shares instead.
      */
     private void initializeDefaultStocks() {
-        try {
-            stockMarketService.addStock("MINE", "MineCorp Industries", "Technology", 100.00);
-            stockMarketService.addStock("CRAFT", "CraftBank Ltd.", "Finance", 75.50);
-            stockMarketService.addStock("BLOCK", "BlockChain Energy", "Energy", 120.25);
-            stockMarketService.addStock("PIXEL", "Pixel Healthcare", "Healthcare", 85.75);
-            
-            getLogger().info("Initialized " + stockMarketService.getAllStocks().size() + " default stocks");
-        } catch (Exception e) {
-            getLogger().severe("Failed to initialize default stocks: " + e.getMessage());
-        }
+        // Example stocks (MINE, CRAFT, BLOCK, PIXEL) have been removed as per issue requirements.
+        // The system now relies on:
+        // 1. Minecraft items (seeded via ItemSeeder)
+        // 2. Company shares (created via /company market enable)
+        getLogger().info("Using real market instruments (Minecraft items and company shares)");
     }
     
     /**
