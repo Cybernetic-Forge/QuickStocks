@@ -138,7 +138,7 @@ public class CompanyMarketService {
             double payout = shares * sharePrice;
             
             // Pay out the shareholder
-            walletService.deposit(playerUuid, payout);
+            walletService.addBalance(playerUuid, payout);
             
             // Record transaction
             String txId = UUID.randomUUID().toString();
@@ -243,7 +243,7 @@ public class CompanyMarketService {
         }
         
         // Withdraw from player
-        walletService.withdraw(playerUuid, totalCost);
+        walletService.removeBalance(playerUuid, totalCost);
         
         // Add to company balance
         database.execute("UPDATE companies SET balance = balance + ? WHERE id = ?", totalCost, companyId);
@@ -370,7 +370,7 @@ public class CompanyMarketService {
         database.execute("UPDATE companies SET balance = balance - ? WHERE id = ?", totalValue, companyId);
         
         // Pay player
-        walletService.deposit(playerUuid, totalValue);
+        walletService.addBalance(playerUuid, totalValue);
         
         // Update shareholder record
         database.execute(
