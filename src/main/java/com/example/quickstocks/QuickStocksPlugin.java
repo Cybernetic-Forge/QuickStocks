@@ -182,7 +182,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         StocksCommand stocksCommand = new StocksCommand(queryService, auditService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         WalletCommand walletCommand = new WalletCommand(walletService);
-        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService, companyService, companyMarketService);
+        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService, companyService, companyMarketService, databaseManager.getDb());
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
         WatchCommand watchCommand = new WatchCommand(watchlistService, queryService);
         CompanyCommand companyCommand = new CompanyCommand(companyService, invitationService, companyMarketService);

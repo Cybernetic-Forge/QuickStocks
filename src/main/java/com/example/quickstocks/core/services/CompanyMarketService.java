@@ -413,7 +413,7 @@ public class CompanyMarketService {
     /**
      * Gets total issued shares.
      */
-    private double getIssuedShares(String companyId) throws SQLException {
+    public double getIssuedShares(String companyId) throws SQLException {
         List<Map<String, Object>> results = database.query(
             "SELECT SUM(shares) as total FROM company_shareholders WHERE company_id = ?", companyId);
         
