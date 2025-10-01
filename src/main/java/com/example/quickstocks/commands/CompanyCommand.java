@@ -176,7 +176,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "/company market enable <company>" + ChatColor.GRAY + " - Enable market");
         player.sendMessage(ChatColor.YELLOW + "/company market disable <company>" + ChatColor.GRAY + " - Disable market");
         player.sendMessage(ChatColor.YELLOW + "/company market settings <company>" + ChatColor.GRAY + " - View/edit settings");
-        player.sendMessage(ChatColor.GRAY + "For buying/selling shares, use " + ChatColor.WHITE + "/market buyshares" + ChatColor.GRAY + " or " + ChatColor.WHITE + "/market sellshares");
+        player.sendMessage(ChatColor.GRAY + "For buying/selling shares, use " + ChatColor.WHITE + "/market buy" + ChatColor.GRAY + " or " + ChatColor.WHITE + "/market sell");
         player.sendMessage(ChatColor.YELLOW + "/company notifications" + ChatColor.GRAY + " - View notifications");
     }
     
@@ -842,7 +842,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(ChatColor.GREEN + "Company is now on the market!");
                 player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + company.getSymbol());
                 player.sendMessage(ChatColor.YELLOW + "Players can now buy shares with: " + 
-                    ChatColor.WHITE + "/market buyshares " + companyName + " <quantity>");
+                    ChatColor.WHITE + "/market buy " + companyName + " <quantity>");
                 break;
                 
             case "disable":
@@ -889,21 +889,21 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     
     /**
      * Handles buying shares of a company.
-     * @deprecated Use /market buyshares instead
+     * @deprecated Use /market buy instead
      */
     private void handleBuyShares(Player player, String playerUuid, String[] args) throws Exception {
         player.sendMessage(ChatColor.YELLOW + "⚠ This command has been moved to /market");
-        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market buyshares <company> <quantity>");
+        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market buy <company> <quantity>");
         player.sendMessage(ChatColor.GRAY + "You can use either the company name or symbol.");
     }
     
     /**
      * Handles selling shares of a company.
-     * @deprecated Use /market sellshares instead
+     * @deprecated Use /market sell instead
      */
     private void handleSellShares(Player player, String playerUuid, String[] args) throws Exception {
         player.sendMessage(ChatColor.YELLOW + "⚠ This command has been moved to /market");
-        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market sellshares <company> <quantity>");
+        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market sell <company> <quantity>");
         player.sendMessage(ChatColor.GRAY + "You can use either the company name or symbol.");
     }
     
