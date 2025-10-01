@@ -57,4 +57,7 @@ permissions:
   quickstocks.company.manage:
     description: "Allows players to manage companies they are part of"
     default: true
+  quickstocks.admin.audit:
+    description: "Allows access to database audit and repair commands"
+    default: op
 

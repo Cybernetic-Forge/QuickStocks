@@ -1,152 +1,229 @@
-# QuickStocks - Minecraft Stock Market Plugin
+# QuickStocks
 
-QuickStocks is a fully functional Minecraft Paper/Spigot plugin that simulates a realistic stock market within the game. Players can view live market data, track stock prices, and create custom cryptocurrency instruments with proper permission controls.
+> A comprehensive stock market and company management plugin for Minecraft servers
 
-## ✅ Plugin Status: READY FOR MINECRAFT
+Transform your Minecraft server into a thriving economic ecosystem where players trade stocks, create companies, and build financial empires—all within the game they love.
 
-The plugin is **fully implemented and ready for deployment** in Minecraft servers. All core functionality has been developed and tested:
+[![Version](https://img.shields.io/badge/version-1.0.0--SNAPSHOT-blue)](https://github.com/Cybernetic-Forge/QuickStocks)
+[![Minecraft](https://img.shields.io/badge/minecraft-1.21.8-green)](https://www.spigotmc.org/)
+[![Java](https://img.shields.io/badge/java-17%2B-orange)](https://adoptium.net/)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)]()
 
-- **📊 Live Stock Market**: Real-time price simulation with 25+ market factors
-- **💹 Stock Commands**: `/stocks` command with beautiful formatting and tab completion  
-- **🪙 Crypto Creation**: `/crypto create` command for custom cryptocurrencies
-- **🔐 Permission System**: Proper permission controls (`maksy.stocks.crypto.create`)
-- **🗄️ Database Support**: SQLite/MySQL/PostgreSQL with automatic migrations
-- **⚡ Performance**: Optimized for multiplayer servers with connection pooling
+---
 
-## Quick Start
+## 🎮 What is QuickStocks?
+
+QuickStocks brings real-world financial markets to Minecraft. Players can:
+
+- 📊 **Trade on a realistic stock market** with dynamic pricing and 25+ market factors
+- 🏢 **Create and manage companies** with employees, roles, and shared finances
+- 💹 **Go public with IPOs** and trade company shares on the market
+- 🪙 **Create custom cryptocurrencies** with permission-based controls
+- 📈 **Build investment portfolios** and track performance in real-time
+- 💰 **Manage wallets** integrated with Vault economy
+- 👀 **Use watchlists** to monitor favorite instruments
+- 📱 **Access markets anywhere** with the Market Link Device
+
+---
+
+## ✨ Key Features
+
+### 📊 Advanced Market Simulation
+- **Real-time price updates** every 5 seconds with realistic volatility
+- **Market factors** including inflation, interest rates, sector performance, and global events
+- **Circuit breakers** to halt trading during extreme movements
+- **Trading fees** and slippage for realistic market mechanics
+- **Price history** tracking with analytics and trend analysis
+
+### 🏢 Company Management System
+- **Create companies** (PRIVATE, PUBLIC, or DAO) with customizable roles
+- **Employee management** with job titles and permission-based access
+- **Shared finances** with deposit/withdraw capabilities
+- **Go public** and sell shares on the stock market
+- **Buyout protection** to prevent hostile takeovers
+- **Shareholder tracking** with real-time ownership percentages
+
+### 💰 Economy Integration
+- **Vault integration** for seamless economy plugin support
+- **Wallet system** with built-in balance management
+- **Trading fees** (default 0.25%) to prevent market manipulation
+- **Configurable costs** for company creation and operations
+
+### 🎨 Beautiful User Interface
+- **Interactive market GUI** for browsing and trading
+- **Company settings GUI** with permission-aware buttons
+- **Color-coded displays** for profits, losses, and performance
+- **Helpful tooltips** and command hints throughout
+- **Tab completion** for all commands with context awareness
+
+---
+
+## 🚀 Quick Start
+
+### For Players
+
+```bash
+/wallet                    # Check your balance
+/market                    # Browse tradeable instruments
+/stocks                    # See top 10 gainers
+/company create TechCorp PUBLIC    # Start your company
+/watch add TECH            # Track your investments
+```
 
 ### For Server Administrators
 
-1. **See [MINECRAFT_PLUGIN_SETUP.md](MINECRAFT_PLUGIN_SETUP.md)** for complete deployment instructions
-2. The plugin classes are ready but temporarily renamed with `.ready` extension
-3. Simply enable the Bukkit/Paper dependency and rename the files to activate
+1. **Download** the latest QuickStocks JAR
+2. **Place** in your server's `plugins/` folder
+3. **Restart** your server
+4. **Configure** (optional) in `plugins/QuickStocks/config.yml`
+5. **Done!** Players can start trading immediately
 
-### For Developers
+📖 **[Full Installation Guide →](Documentation/Installation.md)**
 
-The plugin is fully developed with clean architecture:
+---
 
-```
-src/main/java/com/example/quickstocks/
-├── QuickStocksPlugin.java.ready      # Main plugin class (ready to deploy)
-├── commands/
-│   ├── StocksCommand.java.ready      # /stocks command implementation  
-│   └── CryptoCommand.java.ready      # /crypto command implementation
-├── core/services/                    # Business logic (active)
-├── infrastructure/db/                # Database layer (active)
-└── application/queries/              # Query services (active)
-```
+## 📚 Documentation
 
-## Demo Functionality (Available Now)
+### 🎯 For Players
+- **[Getting Started](Documentation/Getting-Started.md)** - Learn the basics and start trading
+- **[Commands Overview](Documentation/Commands-Overview.md)** - All available commands
+- **[Permissions](Documentation/Permissions.md)** - Permission system explained
 
-While the main plugin classes are in `.ready` state, you can test all functionality using the demo classes:
+### 🎮 For Server Administrators
+- **[Installation](Documentation/Installation.md)** - Step-by-step setup guide
+- **[Configuration](Documentation/Configuration.md)** - Detailed configuration options
+- **[Database Management](Documentation/Database.md)** - Database administration
 
+### 📖 Command References
+- **[Stocks Commands](Documentation/Commands-Stocks.md)** - Market data and analysis
+- **[Market Commands](Documentation/Commands-Market.md)** - Trading interface
+- **[Company Commands](Documentation/Commands-Company.md)** - Company management
+- **[Crypto Commands](Documentation/Commands-Crypto.md)** - Cryptocurrency creation
+- **[Wallet Commands](Documentation/Commands-Wallet.md)** - Balance management
+- **[Watch Commands](Documentation/Commands-Watch.md)** - Watchlist management
+- **[Market Device](Documentation/Commands-MarketDevice.md)** - Portable market access
+
+---
+
+## 🎯 Use Cases
+
+### 🏫 Educational Servers
+Teach economics, finance, and business management through gameplay
+
+### 🎭 Roleplay Servers
+Create immersive economic systems for your roleplay world
+
+### ⚔️ Competition Servers
+Host trading competitions and economic challenges
+
+### 🎪 Event Servers
+Run special market events and company competitions
+
+---
+
+## 🔧 Technical Specifications
+
+- **Server Software:** Paper 1.21.8+ / Spigot / Bukkit
+- **Java Version:** 17 or higher
+- **Database:** SQLite (included), MySQL, or PostgreSQL
+- **Dependencies:** None required (Vault optional for economy integration)
+- **Performance:** Optimized for servers of all sizes with connection pooling
+- **Architecture:** Clean architecture with IoC pattern and service layers
+
+---
+
+## 💡 Example Scenarios
+
+### Trading Stocks
 ```bash
-# Test stock market simulation
-mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.SimulationDemo"
+# Check market overview
+/stocks                        # Top 10 gainers
 
-# Test crypto creation functionality  
-mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.CryptoCreationDemo"
+# Research an instrument
+/stocks MINE                   # MineCorp Industries details
 
-# Test command functionality
-mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.commands.CryptoCommandDemo"
+# Add to watchlist
+/watch add MINE
 
-# Test stocks command
-mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.StocksCommandDemo"
+# Make a purchase
+/market buy MINE 100           # Buy 100 shares
+
+# Check your portfolio
+/market portfolio              # View holdings and P&L
 ```
 
-## Core Features Implemented
-
-### 🎯 Stock Market System
-- **25+ Market Factors**: Inflation, interest rates, sector performance, global events
-- **Realistic Price Calculation**: Volatility, market cap, supply/demand simulation
-- **Real-time Updates**: 5-second price update cycles with persistent history
-- **Sector Classification**: Technology, Finance, Healthcare, Energy, Materials
-
-### 📈 Player Commands  
-- **Market Overview**: `/stocks` shows top 10 gainers with beautiful formatting
-- **Stock Details**: `/stocks SYMBOL` displays comprehensive stock information
-- **Material Lookup**: `/stocks diamond` finds stocks by Minecraft materials
-- **Crypto Creation**: `/crypto create SYMBOL "Name"` for custom cryptocurrencies
-
-### 🔧 Technical Features
-- **Multi-Database**: SQLite (default), MySQL, PostgreSQL support
-- **Connection Pooling**: HikariCP for optimal performance
-- **Schema Migrations**: Automatic database versioning
-- **Comprehensive Testing**: 40+ unit and integration tests
-- **Performance Optimized**: Async operations and efficient queries
-
-## Plugin Configuration
-
-### plugin.yml (Ready for Minecraft)
-```yaml
-name: QuickStocks
-main: net.cyberneticforge.quickstocks.QuickStocksPlugin
-version: 1.0.0-SNAPSHOT
-api-version: "1.21"
-
-commands:
-  stocks:
-    description: "View stock market information and quotes"
-    usage: "/stocks [symbol|material]"
-  crypto:
-    description: "Create and manage custom cryptocurrency instruments"
-    usage: "/crypto create <symbol> <name>"
-    
-permissions:
-  maksy.stocks.crypto.create:
-    description: "Allows players to create custom cryptocurrency instruments"
-    default: false
-```
-
-### Database Configuration
-```yaml
-database:
-  provider: sqlite  # or mysql, postgres
-  sqlite:
-    file: data.db
-market:
-  updateInterval: 5
-  startOpen: true
-  defaultStocks: true
-```
-
-## Example Commands in Minecraft
-
-```
-/stocks                              # Show top 10 gainers
-/stocks MINE                         # Show MineCorp Industries details  
-/stocks diamond                      # Show diamond-related stocks
-/crypto create MYCOIN "My Custom Coin"  # Create custom crypto (requires permission)
-```
-
-## Development & Testing
-
+### Running a Company
 ```bash
-# Run all tests
-mvn test
+# Create your company
+/company create TechCorp PUBLIC
 
-# Build plugin JAR (when Bukkit dependency is enabled)
-mvn clean package
+# Deposit funds
+/company deposit TechCorp 15000
 
-# Test market simulation
-mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.SimulationDemo"
+# Invite employees
+/company invite TechCorp Alex CFO
+
+# Set trading symbol and go public
+/company setsymbol TechCorp TECH
+/company market enable TechCorp
+
+# Monitor shareholders
+/market shareholders TECH
 ```
 
-## Architecture Highlights
+---
 
-- **Clean Architecture**: Separation of concerns with core/infrastructure/application layers
-- **Dependency Injection**: IoC pattern for testability and maintainability  
-- **Database Abstraction**: Multi-provider support with migration system
-- **Service Layer**: CryptoService, StockMarketService, QueryService
-- **Command Pattern**: Proper Bukkit command executors with tab completion
+## 🎨 Screenshots
 
-## Migration from Demo to Production
+<!-- [GUI Screenshot Placeholder: Market Browser Interface] -->
+*Market browser with live prices and trading options*
 
-The plugin was developed using demo classes to work around build environment limitations. To deploy:
+<!-- [GUI Screenshot Placeholder: Company Settings GUI] -->
+*Company settings with permission-aware action buttons*
 
-1. Enable Bukkit/Paper dependency in `pom.xml`
-2. Rename `.ready` files to `.java` 
-3. Build and deploy to Minecraft server
-4. All functionality transfers seamlessly from demos to live plugin
+<!-- [GUI Screenshot Placeholder: Portfolio Display] -->
+*Portfolio view with P&L calculations and performance metrics*
 
-**The plugin is production-ready and fully functional for Minecraft servers.**
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Whether it's:
+- 🐛 Bug reports
+- ✨ Feature requests
+- 📖 Documentation improvements
+- 💻 Code contributions
+
+Please check our contributing guidelines and open an issue or pull request.
+
+---
+
+## 📜 License
+
+QuickStocks is released under the MIT License. See LICENSE file for details.
+
+---
+
+## 🔗 Links
+
+- **[Full Documentation](Documentation/Getting-Started.md)** - Complete user and admin guides
+- **[GitHub Issues](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Report bugs and request features
+- **[Discord](https://discord.gg/your-invite)** - Get support and discuss with community
+
+---
+
+## 🙏 Credits
+
+Developed with ❤️ by the Cybernetic Forge team
+
+- **Architecture:** Clean architecture with IoC patterns
+- **Database:** Multi-provider support with automatic migrations
+- **UI/UX:** Adventure Components for beautiful formatting
+- **Testing:** Comprehensive test coverage
+
+---
+
+<p align="center">
+  <strong>Ready to transform your Minecraft economy?</strong><br>
+  <a href="Documentation/Installation.md">Install QuickStocks Today →</a>
+</p>
