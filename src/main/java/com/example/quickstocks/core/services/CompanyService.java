@@ -506,4 +506,35 @@ public class CompanyService {
             companyId
         );
     }
+    
+    /**
+     * Gets all companies that are on the market (have shares enabled).
+     */
+    public List<Company> getCompaniesOnMarket() throws SQLException {
+        List<Map<String, Object>> results = database.query(
+            "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout " +
+            "FROM companies " +
+            "WHERE on_market = 1 AND symbol IS NOT NULL " +
+            "ORDER BY name",
+            new Object[0]
+        );
+        
+        List<Company> companies = new ArrayList<>();
+        for (Map<String, Object> row : results) {
+            companies.add(new Company(
+                (String) row.get("id"),
+                (String) row.get("name"),
+                (String) row.get("type"),
+                (String) row.get("owner_uuid"),
+                ((Number) row.get("balance")).doubleValue(),
+                ((Number) row.get("created_at")).longValue(),
+                (String) row.get("symbol"),
+                ((Number) row.get("on_market")).intValue() != 0,
+                ((Number) row.get("market_percentage")).doubleValue(),
+                ((Number) row.get("allow_buyout")).intValue() != 0
+            ));
+        }
+        
+        return companies;
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.quickstocks.commands;
 
 import com.example.quickstocks.application.queries.QueryService;
+import com.example.quickstocks.core.services.CompanyService;
 import com.example.quickstocks.core.services.HoldingsService;
 import com.example.quickstocks.core.services.TradingService;
 import com.example.quickstocks.core.services.WalletService;
@@ -31,15 +32,17 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     private final HoldingsService holdingsService;
     private final WalletService walletService;
     private final WatchlistService watchlistService;
+    private final CompanyService companyService;
     
     public MarketCommand(QueryService queryService, TradingService tradingService, 
                         HoldingsService holdingsService, WalletService walletService,
-                        WatchlistService watchlistService) {
+                        WatchlistService watchlistService, CompanyService companyService) {
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
         this.walletService = walletService;
         this.watchlistService = watchlistService;
+        this.companyService = companyService;
     }
     
     @Override
@@ -121,7 +124,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     private void showMarketOverview(Player player) throws Exception {
         // Open the Market GUI instead of showing chat messages
         try {
-            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService);
+            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService, companyService);
             marketGUI.open();
         } catch (Exception e) {
             logger.warning("Failed to open Market GUI for " + player.getName() + ": " + e.getMessage());
@@ -134,49 +137,29 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
      * Fallback method to show market overview in chat (when GUI fails)
      */
     private void showMarketOverviewInChat(Player player) throws Exception {
-        List<Map<String, Object>> topGainers = queryService.getTopGainers(10);
+        List<com.example.quickstocks.core.model.Company> companiesOnMarket = companyService.getCompaniesOnMarket();
         
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Market Overview" + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "Top 10 Gainers (24h):");
+        player.sendMessage(ChatColor.YELLOW + "Companies on Market:");
         
-        if (topGainers.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "No market data available.");
+        if (companiesOnMarket.isEmpty()) {
+            player.sendMessage(ChatColor.GRAY + "No companies are currently on the market.");
             return;
         }
         
         int rank = 1;
-        for (Map<String, Object> instrument : topGainers) {
-            String symbol = (String) instrument.get("symbol");
-            String displayName = (String) instrument.get("display_name");
-            Double price = (Double) instrument.get("last_price");
-            Double change24h = (Double) instrument.get("change_24h");
+        for (com.example.quickstocks.core.model.Company company : companiesOnMarket) {
+            String symbol = company.getSymbol();
+            String displayName = company.getName();
+            double balance = company.getBalance();
             
-            ChatColor changeColor = change24h >= 0 ? ChatColor.GREEN : ChatColor.RED;
-            String changeArrow = change24h >= 0 ? "▲" : "▼";
-            
-            // Check if this instrument is in the player's watchlist
-            String instrumentId = queryService.getInstrumentIdBySymbol(symbol);
-            boolean inWatchlist = false;
-            if (instrumentId != null) {
-                try {
-                    inWatchlist = watchlistService.isInWatchlist(player.getUniqueId().toString(), instrumentId);
-                } catch (Exception e) {
-                    // Ignore watchlist check errors
-                }
-            }
-            
-            String watchlistIndicator = inWatchlist ? ChatColor.YELLOW + "★ " : "";
-            
-            player.sendMessage(String.format(ChatColor.GRAY + "%d. " + watchlistIndicator + ChatColor.WHITE + "%s " + 
-                ChatColor.GRAY + "(%s) " + ChatColor.YELLOW + "$%.2f " + changeColor + "%s%.2f%%",
-                rank++, displayName, symbol, price, changeArrow, Math.abs(change24h)));
+            player.sendMessage(String.format(ChatColor.GRAY + "%d. " + ChatColor.GREEN + "%s " + 
+                ChatColor.GRAY + "(%s) " + ChatColor.YELLOW + "Balance: $%.2f",
+                rank++, displayName, symbol, balance));
         }
         
-        player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/market buy <symbol> <qty>" + 
-                          ChatColor.GRAY + " to purchase shares.");
-        player.sendMessage(ChatColor.GRAY + "Items with " + ChatColor.YELLOW + "★" + ChatColor.GRAY + 
-                          " are in your watchlist. Use " + ChatColor.WHITE + "/watch" + 
-                          ChatColor.GRAY + " to manage your watchlist.");
+        player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/company buyshares <company> <qty>" + 
+                          ChatColor.GRAY + " to purchase company shares.");
     }
     
     private void handleBuyOrder(Player player, String playerUuid, String symbol, String qtyStr) throws Exception {
