@@ -80,7 +80,7 @@ mvn exec:java -Dexec.mainClass="com.example.quickstocks.StocksCommandDemo"
 ### plugin.yml (Ready for Minecraft)
 ```yaml
 name: QuickStocks
-main: com.example.quickstocks.QuickStocksPlugin
+main: net.cyberneticforge.quickstocks.QuickStocksPlugin
 version: 1.0.0-SNAPSHOT
 api-version: "1.21"
 
