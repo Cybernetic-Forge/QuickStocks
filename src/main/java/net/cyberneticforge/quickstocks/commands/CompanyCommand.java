@@ -619,8 +619,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
                                    "invitations", "deposit", "withdraw", "employees", "jobs", 
                                    "createjob", "editjob", "assignjob", "settings",
-                                   "setsymbol", "market", "buyshares", "sellshares", 
-                                   "shareholders", "notifications")
+                                   "setsymbol", "market", "notifications")
                     .stream()
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
@@ -647,8 +646,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 String subcommand = args[0].toLowerCase();
                 if (subcommand.equals("info") || subcommand.equals("employees") || subcommand.equals("jobs") ||
                     subcommand.equals("deposit") || subcommand.equals("withdraw") || subcommand.equals("settings") ||
-                    subcommand.equals("setsymbol") || subcommand.equals("buyshares") || 
-                    subcommand.equals("sellshares") || subcommand.equals("shareholders")) {
+                    subcommand.equals("setsymbol")) {
                     return getCompanyNames(args[1]);
                 }
                 
