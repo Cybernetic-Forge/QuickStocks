@@ -182,7 +182,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         StocksCommand stocksCommand = new StocksCommand(queryService, auditService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         WalletCommand walletCommand = new WalletCommand(walletService);
-        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService);
+        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService, companyService);
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
         WatchCommand watchCommand = new WatchCommand(watchlistService, queryService);
         CompanyCommand companyCommand = new CompanyCommand(companyService, invitationService, companyMarketService);
@@ -227,8 +227,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
         CraftingListener craftingListener = new CraftingListener(this, recipeManager);
         
         // Register GUI listeners for the new market interface
-        MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService);
-        PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener(queryService, tradingService, holdingsService, walletService);
+        MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService, companyService);
+        PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener(queryService, tradingService, holdingsService, walletService, companyService);
         CompanySettingsGUIListener companySettingsGUIListener = new CompanySettingsGUIListener();
         
         getServer().getPluginManager().registerEvents(deviceListener, this);

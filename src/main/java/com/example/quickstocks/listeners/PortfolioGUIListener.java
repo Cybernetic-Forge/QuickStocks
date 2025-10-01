@@ -1,6 +1,7 @@
 package com.example.quickstocks.listeners;
 
 import com.example.quickstocks.application.queries.QueryService;
+import com.example.quickstocks.core.services.CompanyService;
 import com.example.quickstocks.core.services.HoldingsService;
 import com.example.quickstocks.core.services.TradingService;
 import com.example.quickstocks.core.services.WalletService;
@@ -28,13 +29,16 @@ public class PortfolioGUIListener implements Listener {
     private final TradingService tradingService;
     private final HoldingsService holdingsService;
     private final WalletService walletService;
+    private final CompanyService companyService;
     
     public PortfolioGUIListener(QueryService queryService, TradingService tradingService,
-                              HoldingsService holdingsService, WalletService walletService) {
+                              HoldingsService holdingsService, WalletService walletService,
+                              CompanyService companyService) {
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
         this.walletService = walletService;
+        this.companyService = companyService;
     }
     
     @EventHandler
@@ -177,7 +181,7 @@ public class PortfolioGUIListener implements Listener {
      */
     private void openMarketGUI(Player player) {
         try {
-            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService);
+            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService, companyService);
             marketGUI.open();
         } catch (Exception e) {
             logger.warning("Error opening market GUI for " + player.getName() + ": " + e.getMessage());

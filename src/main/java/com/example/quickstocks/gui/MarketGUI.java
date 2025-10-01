@@ -1,6 +1,8 @@
 package com.example.quickstocks.gui;
 
 import com.example.quickstocks.application.queries.QueryService;
+import com.example.quickstocks.core.model.Company;
+import com.example.quickstocks.core.services.CompanyService;
 import com.example.quickstocks.core.services.HoldingsService;
 import com.example.quickstocks.core.services.TradingService;
 import com.example.quickstocks.core.services.WalletService;
@@ -31,16 +33,18 @@ public class MarketGUI implements InventoryHolder {
     private final TradingService tradingService;
     private final HoldingsService holdingsService;
     private final WalletService walletService;
+    private final CompanyService companyService;
     private final Inventory inventory;
     private final Player player;
     
     public MarketGUI(Player player, QueryService queryService, TradingService tradingService, 
-                     HoldingsService holdingsService, WalletService walletService) {
+                     HoldingsService holdingsService, WalletService walletService, CompanyService companyService) {
         this.player = player;
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
         this.walletService = walletService;
+        this.companyService = companyService;
         this.inventory = Bukkit.createInventory(this, GUI_SIZE, ChatColor.DARK_GREEN + "Market - QuickStocks");
         
         setupGUI();
@@ -135,14 +139,15 @@ public class MarketGUI implements InventoryHolder {
      */
     private void addStocksToGUI() {
         try {
-            List<Map<String, Object>> topGainers = queryService.getTopGainers(36); // Fill most of the GUI
+            // Get companies that are on the market instead of predefined stocks
+            List<Company> companiesOnMarket = companyService.getCompaniesOnMarket();
             
             int slot = 9; // Start from second row
-            for (Map<String, Object> stock : topGainers) {
+            for (Company company : companiesOnMarket) {
                 if (slot >= 45) break; // Leave bottom row for navigation
                 
-                ItemStack stockItem = createStockItem(stock);
-                inventory.setItem(slot, stockItem);
+                ItemStack companyItem = createCompanyItem(company);
+                inventory.setItem(slot, companyItem);
                 slot++;
             }
             
@@ -150,65 +155,47 @@ public class MarketGUI implements InventoryHolder {
             for (int i = slot; i < 45; i++) {
                 ItemStack emptySlot = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
                 ItemMeta meta = emptySlot.getItemMeta();
-                meta.setDisplayName(ChatColor.GRAY + "No Stock Data");
+                meta.setDisplayName(ChatColor.GRAY + "No Company Shares Available");
                 emptySlot.setItemMeta(meta);
                 inventory.setItem(i, emptySlot);
             }
             
         } catch (Exception e) {
-            logger.warning("Error adding stocks to GUI: " + e.getMessage());
+            logger.warning("Error adding companies to GUI: " + e.getMessage());
         }
     }
     
     /**
-     * Creates an ItemStack representing a stock
+     * Creates an ItemStack representing a company share
      */
-    private ItemStack createStockItem(Map<String, Object> stock) {
-        String symbol = (String) stock.get("symbol");
-        String displayName = (String) stock.get("display_name");
-        Double price = (Double) stock.get("last_price");
-        Double change24h = (Double) stock.get("change_24h");
-        Double volatility = (Double) stock.get("volatility_24h");
-        String type = (String) stock.get("type");
+    private ItemStack createCompanyItem(Company company) {
+        String symbol = company.getSymbol();
+        String displayName = company.getName();
+        String type = company.getType();
+        double balance = company.getBalance();
         
         // Handle null values with defaults
         if (symbol == null) symbol = "UNKNOWN";
-        if (displayName == null) displayName = "Unknown Stock";
-        if (price == null) price = 0.0;
-        if (change24h == null) change24h = 0.0;
+        if (displayName == null) displayName = "Unknown Company";
         if (type == null) type = "other";
         
-        // Choose material based on stock type and performance
-        Material material = getMaterialForStock(type, change24h);
+        // Choose material based on company type
+        Material material = getMaterialForCompany(type);
         
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         
-        // Set display name with color coding
-        ChatColor nameColor = change24h >= 0 ? ChatColor.GREEN : ChatColor.RED;
-        meta.setDisplayName(nameColor + displayName + " (" + symbol + ")");
+        // Set display name
+        meta.setDisplayName(ChatColor.GREEN + displayName + " (" + symbol + ")");
         
         // Create detailed lore
         List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.YELLOW + "Price: " + ChatColor.WHITE + "$" + String.format("%.2f", price));
-        
-        // 24h change with color and arrow
-        ChatColor changeColor = change24h >= 0 ? ChatColor.GREEN : ChatColor.RED;
-        String changeArrow = change24h >= 0 ? "▲" : "▼";
-        lore.add(ChatColor.YELLOW + "24h Change: " + changeColor + changeArrow + String.format("%.2f%%", Math.abs(change24h)));
-        
-        // Volatility
-        if (volatility != null) {
-            lore.add(ChatColor.YELLOW + "Volatility: " + ChatColor.GRAY + String.format("%.2f%%", volatility));
-        }
-        
-        // Stock type
+        lore.add(ChatColor.YELLOW + "Company Balance: " + ChatColor.WHITE + "$" + String.format("%.2f", balance));
+        lore.add(ChatColor.YELLOW + "Market Percentage: " + ChatColor.WHITE + String.format("%.1f%%", company.getMarketPercentage()));
         lore.add(ChatColor.YELLOW + "Type: " + ChatColor.GRAY + type);
-        
         lore.add("");
-        lore.add(ChatColor.GREEN + "Left Click: " + ChatColor.WHITE + "Quick Buy (1 share)");
-        lore.add(ChatColor.RED + "Right Click: " + ChatColor.WHITE + "Quick Sell (1 share)");
-        lore.add(ChatColor.YELLOW + "Shift+Click: " + ChatColor.WHITE + "Custom Amount");
+        lore.add(ChatColor.AQUA + "This is a company share");
+        lore.add(ChatColor.GRAY + "Buy shares with: /company buyshares " + displayName + " <qty>");
         
         meta.setLore(lore);
         item.setItemMeta(meta);
@@ -217,53 +204,29 @@ public class MarketGUI implements InventoryHolder {
     }
     
     /**
-     * Determines the appropriate material for a stock based on type and performance
+     * Determines the appropriate material for a company based on type
      */
-    private Material getMaterialForStock(String type, Double change24h) {
+    private Material getMaterialForCompany(String type) {
         if (type == null) type = "other";
-        if (change24h == null) change24h = 0.0;
         
         // Base material on type
-        Material baseMaterial;
         switch (type.toLowerCase()) {
-            case "crypto":
-            case "cryptocurrency":
-                baseMaterial = Material.GOLD_NUGGET;
-                break;
             case "tech":
             case "technology":
-                baseMaterial = Material.REDSTONE;
-                break;
-            case "energy":
-                baseMaterial = Material.COAL;
-                break;
+                return Material.REDSTONE;
             case "finance":
             case "financial":
-                baseMaterial = Material.EMERALD;
-                break;
-            case "healthcare":
-                baseMaterial = Material.POTION;
-                break;
+                return Material.EMERALD;
+            case "retail":
             case "consumer":
-                baseMaterial = Material.APPLE;
-                break;
+                return Material.CHEST;
+            case "manufacturing":
+                return Material.IRON_INGOT;
+            case "agriculture":
+                return Material.WHEAT;
             default:
-                baseMaterial = Material.PAPER;
-                break;
+                return Material.PAPER;
         }
-        
-        // Modify based on performance for visual feedback
-        if (change24h >= 5.0) {
-            // High positive performance - use diamond variant if available
-            if (baseMaterial == Material.PAPER) return Material.DIAMOND;
-            if (baseMaterial == Material.EMERALD) return Material.EMERALD_BLOCK;
-        } else if (change24h <= -5.0) {
-            // High negative performance - use coal/dark variant
-            if (baseMaterial == Material.PAPER) return Material.COAL;
-            if (baseMaterial == Material.EMERALD) return Material.COAL_BLOCK;
-        }
-        
-        return baseMaterial;
     }
     
     /**

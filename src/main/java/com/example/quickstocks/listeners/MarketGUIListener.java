@@ -1,6 +1,7 @@
 package com.example.quickstocks.listeners;
 
 import com.example.quickstocks.application.queries.QueryService;
+import com.example.quickstocks.core.services.CompanyService;
 import com.example.quickstocks.core.services.HoldingsService;
 import com.example.quickstocks.core.services.TradingService;
 import com.example.quickstocks.core.services.WalletService;
@@ -29,13 +30,16 @@ public class MarketGUIListener implements Listener {
     private final TradingService tradingService;
     private final HoldingsService holdingsService;
     private final WalletService walletService;
+    private final CompanyService companyService;
     
     public MarketGUIListener(QueryService queryService, TradingService tradingService,
-                           HoldingsService holdingsService, WalletService walletService) {
+                           HoldingsService holdingsService, WalletService walletService,
+                           CompanyService companyService) {
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
         this.walletService = walletService;
+        this.companyService = companyService;
     }
     
     @EventHandler
