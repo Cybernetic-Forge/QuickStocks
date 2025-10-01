@@ -22,6 +22,8 @@ public class CompanyMarketService {
     private final CompanyService companyService;
     private final WalletService walletService;
     private final CompanyConfig config;
+    private TradingService tradingService; // Injected later to avoid circular dependency
+    private HoldingsService holdingsService; // Injected later to avoid circular dependency
     
     public CompanyMarketService(Db database, CompanyService companyService, 
                                WalletService walletService, CompanyConfig config) {
@@ -29,6 +31,14 @@ public class CompanyMarketService {
         this.companyService = companyService;
         this.walletService = walletService;
         this.config = config;
+    }
+    
+    /**
+     * Sets the trading and holdings services. Called after initialization to avoid circular dependencies.
+     */
+    public void setTradingServices(TradingService tradingService, HoldingsService holdingsService) {
+        this.tradingService = tradingService;
+        this.holdingsService = holdingsService;
     }
     
     /**
@@ -60,6 +70,7 @@ public class CompanyMarketService {
     
     /**
      * Enables the market for a company (IPO).
+     * Creates an instrument entry so the company can be traded using the standard instruments infrastructure.
      */
     public void enableMarket(String companyId, String actorUuid) throws SQLException {
         Optional<Company> companyOpt = companyService.getCompanyById(companyId);
@@ -96,6 +107,34 @@ public class CompanyMarketService {
             throw new IllegalArgumentException("Company is already on the market");
         }
         
+        // Create instrument entry for the company
+        // This allows the company to be traded using the standard instruments infrastructure
+        String instrumentId = "COMPANY_" + companyId;
+        long now = System.currentTimeMillis();
+        
+        // Check if instrument already exists
+        Map<String, Object> existingInstrument = database.queryOne(
+            "SELECT id FROM instruments WHERE id = ?", instrumentId);
+        
+        if (existingInstrument == null) {
+            // Create new instrument
+            database.execute(
+                "INSERT INTO instruments (id, type, symbol, display_name, decimals, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                instrumentId, "EQUITY", company.getSymbol(), company.getName(), 2, now
+            );
+            
+            // Calculate initial share price
+            double sharePrice = calculateSharePrice(company);
+            
+            // Create instrument state
+            database.execute(
+                "INSERT INTO instrument_state (instrument_id, last_price, last_volume, change_1h, change_24h, volatility_24h, market_cap, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                instrumentId, sharePrice, 0.0, 0.0, 0.0, 0.0, company.getBalance(), now
+            );
+            
+            logger.info("Created instrument " + instrumentId + " for company " + company.getName() + " at $" + String.format("%.2f", sharePrice));
+        }
+        
         // Enable market
         database.execute("UPDATE companies SET on_market = 1 WHERE id = ?", companyId);
         
@@ -108,6 +147,7 @@ public class CompanyMarketService {
     
     /**
      * Disables the market for a company (delist).
+     * This now works with the instruments infrastructure.
      */
     public void disableMarket(String companyId, String actorUuid) throws SQLException {
         Optional<Company> companyOpt = companyService.getCompanyById(companyId);
@@ -127,9 +167,11 @@ public class CompanyMarketService {
             throw new IllegalArgumentException("Company is not on the market");
         }
         
-        // Get all shareholders and pay them out
+        String instrumentId = "COMPANY_" + companyId;
+        
+        // Get all shareholders from user_holdings and pay them out
         List<Map<String, Object>> shareholders = database.query(
-            "SELECT player_uuid, shares, avg_cost FROM company_shareholders WHERE company_id = ?", companyId);
+            "SELECT player_uuid, qty as shares, avg_cost FROM user_holdings WHERE instrument_id = ?", instrumentId);
         
         double sharePrice = calculateSharePrice(company);
         
@@ -138,15 +180,15 @@ public class CompanyMarketService {
             double shares = ((Number) holder.get("shares")).doubleValue();
             double payout = shares * sharePrice;
             
-            // Pay out the shareholder
-            walletService.addBalance(playerUuid, payout);
-            
-            // Record transaction
-            String txId = UUID.randomUUID().toString();
-            database.execute(
-                "INSERT INTO company_share_tx (id, company_id, player_uuid, type, shares, price, ts) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                txId, companyId, playerUuid, "SELL", shares, sharePrice, System.currentTimeMillis()
-            );
+            // Sell all shares using TradingService (this updates user_holdings and creates order records)
+            if (tradingService != null) {
+                tradingService.executeSellOrder(playerUuid, instrumentId, shares);
+            } else {
+                // Fallback if trading service not available
+                walletService.addBalance(playerUuid, payout);
+                database.execute("DELETE FROM user_holdings WHERE instrument_id = ? AND player_uuid = ?",
+                    instrumentId, playerUuid);
+            }
             
             // Notify shareholder
             notifyPlayer(playerUuid, "MARKET_DISABLED",
@@ -154,8 +196,10 @@ public class CompanyMarketService {
                 " shares were sold for $" + String.format("%.2f", payout));
         }
         
-        // Remove all shareholders
-        database.execute("DELETE FROM company_shareholders WHERE company_id = ?", companyId);
+        // Remove instrument and its state
+        database.execute("DELETE FROM instrument_price_history WHERE instrument_id = ?", instrumentId);
+        database.execute("DELETE FROM instrument_state WHERE instrument_id = ?", instrumentId);
+        database.execute("DELETE FROM instruments WHERE id = ?", instrumentId);
         
         // Disable market
         database.execute("UPDATE companies SET on_market = 0 WHERE id = ?", companyId);
@@ -198,11 +242,15 @@ public class CompanyMarketService {
     }
     
     /**
-     * Buys shares of a company.
+     * Buys shares of a company using the instruments infrastructure.
      */
     public void buyShares(String companyId, String playerUuid, double quantity) throws SQLException {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");
+        }
+        
+        if (tradingService == null || holdingsService == null) {
+            throw new IllegalStateException("Trading services not initialized. Call setTradingServices() first.");
         }
         
         Optional<Company> companyOpt = companyService.getCompanyById(companyId);
@@ -217,19 +265,16 @@ public class CompanyMarketService {
             throw new IllegalArgumentException("Company is not on the market");
         }
         
+        // Get the instrument ID for this company
+        String instrumentId = "COMPANY_" + companyId;
+        
         // Calculate share price
         double sharePrice = calculateSharePrice(company);
-        double totalCost = quantity * sharePrice;
-        
-        // Check player balance
-        double balance = walletService.getBalance(playerUuid);
-        if (balance < totalCost) {
-            throw new IllegalArgumentException("Insufficient funds. Required: $" + String.format("%.2f", totalCost));
-        }
         
         // Calculate available shares
         double totalShares = calculateTotalShares(company);
-        double availableShares = totalShares - getIssuedShares(companyId);
+        double issuedShares = getIssuedSharesFromHoldings(instrumentId);
+        double availableShares = totalShares - issuedShares;
         
         if (quantity > availableShares) {
             throw new IllegalArgumentException("Only " + String.format("%.2f", availableShares) + " shares available");
@@ -237,55 +282,30 @@ public class CompanyMarketService {
         
         // Check for buyout scenario
         if (!company.isAllowBuyout()) {
-            double playerShares = getPlayerShares(companyId, playerUuid);
+            double playerShares = getPlayerSharesFromHoldings(instrumentId, playerUuid);
             if (playerShares + quantity > totalShares * 0.5) {
                 throw new IllegalArgumentException("Cannot buy more than 50% of company (buyout protection enabled)");
             }
         }
         
-        // Withdraw from player
-        walletService.removeBalance(playerUuid, totalCost);
+        // Use TradingService to execute the buy order
+        TradingService.TradeResult result = tradingService.executeBuyOrder(playerUuid, instrumentId, quantity);
         
-        // Add to company balance
-        database.execute("UPDATE companies SET balance = balance + ? WHERE id = ?", totalCost, companyId);
-        
-        // Update or create shareholder record
-        List<Map<String, Object>> existing = database.query(
-            "SELECT id, shares, avg_cost FROM company_shareholders WHERE company_id = ? AND player_uuid = ?",
-            companyId, playerUuid);
-        
-        if (existing.isEmpty()) {
-            // Create new shareholder
-            String holdingId = UUID.randomUUID().toString();
-            database.execute(
-                "INSERT INTO company_shareholders (id, company_id, player_uuid, shares, avg_cost, purchased_at) VALUES (?, ?, ?, ?, ?, ?)",
-                holdingId, companyId, playerUuid, quantity, sharePrice, System.currentTimeMillis()
-            );
-        } else {
-            // Update existing shareholder
-            Map<String, Object> holder = existing.get(0);
-            double currentShares = ((Number) holder.get("shares")).doubleValue();
-            double currentAvgCost = ((Number) holder.get("avg_cost")).doubleValue();
-            
-            // Calculate new average cost
-            double newAvgCost = ((currentShares * currentAvgCost) + (quantity * sharePrice)) / (currentShares + quantity);
-            
-            database.execute(
-                "UPDATE company_shareholders SET shares = shares + ?, avg_cost = ? WHERE company_id = ? AND player_uuid = ?",
-                quantity, newAvgCost, companyId, playerUuid
-            );
+        if (!result.isSuccess()) {
+            throw new IllegalArgumentException("Failed to execute buy order: " + result.getMessage());
         }
         
-        // Record transaction
-        String txId = UUID.randomUUID().toString();
-        database.execute(
-            "INSERT INTO company_share_tx (id, company_id, player_uuid, type, shares, price, ts) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            txId, companyId, playerUuid, "BUY", quantity, sharePrice, System.currentTimeMillis()
-        );
+        // Add funds to company balance (company receives the money from share sale)
+        double totalCost = quantity * sharePrice;
+        database.execute("UPDATE companies SET balance = balance + ? WHERE id = ?", totalCost, companyId);
+        
+        // Update instrument price based on company balance
+        updateInstrumentPrice(instrumentId, company);
         
         // Check if player now owns majority and buyout is allowed
+        totalShares = calculateTotalShares(company);
         if (company.isAllowBuyout()) {
-            double playerShares = getPlayerShares(companyId, playerUuid);
+            double playerShares = getPlayerSharesFromHoldings(instrumentId, playerUuid);
             if (playerShares > totalShares * 0.5 && !playerUuid.equals(company.getOwnerUuid())) {
                 // Transfer ownership
                 database.execute("UPDATE companies SET owner_uuid = ? WHERE id = ?", playerUuid, companyId);
@@ -334,11 +354,15 @@ public class CompanyMarketService {
     }
     
     /**
-     * Sells shares of a company.
+     * Sells shares of a company using the instruments infrastructure.
      */
     public void sellShares(String companyId, String playerUuid, double quantity) throws SQLException {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");
+        }
+        
+        if (tradingService == null || holdingsService == null) {
+            throw new IllegalStateException("Trading services not initialized. Call setTradingServices() first.");
         }
         
         Optional<Company> companyOpt = companyService.getCompanyById(companyId);
@@ -353,11 +377,8 @@ public class CompanyMarketService {
             throw new IllegalArgumentException("Company is not on the market");
         }
         
-        // Check player shares
-        double playerShares = getPlayerShares(companyId, playerUuid);
-        if (playerShares < quantity) {
-            throw new IllegalArgumentException("You only have " + String.format("%.2f", playerShares) + " shares");
-        }
+        // Get the instrument ID for this company
+        String instrumentId = "COMPANY_" + companyId;
         
         // Calculate share price
         double sharePrice = calculateSharePrice(company);
@@ -368,27 +389,18 @@ public class CompanyMarketService {
             throw new IllegalArgumentException("Company has insufficient balance to buy back shares");
         }
         
+        // Use TradingService to execute the sell order
+        TradingService.TradeResult result = tradingService.executeSellOrder(playerUuid, instrumentId, quantity);
+        
+        if (!result.isSuccess()) {
+            throw new IllegalArgumentException("Failed to execute sell order: " + result.getMessage());
+        }
+        
+        // Deduct from company balance (company pays for the buyback)
         database.execute("UPDATE companies SET balance = balance - ? WHERE id = ?", totalValue, companyId);
         
-        // Pay player
-        walletService.addBalance(playerUuid, totalValue);
-        
-        // Update shareholder record
-        database.execute(
-            "UPDATE company_shareholders SET shares = shares - ? WHERE company_id = ? AND player_uuid = ?",
-            quantity, companyId, playerUuid);
-        
-        // Remove shareholder if no shares left
-        database.execute(
-            "DELETE FROM company_shareholders WHERE company_id = ? AND player_uuid = ? AND shares <= 0",
-            companyId, playerUuid);
-        
-        // Record transaction
-        String txId = UUID.randomUUID().toString();
-        database.execute(
-            "INSERT INTO company_share_tx (id, company_id, player_uuid, type, shares, price, ts) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            txId, companyId, playerUuid, "SELL", quantity, sharePrice, System.currentTimeMillis()
-        );
+        // Update instrument price based on company balance
+        updateInstrumentPrice(instrumentId, company);
         
         logger.info("Player " + playerUuid + " sold " + quantity + " shares of company " + companyId);
     }
@@ -412,11 +424,32 @@ public class CompanyMarketService {
     }
     
     /**
-     * Gets total issued shares.
+     * Updates the instrument price based on company balance.
      */
-    public double getIssuedShares(String companyId) throws SQLException {
+    private void updateInstrumentPrice(String instrumentId, Company company) throws SQLException {
+        double sharePrice = calculateSharePrice(company);
+        long now = System.currentTimeMillis();
+        
+        // Update instrument state with new price
+        database.execute(
+            "UPDATE instrument_state SET last_price = ?, market_cap = ?, updated_at = ? WHERE instrument_id = ?",
+            sharePrice, company.getBalance(), now, instrumentId
+        );
+        
+        // Add to price history
+        String historyId = UUID.randomUUID().toString();
+        database.execute(
+            "INSERT INTO instrument_price_history (id, instrument_id, ts, price, volume, reason) VALUES (?, ?, ?, ?, ?, ?)",
+            historyId, instrumentId, now, sharePrice, 0.0, "COMPANY_BALANCE_CHANGE"
+        );
+    }
+    
+    /**
+     * Gets total issued shares from user_holdings (instruments infrastructure).
+     */
+    private double getIssuedSharesFromHoldings(String instrumentId) throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT SUM(shares) as total FROM company_shareholders WHERE company_id = ?", companyId);
+            "SELECT SUM(qty) as total FROM user_holdings WHERE instrument_id = ?", instrumentId);
         
         if (results.isEmpty() || results.get(0).get("total") == null) {
             return 0.0;
@@ -426,27 +459,48 @@ public class CompanyMarketService {
     }
     
     /**
-     * Gets shares owned by a player.
+     * Gets shares owned by a player from user_holdings (instruments infrastructure).
      */
-    public double getPlayerShares(String companyId, String playerUuid) throws SQLException {
+    private double getPlayerSharesFromHoldings(String instrumentId, String playerUuid) throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT shares FROM company_shareholders WHERE company_id = ? AND player_uuid = ?",
-            companyId, playerUuid);
+            "SELECT qty FROM user_holdings WHERE instrument_id = ? AND player_uuid = ?",
+            instrumentId, playerUuid);
         
         if (results.isEmpty()) {
             return 0.0;
         }
         
-        return ((Number) results.get(0).get("shares")).doubleValue();
+        return ((Number) results.get(0).get("qty")).doubleValue();
     }
     
     /**
-     * Gets all shareholders of a company.
+     * Gets total issued shares (backwards compatibility - now uses instruments).
+     * @deprecated Use getIssuedSharesFromHoldings with instrument ID instead
+     */
+    @Deprecated
+    public double getIssuedShares(String companyId) throws SQLException {
+        String instrumentId = "COMPANY_" + companyId;
+        return getIssuedSharesFromHoldings(instrumentId);
+    }
+    
+    /**
+     * Gets shares owned by a player (backwards compatibility - now uses instruments).
+     * @deprecated Use getPlayerSharesFromHoldings with instrument ID instead
+     */
+    @Deprecated
+    public double getPlayerShares(String companyId, String playerUuid) throws SQLException {
+        String instrumentId = "COMPANY_" + companyId;
+        return getPlayerSharesFromHoldings(instrumentId, playerUuid);
+    }
+    
+    /**
+     * Gets all shareholders of a company from user_holdings.
      */
     public List<Map<String, Object>> getShareholders(String companyId) throws SQLException {
+        String instrumentId = "COMPANY_" + companyId;
         return database.query(
-            "SELECT player_uuid, shares, avg_cost, purchased_at FROM company_shareholders WHERE company_id = ? ORDER BY shares DESC",
-            companyId);
+            "SELECT player_uuid, qty as shares, avg_cost FROM user_holdings WHERE instrument_id = ? ORDER BY qty DESC",
+            instrumentId);
     }
     
     /**

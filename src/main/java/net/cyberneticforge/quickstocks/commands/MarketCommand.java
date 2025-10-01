@@ -2,13 +2,9 @@ package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.application.queries.QueryService;
 import net.cyberneticforge.quickstocks.core.model.Company;
-import net.cyberneticforge.quickstocks.core.services.CompanyMarketService;
-import net.cyberneticforge.quickstocks.core.services.CompanyService;
-import net.cyberneticforge.quickstocks.core.services.HoldingsService;
-import net.cyberneticforge.quickstocks.core.services.TradingService;
-import net.cyberneticforge.quickstocks.core.services.WalletService;
-import net.cyberneticforge.quickstocks.core.services.WatchlistService;
+import net.cyberneticforge.quickstocks.core.services.*;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
+import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -37,11 +33,12 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     private final WatchlistService watchlistService;
     private final CompanyService companyService;
     private final CompanyMarketService companyMarketService;
+    private final Db database;
     
-    public MarketCommand(QueryService queryService, TradingService tradingService, 
-                        HoldingsService holdingsService, WalletService walletService,
-                        WatchlistService watchlistService, CompanyService companyService,
-                        CompanyMarketService companyMarketService) {
+    public MarketCommand(QueryService queryService, TradingService tradingService,
+                         HoldingsService holdingsService, WalletService walletService,
+                         WatchlistService watchlistService, CompanyService companyService,
+                         CompanyMarketService companyMarketService, Db database) {
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
@@ -49,6 +46,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         this.watchlistService = watchlistService;
         this.companyService = companyService;
         this.companyMarketService = companyMarketService;
+        this.database = database;
     }
     
     @Override
@@ -77,32 +75,18 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                     break;
                     
                 case "buy":
+                    // Unified buy command - now buys company shares
                     if (args.length < 3) {
-                        player.sendMessage(ChatColor.RED + "Usage: /market buy <symbol> <quantity>");
-                        return true;
-                    }
-                    handleBuyOrder(player, playerUuid, args[1], args[2]);
-                    break;
-                    
-                case "sell":
-                    if (args.length < 3) {
-                        player.sendMessage(ChatColor.RED + "Usage: /market sell <symbol> <quantity>");
-                        return true;
-                    }
-                    handleSellOrder(player, playerUuid, args[1], args[2]);
-                    break;
-                    
-                case "buyshares":
-                    if (args.length < 3) {
-                        player.sendMessage(ChatColor.RED + "Usage: /market buyshares <company> <quantity>");
+                        player.sendMessage(ChatColor.RED + "Usage: /market buy <company> <quantity>");
                         return true;
                     }
                     handleBuyShares(player, playerUuid, args[1], args[2]);
                     break;
                     
-                case "sellshares":
+                case "sell":
+                    // Unified sell command - now sells company shares
                     if (args.length < 3) {
-                        player.sendMessage(ChatColor.RED + "Usage: /market sellshares <company> <quantity>");
+                        player.sendMessage(ChatColor.RED + "Usage: /market sell <company> <quantity>");
                         return true;
                     }
                     handleSellShares(player, playerUuid, args[1], args[2]);
@@ -130,16 +114,8 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                     showWatchlistSummary(player, playerUuid);
                     break;
                     
-                case "confirm":
-                    if (args.length < 4) {
-                        player.sendMessage(ChatColor.RED + "Usage: /market confirm <buy|sell> <symbol> <quantity>");
-                        return true;
-                    }
-                    handleConfirmOrder(player, playerUuid, args[1], args[2], args[3]);
-                    break;
-                    
                 default:
-                    player.sendMessage(ChatColor.RED + "Unknown subcommand. Usage: /market [browse|buy|sell|buyshares|sellshares|shareholders|portfolio|history|watchlist|confirm]");
+                    player.sendMessage(ChatColor.RED + "Unknown subcommand. Usage: /market [browse|buy|sell|shareholders|portfolio|history|watchlist]");
                     break;
             }
             
@@ -182,193 +158,125 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             String symbol = company.getSymbol();
             String displayName = company.getName();
             double balance = company.getBalance();
+            double sharePrice = companyMarketService.calculateSharePrice(company);
             
             player.sendMessage(String.format(ChatColor.GRAY + "%d. " + ChatColor.GREEN + "%s " + 
-                ChatColor.GRAY + "(%s) " + ChatColor.YELLOW + "Balance: $%.2f",
-                rank++, displayName, symbol, balance));
+                ChatColor.GRAY + "(%s) " + ChatColor.YELLOW + "Price: $%.2f " + ChatColor.GRAY + "Balance: $%.2f",
+                rank++, displayName, symbol, sharePrice, balance));
         }
         
-        player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/market buyshares <company> <qty>" + 
+        player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/market buy <company> <qty>" + 
                           ChatColor.GRAY + " to purchase company shares.");
     }
     
-    private void handleBuyOrder(Player player, String playerUuid, String symbol, String qtyStr) throws Exception {
-        try {
-            double qty = Double.parseDouble(qtyStr);
-            if (qty <= 0) {
-                player.sendMessage(ChatColor.RED + "Quantity must be positive.");
-                return;
-            }
-            
-            // Get instrument ID from symbol
-            String instrumentId = queryService.getInstrumentIdBySymbol(symbol.toUpperCase());
-            if (instrumentId == null) {
-                player.sendMessage(ChatColor.RED + "Instrument not found: " + symbol);
-                return;
-            }
-            
-            // Show confirmation
-            Double currentPrice = queryService.getCurrentPrice(instrumentId);
-            if (currentPrice == null) {
-                player.sendMessage(ChatColor.RED + "Price data not available for " + symbol);
-                return;
-            }
-            
-            double totalCost = qty * currentPrice;
-            double currentBalance = walletService.getBalance(playerUuid);
-            
-            player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Buy Order Confirmation" + ChatColor.GOLD + " ===");
-            player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + symbol);
-            player.sendMessage(ChatColor.YELLOW + "Quantity: " + ChatColor.WHITE + String.format("%.2f", qty));
-            player.sendMessage(ChatColor.YELLOW + "Price: " + ChatColor.WHITE + "$" + String.format("%.2f", currentPrice));
-            player.sendMessage(ChatColor.YELLOW + "Total Cost: " + ChatColor.WHITE + "$" + String.format("%.2f", totalCost));
-            player.sendMessage(ChatColor.YELLOW + "Current Balance: " + ChatColor.WHITE + "$" + String.format("%.2f", currentBalance));
-            
-            if (currentBalance < totalCost) {
-                player.sendMessage(ChatColor.RED + "Insufficient funds! Need $" + String.format("%.2f", totalCost - currentBalance) + " more.");
-                return;
-            }
-            
-            player.sendMessage(ChatColor.GREEN + "Type " + ChatColor.WHITE + "/market confirm buy " + symbol + " " + qtyStr + 
-                              ChatColor.GREEN + " to execute this order.");
-            
-        } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Invalid quantity: " + qtyStr);
-        }
-    }
-    
-    private void handleSellOrder(Player player, String playerUuid, String symbol, String qtyStr) throws Exception {
-        try {
-            double qty = Double.parseDouble(qtyStr);
-            if (qty <= 0) {
-                player.sendMessage(ChatColor.RED + "Quantity must be positive.");
-                return;
-            }
-            
-            // Get instrument ID from symbol
-            String instrumentId = queryService.getInstrumentIdBySymbol(symbol.toUpperCase());
-            if (instrumentId == null) {
-                player.sendMessage(ChatColor.RED + "Instrument not found: " + symbol);
-                return;
-            }
-            
-            // Check holdings
-            HoldingsService.Holding holding = holdingsService.getHolding(playerUuid, instrumentId);
-            if (holding == null || holding.getQty() < qty) {
-                double availableQty = holding != null ? holding.getQty() : 0;
-                player.sendMessage(ChatColor.RED + "Insufficient shares! You have " + 
-                                  String.format("%.2f", availableQty) + " shares of " + symbol);
-                return;
-            }
-            
-            // Show confirmation
-            Double currentPrice = queryService.getCurrentPrice(instrumentId);
-            if (currentPrice == null) {
-                player.sendMessage(ChatColor.RED + "Price data not available for " + symbol);
-                return;
-            }
-            
-            double totalValue = qty * currentPrice;
-            
-            player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Sell Order Confirmation" + ChatColor.GOLD + " ===");
-            player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + symbol);
-            player.sendMessage(ChatColor.YELLOW + "Quantity: " + ChatColor.WHITE + String.format("%.2f", qty));
-            player.sendMessage(ChatColor.YELLOW + "Price: " + ChatColor.WHITE + "$" + String.format("%.2f", currentPrice));
-            player.sendMessage(ChatColor.YELLOW + "Total Value: " + ChatColor.WHITE + "$" + String.format("%.2f", totalValue));
-            player.sendMessage(ChatColor.YELLOW + "Available Shares: " + ChatColor.WHITE + String.format("%.2f", holding.getQty()));
-            
-            player.sendMessage(ChatColor.GREEN + "Type " + ChatColor.WHITE + "/market confirm sell " + symbol + " " + qtyStr + 
-                              ChatColor.GREEN + " to execute this order.");
-            
-        } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Invalid quantity: " + qtyStr);
-        }
-    }
-    
     private void showPortfolio(Player player, String playerUuid) throws Exception {
-        List<HoldingsService.Holding> holdings = holdingsService.getHoldings(playerUuid);
-        double portfolioValue = holdingsService.getPortfolioValue(playerUuid);
+        // Get company shares from user_holdings (instruments infrastructure)
+        List<Map<String, Object>> companyShares = database.query(
+            """
+            SELECT 
+                uh.instrument_id, uh.qty as shares, uh.avg_cost, 
+                i.symbol, i.display_name as name,
+                c.id as company_id, c.balance
+            FROM user_holdings uh
+            JOIN instruments i ON uh.instrument_id = i.id
+            LEFT JOIN companies c ON i.id = 'COMPANY_' || c.id
+            WHERE uh.player_uuid = ? AND uh.qty > 0 AND i.type = 'EQUITY'
+            ORDER BY i.symbol
+            """,
+            playerUuid
+        );
+        
         double walletBalance = walletService.getBalance(playerUuid);
+        
+        // Calculate total portfolio value
+        double portfolioValue = 0.0;
+        for (Map<String, Object> share : companyShares) {
+            String companyId = (String) share.get("company_id");
+            double shares = ((Number) share.get("shares")).doubleValue();
+            
+            if (companyId != null) {
+                // Get company to calculate current share price
+                Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+                if (companyOpt.isPresent()) {
+                    double currentPrice = companyMarketService.calculateSharePrice(companyOpt.get());
+                    portfolioValue += shares * currentPrice;
+                }
+            }
+        }
         
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Your Portfolio" + ChatColor.GOLD + " ===");
         player.sendMessage(ChatColor.YELLOW + "Cash Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance));
         player.sendMessage(ChatColor.YELLOW + "Portfolio Value: " + ChatColor.GREEN + "$" + String.format("%.2f", portfolioValue));
         player.sendMessage(ChatColor.YELLOW + "Total Assets: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance + portfolioValue));
         
-        if (holdings.isEmpty()) {
+        if (companyShares.isEmpty()) {
             player.sendMessage(ChatColor.GRAY + "No holdings found.");
             return;
         }
         
         player.sendMessage(ChatColor.YELLOW + "\nHoldings:");
-        for (HoldingsService.Holding holding : holdings) {
-            ChatColor pnlColor = holding.getUnrealizedPnL() >= 0 ? ChatColor.GREEN : ChatColor.RED;
-            String pnlArrow = holding.getUnrealizedPnL() >= 0 ? "▲" : "▼";
+        for (Map<String, Object> share : companyShares) {
+            String companyId = (String) share.get("company_id");
+            String name = (String) share.get("name");
+            String symbol = (String) share.get("symbol");
+            double shares = ((Number) share.get("shares")).doubleValue();
+            double avgCost = ((Number) share.get("avg_cost")).doubleValue();
             
-            player.sendMessage(String.format(ChatColor.WHITE + "%s: " + ChatColor.GRAY + "%.2f shares @ $%.2f avg " +
+            // Get company to calculate current share price
+            Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+            if (companyOpt.isEmpty()) continue;
+            
+            double currentPrice = companyMarketService.calculateSharePrice(companyOpt.get());
+            double unrealizedPnL = (currentPrice - avgCost) * shares;
+            double unrealizedPnLPercent = ((currentPrice - avgCost) / avgCost) * 100;
+            
+            ChatColor pnlColor = unrealizedPnL >= 0 ? ChatColor.GREEN : ChatColor.RED;
+            String pnlArrow = unrealizedPnL >= 0 ? "▲" : "▼";
+            
+            player.sendMessage(String.format(ChatColor.WHITE + "%s (%s): " + ChatColor.GRAY + "%.2f shares @ $%.2f avg " +
                 ChatColor.YELLOW + "($%.2f current) " + pnlColor + "%s$%.2f (%.1f%%)",
-                holding.getSymbol(), holding.getQty(), holding.getAvgCost(), 
-                holding.getCurrentPrice(), pnlArrow, Math.abs(holding.getUnrealizedPnL()), 
-                holding.getUnrealizedPnLPercent()));
+                name, symbol, shares, avgCost, currentPrice, pnlArrow, Math.abs(unrealizedPnL), 
+                unrealizedPnLPercent));
         }
     }
     
     private void showOrderHistory(Player player, String playerUuid) throws Exception {
-        List<TradingService.Order> orders = tradingService.getOrderHistory(playerUuid, 10);
+        // Get company share transaction history from orders table (instruments infrastructure)
+        List<Map<String, Object>> transactions = database.query(
+            """
+            SELECT 
+                o.side as type, o.qty as shares, o.price, o.ts,
+                i.display_name as name, i.symbol
+            FROM orders o
+            JOIN instruments i ON o.instrument_id = i.id
+            WHERE o.player_uuid = ? AND i.type = 'EQUITY'
+            ORDER BY o.ts DESC
+            LIMIT 10
+            """,
+            playerUuid
+        );
         
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Order History" + ChatColor.GOLD + " ===");
         
-        if (orders.isEmpty()) {
+        if (transactions.isEmpty()) {
             player.sendMessage(ChatColor.GRAY + "No order history found.");
             return;
         }
         
-        for (TradingService.Order order : orders) {
-            ChatColor sideColor = order.getSide().equals("BUY") ? ChatColor.GREEN : ChatColor.RED;
-            java.util.Date date = new java.util.Date(order.getTimestamp());
+        for (Map<String, Object> tx : transactions) {
+            String type = (String) tx.get("type");
+            String name = (String) tx.get("name");
+            String symbol = (String) tx.get("symbol");
+            double shares = ((Number) tx.get("shares")).doubleValue();
+            double price = ((Number) tx.get("price")).doubleValue();
+            long timestamp = ((Number) tx.get("ts")).longValue();
             
-            player.sendMessage(String.format(sideColor + "%s " + ChatColor.WHITE + "%s: " + 
+            ChatColor sideColor = type.equals("BUY") ? ChatColor.GREEN : ChatColor.RED;
+            java.util.Date date = new java.util.Date(timestamp);
+            
+            player.sendMessage(String.format(sideColor + "%s " + ChatColor.WHITE + "%s (%s): " + 
                 ChatColor.GRAY + "%.2f @ $%.2f " + ChatColor.DARK_GRAY + "(%tF %<tT)",
-                order.getSide(), order.getSymbol(), order.getQty(), 
-                order.getPrice(), date));
-        }
-    }
-    
-    private void handleConfirmOrder(Player player, String playerUuid, String side, String symbol, String qtyStr) throws Exception {
-        try {
-            double qty = Double.parseDouble(qtyStr);
-            if (qty <= 0) {
-                player.sendMessage(ChatColor.RED + "Quantity must be positive.");
-                return;
-            }
-            
-            // Get instrument ID from symbol
-            String instrumentId = queryService.getInstrumentIdBySymbol(symbol.toUpperCase());
-            if (instrumentId == null) {
-                player.sendMessage(ChatColor.RED + "Instrument not found: " + symbol);
-                return;
-            }
-            
-            TradingService.TradeResult result;
-            
-            if (side.equalsIgnoreCase("buy")) {
-                result = tradingService.executeBuyOrder(playerUuid, instrumentId, qty);
-            } else if (side.equalsIgnoreCase("sell")) {
-                result = tradingService.executeSellOrder(playerUuid, instrumentId, qty);
-            } else {
-                player.sendMessage(ChatColor.RED + "Invalid side. Use 'buy' or 'sell'.");
-                return;
-            }
-            
-            if (result.isSuccess()) {
-                player.sendMessage(ChatColor.GREEN + "✓ Order executed successfully!");
-                player.sendMessage(ChatColor.YELLOW + result.getMessage());
-            } else {
-                player.sendMessage(ChatColor.RED + "✗ Order failed: " + result.getMessage());
-            }
-            
-        } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Invalid quantity: " + qtyStr);
+                type, name, symbol, shares, price, date));
         }
     }
     
@@ -541,10 +449,24 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("browse", "buy", "sell", "buyshares", "sellshares", "shareholders", "portfolio", "history", "watchlist", "confirm")
+            return Arrays.asList("browse", "buy", "sell", "shareholders", "portfolio", "history", "watchlist")
                     .stream()
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
+        }
+        
+        if (args.length == 2 && (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("sell") || 
+                                  args[0].equalsIgnoreCase("shareholders"))) {
+            // Show company symbols for trading commands
+            try {
+                List<Company> companies = companyService.getCompaniesOnMarket();
+                return companies.stream()
+                    .map(c -> c.getSymbol() != null ? c.getSymbol() : c.getName())
+                    .filter(symbol -> symbol.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .collect(Collectors.toList());
+            } catch (Exception e) {
+                logger.warning("Error getting company symbols for tab completion: " + e.getMessage());
+            }
         }
 
         return null;

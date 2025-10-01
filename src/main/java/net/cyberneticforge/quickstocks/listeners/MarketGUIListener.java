@@ -1,6 +1,8 @@
 package net.cyberneticforge.quickstocks.listeners;
 
 import net.cyberneticforge.quickstocks.application.queries.QueryService;
+import net.cyberneticforge.quickstocks.core.model.Company;
+import net.cyberneticforge.quickstocks.core.services.CompanyMarketService;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
 import net.cyberneticforge.quickstocks.core.services.TradingService;
@@ -17,10 +19,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
- * Handles interactions with the Market GUI
+ * Handles interactions with the Market GUI (company shares)
  */
 public class MarketGUIListener implements Listener {
     
@@ -31,15 +34,17 @@ public class MarketGUIListener implements Listener {
     private final HoldingsService holdingsService;
     private final WalletService walletService;
     private final CompanyService companyService;
+    private final CompanyMarketService companyMarketService;
     
     public MarketGUIListener(QueryService queryService, TradingService tradingService,
                            HoldingsService holdingsService, WalletService walletService,
-                           CompanyService companyService) {
+                           CompanyService companyService, CompanyMarketService companyMarketService) {
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
         this.walletService = walletService;
         this.companyService = companyService;
+        this.companyMarketService = companyMarketService;
     }
     
     @EventHandler
@@ -124,34 +129,37 @@ public class MarketGUIListener implements Listener {
     }
     
     /**
-     * Handles clicks on stock items
+     * Handles clicks on company shares in the market
      */
     private void handleStockClick(Player player, String symbol, ClickType clickType) throws Exception {
         String playerUuid = player.getUniqueId().toString();
         
-        // Get instrument ID
-        String instrumentId = queryService.getInstrumentIdBySymbol(symbol);
-        if (instrumentId == null) {
-            player.sendMessage(ChatColor.RED + "Stock not found: " + symbol);
+        // Find company by symbol
+        Optional<Company> companyOpt = companyService.getCompanyByNameOrSymbol(symbol);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + symbol);
             return;
         }
         
-        // Get current price
-        Double currentPrice = queryService.getCurrentPrice(instrumentId);
-        if (currentPrice == null) {
-            player.sendMessage(ChatColor.RED + "Price data not available for " + symbol);
+        Company company = companyOpt.get();
+        
+        if (!company.isOnMarket()) {
+            player.sendMessage(ChatColor.RED + "Company '" + company.getName() + "' is not on the market.");
             return;
         }
+        
+        // Get current share price
+        double sharePrice = companyMarketService.calculateSharePrice(company);
         
         switch (clickType) {
             case LEFT:
                 // Quick buy 1 share
-                handleQuickBuy(player, playerUuid, instrumentId, symbol, currentPrice);
+                handleQuickBuy(player, playerUuid, company, sharePrice);
                 break;
                 
             case RIGHT:
                 // Quick sell 1 share
-                handleQuickSell(player, playerUuid, instrumentId, symbol, currentPrice);
+                handleQuickSell(player, playerUuid, company, sharePrice);
                 break;
                 
             case SHIFT_LEFT:
@@ -159,13 +167,13 @@ public class MarketGUIListener implements Listener {
                 // Custom amount - close GUI and prompt for amount
                 player.closeInventory();
                 String action = clickType == ClickType.SHIFT_LEFT ? "buy" : "sell";
-                player.sendMessage(ChatColor.YELLOW + "Enter amount to " + action + " for " + symbol + ":");
+                player.sendMessage(ChatColor.YELLOW + "Enter amount to " + action + " for " + company.getName() + ":");
                 player.sendMessage(ChatColor.GRAY + "Use: " + ChatColor.WHITE + "/market " + action + " " + symbol + " <amount>");
                 break;
                 
             default:
-                // Show stock details
-                showStockDetails(player, symbol, currentPrice);
+                // Show company details
+                showCompanyDetails(player, company, sharePrice);
                 break;
         }
     }
@@ -173,77 +181,85 @@ public class MarketGUIListener implements Listener {
     /**
      * Handles quick buy of 1 share
      */
-    private void handleQuickBuy(Player player, String playerUuid, String instrumentId, String symbol, double price) throws Exception {
-        double balance = walletService.getBalance(playerUuid);
-        
-        if (balance < price) {
-            player.sendMessage(ChatColor.RED + "Insufficient funds! Need $" + String.format("%.2f", price - balance) + " more.");
-            // Play error sound if available
-            try {
-                player.playSound(player.getLocation(), "entity.villager.no", 1.0f, 1.0f);
-            } catch (Exception ignored) {}
-            return;
-        }
-        
-        // Execute the trade
-        TradingService.TradeResult result = tradingService.executeBuyOrder(playerUuid, instrumentId, 1.0);
-        
-        if (result.isSuccess()) {
-            player.sendMessage(ChatColor.GREEN + "✓ Bought 1x " + symbol + " for $" + String.format("%.2f", price));
+    private void handleQuickBuy(Player player, String playerUuid, Company company, double price) {
+        try {
+            double balance = walletService.getBalance(playerUuid);
+            
+            if (balance < price) {
+                player.sendMessage(ChatColor.RED + "Insufficient funds! Need $" + String.format("%.2f", price - balance) + " more.");
+                playErrorSound(player);
+                return;
+            }
+            
+            // Execute the purchase
+            companyMarketService.buyShares(company.getId(), playerUuid, 1.0);
+            
+            player.sendMessage(ChatColor.GREEN + "✓ Bought 1 share of " + company.getName() + " for $" + String.format("%.2f", price));
             player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid)));
-            // Play success sound if available
-            try {
-                player.playSound(player.getLocation(), "entity.experience_orb.pickup", 1.0f, 1.2f);
-            } catch (Exception ignored) {}
-        } else {
-            player.sendMessage(ChatColor.RED + "✗ Purchase failed: " + result.getMessage());
-            try {
-                player.playSound(player.getLocation(), "entity.villager.no", 1.0f, 1.0f);
-            } catch (Exception ignored) {}
+            playSuccessSound(player);
+            
+        } catch (Exception e) {
+            player.sendMessage(ChatColor.RED + "✗ Purchase failed: " + e.getMessage());
+            playErrorSound(player);
+            logger.warning("Error in quick buy: " + e.getMessage());
         }
     }
     
     /**
      * Handles quick sell of 1 share
      */
-    private void handleQuickSell(Player player, String playerUuid, String instrumentId, String symbol, double price) throws Exception {
-        // Check holdings
-        HoldingsService.Holding holding = holdingsService.getHolding(playerUuid, instrumentId);
-        if (holding == null || holding.getQty() < 1.0) {
-            double availableQty = holding != null ? holding.getQty() : 0;
-            player.sendMessage(ChatColor.RED + "Insufficient shares! You have " + 
-                              String.format("%.2f", availableQty) + " shares of " + symbol);
-            try {
-                player.playSound(player.getLocation(), "entity.villager.no", 1.0f, 1.0f);
-            } catch (Exception ignored) {}
-            return;
-        }
-        
-        // Execute the trade
-        TradingService.TradeResult result = tradingService.executeSellOrder(playerUuid, instrumentId, 1.0);
-        
-        if (result.isSuccess()) {
-            player.sendMessage(ChatColor.GREEN + "✓ Sold 1x " + symbol + " for $" + String.format("%.2f", price));
+    private void handleQuickSell(Player player, String playerUuid, Company company, double price) {
+        try {
+            // Check if player has shares
+            double playerShares = companyMarketService.getPlayerShares(company.getId(), playerUuid);
+            if (playerShares < 1.0) {
+                player.sendMessage(ChatColor.RED + "You don't have any shares of " + company.getName() + "!");
+                playErrorSound(player);
+                return;
+            }
+            
+            // Execute the sale
+            companyMarketService.sellShares(company.getId(), playerUuid, 1.0);
+            
+            player.sendMessage(ChatColor.GREEN + "✓ Sold 1 share of " + company.getName() + " for $" + String.format("%.2f", price));
             player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid)));
-            try {
-                player.playSound(player.getLocation(), "entity.experience_orb.pickup", 1.0f, 0.8f);
-            } catch (Exception ignored) {}
-        } else {
-            player.sendMessage(ChatColor.RED + "✗ Sale failed: " + result.getMessage());
-            try {
-                player.playSound(player.getLocation(), "entity.villager.no", 1.0f, 1.0f);
-            } catch (Exception ignored) {}
+            playSuccessSound(player);
+            
+        } catch (Exception e) {
+            player.sendMessage(ChatColor.RED + "✗ Sale failed: " + e.getMessage());
+            playErrorSound(player);
+            logger.warning("Error in quick sell: " + e.getMessage());
         }
     }
     
     /**
-     * Shows detailed stock information
+     * Shows detailed company information
      */
-    private void showStockDetails(Player player, String symbol, double price) {
-        player.sendMessage(ChatColor.GOLD + "=== " + symbol + " Details ===");
-        player.sendMessage(ChatColor.YELLOW + "Current Price: " + ChatColor.WHITE + "$" + String.format("%.2f", price));
+    private void showCompanyDetails(Player player, Company company, double sharePrice) {
+        player.sendMessage(ChatColor.GOLD + "=== " + company.getName() + " (" + company.getSymbol() + ") ===");
+        player.sendMessage(ChatColor.YELLOW + "Share Price: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
+        player.sendMessage(ChatColor.YELLOW + "Company Balance: " + ChatColor.WHITE + "$" + String.format("%.2f", company.getBalance()));
+        player.sendMessage(ChatColor.YELLOW + "Market %: " + ChatColor.WHITE + String.format("%.1f%%", company.getMarketPercentage()));
         player.sendMessage(ChatColor.GRAY + "Use left-click to buy, right-click to sell");
         player.sendMessage(ChatColor.GRAY + "Shift+click for custom amounts");
+    }
+    
+    /**
+     * Plays success sound
+     */
+    private void playSuccessSound(Player player) {
+        try {
+            player.playSound(player.getLocation(), "entity.experience_orb.pickup", 1.0f, 1.2f);
+        } catch (Exception ignored) {}
+    }
+    
+    /**
+     * Plays error sound
+     */
+    private void playErrorSound(Player player) {
+        try {
+            player.playSound(player.getLocation(), "entity.villager.no", 1.0f, 1.0f);
+        } catch (Exception ignored) {}
     }
     
     /**

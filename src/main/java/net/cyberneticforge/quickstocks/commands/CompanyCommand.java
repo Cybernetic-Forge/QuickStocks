@@ -1,6 +1,5 @@
 package net.cyberneticforge.quickstocks.commands;
 
-import com.example.quickstocks.core.model.*;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
@@ -128,18 +127,6 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handleMarket(player, playerUuid, args);
                     break;
                     
-                case "buyshares":
-                    handleBuyShares(player, playerUuid, args);
-                    break;
-                    
-                case "sellshares":
-                    handleSellShares(player, playerUuid, args);
-                    break;
-                    
-                case "shareholders":
-                    handleShareholders(player, args);
-                    break;
-                    
                 case "notifications":
                     handleNotifications(player, playerUuid);
                     break;
@@ -179,7 +166,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "/company market enable <company>" + ChatColor.GRAY + " - Enable market");
         player.sendMessage(ChatColor.YELLOW + "/company market disable <company>" + ChatColor.GRAY + " - Disable market");
         player.sendMessage(ChatColor.YELLOW + "/company market settings <company>" + ChatColor.GRAY + " - View/edit settings");
-        player.sendMessage(ChatColor.GRAY + "For buying/selling shares, use " + ChatColor.WHITE + "/market buyshares" + ChatColor.GRAY + " or " + ChatColor.WHITE + "/market sellshares");
+        player.sendMessage(ChatColor.GRAY + "For buying/selling shares, use " + ChatColor.WHITE + "/market buy" + ChatColor.GRAY + " or " + ChatColor.WHITE + "/market sell");
         player.sendMessage(ChatColor.YELLOW + "/company notifications" + ChatColor.GRAY + " - View notifications");
     }
     
@@ -632,8 +619,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
                                    "invitations", "deposit", "withdraw", "employees", "jobs", 
                                    "createjob", "editjob", "assignjob", "settings",
-                                   "setsymbol", "market", "buyshares", "sellshares", 
-                                   "shareholders", "notifications")
+                                   "setsymbol", "market", "notifications")
                     .stream()
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
@@ -660,8 +646,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 String subcommand = args[0].toLowerCase();
                 if (subcommand.equals("info") || subcommand.equals("employees") || subcommand.equals("jobs") ||
                     subcommand.equals("deposit") || subcommand.equals("withdraw") || subcommand.equals("settings") ||
-                    subcommand.equals("setsymbol") || subcommand.equals("buyshares") || 
-                    subcommand.equals("sellshares") || subcommand.equals("shareholders")) {
+                    subcommand.equals("setsymbol")) {
                     return getCompanyNames(args[1]);
                 }
                 
@@ -845,7 +830,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(ChatColor.GREEN + "Company is now on the market!");
                 player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + company.getSymbol());
                 player.sendMessage(ChatColor.YELLOW + "Players can now buy shares with: " + 
-                    ChatColor.WHITE + "/market buyshares " + companyName + " <quantity>");
+                    ChatColor.WHITE + "/market buy " + companyName + " <quantity>");
                 break;
                 
             case "disable":
@@ -888,36 +873,6 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(ChatColor.RED + "Unknown market action. Use: enable, disable, or settings");
                 break;
         }
-    }
-    
-    /**
-     * Handles buying shares of a company.
-     * @deprecated Use /market buyshares instead
-     */
-    private void handleBuyShares(Player player, String playerUuid, String[] args) throws Exception {
-        player.sendMessage(ChatColor.YELLOW + "⚠ This command has been moved to /market");
-        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market buyshares <company> <quantity>");
-        player.sendMessage(ChatColor.GRAY + "You can use either the company name or symbol.");
-    }
-    
-    /**
-     * Handles selling shares of a company.
-     * @deprecated Use /market sellshares instead
-     */
-    private void handleSellShares(Player player, String playerUuid, String[] args) throws Exception {
-        player.sendMessage(ChatColor.YELLOW + "⚠ This command has been moved to /market");
-        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market sellshares <company> <quantity>");
-        player.sendMessage(ChatColor.GRAY + "You can use either the company name or symbol.");
-    }
-    
-    /**
-     * Handles viewing shareholders of a company.
-     * @deprecated Use /market shareholders instead
-     */
-    private void handleShareholders(Player player, String[] args) throws Exception {
-        player.sendMessage(ChatColor.YELLOW + "⚠ This command has been moved to /market");
-        player.sendMessage(ChatColor.GRAY + "Please use: " + ChatColor.WHITE + "/market shareholders <company>");
-        player.sendMessage(ChatColor.GRAY + "You can use either the company name or symbol.");
     }
     
     /**

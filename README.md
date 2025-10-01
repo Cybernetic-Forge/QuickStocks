@@ -42,16 +42,16 @@ While the main plugin classes are in `.ready` state, you can test all functional
 
 ```bash
 # Test stock market simulation
-mvn exec:java -Dexec.mainClass="com.example.quickstocks.SimulationDemo"
+mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.SimulationDemo"
 
 # Test crypto creation functionality  
-mvn exec:java -Dexec.mainClass="com.example.quickstocks.CryptoCreationDemo"
+mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.CryptoCreationDemo"
 
 # Test command functionality
-mvn exec:java -Dexec.mainClass="com.example.quickstocks.commands.CryptoCommandDemo"
+mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.commands.CryptoCommandDemo"
 
 # Test stocks command
-mvn exec:java -Dexec.mainClass="com.example.quickstocks.StocksCommandDemo"
+mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.StocksCommandDemo"
 ```
 
 ## Core Features Implemented
@@ -129,7 +129,7 @@ mvn test
 mvn clean package
 
 # Test market simulation
-mvn exec:java -Dexec.mainClass="com.example.quickstocks.SimulationDemo"
+mvn exec:java -Dexec.mainClass="net.cyberneticforge.quickstocks.SimulationDemo"
 ```
 
 ## Architecture Highlights

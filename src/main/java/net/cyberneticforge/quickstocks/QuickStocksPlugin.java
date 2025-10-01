@@ -86,6 +86,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             companyService = new CompanyService(databaseManager.getDb(), walletService, companyConfig);
             invitationService = new InvitationService(databaseManager.getDb(), companyService);
             companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyService, walletService, companyConfig);
+            
+            // Wire up trading services for company market operations
+            companyMarketService.setTradingServices(tradingService, holdingsService);
 
             // Connect trading service to market service for threshold tracking
             tradingService.setStockMarketService(stockMarketService);
@@ -182,7 +185,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         StocksCommand stocksCommand = new StocksCommand(queryService, auditService);
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         WalletCommand walletCommand = new WalletCommand(walletService);
-        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService, companyService, companyMarketService);
+        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService, companyService, companyMarketService, databaseManager.getDb());
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
         WatchCommand watchCommand = new WatchCommand(watchlistService, queryService);
         CompanyCommand companyCommand = new CompanyCommand(companyService, invitationService, companyMarketService);
@@ -227,7 +230,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         CraftingListener craftingListener = new CraftingListener(this, recipeManager);
         
         // Register GUI listeners for the new market interface
-        MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService, companyService);
+        MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService, companyService, companyMarketService);
         PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener(queryService, tradingService, holdingsService, walletService, companyService);
         CompanySettingsGUIListener companySettingsGUIListener = new CompanySettingsGUIListener();
         

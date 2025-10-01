@@ -1,6 +1,5 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import com.example.quickstocks.core.model.*;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;

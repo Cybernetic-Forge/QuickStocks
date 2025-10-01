@@ -194,7 +194,7 @@ public class MarketGUI implements InventoryHolder {
         lore.add(ChatColor.YELLOW + "Type: " + ChatColor.GRAY + type);
         lore.add("");
         lore.add(ChatColor.AQUA + "This is a company share");
-        lore.add(ChatColor.GRAY + "Buy shares with: /company buyshares " + displayName + " <qty>");
+        lore.add(ChatColor.GRAY + "Buy shares with: /market buy " + displayName + " <qty>");
         
         meta.setLore(lore);
         item.setItemMeta(meta);
