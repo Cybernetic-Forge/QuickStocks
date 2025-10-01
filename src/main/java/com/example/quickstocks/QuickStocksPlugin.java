@@ -36,6 +36,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private AuditService auditService;
     private CompanyService companyService;
     private InvitationService invitationService;
+    private CompanyMarketService companyMarketService;
     private BukkitRunnable marketUpdateTask;
 
     @Override
@@ -84,6 +85,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
             companyService = new CompanyService(databaseManager.getDb(), walletService, companyConfig);
             invitationService = new InvitationService(databaseManager.getDb(), companyService);
+            companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyService, walletService, companyConfig);
 
             // Connect trading service to market service for threshold tracking
             tradingService.setStockMarketService(stockMarketService);
@@ -183,7 +185,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService);
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
         WatchCommand watchCommand = new WatchCommand(watchlistService, queryService);
-        CompanyCommand companyCommand = new CompanyCommand(companyService, invitationService);
+        CompanyCommand companyCommand = new CompanyCommand(companyService, invitationService, companyMarketService);
         
         // Register the /stocks command
         getCommand("stocks").setExecutor(stocksCommand);
