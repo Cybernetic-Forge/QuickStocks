@@ -100,7 +100,8 @@ public class MigrationRunner {
             "V5__analytics_views.sql",
             "V6__portfolio_tracking.sql",
             "V7__fix_strftime_indexes.sql",
-            "V8__companies.sql"
+            "V8__companies.sql",
+            "V9__company_market.sql",
         };
         
         for (String filename : expectedMigrations) {

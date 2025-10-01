@@ -6,6 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/COMPANY_FEATURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/COMPANY_FEATURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/infrastructure/db/MigrationRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/quickstocks/infrastructure/db/MigrationRunner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/migrations/V8__company_market.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/migrations/V9__company_market.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -195,7 +198,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759161946419</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="fixes">
+      <option name="closed" value="true" />
+      <created>1759308343557</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1759308343557</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

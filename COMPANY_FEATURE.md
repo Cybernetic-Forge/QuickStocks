@@ -163,7 +163,7 @@ The feature adds 8 tables:
 7. **company_share_tx** - Share transaction history (NEW)
 8. **player_notifications** - Offline notification system (NEW)
 
-See `src/main/resources/migrations/V7__companies.sql` and `V8__company_market.sql` for details.
+See `src/main/resources/migrations/V7__companies.sql` and `V9__company_market.sql` for details.
 
 ## Usage Examples
 
