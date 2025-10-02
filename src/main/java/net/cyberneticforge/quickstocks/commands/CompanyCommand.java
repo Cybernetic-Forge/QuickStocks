@@ -849,7 +849,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage(ChatColor.YELLOW + "Buyout Protection: " + ChatColor.WHITE + (company.isAllowBuyout() ? "Disabled" : "Enabled"));
                     
                     double sharePrice = companyMarketService.calculateSharePrice(company);
-                    double issuedShares = companyMarketService.getPlayerShares(company.getId(), playerUuid); // This gets player's shares, need to sum all
+                    double issuedShares = companyMarketService.getPlayerSharesFromHoldings(company.getId(), playerUuid); // This gets player's shares, need to sum all
                     player.sendMessage(ChatColor.YELLOW + "Share Price: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
                 } else {
                     // Update settings: /company market settings <company> <percentage|buyout> <value>

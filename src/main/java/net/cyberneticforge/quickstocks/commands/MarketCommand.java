@@ -427,7 +427,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             return;
         }
         
-        double totalShares = companyMarketService.getIssuedShares(company.getId());
+        double totalShares = companyMarketService.getIssuedSharesFromHoldings(company.getId());
         
         player.sendMessage(ChatColor.YELLOW + "Total Issued Shares: " + ChatColor.WHITE + String.format("%.2f", totalShares));
         player.sendMessage(ChatColor.YELLOW + "\nShareholders:");

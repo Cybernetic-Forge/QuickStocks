@@ -211,7 +211,7 @@ public class MarketGUIListener implements Listener {
     private void handleQuickSell(Player player, String playerUuid, Company company, double price) {
         try {
             // Check if player has shares
-            double playerShares = companyMarketService.getPlayerShares(company.getId(), playerUuid);
+            double playerShares = companyMarketService.getPlayerSharesFromHoldings(company.getId(), playerUuid);
             if (playerShares < 1.0) {
                 player.sendMessage(ChatColor.RED + "You don't have any shares of " + company.getName() + "!");
                 playErrorSound(player);
