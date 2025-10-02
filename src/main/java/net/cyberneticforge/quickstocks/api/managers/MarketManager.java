@@ -22,12 +22,10 @@ public class MarketManager {
     
     private final StockMarketService stockMarketService;
     private final InstrumentPersistenceService instrumentService;
-    private final HoldingsService holdingsService;
 
-    public MarketManager(StockMarketService stockMarketService, InstrumentPersistenceService instrumentService, HoldingsService holdingsService) {
+    public MarketManager(StockMarketService stockMarketService, InstrumentPersistenceService instrumentService) {
         this.stockMarketService = stockMarketService;
         this.instrumentService = instrumentService;
-        this.holdingsService = holdingsService;
     }
 
     /**

@@ -154,7 +154,7 @@ public class SimulationEngine {
             Map<Stock, String> stockToInstrumentMap = new HashMap<>();
             for (Stock stock : marketService.getAllStocks()) {
                 try {
-                    String instrumentId = instrumentService.ensureInstrument(stock).getInstrumentId();
+                    String instrumentId = instrumentService.ensureInstrument(stock).getId();
                     stockToInstrumentMap.put(stock, instrumentId);
                 } catch (Exception e) {
                     logger.severe("Failed to ensure instrument for " + stock.getSymbol() + ": " + e.getMessage());
@@ -380,7 +380,7 @@ public class SimulationEngine {
      */
     private String getSymbolForInstrumentId(String instrumentId) {
         return instrumentService.getAllInstruments().entrySet().stream()
-            .filter(entry -> entry.getValue().getInstrumentId().equals(instrumentId))
+            .filter(entry -> entry.getValue().getId().equals(instrumentId))
             .map(Map.Entry::getKey)
             .findFirst()
             .orElse(null);
