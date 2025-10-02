@@ -2,7 +2,7 @@ package net.cyberneticforge.quickstocks.api.managers;
 
 import net.cyberneticforge.quickstocks.core.services.StockMarketService;
 import net.cyberneticforge.quickstocks.core.services.InstrumentPersistenceService;
-import net.cyberneticforge.quickstocks.core.models.Stock;
+import net.cyberneticforge.quickstocks.core.model.Stock;
 
 import java.sql.SQLException;
 import java.util.List;

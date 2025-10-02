@@ -1,8 +1,8 @@
 package net.cyberneticforge.quickstocks.core.services;
 
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
-import net.cyberneticforge.quickstocks.core.models.MarketInfluence;
-import net.cyberneticforge.quickstocks.core.models.Stock;
+import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
+import net.cyberneticforge.quickstocks.core.model.Stock;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.util.*;

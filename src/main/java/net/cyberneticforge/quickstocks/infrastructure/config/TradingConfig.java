@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.core.config;
+package net.cyberneticforge.quickstocks.infrastructure.config;
 
 import java.util.List;
 

@@ -3,8 +3,8 @@ package net.cyberneticforge.quickstocks.core.services;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
 import net.cyberneticforge.quickstocks.core.algorithms.StockPriceCalculator;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
-import net.cyberneticforge.quickstocks.core.models.MarketInfluence;
-import net.cyberneticforge.quickstocks.core.models.Stock;
+import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
+import net.cyberneticforge.quickstocks.core.model.Stock;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

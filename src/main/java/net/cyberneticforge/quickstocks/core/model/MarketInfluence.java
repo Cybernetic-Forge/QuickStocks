@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.core.models;
+package net.cyberneticforge.quickstocks.core.model;
 
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.core.config.TradingConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
 import net.cyberneticforge.quickstocks.core.model.OrderType;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;

@@ -1,8 +1,8 @@
 package net.cyberneticforge.quickstocks.core.algorithms;
 
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
-import net.cyberneticforge.quickstocks.core.models.MarketInfluence;
-import net.cyberneticforge.quickstocks.core.models.Stock;
+import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
+import net.cyberneticforge.quickstocks.core.model.Stock;
 
 import java.util.List;
 import java.util.Random;

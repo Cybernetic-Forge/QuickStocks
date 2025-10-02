@@ -1,6 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.core.models.Stock;
+import net.cyberneticforge.quickstocks.core.model.Stock;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.util.HashMap;
