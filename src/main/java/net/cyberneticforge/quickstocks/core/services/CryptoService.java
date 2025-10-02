@@ -1,10 +1,14 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.core.model.Crypto;
+import net.cyberneticforge.quickstocks.core.model.Instrument;
+import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Service for managing custom cryptocurrency instruments created by players.
@@ -117,5 +121,156 @@ public class CryptoService {
     private boolean symbolExists(String symbol) throws SQLException {
         var result = database.queryValue("SELECT COUNT(*) FROM instruments WHERE UPPER(symbol) = UPPER(?)", symbol);
         return ((Number) result).intValue() > 0;
+    }
+    
+    /**
+     * Gets a cryptocurrency by ID.
+     * 
+     * @param cryptoId The cryptocurrency ID
+     * @return Optional containing the crypto data if found
+     * @throws SQLException if database error occurs
+     */
+    public Optional<Crypto> getCryptoById(String cryptoId) throws SQLException {
+        var instrumentRow = database.queryOne("""
+            SELECT id, type, symbol, display_name, mc_material, decimals, created_by, created_at
+            FROM instruments
+            WHERE id = ? AND (type = 'CRYPTO' OR type = 'CUSTOM_CRYPTO')
+            """, cryptoId);
+        
+        if (instrumentRow == null) {
+            return Optional.empty();
+        }
+        
+        var stateRow = database.queryOne("""
+            SELECT instrument_id, last_price, last_volume, change_1h, change_24h, 
+                   volatility_24h, market_cap, updated_at
+            FROM instrument_state
+            WHERE instrument_id = ?
+            """, cryptoId);
+        
+        if (stateRow == null) {
+            return Optional.empty();
+        }
+        
+        Instrument instrument = mapToInstrument(instrumentRow);
+        InstrumentState state = mapToInstrumentState(stateRow);
+        return Optional.of(new Crypto(instrument, state));
+    }
+    
+    /**
+     * Gets a cryptocurrency by symbol.
+     * 
+     * @param symbol The cryptocurrency symbol
+     * @return Optional containing the crypto data if found
+     * @throws SQLException if database error occurs
+     */
+    public Optional<Crypto> getCryptoBySymbol(String symbol) throws SQLException {
+        var instrumentRow = database.queryOne("""
+            SELECT id, type, symbol, display_name, mc_material, decimals, created_by, created_at
+            FROM instruments
+            WHERE UPPER(symbol) = UPPER(?) AND (type = 'CRYPTO' OR type = 'CUSTOM_CRYPTO')
+            """, symbol);
+        
+        if (instrumentRow == null) {
+            return Optional.empty();
+        }
+        
+        String instrumentId = (String) instrumentRow.get("id");
+        var stateRow = database.queryOne("""
+            SELECT instrument_id, last_price, last_volume, change_1h, change_24h, 
+                   volatility_24h, market_cap, updated_at
+            FROM instrument_state
+            WHERE instrument_id = ?
+            """, instrumentId);
+        
+        if (stateRow == null) {
+            return Optional.empty();
+        }
+        
+        Instrument instrument = mapToInstrument(instrumentRow);
+        InstrumentState state = mapToInstrumentState(stateRow);
+        return Optional.of(new Crypto(instrument, state));
+    }
+    
+    /**
+     * Gets all cryptocurrencies.
+     * 
+     * @return List of all cryptocurrencies
+     * @throws SQLException if database error occurs
+     */
+    public List<Crypto> getAllCryptos() throws SQLException {
+        var results = database.query("""
+            SELECT i.id, i.type, i.symbol, i.display_name, i.mc_material, i.decimals, i.created_by, i.created_at,
+                   s.instrument_id, s.last_price, s.last_volume, s.change_1h, s.change_24h, 
+                   s.volatility_24h, s.market_cap, s.updated_at
+            FROM instruments i
+            JOIN instrument_state s ON i.id = s.instrument_id
+            WHERE i.type = 'CRYPTO' OR i.type = 'CUSTOM_CRYPTO'
+            """);
+        
+        return results.stream()
+                .map(row -> {
+                    Instrument instrument = mapToInstrument(row);
+                    InstrumentState state = mapToInstrumentState(row);
+                    return new Crypto(instrument, state);
+                })
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Gets all cryptocurrencies created by a specific player.
+     * 
+     * @param playerUuid UUID of the player
+     * @return List of cryptocurrencies created by the player
+     * @throws SQLException if database error occurs
+     */
+    public List<Crypto> getCryptosByCreator(String playerUuid) throws SQLException {
+        var results = database.query("""
+            SELECT i.id, i.type, i.symbol, i.display_name, i.mc_material, i.decimals, i.created_by, i.created_at,
+                   s.instrument_id, s.last_price, s.last_volume, s.change_1h, s.change_24h, 
+                   s.volatility_24h, s.market_cap, s.updated_at
+            FROM instruments i
+            JOIN instrument_state s ON i.id = s.instrument_id
+            WHERE (i.type = 'CRYPTO' OR i.type = 'CUSTOM_CRYPTO') AND i.created_by = ?
+            """, playerUuid);
+        
+        return results.stream()
+                .map(row -> {
+                    Instrument instrument = mapToInstrument(row);
+                    InstrumentState state = mapToInstrumentState(row);
+                    return new Crypto(instrument, state);
+                })
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Maps a database row to an Instrument object.
+     */
+    private Instrument mapToInstrument(Map<String, Object> row) {
+        String id = (String) row.get("id");
+        String type = (String) row.get("type");
+        String symbol = (String) row.get("symbol");
+        String displayName = (String) row.get("display_name");
+        String material = (String) row.get("mc_material");
+        int decimals = ((Number) row.get("decimals")).intValue();
+        String createdBy = (String) row.get("created_by");
+        long createdAt = ((Number) row.get("created_at")).longValue();
+        return new Instrument(id, type, symbol, displayName, material, decimals, createdBy, createdAt);
+    }
+    
+    /**
+     * Maps a database row to an InstrumentState object.
+     */
+    private InstrumentState mapToInstrumentState(Map<String, Object> row) {
+        String instrumentId = (String) row.get("instrument_id");
+        double lastPrice = ((Number) row.get("last_price")).doubleValue();
+        double lastVolume = ((Number) row.get("last_volume")).doubleValue();
+        double change1h = ((Number) row.get("change_1h")).doubleValue();
+        double change24h = ((Number) row.get("change_24h")).doubleValue();
+        double volatility24h = ((Number) row.get("volatility_24h")).doubleValue();
+        double marketCap = ((Number) row.get("market_cap")).doubleValue();
+        long updatedAt = ((Number) row.get("updated_at")).longValue();
+        return new InstrumentState(instrumentId, lastPrice, lastVolume, change1h, change24h, 
+                                   volatility24h, marketCap, updatedAt);
     }
 }

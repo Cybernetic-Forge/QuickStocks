@@ -1,10 +1,10 @@
 package net.cyberneticforge.quickstocks.api.managers;
 
+import net.cyberneticforge.quickstocks.core.model.Crypto;
 import net.cyberneticforge.quickstocks.core.services.CryptoService;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -39,7 +39,7 @@ public class CryptoManager {
      * @return Optional containing the crypto data if found
      * @throws SQLException if database error occurs
      */
-    public Optional<Map<String, Object>> getCrypto(String cryptoId) throws SQLException {
+    public Optional<Crypto> getCrypto(String cryptoId) throws SQLException {
         return cryptoService.getCryptoById(cryptoId);
     }
     
@@ -50,7 +50,7 @@ public class CryptoManager {
      * @return Optional containing the crypto data if found
      * @throws SQLException if database error occurs
      */
-    public Optional<Map<String, Object>> getCryptoBySymbol(String symbol) throws SQLException {
+    public Optional<Crypto> getCryptoBySymbol(String symbol) throws SQLException {
         return cryptoService.getCryptoBySymbol(symbol);
     }
     
@@ -60,7 +60,7 @@ public class CryptoManager {
      * @return List of all cryptocurrencies
      * @throws SQLException if database error occurs
      */
-    public List<Map<String, Object>> getAllCryptos() throws SQLException {
+    public List<Crypto> getAllCryptos() throws SQLException {
         return cryptoService.getAllCryptos();
     }
     
@@ -71,7 +71,7 @@ public class CryptoManager {
      * @return List of cryptocurrencies created by the player
      * @throws SQLException if database error occurs
      */
-    public List<Map<String, Object>> getCryptosByCreator(String playerUuid) throws SQLException {
+    public List<Crypto> getCryptosByCreator(String playerUuid) throws SQLException {
         return cryptoService.getCryptosByCreator(playerUuid);
     }
 }
