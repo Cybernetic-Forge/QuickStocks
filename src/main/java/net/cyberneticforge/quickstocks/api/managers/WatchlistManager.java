@@ -49,7 +49,7 @@ public class WatchlistManager {
      * @return List of watchlist entries
      * @throws SQLException if database error occurs
      */
-    public List<Map<String, Object>> getWatchlist(String playerUuid) throws SQLException {
+    public List<WatchlistService.WatchlistItem> getWatchlist(String playerUuid) throws SQLException {
         return watchlistService.getWatchlist(playerUuid);
     }
     

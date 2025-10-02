@@ -29,7 +29,7 @@ public class CryptoManager {
      * @throws SQLException if database error occurs
      */
     public String createCrypto(String playerUuid, String symbol, String displayName) throws SQLException {
-        return cryptoService.createCrypto(playerUuid, symbol, displayName);
+        return cryptoService.createCustomCrypto(playerUuid, symbol, displayName);
     }
     
     /**
