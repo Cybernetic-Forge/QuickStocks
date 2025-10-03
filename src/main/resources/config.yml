@@ -107,3 +107,9 @@ companies:
       canInvite: false
       canWithdraw: false
       canCreateJobTitles: false
+  # ChestShop Integration (soft-depends on ChestShop plugin)
+  chestshop:
+    enabled: true                # Enable company-owned chest shops
+    companyMinBalance: 1000.0    # Minimum company balance for shop purchases
+    # Permission added dynamically to job titles when ChestShop is detected
+    # Employees with 'chestshop' permission can manage company chest shops

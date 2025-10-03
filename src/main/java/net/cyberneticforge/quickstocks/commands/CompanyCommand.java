@@ -482,7 +482,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     private void handleCreateJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             player.sendMessage(ChatColor.RED + "Usage: /company createjob <company> <title> <permissions>");
-            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage (comma-separated)");
+            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage,chestshop (comma-separated)");
             return;
         }
         
@@ -500,9 +500,10 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canCreateTitles = permsStr.contains("createjobs");
         boolean canWithdraw = permsStr.contains("withdraw");
         boolean canManage = permsStr.contains("manage");
+        boolean canChestShop = permsStr.contains("chestshop");
         
         companyService.createJobTitle(companyOpt.get().getId(), playerUuid, title, 
-                                     canInvite, canCreateTitles, canWithdraw, canManage);
+                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop);
         
         player.sendMessage(ChatColor.GREEN + "Created job title: " + title);
     }
@@ -510,7 +511,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     private void handleEditJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             player.sendMessage(ChatColor.RED + "Usage: /company editjob <company> <title> <permissions>");
-            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage (comma-separated)");
+            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage,chestshop (comma-separated)");
             return;
         }
         
@@ -528,16 +529,18 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canCreateTitles = permsStr.contains("createjobs");
         boolean canWithdraw = permsStr.contains("withdraw");
         boolean canManage = permsStr.contains("manage");
+        boolean canChestShop = permsStr.contains("chestshop");
         
         companyService.updateJobTitle(companyOpt.get().getId(), playerUuid, title,
-                                     canInvite, canCreateTitles, canWithdraw, canManage);
+                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop);
         
         player.sendMessage(ChatColor.GREEN + "Updated job title: " + title);
         player.sendMessage(ChatColor.GRAY + "New permissions: " + 
                          (canManage ? "Manage " : "") +
                          (canInvite ? "Invite " : "") +
                          (canCreateTitles ? "CreateJobs " : "") +
-                         (canWithdraw ? "Withdraw" : ""));
+                         (canWithdraw ? "Withdraw " : "") +
+                         (canChestShop ? "ChestShop" : ""));
     }
     
     private void handleAssignJob(Player player, String playerUuid, String[] args) throws Exception {

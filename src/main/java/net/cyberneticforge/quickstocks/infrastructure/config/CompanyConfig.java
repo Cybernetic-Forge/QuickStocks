@@ -18,6 +18,10 @@ public class CompanyConfig {
     private Map<String, Double> marketBalanceThresholds = new HashMap<>();
     private double defaultMarketPercentage = 70.0;
     
+    // ChestShop integration settings
+    private boolean chestShopEnabled = true;
+    private double chestShopCompanyMinBalance = 1000.0;
+    
     public CompanyConfig() {
         // Set default permissions
         JobPermissions ceoPerms = new JobPermissions();
@@ -103,11 +107,28 @@ public class CompanyConfig {
         this.defaultMarketPercentage = defaultMarketPercentage;
     }
     
+    public boolean isChestShopEnabled() {
+        return chestShopEnabled;
+    }
+    
+    public void setChestShopEnabled(boolean chestShopEnabled) {
+        this.chestShopEnabled = chestShopEnabled;
+    }
+    
+    public double getChestShopCompanyMinBalance() {
+        return chestShopCompanyMinBalance;
+    }
+    
+    public void setChestShopCompanyMinBalance(double chestShopCompanyMinBalance) {
+        this.chestShopCompanyMinBalance = chestShopCompanyMinBalance;
+    }
+    
     public static class JobPermissions {
         private boolean canManageCompany = false;
         private boolean canInvite = false;
         private boolean canCreateJobTitles = false;
         private boolean canWithdraw = false;
+        private boolean canManageChestShop = false;
         
         public boolean isCanManageCompany() {
             return canManageCompany;
@@ -139,6 +160,14 @@ public class CompanyConfig {
         
         public void setCanWithdraw(boolean canWithdraw) {
             this.canWithdraw = canWithdraw;
+        }
+        
+        public boolean isCanManageChestShop() {
+            return canManageChestShop;
+        }
+        
+        public void setCanManageChestShop(boolean canManageChestShop) {
+            this.canManageChestShop = canManageChestShop;
         }
     }
 }

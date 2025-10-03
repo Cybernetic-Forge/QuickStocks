@@ -9,6 +9,8 @@ import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
+import net.cyberneticforge.quickstocks.infrastructure.hooks.HookManager;
+import net.cyberneticforge.quickstocks.listeners.ChestShopListener;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
@@ -41,12 +43,18 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private InvitationService invitationService;
     private CompanyMarketService companyMarketService;
     private BukkitRunnable marketUpdateTask;
+    
+    @Getter
+    private HookManager hookManager;
 
     @Override
     public void onEnable() {
         getLogger().info("QuickStocks enabling (Paper 1.21.8)...");
         instance = this;
         try {
+            // Initialize hook manager to detect external plugins
+            hookManager = new HookManager();
+            
             // Initialize database
             initializeDatabase();
             
@@ -240,6 +248,14 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(marketGUIListener, this);
         getServer().getPluginManager().registerEvents(portfolioGUIListener, this);
         getServer().getPluginManager().registerEvents(companySettingsGUIListener, this);
+        
+        // Register ChestShop integration listener if ChestShop is hooked
+        if (hookManager.isHooked(net.cyberneticforge.quickstocks.infrastructure.hooks.HookType.ChestShop)) {
+            CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
+            ChestShopListener chestShopListener = new ChestShopListener(this, companyService, companyConfig);
+            getServer().getPluginManager().registerEvents(chestShopListener, this);
+            getLogger().info("Registered ChestShop integration listener");
+        }
         
         getLogger().info("Registered Market Device, Crafting, and GUI event listeners");
     }
