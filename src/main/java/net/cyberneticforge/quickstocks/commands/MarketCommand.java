@@ -5,6 +5,7 @@ import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.services.*;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
+import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,12 +34,14 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     private final WatchlistService watchlistService;
     private final CompanyService companyService;
     private final CompanyMarketService companyMarketService;
+    private final GUIConfigManager guiConfigManager;
     private final Db database;
     
     public MarketCommand(QueryService queryService, TradingService tradingService,
                          HoldingsService holdingsService, WalletService walletService,
                          WatchlistService watchlistService, CompanyService companyService,
-                         CompanyMarketService companyMarketService, Db database) {
+                         CompanyMarketService companyMarketService, GUIConfigManager guiConfigManager,
+                         Db database) {
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
@@ -46,6 +49,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         this.watchlistService = watchlistService;
         this.companyService = companyService;
         this.companyMarketService = companyMarketService;
+        this.guiConfigManager = guiConfigManager;
         this.database = database;
     }
     
@@ -130,7 +134,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     private void showMarketOverview(Player player) throws Exception {
         // Open the Market GUI instead of showing chat messages
         try {
-            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService, companyService);
+            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService, companyService, guiConfigManager);
             marketGUI.open();
         } catch (Exception e) {
             logger.warning("Failed to open Market GUI for " + player.getName() + ": " + e.getMessage());

@@ -1,0 +1,289 @@
+# QuickStocks GUI Configuration
+# All GUI elements are customizable here
+# Color codes: Use & for legacy colors (e.g., &a for green) or &#RRGGBB for hex colors
+# Adventure API format supported through ChatUT.hexComp()
+
+# Company Settings GUI Configuration
+company_settings:
+  title: "&6Company: &f{company_name}"
+  size: 54
+  
+  # Header items
+  balance_display:
+    name: "&6Company Balance"
+    material: GOLD_INGOT
+    slot: 0
+    lore:
+      - "&a${balance}"
+      - ""
+      - "&7Use deposit/withdraw commands"
+      - "&7to manage funds"
+  
+  company_info:
+    name: "&6{company_name}"
+    material: GOLDEN_HELMET
+    slot: 4
+    lore:
+      - "&7Type: &f{company_type}"
+      - "&7Balance: &a${balance}"
+      - "&7Owner: &e{owner_name}"
+      - "&7Created: &f{created_date}"
+  
+  player_job:
+    name: "&eYour Position"
+    material: NAME_TAG
+    slot: 8
+    lore:
+      - "&f{job_title}"
+      - ""
+      - "&7Permissions:"
+    permission_prefix: "&a✓ &f"
+    no_permissions: "&cNo special permissions"
+  
+  # Action buttons
+  view_employees:
+    name: "&bView Employees"
+    material: PLAYER_HEAD
+    slot: 19
+    lore:
+      - "&7Click to view all employees"
+      - "&eCommand: /company employees {company_name}"
+  
+  view_jobs:
+    name: "&bView Job Titles"
+    material: WRITABLE_BOOK
+    slot: 20
+    lore:
+      - "&7Click to view all job titles"
+      - "&eCommand: /company jobs {company_name}"
+  
+  deposit:
+    name: "&aDeposit Funds"
+    material: HOPPER
+    slot: 21
+    lore:
+      - "&7Click to deposit funds"
+      - "&eCommand: /company deposit {company_name} <amount>"
+  
+  withdraw:
+    name: "&6Withdraw Funds"
+    material: DISPENSER
+    slot: 22
+    lore:
+      - "&7Click to withdraw funds"
+      - "&eCommand: /company withdraw {company_name} <amount>"
+  
+  assign_job:
+    name: "&bAssign Job Title"
+    material: ENCHANTED_BOOK
+    slot: 23
+    lore:
+      - "&7Click to assign a job to employee"
+      - "&eCommand: /company assignjob {company_name}"
+      - "&e         <player> <job>"
+  
+  invite_player:
+    name: "&aInvite Player"
+    material: PAPER
+    slot: 24
+    lore:
+      - "&7Click to invite a player"
+      - "&eCommand: /company invite {company_name} <player> <job>"
+  
+  create_job:
+    name: "&dCreate Job Title"
+    material: BOOK
+    slot: 25
+    lore:
+      - "&7Click to create a new job"
+      - "&eCommand: /company createjob {company_name}"
+      - "&e         <title> <permissions>"
+  
+  edit_job:
+    name: "&dEdit Job Title"
+    material: WRITABLE_BOOK
+    slot: 26
+    lore:
+      - "&7Click to edit an existing job"
+      - "&eCommand: /company editjob {company_name}"
+      - "&e         <title> <permissions>"
+  
+  # Navigation buttons
+  refresh:
+    name: "&eRefresh"
+    material: CLOCK
+    slot: 49
+    lore:
+      - "&7Click to refresh company info"
+  
+  close:
+    name: "&cClose"
+    material: BARRIER
+    slot: 53
+    lore:
+      - "&7Click to close this menu"
+  
+  # Error messages
+  error_message: "&cFailed to load company settings."
+  refresh_error: "&cFailed to refresh company settings."
+
+# Portfolio GUI Configuration
+portfolio:
+  title: "&6Portfolio - {player_name}"
+  size: 54
+  
+  # Header items
+  wallet:
+    name: "&6Cash Balance"
+    material: GOLD_INGOT
+    slot: 0
+    lore:
+      - "&eAvailable Cash:"
+      - "&a${balance}"
+      - ""
+      - "&7Ready for trading"
+  
+  summary:
+    name: "&aPortfolio Summary"
+    material: EMERALD
+    slot: 8
+    lore:
+      - "&ePortfolio Value: &a${portfolio_value}"
+      - "&eCash Balance: &a${cash_balance}"
+      - "&eTotal Assets: &b${total_assets}"
+      - ""
+      - "&7Your complete financial overview"
+  
+  # Holdings display
+  holding_item:
+    profit_materials:
+      high: DIAMOND
+      medium: EMERALD
+    loss_materials:
+      high: COAL
+      medium: REDSTONE
+    profit_color: "&a"
+    loss_color: "&c"
+    lore:
+      - "&eShares Owned: &f{qty}"
+      - "&ePurchase Price: &f${avg_cost}"
+      - "&eCurrent Price: &f${current_price}"
+      - "&eTotal Value: &f${total_value}"
+      - ""
+      - "&eGain/Loss from Purchase:"
+      - "{pnl_color}{pnl_arrow} ${pnl_abs} ({pnl_percent}%)"
+      - ""
+      - "&7Right-click to sell all shares"
+  
+  no_holdings:
+    name: "&7No Holdings"
+    material: BARRIER
+    slot: 22
+    lore:
+      - "&7You don't own any stocks yet"
+      - "&eVisit the market to start trading!"
+  
+  filler:
+    name: " "
+    material: GRAY_STAINED_GLASS_PANE
+  
+  # Navigation buttons
+  back_to_market:
+    name: "&bBack to Market"
+    material: COMPASS
+    slot: 45
+    lore:
+      - "&7Return to market overview"
+  
+  refresh:
+    name: "&eRefresh Portfolio"
+    material: CLOCK
+    slot: 49
+    lore:
+      - "&7Update portfolio values"
+  
+  close:
+    name: "&cClose Portfolio"
+    material: BARRIER
+    slot: 53
+    lore:
+      - "&7Close this interface"
+  
+  # Error messages
+  error_message: "&cFailed to load portfolio data."
+
+# Market GUI Configuration
+market:
+  title: "&2Market - QuickStocks"
+  size: 54
+  
+  # Header items
+  portfolio_overview:
+    name: "&6Portfolio Overview"
+    material: BOOK
+    slot: 0
+    lore:
+      - "&eCash Balance: &a${cash_balance}"
+      - "&ePortfolio Value: &a${portfolio_value}"
+      - "&eTotal Assets: &a${total_assets}"
+      - ""
+      - "&7Click to view detailed portfolio"
+  
+  wallet:
+    name: "&6Wallet"
+    material: GOLD_INGOT
+    slot: 8
+    lore:
+      - "&eBalance: &a${balance}"
+      - ""
+      - "&7Your available cash for trading"
+  
+  # Company share items
+  company_item:
+    name: "&a{company_name} ({symbol})"
+    materials:
+      tech: REDSTONE
+      technology: REDSTONE
+      finance: EMERALD
+      financial: EMERALD
+      retail: CHEST
+      consumer: CHEST
+      manufacturing: IRON_INGOT
+      agriculture: WHEAT
+      default: PAPER
+    lore:
+      - "&eCompany Balance: &f${balance}"
+      - "&eMarket Percentage: &f{market_percentage}%"
+      - "&eType: &7{type}"
+      - ""
+      - "&bThis is a company share"
+      - "&7Buy shares with: /market buy {company_name} <qty>"
+  
+  no_companies:
+    name: "&7No Company Shares Available"
+    material: GRAY_STAINED_GLASS_PANE
+  
+  # Navigation buttons
+  refresh:
+    name: "&bRefresh Market Data"
+    material: CLOCK
+    slot: 45
+    lore:
+      - "&7Click to refresh stock prices"
+  
+  my_holdings:
+    name: "&6My Holdings"
+    material: CHEST
+    slot: 49
+    lore:
+      - "&7View your stock portfolio"
+  
+  close:
+    name: "&cClose Market"
+    material: BARRIER
+    slot: 53
+    lore:
+      - "&7Close the market interface"
+  
+  # Error messages
+  error_message: "&cFailed to load market data. Please try again."

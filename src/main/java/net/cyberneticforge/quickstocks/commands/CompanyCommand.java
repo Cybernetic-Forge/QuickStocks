@@ -7,6 +7,7 @@ import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.core.services.CompanyMarketService;
 import net.cyberneticforge.quickstocks.core.services.InvitationService;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
+import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -31,13 +32,15 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     private final CompanyService companyService;
     private final InvitationService invitationService;
     private final CompanyMarketService companyMarketService;
+    private final GUIConfigManager guiConfigManager;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     
     public CompanyCommand(CompanyService companyService, InvitationService invitationService, 
-                         CompanyMarketService companyMarketService) {
+                         CompanyMarketService companyMarketService, GUIConfigManager guiConfigManager) {
         this.companyService = companyService;
         this.invitationService = invitationService;
         this.companyMarketService = companyMarketService;
+        this.guiConfigManager = guiConfigManager;
     }
     
     @Override
@@ -600,7 +603,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         }
         
         // Open the GUI
-        CompanySettingsGUI gui = new CompanySettingsGUI(player, companyService, company);
+        CompanySettingsGUI gui = new CompanySettingsGUI(player, companyService, company, guiConfigManager);
         gui.open();
     }
     

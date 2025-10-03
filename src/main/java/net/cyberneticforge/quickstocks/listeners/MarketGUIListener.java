@@ -9,7 +9,8 @@ import net.cyberneticforge.quickstocks.core.services.TradingService;
 import net.cyberneticforge.quickstocks.core.services.WalletService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
-import org.bukkit.ChatColor;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
+import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,16 +36,19 @@ public class MarketGUIListener implements Listener {
     private final WalletService walletService;
     private final CompanyService companyService;
     private final CompanyMarketService companyMarketService;
+    private final GUIConfigManager guiConfigManager;
     
     public MarketGUIListener(QueryService queryService, TradingService tradingService,
                            HoldingsService holdingsService, WalletService walletService,
-                           CompanyService companyService, CompanyMarketService companyMarketService) {
+                           CompanyService companyService, CompanyMarketService companyMarketService,
+                           GUIConfigManager guiConfigManager) {
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
         this.walletService = walletService;
         this.companyService = companyService;
         this.companyMarketService = companyMarketService;
+        this.guiConfigManager = guiConfigManager;
     }
     
     @EventHandler
@@ -76,7 +80,7 @@ public class MarketGUIListener implements Listener {
             handleGUIClick(player, marketGUI, slot, clickType, clickedItem);
         } catch (Exception e) {
             logger.warning("Error handling market GUI click for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "An error occurred while processing your request.");
+            player.sendMessage(ChatUT.hexComp("&cAn error occurred while processing your request."));
         }
     }
     
@@ -96,14 +100,14 @@ public class MarketGUIListener implements Listener {
         if (slot == 8 && item.getType() == Material.GOLD_INGOT) {
             // Wallet button - show balance info
             double balance = walletService.getBalance(playerUuid);
-            player.sendMessage(ChatColor.GOLD + "Your wallet balance: " + ChatColor.GREEN + "$" + String.format("%.2f", balance));
+            player.sendMessage(ChatUT.hexComp("&gold" + "Your wallet balance: " + ChatColor.GREEN + "$" + String.format("%.2f", balance)));
             return;
         }
         
         if (slot == 45 && item.getType() == Material.CLOCK) {
             // Refresh button
             marketGUI.refresh();
-            player.sendMessage(ChatColor.GREEN + "Market data refreshed!");
+            player.sendMessage(ChatUT.hexComp("&green" + "Market data refreshed!"));
             return;
         }
         
@@ -137,14 +141,14 @@ public class MarketGUIListener implements Listener {
         // Find company by symbol
         Optional<Company> companyOpt = companyService.getCompanyByNameOrSymbol(symbol);
         if (companyOpt.isEmpty()) {
-            player.sendMessage(ChatColor.RED + "Company not found: " + symbol);
+            player.sendMessage(ChatUT.hexComp("&red" + "Company not found: " + symbol));
             return;
         }
         
         Company company = companyOpt.get();
         
         if (!company.isOnMarket()) {
-            player.sendMessage(ChatColor.RED + "Company '" + company.getName() + "' is not on the market.");
+            player.sendMessage(ChatUT.hexComp("&red" + "Company '" + company.getName() + "' is not on the market."));
             return;
         }
         
@@ -167,8 +171,8 @@ public class MarketGUIListener implements Listener {
                 // Custom amount - close GUI and prompt for amount
                 player.closeInventory();
                 String action = clickType == ClickType.SHIFT_LEFT ? "buy" : "sell";
-                player.sendMessage(ChatColor.YELLOW + "Enter amount to " + action + " for " + company.getName() + ":");
-                player.sendMessage(ChatColor.GRAY + "Use: " + ChatColor.WHITE + "/market " + action + " " + symbol + " <amount>");
+                player.sendMessage(ChatUT.hexComp("&yellow" + "Enter amount to " + action + " for " + company.getName() + ":"));
+                player.sendMessage(ChatUT.hexComp("&gray" + "Use: " + ChatColor.WHITE + "/market " + action + " " + symbol + " <amount>"));
                 break;
                 
             default:
@@ -186,7 +190,7 @@ public class MarketGUIListener implements Listener {
             double balance = walletService.getBalance(playerUuid);
             
             if (balance < price) {
-                player.sendMessage(ChatColor.RED + "Insufficient funds! Need $" + String.format("%.2f", price - balance) + " more.");
+                player.sendMessage(ChatUT.hexComp("&red" + "Insufficient funds! Need $" + String.format("%.2f", price - balance) + " more."));
                 playErrorSound(player);
                 return;
             }
@@ -194,12 +198,12 @@ public class MarketGUIListener implements Listener {
             // Execute the purchase
             companyMarketService.buyShares(company.getId(), playerUuid, 1.0);
             
-            player.sendMessage(ChatColor.GREEN + "✓ Bought 1 share of " + company.getName() + " for $" + String.format("%.2f", price));
-            player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid)));
+            player.sendMessage(ChatUT.hexComp("&green" + "✓ Bought 1 share of " + company.getName() + " for $" + String.format("%.2f", price)));
+            player.sendMessage(ChatUT.hexComp("&gray" + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid))));
             playSuccessSound(player);
             
         } catch (Exception e) {
-            player.sendMessage(ChatColor.RED + "✗ Purchase failed: " + e.getMessage());
+            player.sendMessage(ChatUT.hexComp("&red" + "✗ Purchase failed: " + e.getMessage()));
             playErrorSound(player);
             logger.warning("Error in quick buy: " + e.getMessage());
         }
@@ -213,7 +217,7 @@ public class MarketGUIListener implements Listener {
             // Check if player has shares
             double playerShares = companyMarketService.getPlayerSharesFromHoldings(company.getId(), playerUuid);
             if (playerShares < 1.0) {
-                player.sendMessage(ChatColor.RED + "You don't have any shares of " + company.getName() + "!");
+                player.sendMessage(ChatUT.hexComp("&red" + "You don't have any shares of " + company.getName() + "!"));
                 playErrorSound(player);
                 return;
             }
@@ -221,12 +225,12 @@ public class MarketGUIListener implements Listener {
             // Execute the sale
             companyMarketService.sellShares(company.getId(), playerUuid, 1.0);
             
-            player.sendMessage(ChatColor.GREEN + "✓ Sold 1 share of " + company.getName() + " for $" + String.format("%.2f", price));
-            player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid)));
+            player.sendMessage(ChatUT.hexComp("&green" + "✓ Sold 1 share of " + company.getName() + " for $" + String.format("%.2f", price)));
+            player.sendMessage(ChatUT.hexComp("&gray" + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid))));
             playSuccessSound(player);
             
         } catch (Exception e) {
-            player.sendMessage(ChatColor.RED + "✗ Sale failed: " + e.getMessage());
+            player.sendMessage(ChatUT.hexComp("&red" + "✗ Sale failed: " + e.getMessage()));
             playErrorSound(player);
             logger.warning("Error in quick sell: " + e.getMessage());
         }
@@ -236,12 +240,12 @@ public class MarketGUIListener implements Listener {
      * Shows detailed company information
      */
     private void showCompanyDetails(Player player, Company company, double sharePrice) {
-        player.sendMessage(ChatColor.GOLD + "=== " + company.getName() + " (" + company.getSymbol() + ") ===");
-        player.sendMessage(ChatColor.YELLOW + "Share Price: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
-        player.sendMessage(ChatColor.YELLOW + "Company Balance: " + ChatColor.WHITE + "$" + String.format("%.2f", company.getBalance()));
-        player.sendMessage(ChatColor.YELLOW + "Market %: " + ChatColor.WHITE + String.format("%.1f%%", company.getMarketPercentage()));
-        player.sendMessage(ChatColor.GRAY + "Use left-click to buy, right-click to sell");
-        player.sendMessage(ChatColor.GRAY + "Shift+click for custom amounts");
+        player.sendMessage(ChatUT.hexComp("&gold" + "=== " + company.getName() + " (" + company.getSymbol() + ") ==="));
+        player.sendMessage(ChatUT.hexComp("&yellow" + "Share Price: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice)));
+        player.sendMessage(ChatUT.hexComp("&yellow" + "Company Balance: " + ChatColor.WHITE + "$" + String.format("%.2f", company.getBalance())));
+        player.sendMessage(ChatUT.hexComp("&yellow" + "Market %: " + ChatColor.WHITE + String.format("%.1f%%", company.getMarketPercentage())));
+        player.sendMessage(ChatUT.hexComp("&gray" + "Use left-click to buy, right-click to sell"));
+        player.sendMessage(ChatUT.hexComp("&gray" + "Shift+click for custom amounts"));
     }
     
     /**
@@ -267,7 +271,7 @@ public class MarketGUIListener implements Listener {
      */
     private void openPortfolioGUI(Player player) {
         try {
-            PortfolioGUI portfolioGUI = new PortfolioGUI(player, queryService, holdingsService, walletService);
+            PortfolioGUI portfolioGUI = new PortfolioGUI(player, queryService, holdingsService, walletService, guiConfigManager);
             portfolioGUI.open();
         } catch (Exception e) {
             logger.warning("Error opening portfolio GUI for " + player.getName() + ": " + e.getMessage());
@@ -276,7 +280,7 @@ public class MarketGUIListener implements Listener {
             try {
                 showPortfolioInChat(player);
             } catch (Exception fallbackError) {
-                player.sendMessage(ChatColor.RED + "Unable to display portfolio at this time.");
+                player.sendMessage(ChatUT.hexComp("&red" + "Unable to display portfolio at this time."));
             }
         }
     }
@@ -290,17 +294,17 @@ public class MarketGUIListener implements Listener {
         double portfolioValue = holdingsService.getPortfolioValue(playerUuid);
         double walletBalance = walletService.getBalance(playerUuid);
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Your Portfolio" + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "Cash Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance));
-        player.sendMessage(ChatColor.YELLOW + "Portfolio Value: " + ChatColor.GREEN + "$" + String.format("%.2f", portfolioValue));
-        player.sendMessage(ChatColor.YELLOW + "Total Assets: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance + portfolioValue));
+        player.sendMessage(ChatUT.hexComp("&gold" + "=== " + ChatColor.WHITE + "Your Portfolio" + ChatColor.GOLD + " ==="));
+        player.sendMessage(ChatUT.hexComp("&yellow" + "Cash Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance)));
+        player.sendMessage(ChatUT.hexComp("&yellow" + "Portfolio Value: " + ChatColor.GREEN + "$" + String.format("%.2f", portfolioValue)));
+        player.sendMessage(ChatUT.hexComp("&yellow" + "Total Assets: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance + portfolioValue)));
         
         if (holdings.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "No holdings found.");
+            player.sendMessage(ChatUT.hexComp("&gray" + "No holdings found."));
             return;
         }
         
-        player.sendMessage(ChatColor.YELLOW + "\nHoldings:");
+        player.sendMessage(ChatUT.hexComp("&yellow" + "\nHoldings:"));
         for (HoldingsService.Holding holding : holdings) {
             ChatColor pnlColor = holding.getUnrealizedPnL() >= 0 ? ChatColor.GREEN : ChatColor.RED;
             String pnlArrow = holding.getUnrealizedPnL() >= 0 ? "▲" : "▼";

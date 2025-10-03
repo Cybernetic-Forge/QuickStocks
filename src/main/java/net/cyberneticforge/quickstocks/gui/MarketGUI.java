@@ -6,8 +6,9 @@ import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
 import net.cyberneticforge.quickstocks.core.services.TradingService;
 import net.cyberneticforge.quickstocks.core.services.WalletService;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
+import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -26,25 +27,32 @@ import java.util.logging.Logger;
 public class MarketGUI implements InventoryHolder {
     
     private static final Logger logger = Logger.getLogger(MarketGUI.class.getName());
-    private static final int GUI_SIZE = 54; // 6 rows
     
     private final QueryService queryService;
     private final TradingService tradingService;
     private final HoldingsService holdingsService;
     private final WalletService walletService;
     private final CompanyService companyService;
+    private final GUIConfigManager guiConfig;
     private final Inventory inventory;
     private final Player player;
     
     public MarketGUI(Player player, QueryService queryService, TradingService tradingService, 
-                     HoldingsService holdingsService, WalletService walletService, CompanyService companyService) {
+                     HoldingsService holdingsService, WalletService walletService, CompanyService companyService,
+                     GUIConfigManager guiConfig) {
         this.player = player;
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
         this.walletService = walletService;
         this.companyService = companyService;
-        this.inventory = Bukkit.createInventory(this, GUI_SIZE, ChatColor.DARK_GREEN + "Market - QuickStocks");
+        this.guiConfig = guiConfig;
+        
+        int guiSize = guiConfig.getInt("market.size", 54);
+        String title = guiConfig.getString("market.title", "&2Market - QuickStocks");
+        
+        this.inventory = Bukkit.createInventory(this, guiSize, 
+            ChatUT.serialize(ChatUT.hexComp(title)));
         
         setupGUI();
     }
@@ -73,7 +81,8 @@ public class MarketGUI implements InventoryHolder {
             
         } catch (Exception e) {
             logger.warning("Error setting up Market GUI for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "Failed to load market data. Please try again.");
+            String errorMsg = guiConfig.getString("market.error_message", "&cFailed to load market data. Please try again.");
+            player.sendMessage(ChatUT.hexComp(errorMsg));
         }
     }
     
@@ -82,26 +91,31 @@ public class MarketGUI implements InventoryHolder {
      */
     private void addPortfolioInfoButton() {
         try {
-            ItemStack portfolioItem = new ItemStack(Material.BOOK);
+            Material portfolioMat = guiConfig.getItemMaterial("market.portfolio_overview", Material.BOOK);
+            int portfolioSlot = guiConfig.getItemSlot("market.portfolio_overview", 0);
+            ItemStack portfolioItem = new ItemStack(portfolioMat);
             ItemMeta meta = portfolioItem.getItemMeta();
-            meta.setDisplayName(ChatColor.GOLD + "Portfolio Overview");
+            meta.setDisplayName(guiConfig.getItemNameString("market.portfolio_overview"));
             
-            List<String> lore = new ArrayList<>();
             String playerUuid = player.getUniqueId().toString();
-            
             double walletBalance = walletService.getBalance(playerUuid);
             double portfolioValue = holdingsService.getPortfolioValue(playerUuid);
             double totalAssets = walletBalance + portfolioValue;
             
-            lore.add(ChatColor.YELLOW + "Cash Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance));
-            lore.add(ChatColor.YELLOW + "Portfolio Value: " + ChatColor.GREEN + "$" + String.format("%.2f", portfolioValue));
-            lore.add(ChatColor.YELLOW + "Total Assets: " + ChatColor.GREEN + "$" + String.format("%.2f", totalAssets));
-            lore.add("");
-            lore.add(ChatColor.GRAY + "Click to view detailed portfolio");
+            List<String> lorePatt = guiConfig.getItemLoreStrings("market.portfolio_overview");
+            List<String> lore = new ArrayList<>();
+            
+            for (String line : lorePatt) {
+                String processedLine = line
+                    .replace("{cash_balance}", String.format("%.2f", walletBalance))
+                    .replace("{portfolio_value}", String.format("%.2f", portfolioValue))
+                    .replace("{total_assets}", String.format("%.2f", totalAssets));
+                lore.add(ChatUT.serialize(ChatUT.hexComp(processedLine)));
+            }
             
             meta.setLore(lore);
             portfolioItem.setItemMeta(meta);
-            inventory.setItem(0, portfolioItem);
+            inventory.setItem(portfolioSlot, portfolioItem);
             
         } catch (Exception e) {
             logger.warning("Error adding portfolio info: " + e.getMessage());
@@ -113,20 +127,24 @@ public class MarketGUI implements InventoryHolder {
      */
     private void addWalletInfoButton() {
         try {
-            ItemStack walletItem = new ItemStack(Material.GOLD_INGOT);
+            Material walletMat = guiConfig.getItemMaterial("market.wallet", Material.GOLD_INGOT);
+            int walletSlot = guiConfig.getItemSlot("market.wallet", 8);
+            ItemStack walletItem = new ItemStack(walletMat);
             ItemMeta meta = walletItem.getItemMeta();
-            meta.setDisplayName(ChatColor.GOLD + "Wallet");
+            meta.setDisplayName(guiConfig.getItemNameString("market.wallet"));
             
-            List<String> lore = new ArrayList<>();
             double balance = walletService.getBalance(player.getUniqueId().toString());
+            List<String> lorePatt = guiConfig.getItemLoreStrings("market.wallet");
+            List<String> lore = new ArrayList<>();
             
-            lore.add(ChatColor.YELLOW + "Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", balance));
-            lore.add("");
-            lore.add(ChatColor.GRAY + "Your available cash for trading");
+            for (String line : lorePatt) {
+                String processedLine = line.replace("{balance}", String.format("%.2f", balance));
+                lore.add(ChatUT.serialize(ChatUT.hexComp(processedLine)));
+            }
             
             meta.setLore(lore);
             walletItem.setItemMeta(meta);
-            inventory.setItem(8, walletItem);
+            inventory.setItem(walletSlot, walletItem);
             
         } catch (Exception e) {
             logger.warning("Error adding wallet info: " + e.getMessage());
@@ -151,10 +169,12 @@ public class MarketGUI implements InventoryHolder {
             }
             
             // Fill empty slots with barrier blocks to indicate no more stocks
+            Material noCompMat = guiConfig.getItemMaterial("market.no_companies", Material.GRAY_STAINED_GLASS_PANE);
+            String noCompName = guiConfig.getString("market.no_companies.name", "&7No Company Shares Available");
             for (int i = slot; i < 45; i++) {
-                ItemStack emptySlot = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+                ItemStack emptySlot = new ItemStack(noCompMat);
                 ItemMeta meta = emptySlot.getItemMeta();
-                meta.setDisplayName(ChatColor.GRAY + "No Company Shares Available");
+                meta.setDisplayName(ChatUT.serialize(ChatUT.hexComp(noCompName)));
                 emptySlot.setItemMeta(meta);
                 inventory.setItem(i, emptySlot);
             }
@@ -185,16 +205,23 @@ public class MarketGUI implements InventoryHolder {
         ItemMeta meta = item.getItemMeta();
         
         // Set display name
-        meta.setDisplayName(ChatColor.GREEN + displayName + " (" + symbol + ")");
+        String namePatt = guiConfig.getString("market.company_item.name", "&a{company_name} ({symbol})")
+            .replace("{company_name}", displayName)
+            .replace("{symbol}", symbol);
+        meta.setDisplayName(ChatUT.serialize(ChatUT.hexComp(namePatt)));
         
         // Create detailed lore
+        List<String> lorePatt = guiConfig.getItemLoreStrings("market.company_item");
         List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.YELLOW + "Company Balance: " + ChatColor.WHITE + "$" + String.format("%.2f", balance));
-        lore.add(ChatColor.YELLOW + "Market Percentage: " + ChatColor.WHITE + String.format("%.1f%%", company.getMarketPercentage()));
-        lore.add(ChatColor.YELLOW + "Type: " + ChatColor.GRAY + type);
-        lore.add("");
-        lore.add(ChatColor.AQUA + "This is a company share");
-        lore.add(ChatColor.GRAY + "Buy shares with: /market buy " + displayName + " <qty>");
+        
+        for (String line : lorePatt) {
+            String processedLine = line
+                .replace("{balance}", String.format("%.2f", balance))
+                .replace("{market_percentage}", String.format("%.1f", company.getMarketPercentage()))
+                .replace("{type}", type)
+                .replace("{company_name}", displayName);
+            lore.add(ChatUT.serialize(ChatUT.hexComp(processedLine)));
+        }
         
         meta.setLore(lore);
         item.setItemMeta(meta);
@@ -208,23 +235,17 @@ public class MarketGUI implements InventoryHolder {
     private Material getMaterialForCompany(String type) {
         if (type == null) type = "other";
         
-        // Base material on type
-        switch (type.toLowerCase()) {
-            case "tech":
-            case "technology":
-                return Material.REDSTONE;
-            case "finance":
-            case "financial":
-                return Material.EMERALD;
-            case "retail":
-            case "consumer":
-                return Material.CHEST;
-            case "manufacturing":
-                return Material.IRON_INGOT;
-            case "agriculture":
-                return Material.WHEAT;
-            default:
-                return Material.PAPER;
+        // Try to get material from config
+        String materialName = guiConfig.getString("market.company_item.materials." + type.toLowerCase(), null);
+        if (materialName == null) {
+            materialName = guiConfig.getString("market.company_item.materials.default", "PAPER");
+        }
+        
+        try {
+            return Material.valueOf(materialName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            logger.warning("Invalid material '" + materialName + "' for company type '" + type + "', using PAPER");
+            return Material.PAPER;
         }
     }
     
@@ -233,34 +254,29 @@ public class MarketGUI implements InventoryHolder {
      */
     private void addNavigationButtons() {
         // Refresh button
-        ItemStack refreshItem = new ItemStack(Material.CLOCK);
-        ItemMeta refreshMeta = refreshItem.getItemMeta();
-        refreshMeta.setDisplayName(ChatColor.AQUA + "Refresh Market Data");
-        List<String> refreshLore = new ArrayList<>();
-        refreshLore.add(ChatColor.GRAY + "Click to refresh stock prices");
-        refreshMeta.setLore(refreshLore);
-        refreshItem.setItemMeta(refreshMeta);
-        inventory.setItem(45, refreshItem);
+        addButton("refresh");
         
         // Portfolio view button
-        ItemStack portfolioItem = new ItemStack(Material.CHEST);
-        ItemMeta portfolioMeta = portfolioItem.getItemMeta();
-        portfolioMeta.setDisplayName(ChatColor.GOLD + "My Holdings");
-        List<String> portfolioLore = new ArrayList<>();
-        portfolioLore.add(ChatColor.GRAY + "View your stock portfolio");
-        portfolioMeta.setLore(portfolioLore);
-        portfolioItem.setItemMeta(portfolioMeta);
-        inventory.setItem(49, portfolioItem);
+        addButton("my_holdings");
         
         // Close button
-        ItemStack closeItem = new ItemStack(Material.BARRIER);
-        ItemMeta closeMeta = closeItem.getItemMeta();
-        closeMeta.setDisplayName(ChatColor.RED + "Close Market");
-        List<String> closeLore = new ArrayList<>();
-        closeLore.add(ChatColor.GRAY + "Close the market interface");
-        closeMeta.setLore(closeLore);
-        closeItem.setItemMeta(closeMeta);
-        inventory.setItem(53, closeItem);
+        addButton("close");
+    }
+    
+    /**
+     * Helper method to add a button from config
+     */
+    private void addButton(String buttonName) {
+        String path = "market." + buttonName;
+        Material material = guiConfig.getItemMaterial(path, Material.STONE);
+        int slot = guiConfig.getItemSlot(path, 0);
+        
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(guiConfig.getItemNameString(path));
+        meta.setLore(guiConfig.getItemLoreStrings(path));
+        item.setItemMeta(meta);
+        inventory.setItem(slot, item);
     }
     
     /**
@@ -288,13 +304,14 @@ public class MarketGUI implements InventoryHolder {
         }
         
         String displayName = item.getItemMeta().getDisplayName();
+        String plainText = ChatUT.extractText(displayName);
+        
         // Extract symbol from display name format: "DisplayName (SYMBOL)"
-        int startIndex = displayName.lastIndexOf('(');
-        int endIndex = displayName.lastIndexOf(')');
+        int startIndex = plainText.lastIndexOf('(');
+        int endIndex = plainText.lastIndexOf(')');
         
         if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
-            String symbol = displayName.substring(startIndex + 1, endIndex);
-            return ChatColor.stripColor(symbol);
+            return plainText.substring(startIndex + 1, endIndex);
         }
         
         return null;
