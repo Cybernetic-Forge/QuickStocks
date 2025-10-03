@@ -35,19 +35,9 @@ public class ChestShopAccountProvider {
     public void registerWithChestShop() {
         try {
             // Register a custom name getter that checks for companies
-            NameManager.registerAccountProvider(name -> {
-                try {
-                    Optional<Company> companyOpt = companyService.getCompanyByName(name);
-                    if (companyOpt.isPresent()) {
-                        // Return a deterministic UUID for this company
-                        return getCompanyUUID(companyOpt.get().getId());
-                    }
-                } catch (SQLException e) {
-                    logger.log(Level.WARNING, "Error checking company name: " + name, e);
-                }
-                return null; // Not a company, let ChestShop check for player
-            });
-            
+            for(Company company : companyService.getAllCompanies()) {
+                NameManager.getOrCreateAccount(getCompanyUUID(company.getId()), company.getName());
+            }
             logger.info("Registered company account provider with ChestShop");
         } catch (Exception e) {
             logger.log(Level.WARNING, "Could not register account provider with ChestShop - using fallback method", e);
@@ -61,7 +51,7 @@ public class ChestShopAccountProvider {
     private UUID getCompanyUUID(String companyId) {
         // Create a deterministic UUID from the company ID
         // This ensures the same company always has the same UUID
-        return UUID.nameUUIDFromBytes((COMPANY_NAMESPACE.toString() + companyId).getBytes());
+        return UUID.nameUUIDFromBytes((COMPANY_NAMESPACE + companyId).getBytes());
     }
     
     /**

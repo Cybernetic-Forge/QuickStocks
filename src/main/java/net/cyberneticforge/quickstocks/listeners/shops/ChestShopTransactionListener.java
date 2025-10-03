@@ -38,16 +38,11 @@ public class ChestShopTransactionListener implements Listener {
      * Handles pre-transaction validation for company-owned shops.
      * Checks if company has sufficient balance before allowing the transaction.
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPreTransaction(PreTransactionEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) {
-            return;
-        }
-        
-        if (!companyConfig.isChestShopEnabled()) {
-            return;
-        }
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!companyConfig.isChestShopEnabled()) return;
         
         try {
             String ownerName = event.getOwnerAccount().getName();
@@ -86,16 +81,11 @@ public class ChestShopTransactionListener implements Listener {
      * Handles completed transactions for company-owned shops.
      * Updates company balance based on the transaction type.
      */
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onTransaction(TransactionEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) {
-            return;
-        }
-        
-        if (!companyConfig.isChestShopEnabled()) {
-            return;
-        }
+        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!companyConfig.isChestShopEnabled()) return;
         
         try {
             String ownerName = event.getOwnerAccount().getName();
