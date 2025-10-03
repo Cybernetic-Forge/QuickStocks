@@ -5,6 +5,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
+import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -28,11 +29,13 @@ public class ChestShopListener implements Listener {
     private final QuickStocksPlugin plugin;
     private final CompanyService companyService;
     private final CompanyConfig companyConfig;
+    private final ChestShopAccountProvider accountProvider;
     
-    public ChestShopListener(QuickStocksPlugin plugin, CompanyService companyService, CompanyConfig companyConfig) {
+    public ChestShopListener(QuickStocksPlugin plugin, CompanyService companyService, CompanyConfig companyConfig, ChestShopAccountProvider accountProvider) {
         this.plugin = plugin;
         this.companyService = companyService;
         this.companyConfig = companyConfig;
+        this.accountProvider = accountProvider;
     }
     
     /**
@@ -86,9 +89,9 @@ public class ChestShopListener implements Listener {
                     return;
                 }
                 
-                // Company validation passed - ChestShop will now process the sign
-                // Note: ChestShop may still cancel if there are other issues (invalid format, etc.)
-                logger.info("Company '" + company.getName() + "' validated for ChestShop by player " + event.getPlayer().getName());
+                // Company validation passed - Register company with ChestShop
+                accountProvider.registerCompany(company);
+                logger.info("Company '" + company.getName() + "' validated and registered for ChestShop by player " + event.getPlayer().getName());
             }
             
         } catch (SQLException e) {
@@ -115,6 +118,9 @@ public class ChestShopListener implements Listener {
         try {
             Optional<Company> companyOpt = companyService.getCompanyByName(ownerName.trim());
             if (companyOpt.isPresent()) {
+                // Ensure company is registered (in case registration didn't happen during sign creation)
+                accountProvider.registerCompany(companyOpt.get());
+                
                 event.getPlayer().sendMessage(ChatColor.GREEN + "ChestShop successfully created for company '" + 
                     companyOpt.get().getName() + "'");
                 logger.info("ChestShop successfully created for company '" + companyOpt.get().getName() + 

@@ -244,7 +244,8 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canManageCompany() ? "Manage " : "") +
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
-                             (job.canWithdraw() ? "Withdraw" : ""));
+                             (job.canWithdraw() ? "Withdraw " : "") +
+                             (job.canManageChestShop() ? "ChestShop" : ""));
         }
     }
     
@@ -304,39 +305,93 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         player.sendMessage(ChatColor.GREEN + "Invitation sent to " + targetPlayerName);
         targetPlayer.sendMessage(ChatColor.GOLD + "You've been invited to join " + ChatColor.WHITE + companyOpt.get().getName());
-        targetPlayer.sendMessage(ChatColor.GRAY + "Use " + ChatColor.YELLOW + "/company accept " + invitation.getId() + 
+        targetPlayer.sendMessage(ChatColor.GRAY + "Use " + ChatColor.YELLOW + "/company accept " + companyOpt.get().getName() + 
                                ChatColor.GRAY + " to accept");
     }
     
     private void handleAccept(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /company accept <invitation-id>");
+            player.sendMessage(ChatColor.RED + "Usage: /company accept <company>");
             return;
         }
         
-        String invitationId = args[1];
-        invitationService.acceptInvitation(invitationId, playerUuid);
+        String companyName = args[1];
         
-        // Get company info
-        Optional<CompanyInvitation> invOpt = invitationService.getInvitationById(invitationId);
-        if (invOpt.isPresent()) {
-            Optional<Company> companyOpt = companyService.getCompanyById(invOpt.get().getCompanyId());
-            if (companyOpt.isPresent()) {
-                player.sendMessage(ChatColor.GREEN + "You've joined " + companyOpt.get().getName() + "!");
+        // Get company by name
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        // Find pending invitation for this company
+        List<CompanyInvitation> invitations = invitationService.getPendingInvitations(playerUuid);
+        CompanyInvitation targetInvitation = null;
+        
+        for (CompanyInvitation inv : invitations) {
+            if (inv.getCompanyId().equals(companyOpt.get().getId())) {
+                targetInvitation = inv;
+                break;
             }
+        }
+        
+        if (targetInvitation == null) {
+            player.sendMessage(ChatColor.RED + "No pending invitation from " + companyName);
+            return;
+        }
+        
+        invitationService.acceptInvitation(targetInvitation.getId(), playerUuid);
+        
+        // Show job details
+        Optional<CompanyJob> jobOpt = companyService.getPlayerJob(companyOpt.get().getId(), playerUuid);
+        if (jobOpt.isPresent()) {
+            CompanyJob job = jobOpt.get();
+            player.sendMessage(ChatColor.GREEN + "You've joined " + companyOpt.get().getName() + " as " + job.getTitle() + "!");
+            player.sendMessage(ChatColor.GRAY + "Permissions: " + 
+                             (job.canManageCompany() ? "Manage " : "") +
+                             (job.canInvite() ? "Invite " : "") +
+                             (job.canCreateTitles() ? "CreateJobs " : "") +
+                             (job.canWithdraw() ? "Withdraw " : "") +
+                             (job.canManageChestShop() ? "ChestShop" : ""));
+        } else {
+            player.sendMessage(ChatColor.GREEN + "You've joined " + companyOpt.get().getName() + "!");
         }
     }
     
     private void handleDecline(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /company decline <invitation-id>");
+            player.sendMessage(ChatColor.RED + "Usage: /company decline <company>");
             return;
         }
         
-        String invitationId = args[1];
-        invitationService.declineInvitation(invitationId, playerUuid);
+        String companyName = args[1];
         
-        player.sendMessage(ChatColor.YELLOW + "Invitation declined.");
+        // Get company by name
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        // Find pending invitation for this company
+        List<CompanyInvitation> invitations = invitationService.getPendingInvitations(playerUuid);
+        CompanyInvitation targetInvitation = null;
+        
+        for (CompanyInvitation inv : invitations) {
+            if (inv.getCompanyId().equals(companyOpt.get().getId())) {
+                targetInvitation = inv;
+                break;
+            }
+        }
+        
+        if (targetInvitation == null) {
+            player.sendMessage(ChatColor.RED + "No pending invitation from " + companyName);
+            return;
+        }
+        
+        invitationService.declineInvitation(targetInvitation.getId(), playerUuid);
+        
+        player.sendMessage(ChatColor.YELLOW + "Invitation from " + companyName + " declined.");
     }
     
     private void handleInvitations(Player player, String playerUuid) throws Exception {
@@ -350,11 +405,14 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Pending Invitations" + ChatColor.GOLD + " ===");
         for (CompanyInvitation invitation : invitations) {
             Optional<Company> companyOpt = companyService.getCompanyById(invitation.getCompanyId());
-            if (companyOpt.isPresent()) {
+            Optional<CompanyJob> jobOpt = companyService.getJobById(invitation.getJobId());
+            if (companyOpt.isPresent() && jobOpt.isPresent()) {
                 Company company = companyOpt.get();
+                CompanyJob job = jobOpt.get();
                 player.sendMessage(ChatColor.YELLOW + company.getName() + ChatColor.GRAY + 
-                                 " - ID: " + ChatColor.WHITE + invitation.getId());
+                                 " - Job: " + ChatColor.WHITE + job.getTitle());
                 player.sendMessage(ChatColor.GRAY + "  Expires: " + dateFormat.format(new Date(invitation.getExpiresAt())));
+                player.sendMessage(ChatColor.GRAY + "  Use: " + ChatColor.YELLOW + "/company accept " + company.getName());
             }
         }
     }

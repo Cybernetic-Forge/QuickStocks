@@ -563,6 +563,33 @@ public class CompanyService {
     }
     
     /**
+     * Gets a job by ID.
+     */
+    public Optional<CompanyJob> getJobById(String jobId) throws SQLException {
+        List<Map<String, Object>> results = database.query(
+            "SELECT id, company_id, title, can_invite, can_create_titles, can_withdraw, can_manage_company, can_manage_chestshop " +
+            "FROM company_jobs WHERE id = ?",
+            jobId
+        );
+        
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Map<String, Object> row = results.get(0);
+        return Optional.of(new CompanyJob(
+            (String) row.get("id"),
+            (String) row.get("company_id"),
+            (String) row.get("title"),
+            ((Number) row.get("can_invite")).intValue() != 0,
+            ((Number) row.get("can_create_titles")).intValue() != 0,
+            ((Number) row.get("can_withdraw")).intValue() != 0,
+            ((Number) row.get("can_manage_company")).intValue() != 0,
+            ((Number) row.get("can_manage_chestshop")).intValue() != 0
+        ));
+    }
+    
+    /**
      * Updates an existing job title's permissions.
      */
     public CompanyJob updateJobTitle(String companyId, String actorUuid, String title,

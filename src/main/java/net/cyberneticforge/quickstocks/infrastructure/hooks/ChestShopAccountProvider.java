@@ -34,14 +34,45 @@ public class ChestShopAccountProvider {
      */
     public void registerWithChestShop() {
         try {
-            // Register a custom name getter that checks for companies
+            // Register all existing companies
             for(Company company : companyService.getAllCompanies()) {
-                NameManager.getOrCreateAccount(getCompanyUUID(company.getId()), company.getName());
+                registerCompany(company);
             }
-            logger.info("Registered company account provider with ChestShop");
+            logger.info("Registered " + companyService.getAllCompanies().size() + " companies with ChestShop");
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Could not register account provider with ChestShop - using fallback method", e);
+            logger.log(Level.WARNING, "Could not register companies with ChestShop", e);
         }
+    }
+    
+    /**
+     * Registers a single company with ChestShop.
+     * This should be called when a shop is created with a company name.
+     */
+    public void registerCompany(Company company) {
+        try {
+            UUID companyUuid = getCompanyUUID(company.getId());
+            NameManager.getOrCreateAccount(companyUuid, company.getName());
+            logger.fine("Registered company '" + company.getName() + "' (UUID: " + companyUuid + ") with ChestShop");
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Failed to register company '" + company.getName() + "' with ChestShop", e);
+        }
+    }
+    
+    /**
+     * Registers a company by name with ChestShop if it exists.
+     * Returns true if successful, false otherwise.
+     */
+    public boolean registerCompanyByName(String companyName) {
+        try {
+            Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+            if (companyOpt.isPresent()) {
+                registerCompany(companyOpt.get());
+                return true;
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "Error registering company by name: " + companyName, e);
+        }
+        return false;
     }
     
     /**
