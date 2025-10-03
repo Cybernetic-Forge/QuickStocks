@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.application.queries.QueryService;
 import net.cyberneticforge.quickstocks.commands.*;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
@@ -9,7 +10,6 @@ import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
-import net.cyberneticforge.quickstocks.listeners.CraftingListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
 import net.cyberneticforge.quickstocks.listeners.PortfolioGUIListener;
@@ -21,7 +21,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.sql.SQLException;
 
 public final class QuickStocksPlugin extends JavaPlugin {
-    
+
+    @Getter
+    private static JavaPlugin instance;
+
     private StockMarketService stockMarketService;
     private SimulationEngine simulationEngine;
     private DatabaseManager databaseManager;
@@ -42,7 +45,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         getLogger().info("QuickStocks enabling (Paper 1.21.8)...");
-        
+        instance = this;
         try {
             // Initialize database
             initializeDatabase();
@@ -227,15 +230,13 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private void registerListeners() {
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
         MarketDeviceListener deviceListener = new MarketDeviceListener(this, translationManager, marketDeviceCommand);
-        CraftingListener craftingListener = new CraftingListener(this, recipeManager);
-        
+
         // Register GUI listeners for the new market interface
         MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService, companyService, companyMarketService);
         PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener(queryService, tradingService, holdingsService, walletService, companyService);
         CompanySettingsGUIListener companySettingsGUIListener = new CompanySettingsGUIListener();
         
         getServer().getPluginManager().registerEvents(deviceListener, this);
-        getServer().getPluginManager().registerEvents(craftingListener, this);
         getServer().getPluginManager().registerEvents(marketGUIListener, this);
         getServer().getPluginManager().registerEvents(portfolioGUIListener, this);
         getServer().getPluginManager().registerEvents(companySettingsGUIListener, this);
