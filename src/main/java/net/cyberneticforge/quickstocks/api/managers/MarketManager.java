@@ -1,13 +1,18 @@
 package net.cyberneticforge.quickstocks.api.managers;
 
+import net.cyberneticforge.quickstocks.core.services.HoldingsService;
 import net.cyberneticforge.quickstocks.core.services.StockMarketService;
 import net.cyberneticforge.quickstocks.core.services.InstrumentPersistenceService;
-import net.cyberneticforge.quickstocks.core.models.Stock;
+import net.cyberneticforge.quickstocks.core.model.Stock;
+import net.cyberneticforge.quickstocks.core.model.Instrument;
+import net.cyberneticforge.quickstocks.core.model.InstrumentState;
+import net.cyberneticforge.quickstocks.core.model.PriceHistory;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * API Manager for market and instrument operations.
@@ -17,12 +22,12 @@ public class MarketManager {
     
     private final StockMarketService stockMarketService;
     private final InstrumentPersistenceService instrumentService;
-    
+
     public MarketManager(StockMarketService stockMarketService, InstrumentPersistenceService instrumentService) {
         this.stockMarketService = stockMarketService;
         this.instrumentService = instrumentService;
     }
-    
+
     /**
      * Gets an instrument by ID.
      * 
@@ -30,7 +35,7 @@ public class MarketManager {
      * @return Optional containing the instrument data if found
      * @throws SQLException if database error occurs
      */
-    public Optional<Map<String, Object>> getInstrument(String instrumentId) throws SQLException {
+    public Optional<Instrument> getInstrument(String instrumentId) throws SQLException {
         return instrumentService.getInstrumentById(instrumentId);
     }
     
@@ -41,7 +46,7 @@ public class MarketManager {
      * @return Optional containing the instrument data if found
      * @throws SQLException if database error occurs
      */
-    public Optional<Map<String, Object>> getInstrumentBySymbol(String symbol) throws SQLException {
+    public Optional<Instrument> getInstrumentBySymbol(String symbol) throws SQLException {
         return instrumentService.getInstrumentBySymbol(symbol);
     }
     
@@ -52,7 +57,7 @@ public class MarketManager {
      * @return List of instruments
      * @throws SQLException if database error occurs
      */
-    public List<Map<String, Object>> getInstrumentsByType(String type) throws SQLException {
+    public List<Instrument> getInstrumentsByType(String type) throws SQLException {
         return instrumentService.getInstrumentsByType(type);
     }
     
@@ -62,8 +67,8 @@ public class MarketManager {
      * @return List of all instruments
      * @throws SQLException if database error occurs
      */
-    public List<Map<String, Object>> getAllInstruments() throws SQLException {
-        return instrumentService.getAllInstruments();
+    public List<Instrument> getAllInstruments() {
+        return instrumentService.getAllInstruments().values().stream().toList();
     }
     
     /**
@@ -74,8 +79,8 @@ public class MarketManager {
      * @throws SQLException if database error occurs
      */
     public double getCurrentPrice(String instrumentId) throws SQLException {
-        Optional<Map<String, Object>> state = instrumentService.getInstrumentState(instrumentId);
-        return state.map(s -> ((Number) s.get("price")).doubleValue()).orElse(0.0);
+        Optional<InstrumentState> state = instrumentService.getInstrumentState(instrumentId);
+        return state.map(InstrumentState::getLastPrice).orElse(0.0);
     }
     
     /**
@@ -85,7 +90,7 @@ public class MarketManager {
      * @return Optional containing the instrument state if found
      * @throws SQLException if database error occurs
      */
-    public Optional<Map<String, Object>> getInstrumentState(String instrumentId) throws SQLException {
+    public Optional<InstrumentState> getInstrumentState(String instrumentId) throws SQLException {
         return instrumentService.getInstrumentState(instrumentId);
     }
     
@@ -97,7 +102,7 @@ public class MarketManager {
      * @return List of price history entries
      * @throws SQLException if database error occurs
      */
-    public List<Map<String, Object>> getPriceHistory(String instrumentId, int limit) throws SQLException {
+    public List<PriceHistory> getPriceHistory(String instrumentId, int limit) throws SQLException {
         return instrumentService.getPriceHistory(instrumentId, limit);
     }
     
@@ -114,14 +119,14 @@ public class MarketManager {
      * Opens the market for trading.
      */
     public void openMarket() {
-        stockMarketService.openMarket();
+        stockMarketService.setMarketOpen(true);
     }
     
     /**
      * Closes the market for trading.
      */
     public void closeMarket() {
-        stockMarketService.closeMarket();
+        stockMarketService.setMarketOpen(false);
     }
     
     /**
@@ -140,7 +145,7 @@ public class MarketManager {
      * @return List of all stocks
      */
     public List<Stock> getAllStocks() {
-        return stockMarketService.getAllStocks();
+        return stockMarketService.getAllStocks().stream().toList();
     }
     
     /**

@@ -46,7 +46,7 @@ public class WalletManager {
      * @throws SQLException if database error occurs
      */
     public void subtractBalance(String playerUuid, double amount) throws SQLException {
-        walletService.subtractBalance(playerUuid, amount);
+        walletService.removeBalance(playerUuid, amount);
     }
     
     /**

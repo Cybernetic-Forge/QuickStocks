@@ -1,6 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.core.config.TradingConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 
 /**
  * Service for calculating slippage impact on order execution prices.

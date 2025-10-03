@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.core.models;
+package net.cyberneticforge.quickstocks.core.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

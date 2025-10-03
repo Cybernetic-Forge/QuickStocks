@@ -447,7 +447,7 @@ public class CompanyMarketService {
     /**
      * Gets total issued shares from user_holdings (instruments infrastructure).
      */
-    private double getIssuedSharesFromHoldings(String instrumentId) throws SQLException {
+    public double getIssuedSharesFromHoldings(String instrumentId) throws SQLException {
         List<Map<String, Object>> results = database.query(
             "SELECT SUM(qty) as total FROM user_holdings WHERE instrument_id = ?", instrumentId);
         
@@ -461,7 +461,7 @@ public class CompanyMarketService {
     /**
      * Gets shares owned by a player from user_holdings (instruments infrastructure).
      */
-    private double getPlayerSharesFromHoldings(String instrumentId, String playerUuid) throws SQLException {
+    public double getPlayerSharesFromHoldings(String instrumentId, String playerUuid) throws SQLException {
         List<Map<String, Object>> results = database.query(
             "SELECT qty FROM user_holdings WHERE instrument_id = ? AND player_uuid = ?",
             instrumentId, playerUuid);
@@ -471,26 +471,6 @@ public class CompanyMarketService {
         }
         
         return ((Number) results.get(0).get("qty")).doubleValue();
-    }
-    
-    /**
-     * Gets total issued shares (backwards compatibility - now uses instruments).
-     * @deprecated Use getIssuedSharesFromHoldings with instrument ID instead
-     */
-    @Deprecated
-    public double getIssuedShares(String companyId) throws SQLException {
-        String instrumentId = "COMPANY_" + companyId;
-        return getIssuedSharesFromHoldings(instrumentId);
-    }
-    
-    /**
-     * Gets shares owned by a player (backwards compatibility - now uses instruments).
-     * @deprecated Use getPlayerSharesFromHoldings with instrument ID instead
-     */
-    @Deprecated
-    public double getPlayerShares(String companyId, String playerUuid) throws SQLException {
-        String instrumentId = "COMPANY_" + companyId;
-        return getPlayerSharesFromHoldings(instrumentId, playerUuid);
     }
     
     /**

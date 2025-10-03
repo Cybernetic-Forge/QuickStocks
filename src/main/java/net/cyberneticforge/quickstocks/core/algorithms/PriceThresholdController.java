@@ -1,6 +1,6 @@
 package net.cyberneticforge.quickstocks.core.algorithms;
 
-import net.cyberneticforge.quickstocks.core.models.Stock;
+import net.cyberneticforge.quickstocks.core.model.Stock;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 
 import java.util.Map;

@@ -1,8 +1,8 @@
 package net.cyberneticforge.quickstocks.core.services;
 
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
-import net.cyberneticforge.quickstocks.core.models.MarketInfluence;
-import net.cyberneticforge.quickstocks.core.models.Stock;
+import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
+import net.cyberneticforge.quickstocks.core.model.Stock;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.util.*;
@@ -154,7 +154,7 @@ public class SimulationEngine {
             Map<Stock, String> stockToInstrumentMap = new HashMap<>();
             for (Stock stock : marketService.getAllStocks()) {
                 try {
-                    String instrumentId = instrumentService.ensureInstrument(stock);
+                    String instrumentId = instrumentService.ensureInstrument(stock).getId();
                     stockToInstrumentMap.put(stock, instrumentId);
                 } catch (Exception e) {
                     logger.severe("Failed to ensure instrument for " + stock.getSymbol() + ": " + e.getMessage());
@@ -379,8 +379,8 @@ public class SimulationEngine {
      * Helper method to get symbol from instrument ID.
      */
     private String getSymbolForInstrumentId(String instrumentId) {
-        return instrumentService.getAllMappings().entrySet().stream()
-            .filter(entry -> entry.getValue().equals(instrumentId))
+        return instrumentService.getAllInstruments().entrySet().stream()
+            .filter(entry -> entry.getValue().getId().equals(instrumentId))
             .map(Map.Entry::getKey)
             .findFirst()
             .orElse(null);

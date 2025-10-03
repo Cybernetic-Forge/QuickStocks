@@ -197,7 +197,35 @@ public class CompanyService {
         // Fall back to name
         return getCompanyByName(nameOrSymbol);
     }
-    
+
+    /**
+     * Gets all companies.
+     */
+    public List<Company> getAllCompanies() throws SQLException {
+        List<Map<String, Object>> results = database.query(
+            "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout FROM companies ORDER BY created_at DESC",
+            new Object[0]
+        );
+
+        List<Company> companies = new ArrayList<>();
+        for (Map<String, Object> row : results) {
+            companies.add(new Company(
+                (String) row.get("id"),
+                (String) row.get("name"),
+                (String) row.get("type"),
+                (String) row.get("owner_uuid"),
+                ((Number) row.get("balance")).doubleValue(),
+                ((Number) row.get("created_at")).longValue(),
+                (String) row.get("symbol"),
+                ((Number) row.get("on_market")).intValue() != 0,
+                ((Number) row.get("market_percentage")).doubleValue(),
+                ((Number) row.get("allow_buyout")).intValue() != 0
+            ));
+        }
+
+        return companies;
+    }
+
     /**
      * Gets companies where the player is an employee.
      */

@@ -26,7 +26,7 @@ public class PortfolioManager {
      * @return Holding data or null if not found
      * @throws SQLException if database error occurs
      */
-    public Map<String, Object> getHolding(String playerUuid, String instrumentId) throws SQLException {
+    public HoldingsService.Holding getHolding(String playerUuid, String instrumentId) throws SQLException {
         return holdingsService.getHolding(playerUuid, instrumentId);
     }
     
@@ -37,8 +37,8 @@ public class PortfolioManager {
      * @return List of all holdings
      * @throws SQLException if database error occurs
      */
-    public List<Map<String, Object>> getAllHoldings(String playerUuid) throws SQLException {
-        return holdingsService.getAllHoldings(playerUuid);
+    public List<HoldingsService.Holding> getAllHoldings(String playerUuid) throws SQLException {
+        return holdingsService.getHoldings(playerUuid);
     }
     
     /**
@@ -49,8 +49,8 @@ public class PortfolioManager {
      * @return Quantity held
      * @throws SQLException if database error occurs
      */
-    public int getHoldingQuantity(String playerUuid, String instrumentId) throws SQLException {
-        return holdingsService.getHoldingQuantity(playerUuid, instrumentId);
+    public double getHoldingQuantity(String playerUuid, String instrumentId) throws SQLException {
+        return holdingsService.getHolding(playerUuid, instrumentId).getQty();
     }
     
     /**
@@ -73,13 +73,13 @@ public class PortfolioManager {
      * @throws SQLException if database error occurs
      */
     public double getHoldingProfitLoss(String playerUuid, String instrumentId) throws SQLException {
-        Map<String, Object> holding = holdingsService.getHolding(playerUuid, instrumentId);
+        HoldingsService.Holding holding = holdingsService.getHolding(playerUuid, instrumentId);
         if (holding == null) {
             return 0.0;
         }
         
-        double currentValue = ((Number) holding.get("current_value")).doubleValue();
-        double cost = ((Number) holding.get("total_cost")).doubleValue();
+        double currentValue = holding.getCurrentPrice();
+        double cost = holding.getTotalCost();
         return currentValue - cost;
     }
     
@@ -91,6 +91,6 @@ public class PortfolioManager {
      * @throws SQLException if database error occurs
      */
     public double getTotalProfitLoss(String playerUuid) throws SQLException {
-        return holdingsService.getTotalProfitLoss(playerUuid);
+        return holdingsService.getPortfolioValue(playerUuid);
     }
 }
