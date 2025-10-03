@@ -1,19 +1,16 @@
 package net.cyberneticforge.quickstocks.infrastructure.hooks;
 
 import com.Acrobot.ChestShop.ChestShop;
+import com.Acrobot.ChestShop.Database.Account;
+import com.Acrobot.ChestShop.UUIDs.NameManager;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
-import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -142,4 +139,20 @@ public class ChestShopHook {
             return 0.0;
         }
     }
+
+    /**
+     * Gets the account of an uuid
+     *
+     * @param uuid The uuid of the account
+     * @return The account instance, or null if not found
+     */
+    public Company getCompanyByAccountId(UUID uuid) {
+        Account account = NameManager.getAccount(uuid);
+        if(account == null) return null;
+        return getCompany(account.getName()).orElse(null);
+    }
+
+    /**
+     * Gets the account of an uuid
+     */
 }

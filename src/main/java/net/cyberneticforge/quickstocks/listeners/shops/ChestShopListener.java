@@ -25,14 +25,12 @@ import java.util.logging.Logger;
 public class ChestShopListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(ChestShopListener.class.getName());
-    
-    private final QuickStocksPlugin plugin;
+
     private final CompanyService companyService;
     private final CompanyConfig companyConfig;
     private final ChestShopAccountProvider accountProvider;
     
-    public ChestShopListener(QuickStocksPlugin plugin, CompanyService companyService, CompanyConfig companyConfig, ChestShopAccountProvider accountProvider) {
-        this.plugin = plugin;
+    public ChestShopListener(CompanyService companyService, CompanyConfig companyConfig, ChestShopAccountProvider accountProvider) {
         this.companyService = companyService;
         this.companyConfig = companyConfig;
         this.accountProvider = accountProvider;
@@ -50,7 +48,7 @@ public class ChestShopListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onSignChange(SignChangeEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         
         // Get the first line which should be the owner name
@@ -108,7 +106,7 @@ public class ChestShopListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onShopCreated(ShopCreatedEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         
         // Check if this is a company shop

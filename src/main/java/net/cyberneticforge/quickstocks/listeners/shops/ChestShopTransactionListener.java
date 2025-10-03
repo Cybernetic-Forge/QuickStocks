@@ -1,5 +1,10 @@
 package net.cyberneticforge.quickstocks.listeners.shops;
 
+import com.Acrobot.ChestShop.ChestShop;
+import com.Acrobot.ChestShop.Database.Account;
+import com.Acrobot.ChestShop.Events.AccountQueryEvent;
+import com.Acrobot.ChestShop.Events.Economy.AccountCheckEvent;
+import com.Acrobot.ChestShop.Events.Economy.CurrencyCheckEvent;
 import com.Acrobot.ChestShop.Events.PreTransactionEvent;
 import com.Acrobot.ChestShop.Events.TransactionEvent;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
@@ -14,6 +19,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,51 +38,58 @@ public class ChestShopTransactionListener implements Listener {
         this.chestShopHook = chestShopHook;
         this.companyConfig = companyConfig;
     }
-    
+
     /**
-     * Handles pre-transaction validation for company-owned shops.
-     * Checks if company has sufficient balance before allowing the transaction.
+     * Handles account queries to re-establish company accounts in ChestShop.
+     * This allows ChestShop to recognize company names as valid shop owners.
      */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPreTransaction(PreTransactionEvent event) {
+    public void onAccountCheck(AccountCheckEvent event) {
         // Only process if ChestShop is hooked and enabled
         if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
-        
+
         try {
-            String ownerName = event.getOwnerAccount().getName();
-            Optional<Company> companyOpt = chestShopHook.getCompany(ownerName);
-            
-            if (companyOpt.isPresent()) {
-                Company company = companyOpt.get();
-                
-                // For SELL transactions (customer selling to shop), check if company has funds
-                if (event.getTransactionType() == TransactionEvent.TransactionType.SELL) {
-                    double price = event.getExactPrice().doubleValue();
-                    
-                    // Check if company has sufficient balance
-                    if (company.getBalance() < companyConfig.getChestShopCompanyMinBalance()) {
-                        event.setCancelled(PreTransactionEvent.TransactionOutcome.SHOP_DOES_NOT_HAVE_ENOUGH_MONEY);
-                        event.getClient().sendMessage(ChatColor.RED + "Company shop does not have sufficient balance.");
-                        Bukkit.getConsoleSender().sendMessage("Transaction cancelled: Company '" + ownerName + "' has insufficient balance");
-                        event.setCancelled(true);
-                        return;
-                    }
-                    
-                    if (company.getBalance() < price) {
-                        event.setCancelled(PreTransactionEvent.TransactionOutcome.SHOP_DOES_NOT_HAVE_ENOUGH_MONEY);
-                        event.getClient().sendMessage(ChatColor.RED + "Company shop does not have enough money for this transaction.");
-                        Bukkit.getConsoleSender().sendMessage("Transaction cancelled: Company '" + ownerName + "' cannot afford $" + price);
-                        event.setCancelled(true);
-                   }
-                }
+            Company company = chestShopHook.getCompanyByAccountId(event.getAccount());
+            if (company != null) {
+                event.hasAccount(true);
+                event.setHandled(true);
+                Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Reestablished account for company '" + company.getName() + "'");
             }
-            
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error handling ChestShop pre-transaction", e);
+            logger.log(Level.SEVERE, "Error handling ChestShop account query", e);
         }
     }
-    
+
+    /**
+     * Handles currency checks for company-owned shops.
+     * Validates if the company has enough balance for the transaction.
+     */
+    @EventHandler
+    public void onCurrencyCheck(CurrencyCheckEvent event) {
+        // Only process if ChestShop is hooked and enabled
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!companyConfig.isChestShopEnabled()) return;
+
+        try {
+            Company company = chestShopHook.getCompanyByAccountId(event.getAccount());
+            if (company != null) {
+                double balance = company.getBalance();
+                if( balance < companyConfig.getChestShopCompanyMinBalance() || balance < event.getAmount().doubleValue()) {
+                    event.hasEnough(false);
+                    event.setHandled(true);
+                    Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Company shop '" + company.getName() + "' has insufficient balance: $" + balance);
+                    return;
+                }
+                event.hasEnough(true);
+                event.setHandled(true);
+                Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Validated currency for company shop '" + company.getName() + "'");
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error handling ChestShop currency check", e);
+        }
+    }
+
     /**
      * Handles completed transactions for company-owned shops.
      * Updates company balance based on the transaction type.
@@ -90,23 +103,25 @@ public class ChestShopTransactionListener implements Listener {
         try {
             String ownerName = event.getOwnerAccount().getName();
             Optional<Company> companyOpt = chestShopHook.getCompany(ownerName);
-            
+
+            Bukkit.getConsoleSender().sendMessage("Checking transaction for shop owned by: " + ownerName + " (Type: " + event.getTransactionType() + ")");
             if (companyOpt.isPresent()) {
                 double price = event.getExactPrice().doubleValue();
                 
                 if (event.getTransactionType() == TransactionEvent.TransactionType.BUY) {
                     // Customer is buying from shop, company receives money
                     if (chestShopHook.addFunds(ownerName, price)) {
-                        logger.fine("Added $" + price + " to company '" + ownerName + "' from shop sale");
+                        Bukkit.getConsoleSender().sendMessage("Added $" + price + " to company '" + ownerName + "' from shop sale");
+                        event.setCancelled(false);
                     } else {
-                        logger.warning("Failed to add funds to company '" + ownerName + "'");
+                        Bukkit.getConsoleSender().sendMessage("Failed to add funds to company '" + ownerName + "'");
                     }
                 } else if (event.getTransactionType() == TransactionEvent.TransactionType.SELL) {
                     // Customer is selling to shop, company pays money
                     if (chestShopHook.removeFunds(ownerName, price)) {
-                        logger.fine("Removed $" + price + " from company '" + ownerName + "' for shop purchase");
+                        Bukkit.getConsoleSender().sendMessage("Removed $" + price + " from company '" + ownerName + "' for shop purchase");
                     } else {
-                        logger.warning("Failed to remove funds from company '" + ownerName + "'");
+                        Bukkit.getConsoleSender().sendMessage("Failed to remove funds from company '" + ownerName + "'");
                     }
                 }
             }

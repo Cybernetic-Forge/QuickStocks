@@ -262,7 +262,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             ChestShopAccountProvider accountProvider = new ChestShopAccountProvider(companyService);
             accountProvider.registerWithChestShop();
             
-            ChestShopListener chestShopListener = new ChestShopListener(this, companyService, companyConfig, accountProvider);
+            ChestShopListener chestShopListener = new ChestShopListener(companyService, companyConfig, accountProvider);
             ChestShopTransactionListener chestShopTransactionListener = 
                 new ChestShopTransactionListener(chestShopHook, companyConfig);
             ChestShopProtectionListener chestShopProtectionListener =
