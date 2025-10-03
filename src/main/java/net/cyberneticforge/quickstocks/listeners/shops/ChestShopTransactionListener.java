@@ -7,6 +7,7 @@ import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,13 +24,11 @@ import java.util.logging.Logger;
 public class ChestShopTransactionListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(ChestShopTransactionListener.class.getName());
-    
-    private final QuickStocksPlugin plugin;
+
     private final ChestShopHook chestShopHook;
     private final CompanyConfig companyConfig;
     
-    public ChestShopTransactionListener(QuickStocksPlugin plugin, ChestShopHook chestShopHook, CompanyConfig companyConfig) {
-        this.plugin = plugin;
+    public ChestShopTransactionListener(ChestShopHook chestShopHook, CompanyConfig companyConfig) {
         this.chestShopHook = chestShopHook;
         this.companyConfig = companyConfig;
     }
@@ -59,16 +58,17 @@ public class ChestShopTransactionListener implements Listener {
                     if (company.getBalance() < companyConfig.getChestShopCompanyMinBalance()) {
                         event.setCancelled(PreTransactionEvent.TransactionOutcome.SHOP_DOES_NOT_HAVE_ENOUGH_MONEY);
                         event.getClient().sendMessage(ChatColor.RED + "Company shop does not have sufficient balance.");
-                        logger.fine("Transaction cancelled: Company '" + ownerName + "' has insufficient balance");
+                        Bukkit.getConsoleSender().sendMessage("Transaction cancelled: Company '" + ownerName + "' has insufficient balance");
+                        event.setCancelled(true);
                         return;
                     }
                     
                     if (company.getBalance() < price) {
                         event.setCancelled(PreTransactionEvent.TransactionOutcome.SHOP_DOES_NOT_HAVE_ENOUGH_MONEY);
                         event.getClient().sendMessage(ChatColor.RED + "Company shop does not have enough money for this transaction.");
-                        logger.fine("Transaction cancelled: Company '" + ownerName + "' cannot afford $" + price);
-                        return;
-                    }
+                        Bukkit.getConsoleSender().sendMessage("Transaction cancelled: Company '" + ownerName + "' cannot afford $" + price);
+                        event.setCancelled(true);
+                   }
                 }
             }
             
@@ -84,7 +84,7 @@ public class ChestShopTransactionListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onTransaction(TransactionEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         
         try {

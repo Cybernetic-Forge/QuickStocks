@@ -1,10 +1,15 @@
 package net.cyberneticforge.quickstocks.listeners.shops;
 
+import com.Acrobot.ChestShop.Database.Account;
+import com.Acrobot.ChestShop.Events.AccountAccessEvent;
 import com.Acrobot.ChestShop.Events.Protection.ProtectionCheckEvent;
+import com.Acrobot.ChestShop.Utils.uBlock;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -20,13 +25,11 @@ import java.util.logging.Logger;
 public class ChestShopProtectionListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(ChestShopProtectionListener.class.getName());
-    
-    private final QuickStocksPlugin plugin;
+
     private final ChestShopHook chestShopHook;
     private final CompanyConfig companyConfig;
     
-    public ChestShopProtectionListener(QuickStocksPlugin plugin, ChestShopHook chestShopHook, CompanyConfig companyConfig) {
-        this.plugin = plugin;
+    public ChestShopProtectionListener(ChestShopHook chestShopHook, CompanyConfig companyConfig) {
         this.chestShopHook = chestShopHook;
         this.companyConfig = companyConfig;
     }
@@ -35,21 +38,31 @@ public class ChestShopProtectionListener implements Listener {
      * Handles protection checks for company-owned shops.
      * Allows employees with chestshop permission to manage the shop.
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onProtectionCheck(ProtectionCheckEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
-        if (!(event.getBlock().getState() instanceof Sign sign)) return;
-
+        Sign sign = uBlock.getConnectedSign(event.getBlock());
+        if (sign == null) return;
         String ownerName = sign.getLine(0);
-
         if (ownerName.trim().isEmpty()) return;
-        
         // Check if this is a company shop and if the player has permission
         if (chestShopHook.canManageShop(ownerName.trim(), event.getPlayer())) {
             event.setResult(Event.Result.ALLOW);
-            logger.fine("Granted shop access to " + event.getPlayer().getName() + " for company '" + ownerName + "'");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onProtectionCheck(AccountAccessEvent event) {
+        // Only process if ChestShop is hooked and enabled
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!companyConfig.isChestShopEnabled()) return;
+        Account account = event.getAccount();
+        // Check if this is a company shop and if the player has permission
+        if (chestShopHook.canManageShop(account.getName(), event.getPlayer())) {
+            Bukkit.getConsoleSender().sendMessage("Granted shop access to " + event.getPlayer().getName() + " for company '" + account.getName() + "'");
+            event.setAccess(true);
         }
     }
 }

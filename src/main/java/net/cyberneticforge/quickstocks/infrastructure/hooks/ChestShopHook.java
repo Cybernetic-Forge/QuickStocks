@@ -1,11 +1,18 @@
 package net.cyberneticforge.quickstocks.infrastructure.hooks;
 
+import com.Acrobot.ChestShop.ChestShop;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
+import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,16 +41,13 @@ public class ChestShopHook {
     public boolean canManageShop(String companyName, Player player) {
         try {
             Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
-            if (companyOpt.isEmpty()) {
-                return false;
-            }
+            if (companyOpt.isEmpty()) return false;
             
             Company company = companyOpt.get();
             String playerUuid = player.getUniqueId().toString();
             
             Optional<CompanyJob> jobOpt = companyService.getPlayerJob(company.getId(), playerUuid);
             return jobOpt.isPresent() && jobOpt.get().canManageChestShop();
-            
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error checking ChestShop management permission", e);
             return false;
