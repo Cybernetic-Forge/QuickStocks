@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.listeners;
+package net.cyberneticforge.quickstocks.listeners.shops;
 
 import com.Acrobot.ChestShop.Events.PreTransactionEvent;
 import com.Acrobot.ChestShop.Events.TransactionEvent;
@@ -57,7 +57,7 @@ public class ChestShopTransactionListener implements Listener {
                 Company company = companyOpt.get();
                 
                 // For SELL transactions (customer selling to shop), check if company has funds
-                if (event.getTransactionType() == PreTransactionEvent.TransactionType.SELL) {
+                if (event.getTransactionType() == TransactionEvent.TransactionType.SELL) {
                     double price = event.getExactPrice().doubleValue();
                     
                     // Check if company has sufficient balance

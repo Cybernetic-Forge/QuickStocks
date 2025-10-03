@@ -9,10 +9,11 @@ import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
+import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookManager;
-import net.cyberneticforge.quickstocks.listeners.ChestShopListener;
-import net.cyberneticforge.quickstocks.listeners.ChestShopProtectionListener;
-import net.cyberneticforge.quickstocks.listeners.ChestShopTransactionListener;
+import net.cyberneticforge.quickstocks.listeners.shops.ChestShopListener;
+import net.cyberneticforge.quickstocks.listeners.shops.ChestShopProtectionListener;
+import net.cyberneticforge.quickstocks.listeners.shops.ChestShopTransactionListener;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
@@ -47,7 +48,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private BukkitRunnable marketUpdateTask;
     
     @Getter
-    private HookManager hookManager;
+    private static HookManager hookManager;
 
     @Override
     public void onEnable() {
@@ -254,8 +255,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Register ChestShop integration listeners if ChestShop is hooked
         if (hookManager.isHooked(net.cyberneticforge.quickstocks.infrastructure.hooks.HookType.ChestShop)) {
             CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
-            net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook chestShopHook =
-                new net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook(companyService);
+            ChestShopHook chestShopHook = new ChestShopHook(companyService);
             
             ChestShopListener chestShopListener = new ChestShopListener(this, companyService, companyConfig);
             ChestShopTransactionListener chestShopTransactionListener = 

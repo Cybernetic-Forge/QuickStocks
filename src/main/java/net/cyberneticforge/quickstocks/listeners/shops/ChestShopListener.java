@@ -1,5 +1,6 @@
-package net.cyberneticforge.quickstocks.listeners;
+package net.cyberneticforge.quickstocks.listeners.shops;
 
+import com.Acrobot.ChestShop.Events.ShopCreatedEvent;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
@@ -42,22 +43,15 @@ public class ChestShopListener implements Listener {
      * Line 2: Price (B price:S price)
      * Line 3: Item name
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onSignChange(SignChangeEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) {
-            return;
-        }
-        
-        if (!companyConfig.isChestShopEnabled()) {
-            return;
-        }
+        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!companyConfig.isChestShopEnabled()) return;
         
         // Get the first line which should be the owner name
         String line0 = event.getLine(0);
-        if (line0 == null || line0.trim().isEmpty()) {
-            return;
-        }
+        if (line0 == null || line0.trim().isEmpty()) return;
         
         // Check if line 0 is a company name (not a player name)
         // This is done by trying to find a company with that name

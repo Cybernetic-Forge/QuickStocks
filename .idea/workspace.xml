@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="added ChatUT.java">
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="some fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/QuickStocksPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/QuickStocksPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/CompanyManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/CompanyManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/MigrationRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/MigrationRunner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/ChestShopListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/ChestShopProtectionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopProtectionListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/ChestShopTransactionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopTransactionListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +124,7 @@
       <workItem from="1759137963420" duration="3266000" />
       <workItem from="1759262134921" duration="3075000" />
       <workItem from="1759431791208" duration="7463000" />
-      <workItem from="1759482219694" duration="6984000" />
+      <workItem from="1759482219694" duration="9040000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />
@@ -267,7 +270,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759483441803</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1759490115514</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1759490115514</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -295,6 +306,7 @@
     <MESSAGE value="further fixes" />
     <MESSAGE value="hook preparations" />
     <MESSAGE value="added ChatUT.java" />
-    <option name="LAST_COMMIT_MESSAGE" value="added ChatUT.java" />
+    <MESSAGE value="some fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="some fixes" />
   </component>
 </project>

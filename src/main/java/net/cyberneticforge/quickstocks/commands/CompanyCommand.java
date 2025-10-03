@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.commands;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
@@ -7,6 +8,7 @@ import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.core.services.CompanyMarketService;
 import net.cyberneticforge.quickstocks.core.services.InvitationService;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
+import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -475,14 +477,15 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canManageCompany() ? "Manage " : "") +
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
-                             (job.canWithdraw() ? "Withdraw" : ""));
+                             (job.canWithdraw() ? "Withdraw" : "") +
+                             (job.canManageChestShop() ? "ChestShop" : ""));
         }
     }
     
     private void handleCreateJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             player.sendMessage(ChatColor.RED + "Usage: /company createjob <company> <title> <permissions>");
-            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage,chestshop (comma-separated)");
+            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage," + (QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? "chestshop" : "") + " (comma-separated)");
             return;
         }
         
@@ -702,13 +705,16 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             
             // Permission suggestions for createjob and editjob (4th arg)
             if (args.length == 4 && (args[0].equalsIgnoreCase("createjob") || args[0].equalsIgnoreCase("editjob"))) {
-                return Arrays.asList("invite", "createjobs", "withdraw", "manage", "invite,createjobs", 
-                                   "invite,withdraw", "manage,invite,createjobs,withdraw")
-                    .stream()
-                    .filter(option -> option.toLowerCase().startsWith(args[3].toLowerCase()))
-                    .collect(Collectors.toList());
+                List<String> permissions = Arrays.asList("invite", "createjobs", "withdraw", "manage", "invite,createjobs", "invite,withdraw", "manage,invite,createjobs,withdraw");
+
+                if(QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) {
+                    permissions.remove("manage,invite,createjobs,withdraw");
+                    permissions.add("manage,invite,createjobs,withdraw, chestshop");
+                    permissions.add("chestshop");
+                }
+
+                return permissions.stream().filter(option -> option.toLowerCase().startsWith(args[3].toLowerCase())).collect(Collectors.toList());
             }
-            
         } catch (Exception e) {
             // Silently fail for tab completion
             logger.fine("Error in tab completion: " + e.getMessage());
