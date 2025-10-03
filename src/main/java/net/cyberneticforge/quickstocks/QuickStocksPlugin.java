@@ -253,7 +253,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Register ChestShop integration listeners if ChestShop is hooked
         if (hookManager.isHooked(net.cyberneticforge.quickstocks.infrastructure.hooks.HookType.ChestShop)) {
             CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
-            net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook chestShopHook = 
+            net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook chestShopHook =
                 new net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook(companyService);
             
             ChestShopListener chestShopListener = new ChestShopListener(this, companyService, companyConfig);
