@@ -37,13 +37,14 @@ public class ChestShopListener implements Listener {
     
     /**
      * Handles sign placement to validate company ownership of chest shops.
+     * Uses LOWEST priority to run before ChestShop's validation.
      * ChestShop signs have the format:
      * Line 0: Player name or company name
      * Line 1: Quantity
      * Line 2: Price (B price:S price)
      * Line 3: Item name
      */
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onSignChange(SignChangeEvent event) {
         // Only process if ChestShop is hooked and enabled
         if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
@@ -85,17 +86,42 @@ public class ChestShopListener implements Listener {
                     return;
                 }
                 
-                // Allow the sign creation and log it
-                logger.info("ChestShop sign created for company '" + company.getName() + 
-                    "' by player " + event.getPlayer().getName());
-                event.getPlayer().sendMessage(ChatColor.GREEN + "ChestShop created for company '" + 
-                    company.getName() + "'");
+                // Company validation passed - ChestShop will now process the sign
+                // Note: ChestShop may still cancel if there are other issues (invalid format, etc.)
+                logger.info("Company '" + company.getName() + "' validated for ChestShop by player " + event.getPlayer().getName());
             }
             
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error validating company for ChestShop sign", e);
             event.getPlayer().sendMessage(ChatColor.RED + "An error occurred while validating the company.");
             event.setCancelled(true);
+        }
+    }
+    
+    /**
+     * Handles successful shop creation to provide feedback to the player.
+     * This event fires after ChestShop has validated and created the shop.
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onShopCreated(ShopCreatedEvent event) {
+        // Only process if ChestShop is hooked and enabled
+        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!companyConfig.isChestShopEnabled()) return;
+        
+        // Check if this is a company shop
+        String ownerName = event.getSign().getLine(0);
+        if (ownerName == null || ownerName.trim().isEmpty()) return;
+        
+        try {
+            Optional<Company> companyOpt = companyService.getCompanyByName(ownerName.trim());
+            if (companyOpt.isPresent()) {
+                event.getPlayer().sendMessage(ChatColor.GREEN + "ChestShop successfully created for company '" + 
+                    companyOpt.get().getName() + "'");
+                logger.info("ChestShop successfully created for company '" + companyOpt.get().getName() + 
+                    "' by player " + event.getPlayer().getName());
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "Error checking company on shop creation", e);
         }
     }
 }
