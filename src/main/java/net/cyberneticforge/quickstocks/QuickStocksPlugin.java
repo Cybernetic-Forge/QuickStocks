@@ -11,6 +11,7 @@ import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookManager;
 import net.cyberneticforge.quickstocks.listeners.ChestShopListener;
+import net.cyberneticforge.quickstocks.listeners.ChestShopProtectionListener;
 import net.cyberneticforge.quickstocks.listeners.ChestShopTransactionListener;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
@@ -259,9 +260,12 @@ public final class QuickStocksPlugin extends JavaPlugin {
             ChestShopListener chestShopListener = new ChestShopListener(this, companyService, companyConfig);
             ChestShopTransactionListener chestShopTransactionListener = 
                 new ChestShopTransactionListener(this, chestShopHook, companyConfig);
+            ChestShopProtectionListener chestShopProtectionListener =
+                new ChestShopProtectionListener(this, chestShopHook, companyConfig);
             
             getServer().getPluginManager().registerEvents(chestShopListener, this);
             getServer().getPluginManager().registerEvents(chestShopTransactionListener, this);
+            getServer().getPluginManager().registerEvents(chestShopProtectionListener, this);
             getLogger().info("Registered ChestShop integration listeners");
         }
         
