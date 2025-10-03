@@ -119,6 +119,7 @@ public class ChestShopTransactionListener implements Listener {
                 } else if (event.getTransactionType() == TransactionEvent.TransactionType.SELL) {
                     // Customer is selling to shop, company pays money
                     if (chestShopHook.removeFunds(ownerName, price)) {
+                        event.setCancelled(false);
                         Bukkit.getConsoleSender().sendMessage("Removed $" + price + " from company '" + ownerName + "' for shop purchase");
                     } else {
                         Bukkit.getConsoleSender().sendMessage("Failed to remove funds from company '" + ownerName + "'");
