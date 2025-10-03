@@ -7,7 +7,8 @@ import net.cyberneticforge.quickstocks.core.services.TradingService;
 import net.cyberneticforge.quickstocks.core.services.WalletService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
-import org.bukkit.ChatColor;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
+import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,15 +31,17 @@ public class PortfolioGUIListener implements Listener {
     private final HoldingsService holdingsService;
     private final WalletService walletService;
     private final CompanyService companyService;
+    private final GUIConfigManager guiConfigManager;
     
     public PortfolioGUIListener(QueryService queryService, TradingService tradingService,
                               HoldingsService holdingsService, WalletService walletService,
-                              CompanyService companyService) {
+                              CompanyService companyService, GUIConfigManager guiConfigManager) {
         this.queryService = queryService;
         this.tradingService = tradingService;
         this.holdingsService = holdingsService;
         this.walletService = walletService;
         this.companyService = companyService;
+        this.guiConfigManager = guiConfigManager;
     }
     
     @EventHandler
@@ -181,11 +184,11 @@ public class PortfolioGUIListener implements Listener {
      */
     private void openMarketGUI(Player player) {
         try {
-            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService, companyService);
+            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService, companyService, guiConfigManager);
             marketGUI.open();
         } catch (Exception e) {
             logger.warning("Error opening market GUI for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "Unable to open market at this time.");
+            player.sendMessage(ChatUT.hexComp("&cUnable to open market at this time."));
         }
     }
 }
