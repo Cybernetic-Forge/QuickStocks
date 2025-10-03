@@ -49,6 +49,13 @@ QuickStocks brings real-world financial markets to Minecraft. Players can:
 - **Trading fees** (default 0.25%) to prevent market manipulation
 - **Configurable costs** for company creation and operations
 
+### 🔌 Plugin Integrations
+- **ChestShop integration** - Companies can own and manage chest shops
+  - Employee-based shop management with permission system
+  - Shop revenues and purchases tied to company balance
+  - Automatic balance validation for transactions
+  - Fully optional soft-dependency (works without ChestShop)
+
 ### 🎨 Beautiful User Interface
 - **Interactive market GUI** for browsing and trading
 - **Company settings GUI** with permission-aware buttons
@@ -93,6 +100,7 @@ QuickStocks brings real-world financial markets to Minecraft. Players can:
 - **[Installation](Documentation/Installation.md)** - Step-by-step setup guide
 - **[Configuration](Documentation/Configuration.md)** - Detailed configuration options
 - **[Database Management](Documentation/Database.md)** - Database administration
+- **[ChestShop Integration](Documentation/ChestShop-Integration.md)** - Company-owned chest shops
 
 ### 📖 Command References
 - **[Stocks Commands](Documentation/Commands-Stocks.md)** - Market data and analysis
