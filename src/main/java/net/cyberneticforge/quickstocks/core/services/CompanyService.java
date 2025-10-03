@@ -707,4 +707,103 @@ public class CompanyService {
         
         return companies;
     }
+    
+    /**
+     * Removes an employee from a company.
+     * Owner cannot leave unless ownership is transferred first.
+     */
+    public void removeEmployee(String companyId, String playerUuid) throws SQLException {
+        // Check if player is the owner
+        Optional<Company> companyOpt = getCompanyById(companyId);
+        if (companyOpt.isEmpty()) {
+            throw new IllegalArgumentException("Company not found");
+        }
+        
+        Company company = companyOpt.get();
+        if (company.getOwnerUuid().equals(playerUuid)) {
+            throw new IllegalArgumentException("Owner cannot leave the company. Transfer ownership first.");
+        }
+        
+        // Check if player is an employee
+        Optional<CompanyJob> jobOpt = getPlayerJob(companyId, playerUuid);
+        if (jobOpt.isEmpty()) {
+            throw new IllegalArgumentException("Player is not an employee of this company");
+        }
+        
+        // Remove employee
+        database.execute(
+            "DELETE FROM company_employees WHERE company_id = ? AND player_uuid = ?",
+            companyId, playerUuid
+        );
+        
+        logger.info("Player " + playerUuid + " left company " + companyId);
+    }
+    
+    /**
+     * Transfers ownership of a company to another player.
+     * The new owner must be an existing employee.
+     */
+    public void transferOwnership(String companyId, String currentOwnerUuid, String newOwnerUuid) throws SQLException {
+        // Check if current player is the owner
+        Optional<Company> companyOpt = getCompanyById(companyId);
+        if (companyOpt.isEmpty()) {
+            throw new IllegalArgumentException("Company not found");
+        }
+        
+        Company company = companyOpt.get();
+        if (!company.getOwnerUuid().equals(currentOwnerUuid)) {
+            throw new IllegalArgumentException("Only the owner can transfer ownership");
+        }
+        
+        // Check if new owner is an employee
+        Optional<CompanyJob> jobOpt = getPlayerJob(companyId, newOwnerUuid);
+        if (jobOpt.isEmpty()) {
+            throw new IllegalArgumentException("Target player is not an employee of this company");
+        }
+        
+        // Update company owner
+        database.execute(
+            "UPDATE companies SET owner_uuid = ? WHERE id = ?",
+            newOwnerUuid, companyId
+        );
+        
+        logger.info("Ownership of company " + companyId + " transferred from " + currentOwnerUuid + " to " + newOwnerUuid);
+    }
+    
+    /**
+     * Fires an employee from a company.
+     * Requires management permission. Cannot fire the owner.
+     */
+    public void fireEmployee(String companyId, String actorUuid, String targetUuid) throws SQLException {
+        // Check if actor has management permission
+        Optional<CompanyJob> actorJob = getPlayerJob(companyId, actorUuid);
+        if (actorJob.isEmpty() || !actorJob.get().canManageCompany()) {
+            throw new IllegalArgumentException("You do not have permission to fire employees");
+        }
+        
+        // Check if target is the owner
+        Optional<Company> companyOpt = getCompanyById(companyId);
+        if (companyOpt.isEmpty()) {
+            throw new IllegalArgumentException("Company not found");
+        }
+        
+        Company company = companyOpt.get();
+        if (company.getOwnerUuid().equals(targetUuid)) {
+            throw new IllegalArgumentException("Cannot fire the company owner");
+        }
+        
+        // Check if target is an employee
+        Optional<CompanyJob> targetJob = getPlayerJob(companyId, targetUuid);
+        if (targetJob.isEmpty()) {
+            throw new IllegalArgumentException("Target player is not an employee of this company");
+        }
+        
+        // Remove employee
+        database.execute(
+            "DELETE FROM company_employees WHERE company_id = ? AND player_uuid = ?",
+            companyId, targetUuid
+        );
+        
+        logger.info("Player " + targetUuid + " was fired from company " + companyId + " by " + actorUuid);
+    }
 }

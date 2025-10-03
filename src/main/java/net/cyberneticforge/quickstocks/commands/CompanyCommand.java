@@ -133,6 +133,18 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handleNotifications(player, playerUuid);
                     break;
                     
+                case "leave":
+                    handleLeave(player, playerUuid, args);
+                    break;
+                    
+                case "transferownership":
+                    handleTransferOwnership(player, playerUuid, args);
+                    break;
+                    
+                case "fire":
+                    handleFire(player, playerUuid, args);
+                    break;
+                    
                 default:
                     player.sendMessage(ChatColor.RED + "Unknown subcommand. Use /company for help.");
                     break;
@@ -162,6 +174,9 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "/company createjob <company> <title> <perms>" + ChatColor.GRAY + " - Create job");
         player.sendMessage(ChatColor.YELLOW + "/company editjob <company> <title> <perms>" + ChatColor.GRAY + " - Edit job");
         player.sendMessage(ChatColor.YELLOW + "/company assignjob <company> <player> <job>" + ChatColor.GRAY + " - Assign job");
+        player.sendMessage(ChatColor.YELLOW + "/company leave <company>" + ChatColor.GRAY + " - Leave company");
+        player.sendMessage(ChatColor.YELLOW + "/company fire <company> <player>" + ChatColor.GRAY + " - Fire employee");
+        player.sendMessage(ChatColor.YELLOW + "/company transferownership <company> <player>" + ChatColor.GRAY + " - Transfer ownership");
         player.sendMessage(ChatColor.YELLOW + "/company settings [company]" + ChatColor.GRAY + " - Open settings GUI");
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Market Commands" + ChatColor.GOLD + " ===");
         player.sendMessage(ChatColor.YELLOW + "/company setsymbol <company> <symbol>" + ChatColor.GRAY + " - Set trading symbol");
@@ -683,7 +698,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
                                    "invitations", "deposit", "withdraw", "employees", "jobs", 
                                    "createjob", "editjob", "assignjob", "settings",
-                                   "setsymbol", "market", "notifications")
+                                   "setsymbol", "market", "notifications", "leave", "transferownership", "fire")
                     .stream()
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
@@ -714,8 +729,10 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     return getCompanyNames(args[1]);
                 }
                 
-                // For invite, createjob, editjob, assignjob - suggest player's companies
-                if (subcommand.equals("invite") || subcommand.equals("createjob") || subcommand.equals("editjob") || subcommand.equals("assignjob")) {
+                // For invite, createjob, editjob, assignjob, leave, fire, transferownership - suggest player's companies
+                if (subcommand.equals("invite") || subcommand.equals("createjob") || subcommand.equals("editjob") || 
+                    subcommand.equals("assignjob") || subcommand.equals("leave") || subcommand.equals("fire") || 
+                    subcommand.equals("transferownership")) {
                     return getPlayerCompanyNames(playerUuid, args[1]);
                 }
             }
@@ -744,9 +761,12 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 return getJobTitles(companyName, args[3]);
             }
             
-            // Player names for assignjob command (3rd arg)
-            if (args.length == 3 && args[0].equalsIgnoreCase("assignjob")) {
-                return getOnlinePlayerNames(args[2]);
+            // Player names for assignjob, fire, and transferownership commands (3rd arg)
+            if (args.length == 3) {
+                String subcommand = args[0].toLowerCase();
+                if (subcommand.equals("assignjob") || subcommand.equals("fire") || subcommand.equals("transferownership")) {
+                    return getOnlinePlayerNames(args[2]);
+                }
             }
             
             // Job titles for assignjob command (4th arg)
@@ -966,5 +986,105 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Mark all as read
         companyMarketService.markAllNotificationsRead(playerUuid);
         player.sendMessage(ChatColor.GRAY + "All notifications marked as read.");
+    }
+    
+    /**
+     * Handles leaving a company.
+     */
+    private void handleLeave(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 2) {
+            player.sendMessage(ChatColor.RED + "Usage: /company leave <company>");
+            return;
+        }
+        
+        String companyName = args[1];
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        // Try to leave the company
+        try {
+            companyService.removeEmployee(company.getId(), playerUuid);
+            player.sendMessage(ChatColor.GREEN + "You have left " + company.getName());
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(ChatColor.RED + e.getMessage());
+        }
+    }
+    
+    /**
+     * Handles transferring company ownership.
+     */
+    private void handleTransferOwnership(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 3) {
+            player.sendMessage(ChatColor.RED + "Usage: /company transferownership <company> <player>");
+            return;
+        }
+        
+        String companyName = args[1];
+        String targetPlayerName = args[2];
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+        if (targetPlayer == null) {
+            player.sendMessage(ChatColor.RED + "Player not found or not online: " + targetPlayerName);
+            return;
+        }
+        
+        String targetUuid = targetPlayer.getUniqueId().toString();
+        Company company = companyOpt.get();
+        
+        try {
+            companyService.transferOwnership(company.getId(), playerUuid, targetUuid);
+            player.sendMessage(ChatColor.GREEN + "Ownership of " + company.getName() + " transferred to " + targetPlayerName);
+            targetPlayer.sendMessage(ChatColor.GOLD + "You are now the owner of " + ChatColor.WHITE + company.getName() + ChatColor.GOLD + "!");
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(ChatColor.RED + e.getMessage());
+        }
+    }
+    
+    /**
+     * Handles firing an employee.
+     */
+    private void handleFire(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 3) {
+            player.sendMessage(ChatColor.RED + "Usage: /company fire <company> <player>");
+            return;
+        }
+        
+        String companyName = args[1];
+        String targetPlayerName = args[2];
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+        if (targetPlayer == null) {
+            player.sendMessage(ChatColor.RED + "Player not found or not online: " + targetPlayerName);
+            return;
+        }
+        
+        String targetUuid = targetPlayer.getUniqueId().toString();
+        Company company = companyOpt.get();
+        
+        try {
+            companyService.fireEmployee(company.getId(), playerUuid, targetUuid);
+            player.sendMessage(ChatColor.GREEN + "Fired " + targetPlayerName + " from " + company.getName());
+            targetPlayer.sendMessage(ChatColor.RED + "You have been fired from " + company.getName());
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(ChatColor.RED + e.getMessage());
+        }
     }
 }
