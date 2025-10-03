@@ -360,6 +360,67 @@ public class CompanyService {
     }
     
     /**
+     * Adds funds directly to a company balance without wallet interaction.
+     * This is used for external integrations like ChestShop.
+     */
+    public void addDirectToBalance(String companyId, double amount, String reason) throws SQLException {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        
+        // Add to company balance
+        database.execute(
+            "UPDATE companies SET balance = balance + ? WHERE id = ?",
+            amount, companyId
+        );
+        
+        // Record transaction with system UUID
+        String txId = UUID.randomUUID().toString();
+        database.execute(
+            "INSERT INTO company_tx (id, company_id, player_uuid, type, amount, ts) VALUES (?, ?, ?, ?, ?, ?)",
+            txId, companyId, "00000000-0000-0000-0000-000000000000", "DEPOSIT", amount, System.currentTimeMillis()
+        );
+        
+        logger.fine("Added $" + amount + " directly to company " + companyId + " - Reason: " + reason);
+    }
+    
+    /**
+     * Removes funds directly from a company balance without wallet interaction.
+     * This is used for external integrations like ChestShop.
+     */
+    public void removeDirectFromBalance(String companyId, double amount, String reason) throws SQLException {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        
+        // Check company balance
+        Optional<Company> companyOpt = getCompanyById(companyId);
+        if (companyOpt.isEmpty()) {
+            throw new IllegalArgumentException("Company not found");
+        }
+        
+        Company company = companyOpt.get();
+        if (company.getBalance() < amount) {
+            throw new IllegalArgumentException("Insufficient company funds");
+        }
+        
+        // Deduct from company balance
+        database.execute(
+            "UPDATE companies SET balance = balance - ? WHERE id = ?",
+            amount, companyId
+        );
+        
+        // Record transaction with system UUID
+        String txId = UUID.randomUUID().toString();
+        database.execute(
+            "INSERT INTO company_tx (id, company_id, player_uuid, type, amount, ts) VALUES (?, ?, ?, ?, ?, ?)",
+            txId, companyId, "00000000-0000-0000-0000-000000000000", "WITHDRAW", amount, System.currentTimeMillis()
+        );
+        
+        logger.fine("Removed $" + amount + " directly from company " + companyId + " - Reason: " + reason);
+    }
+    
+    /**
      * Checks if a player can withdraw from a company.
      */
     public boolean canPlayerWithdraw(String companyId, String playerUuid) throws SQLException {

@@ -11,6 +11,7 @@ import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookManager;
 import net.cyberneticforge.quickstocks.listeners.ChestShopListener;
+import net.cyberneticforge.quickstocks.listeners.ChestShopTransactionListener;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
@@ -249,12 +250,19 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(portfolioGUIListener, this);
         getServer().getPluginManager().registerEvents(companySettingsGUIListener, this);
         
-        // Register ChestShop integration listener if ChestShop is hooked
+        // Register ChestShop integration listeners if ChestShop is hooked
         if (hookManager.isHooked(net.cyberneticforge.quickstocks.infrastructure.hooks.HookType.ChestShop)) {
             CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
+            net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook chestShopHook = 
+                new net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook(companyService);
+            
             ChestShopListener chestShopListener = new ChestShopListener(this, companyService, companyConfig);
+            ChestShopTransactionListener chestShopTransactionListener = 
+                new ChestShopTransactionListener(this, chestShopHook, companyConfig);
+            
             getServer().getPluginManager().registerEvents(chestShopListener, this);
-            getLogger().info("Registered ChestShop integration listener");
+            getServer().getPluginManager().registerEvents(chestShopTransactionListener, this);
+            getLogger().info("Registered ChestShop integration listeners");
         }
         
         getLogger().info("Registered Market Device, Crafting, and GUI event listeners");
