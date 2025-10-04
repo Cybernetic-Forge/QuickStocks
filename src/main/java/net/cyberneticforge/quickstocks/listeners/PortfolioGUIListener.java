@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.listeners;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.application.queries.QueryService;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
@@ -8,7 +9,8 @@ import net.cyberneticforge.quickstocks.core.services.WalletService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
-import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
+import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,24 +27,6 @@ import java.util.logging.Logger;
 public class PortfolioGUIListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(PortfolioGUIListener.class.getName());
-    
-    private final QueryService queryService;
-    private final TradingService tradingService;
-    private final HoldingsService holdingsService;
-    private final WalletService walletService;
-    private final CompanyService companyService;
-    private final GUIConfigManager guiConfigManager;
-    
-    public PortfolioGUIListener(QueryService queryService, TradingService tradingService,
-                              HoldingsService holdingsService, WalletService walletService,
-                              CompanyService companyService, GUIConfigManager guiConfigManager) {
-        this.queryService = queryService;
-        this.tradingService = tradingService;
-        this.holdingsService = holdingsService;
-        this.walletService = walletService;
-        this.companyService = companyService;
-        this.guiConfigManager = guiConfigManager;
-    }
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -116,14 +100,14 @@ public class PortfolioGUIListener implements Listener {
         String playerUuid = player.getUniqueId().toString();
         
         // Get instrument ID
-        String instrumentId = queryService.getInstrumentIdBySymbol(symbol);
+        String instrumentId = QuickStocksPlugin.getQueryService().getInstrumentIdBySymbol(symbol);
         if (instrumentId == null) {
             player.sendMessage(ChatColor.RED + "Stock not found: " + symbol);
             return;
         }
         
         // Get holding info
-        HoldingsService.Holding holding = holdingsService.getHolding(playerUuid, instrumentId);
+        HoldingsService.Holding holding = QuickStocksPlugin.getHoldingsService().getHolding(playerUuid, instrumentId);
         if (holding == null) {
             player.sendMessage(ChatColor.RED + "You don't own any shares of " + symbol);
             return;
@@ -145,13 +129,13 @@ public class PortfolioGUIListener implements Listener {
         double qty = holding.getQty();
         
         // Execute the trade
-        TradingService.TradeResult result = tradingService.executeSellOrder(playerUuid, instrumentId, qty);
+        TradingService.TradeResult result = QuickStocksPlugin.getTradingService().executeSellOrder(playerUuid, instrumentId, qty);
         
         if (result.isSuccess()) {
             double totalValue = qty * holding.getCurrentPrice();
             player.sendMessage(ChatColor.GREEN + "✓ Sold all " + String.format("%.2f", qty) + " shares of " + symbol);
             player.sendMessage(ChatColor.GREEN + "Received: $" + String.format("%.2f", totalValue));
-            player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid)));
+            player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", QuickStocksPlugin.getWalletService().getBalance(playerUuid)));
             
             // Note: GUI will be refreshed on next view
         } else {
@@ -184,7 +168,7 @@ public class PortfolioGUIListener implements Listener {
      */
     private void openMarketGUI(Player player) {
         try {
-            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService, companyService, guiConfigManager);
+            MarketGUI marketGUI = new MarketGUI(player);
             marketGUI.open();
         } catch (Exception e) {
             logger.warning("Error opening market GUI for " + player.getName() + ": " + e.getMessage());

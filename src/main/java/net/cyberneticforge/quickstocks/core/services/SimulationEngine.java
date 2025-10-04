@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
 import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
 import net.cyberneticforge.quickstocks.core.model.Stock;
@@ -20,35 +21,13 @@ public class SimulationEngine {
     
     private static final Logger logger = Logger.getLogger(SimulationEngine.class.getName());
     private static final int TICK_INTERVAL_SECONDS = 5;
-    
-    private final StockMarketService marketService;
+
     private final Db database;
-    private final InstrumentPersistenceService instrumentService;
-    private final AnalyticsService analyticsService;
     private final ScheduledExecutorService scheduler;
     private volatile boolean running = false;
     
-    public SimulationEngine(StockMarketService marketService, Db database) {
-        this.marketService = Objects.requireNonNull(marketService, "StockMarketService cannot be null");
+    public SimulationEngine(Db database) {
         this.database = Objects.requireNonNull(database, "Database cannot be null");
-        this.instrumentService = new InstrumentPersistenceService(database);
-        // Initialize AnalyticsService with default configuration
-        this.analyticsService = new AnalyticsService(database, 0.94, 1440, 1440, 1440);
-        this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "SimulationEngine-Ticker");
-            t.setDaemon(true);
-            return t;
-        });
-    }
-    
-    /**
-     * Constructor with custom analytics configuration.
-     */
-    public SimulationEngine(StockMarketService marketService, Db database, AnalyticsService analyticsService) {
-        this.marketService = Objects.requireNonNull(marketService, "StockMarketService cannot be null");
-        this.database = Objects.requireNonNull(database, "Database cannot be null");
-        this.instrumentService = new InstrumentPersistenceService(database);
-        this.analyticsService = Objects.requireNonNull(analyticsService, "AnalyticsService cannot be null");
         this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "SimulationEngine-Ticker");
             t.setDaemon(true);
@@ -108,7 +87,7 @@ public class SimulationEngine {
             logger.fine("Executing simulation tick");
             
             // Update market prices (this applies all market factors)
-            marketService.updateAllStockPrices();
+            QuickStocksPlugin.getStockMarketService().updateAllStockPrices();
             
             // Get the affected factors that contributed to this tick
             List<MarketFactor> contributingFactors = getContributingFactors();
@@ -129,7 +108,7 @@ public class SimulationEngine {
      * Determines which market factors contributed significantly to price changes in this tick.
      */
     private List<MarketFactor> getContributingFactors() {
-        return marketService.getMarketInfluences().stream()
+        return QuickStocksPlugin.getStockMarketService().getMarketInfluences().stream()
             .filter(influence -> Math.abs(influence.calculateImpact()) > 0.01) // 1% threshold
             .map(MarketInfluence::getFactor)
             .collect(Collectors.toList());
@@ -152,9 +131,9 @@ public class SimulationEngine {
         try {
             // First, ensure all stocks exist as instruments (do this outside the main transaction)
             Map<Stock, String> stockToInstrumentMap = new HashMap<>();
-            for (Stock stock : marketService.getAllStocks()) {
+            for (Stock stock : QuickStocksPlugin.getStockMarketService().getAllStocks()) {
                 try {
-                    String instrumentId = instrumentService.ensureInstrument(stock).getId();
+                    String instrumentId = QuickStocksPlugin.getInstrumentPersistenceService().ensureInstrument(stock).getId();
                     stockToInstrumentMap.put(stock, instrumentId);
                 } catch (Exception e) {
                     logger.severe("Failed to ensure instrument for " + stock.getSymbol() + ": " + e.getMessage());
@@ -166,7 +145,7 @@ public class SimulationEngine {
             database.executeTransaction(db -> {
                 long currentTime = System.currentTimeMillis();
                 
-                for (Stock stock : marketService.getAllStocks()) {
+                for (Stock stock : QuickStocksPlugin.getStockMarketService().getAllStocks()) {
                     try {
                         String instrumentId = stockToInstrumentMap.get(stock);
                         if (instrumentId == null) {
@@ -179,9 +158,9 @@ public class SimulationEngine {
                         double volatility24h = 0.0;
                         
                         try {
-                            change1h = analyticsService.getChangePct(instrumentId, 60);
-                            change24h = analyticsService.getChangePct(instrumentId, 1440);
-                            volatility24h = analyticsService.getVolatilityEWMA(instrumentId, 1440);
+                            // change1h = analyticsService.getChangePct(instrumentId, 60);
+                            // change24h = analyticsService.getChangePct(instrumentId, 1440);
+                            // volatility24h = analyticsService.getVolatilityEWMA(instrumentId, 1440);
                         } catch (Exception e) {
                             logger.warning("Failed to calculate rolling window metrics for " + stock.getSymbol() + ": " + e.getMessage());
                             // Continue with zero values
@@ -200,7 +179,7 @@ public class SimulationEngine {
                 }
             });
             
-            logger.fine("Persisted market state for " + marketService.getAllStocks().size() + " instruments");
+            logger.fine("Persisted market state for " + QuickStocksPlugin.getStockMarketService().getAllStocks().size() + " instruments");
             
         } catch (Exception e) {
             logger.severe("Failed to persist market state: " + e.getMessage());
@@ -300,7 +279,7 @@ public class SimulationEngine {
                 return 0.0;
             }
             
-            Optional<Stock> stock = marketService.getStock(symbol);
+            Optional<Stock> stock = QuickStocksPlugin.getStockMarketService().getStock(symbol);
             if (stock.isEmpty()) {
                 return 0.0;
             }
@@ -363,11 +342,7 @@ public class SimulationEngine {
             return 0.0;
         }
     }
-    
-    public boolean isRunning() {
-        return running;
-    }
-    
+
     /**
      * Manually execute a single tick (for testing).
      */
@@ -379,7 +354,7 @@ public class SimulationEngine {
      * Helper method to get symbol from instrument ID.
      */
     private String getSymbolForInstrumentId(String instrumentId) {
-        return instrumentService.getAllInstruments().entrySet().stream()
+        return QuickStocksPlugin.getInstrumentPersistenceService().getAllInstruments().entrySet().stream()
             .filter(entry -> entry.getValue().getId().equals(instrumentId))
             .map(Map.Entry::getKey)
             .findFirst()
@@ -392,49 +367,49 @@ public class SimulationEngine {
      * Gets price change percentage over the default time window.
      */
     public double getChangePct(String instrumentId) {
-        return analyticsService.getChangePct(instrumentId, analyticsService.getDefaultChangeWindow());
+        return 0.0; //analyticsService.getChangePct(instrumentId, analyticsService.getDefaultChangeWindow());
     }
     
     /**
      * Gets price change percentage over a given time window.
      */
     public double getChangePct(String instrumentId, int windowMinutes) {
-        return analyticsService.getChangePct(instrumentId, windowMinutes);
+        return 0.0; //analyticsService.getChangePct(instrumentId, windowMinutes);
     }
     
     /**
      * Gets EWMA volatility using default parameters.
      */
     public double getVolatilityEWMA(String instrumentId) {
-        return analyticsService.getVolatilityEWMA(instrumentId, analyticsService.getDefaultVolatilityWindow());
+        return 0.0; //analyticsService.getVolatilityEWMA(instrumentId, analyticsService.getDefaultVolatilityWindow());
     }
     
     /**
      * Gets EWMA volatility over a given time window.
      */
     public double getVolatilityEWMA(String instrumentId, int windowMinutes) {
-        return analyticsService.getVolatilityEWMA(instrumentId, windowMinutes);
+        return 0.0; //analyticsService.getVolatilityEWMA(instrumentId, windowMinutes);
     }
     
     /**
      * Gets EWMA volatility with custom lambda.
      */
     public double getVolatilityEWMA(String instrumentId, int windowMinutes, double lambda) {
-        return analyticsService.getVolatilityEWMA(instrumentId, windowMinutes, lambda);
+        return 0.0; //analyticsService.getVolatilityEWMA(instrumentId, windowMinutes, lambda);
     }
     
     /**
      * Gets correlation between two instruments.
      */
     public double getCorrelation(String instrumentA, String instrumentB, int windowMinutes) {
-        return analyticsService.getCorrelation(instrumentA, instrumentB, windowMinutes);
+        return 0.0; //analyticsService.getCorrelation(instrumentA, instrumentB, windowMinutes);
     }
     
     /**
      * Gets Sharpe ratio for a player's portfolio.
      */
     public double getSharpe(String playerUuid, int windowDays, double riskFree) {
-        return analyticsService.getSharpe(playerUuid, windowDays, riskFree);
+        return 0.0; //analyticsService.getSharpe(playerUuid, windowDays, riskFree);
     }
     
     /**
@@ -448,7 +423,7 @@ public class SimulationEngine {
      * Get the analytics service for direct access.
      */
     public AnalyticsService getAnalyticsService() {
-        return analyticsService;
+        return null; //analyticsService;
     }
     
     /**
@@ -481,8 +456,8 @@ public class SimulationEngine {
      */
     private void resetTradingActivity() {
         try {
-            if (marketService.getThresholdController() != null) {
-                marketService.getThresholdController().resetTradingActivity();
+            if (QuickStocksPlugin.getStockMarketService().getThresholdController() != null) {
+                QuickStocksPlugin.getStockMarketService().getThresholdController().resetTradingActivity();
                 logger.fine("Reset trading activity counters");
             }
         } catch (Exception e) {

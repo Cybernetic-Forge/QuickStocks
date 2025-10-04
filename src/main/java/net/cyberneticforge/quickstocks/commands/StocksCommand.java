@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.commands;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.application.queries.QueryService;
 import net.cyberneticforge.quickstocks.core.services.AuditService;
 import net.kyori.adventure.text.Component;
@@ -27,16 +28,9 @@ import java.util.Optional;
  * Supports both top 10 gainers display and individual stock lookup with analytics.
  */
 public class StocksCommand implements CommandExecutor, TabCompleter {
-    
-    private final QueryService queryService;
-    private final AuditService auditService;
+
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-    
-    public StocksCommand(QueryService queryService, AuditService auditService) {
-        this.queryService = queryService;
-        this.auditService = auditService;
-    }
-    
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 0) {
@@ -59,7 +53,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
      */
     private void showTopGainers(CommandSender sender) {
         try {
-            List<Map<String, Object>> gainers = queryService.getTopGainersByChange24h(10);
+            List<Map<String, Object>> gainers = QuickStocksPlugin.getQueryService().getTopGainersByChange24h(10);
             
             if (gainers.isEmpty()) {
                 sender.sendMessage(Component.text("📊 No stocks found in the market.", NamedTextColor.YELLOW));
@@ -137,10 +131,10 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
     private void showStockCard(CommandSender sender, String query) {
         try {
             // Try to resolve query: first by symbol, then by mc_material
-            Optional<Map<String, Object>> stockOpt = queryService.findBySymbol(query);
+            Optional<Map<String, Object>> stockOpt = QuickStocksPlugin.getQueryService().findBySymbol(query);
             
             if (stockOpt.isEmpty()) {
-                stockOpt = queryService.findByMcMaterial(query);
+                stockOpt = QuickStocksPlugin.getQueryService().findByMcMaterial(query);
             }
             
             if (stockOpt.isEmpty()) {
@@ -233,7 +227,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
      * Displays recent price history with mini sparkline.
      */
     private void displayPriceHistory(CommandSender sender, String instrumentId) throws SQLException {
-        List<Map<String, Object>> history = queryService.getRecentPriceHistory(instrumentId, 10);
+        List<Map<String, Object>> history = QuickStocksPlugin.getQueryService().getRecentPriceHistory(instrumentId, 10);
         
         if (history.isEmpty()) {
             return;
@@ -322,7 +316,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(Component.text("🔍 Starting portfolio integrity audit" + (repair ? " with auto-repair..." : "..."), NamedTextColor.YELLOW));
         
         try {
-            AuditService.AuditResult result = auditService.auditAllHoldings(repair);
+            AuditService.AuditResult result = QuickStocksPlugin.getAuditService().auditAllHoldings(repair);
             
             // Display results
             sender.sendMessage(Component.text("━".repeat(50), NamedTextColor.GRAY));
@@ -409,7 +403,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("📈 Analytics & Insights", NamedTextColor.GOLD, TextDecoration.BOLD));
             
             // Get extended price history for mini chart
-            List<Map<String, Object>> extendedHistory = queryService.getRecentPriceHistory(instrumentId, 20);
+            List<Map<String, Object>> extendedHistory = QuickStocksPlugin.getQueryService().getRecentPriceHistory(instrumentId, 20);
             
             if (!extendedHistory.isEmpty()) {
                 // Display mini price chart
@@ -515,7 +509,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
             
             try {
                 // Add stock symbols and materials
-                List<String> stockSuggestions = queryService.getMatchingSymbolsAndMaterials(args[0]);
+                List<String> stockSuggestions = QuickStocksPlugin.getQueryService().getMatchingSymbolsAndMaterials(args[0]);
                 suggestions.addAll(stockSuggestions);
                 
                 // Limit to 20 suggestions to avoid spam

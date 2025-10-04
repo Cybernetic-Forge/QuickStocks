@@ -1,16 +1,12 @@
 package net.cyberneticforge.quickstocks.listeners;
 
-import net.cyberneticforge.quickstocks.application.queries.QueryService;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
-import net.cyberneticforge.quickstocks.core.services.CompanyMarketService;
-import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
-import net.cyberneticforge.quickstocks.core.services.TradingService;
-import net.cyberneticforge.quickstocks.core.services.WalletService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
-import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,27 +25,6 @@ import java.util.logging.Logger;
 public class MarketGUIListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(MarketGUIListener.class.getName());
-    
-    private final QueryService queryService;
-    private final TradingService tradingService;
-    private final HoldingsService holdingsService;
-    private final WalletService walletService;
-    private final CompanyService companyService;
-    private final CompanyMarketService companyMarketService;
-    private final GUIConfigManager guiConfigManager;
-    
-    public MarketGUIListener(QueryService queryService, TradingService tradingService,
-                           HoldingsService holdingsService, WalletService walletService,
-                           CompanyService companyService, CompanyMarketService companyMarketService,
-                           GUIConfigManager guiConfigManager) {
-        this.queryService = queryService;
-        this.tradingService = tradingService;
-        this.holdingsService = holdingsService;
-        this.walletService = walletService;
-        this.companyService = companyService;
-        this.companyMarketService = companyMarketService;
-        this.guiConfigManager = guiConfigManager;
-    }
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -99,7 +74,7 @@ public class MarketGUIListener implements Listener {
         
         if (slot == 8 && item.getType() == Material.GOLD_INGOT) {
             // Wallet button - show balance info
-            double balance = walletService.getBalance(playerUuid);
+            double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
             player.sendMessage(ChatUT.hexComp("&gold" + "Your wallet balance: " + ChatColor.GREEN + "$" + String.format("%.2f", balance)));
             return;
         }
@@ -139,7 +114,7 @@ public class MarketGUIListener implements Listener {
         String playerUuid = player.getUniqueId().toString();
         
         // Find company by symbol
-        Optional<Company> companyOpt = companyService.getCompanyByNameOrSymbol(symbol);
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByNameOrSymbol(symbol);
         if (companyOpt.isEmpty()) {
             player.sendMessage(ChatUT.hexComp("&red" + "Company not found: " + symbol));
             return;
@@ -153,7 +128,7 @@ public class MarketGUIListener implements Listener {
         }
         
         // Get current share price
-        double sharePrice = companyMarketService.calculateSharePrice(company);
+        double sharePrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(company);
         
         switch (clickType) {
             case LEFT:
@@ -187,7 +162,7 @@ public class MarketGUIListener implements Listener {
      */
     private void handleQuickBuy(Player player, String playerUuid, Company company, double price) {
         try {
-            double balance = walletService.getBalance(playerUuid);
+            double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
             
             if (balance < price) {
                 player.sendMessage(ChatUT.hexComp("&red" + "Insufficient funds! Need $" + String.format("%.2f", price - balance) + " more."));
@@ -196,10 +171,10 @@ public class MarketGUIListener implements Listener {
             }
             
             // Execute the purchase
-            companyMarketService.buyShares(company.getId(), playerUuid, 1.0);
+            QuickStocksPlugin.getCompanyMarketService().buyShares(company.getId(), playerUuid, 1.0);
             
             player.sendMessage(ChatUT.hexComp("&green" + "✓ Bought 1 share of " + company.getName() + " for $" + String.format("%.2f", price)));
-            player.sendMessage(ChatUT.hexComp("&gray" + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid))));
+            player.sendMessage(ChatUT.hexComp("&gray" + "New balance: $" + String.format("%.2f", QuickStocksPlugin.getWalletService().getBalance(playerUuid))));
             playSuccessSound(player);
             
         } catch (Exception e) {
@@ -215,7 +190,7 @@ public class MarketGUIListener implements Listener {
     private void handleQuickSell(Player player, String playerUuid, Company company, double price) {
         try {
             // Check if player has shares
-            double playerShares = companyMarketService.getPlayerSharesFromHoldings(company.getId(), playerUuid);
+            double playerShares = QuickStocksPlugin.getCompanyMarketService().getPlayerSharesFromHoldings(company.getId(), playerUuid);
             if (playerShares < 1.0) {
                 player.sendMessage(ChatUT.hexComp("&red" + "You don't have any shares of " + company.getName() + "!"));
                 playErrorSound(player);
@@ -223,10 +198,10 @@ public class MarketGUIListener implements Listener {
             }
             
             // Execute the sale
-            companyMarketService.sellShares(company.getId(), playerUuid, 1.0);
+            QuickStocksPlugin.getCompanyMarketService().sellShares(company.getId(), playerUuid, 1.0);
             
             player.sendMessage(ChatUT.hexComp("&green" + "✓ Sold 1 share of " + company.getName() + " for $" + String.format("%.2f", price)));
-            player.sendMessage(ChatUT.hexComp("&gray" + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid))));
+            player.sendMessage(ChatUT.hexComp("&gray" + "New balance: $" + String.format("%.2f", QuickStocksPlugin.getWalletService().getBalance(playerUuid))));
             playSuccessSound(player);
             
         } catch (Exception e) {
@@ -271,7 +246,7 @@ public class MarketGUIListener implements Listener {
      */
     private void openPortfolioGUI(Player player) {
         try {
-            PortfolioGUI portfolioGUI = new PortfolioGUI(player, queryService, holdingsService, walletService, guiConfigManager);
+            PortfolioGUI portfolioGUI = new PortfolioGUI(player);
             portfolioGUI.open();
         } catch (Exception e) {
             logger.warning("Error opening portfolio GUI for " + player.getName() + ": " + e.getMessage());
@@ -290,9 +265,9 @@ public class MarketGUIListener implements Listener {
      */
     private void showPortfolioInChat(Player player) throws Exception {
         String playerUuid = player.getUniqueId().toString();
-        List<HoldingsService.Holding> holdings = holdingsService.getHoldings(playerUuid);
-        double portfolioValue = holdingsService.getPortfolioValue(playerUuid);
-        double walletBalance = walletService.getBalance(playerUuid);
+        List<HoldingsService.Holding> holdings = QuickStocksPlugin.getHoldingsService().getHoldings(playerUuid);
+        double portfolioValue = QuickStocksPlugin.getHoldingsService().getPortfolioValue(playerUuid);
+        double walletBalance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
         
         player.sendMessage(ChatUT.hexComp("&gold" + "=== " + ChatColor.WHITE + "Your Portfolio" + ChatColor.GOLD + " ==="));
         player.sendMessage(ChatUT.hexComp("&yellow" + "Cash Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance)));

@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.commands;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.services.WalletService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -19,12 +20,6 @@ import java.util.stream.Collectors;
 public class WalletCommand implements CommandExecutor, TabCompleter {
     
     private static final Logger logger = Logger.getLogger(WalletCommand.class.getName());
-    
-    private final WalletService walletService;
-    
-    public WalletCommand(WalletService walletService) {
-        this.walletService = walletService;
-    }
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -68,9 +63,9 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
                             player.sendMessage(ChatColor.RED + "Amount must be positive.");
                             return true;
                         }
-                        
-                        walletService.addBalance(playerUuid, amount);
-                        double newBalance = walletService.getBalance(playerUuid);
+
+                        QuickStocksPlugin.getWalletService().addBalance(playerUuid, amount);
+                        double newBalance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
                         
                         player.sendMessage(ChatColor.GREEN + "Added $" + String.format("%.2f", amount) + 
                                          " to your wallet. New balance: $" + String.format("%.2f", newBalance));
@@ -97,8 +92,8 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
                             player.sendMessage(ChatColor.RED + "Amount cannot be negative.");
                             return true;
                         }
-                        
-                        walletService.setBalance(playerUuid, amount);
+
+                        QuickStocksPlugin.getWalletService().setBalance(playerUuid, amount);
                         
                         player.sendMessage(ChatColor.GREEN + "Set wallet balance to $" + String.format("%.2f", amount));
                         
@@ -121,7 +116,7 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
     }
     
     private void showBalance(Player player, String playerUuid) throws Exception {
-        double balance = walletService.getBalance(playerUuid);
+        double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
         
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Wallet Balance" + ChatColor.GOLD + " ===");
         player.sendMessage(ChatColor.YELLOW + "Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", balance));

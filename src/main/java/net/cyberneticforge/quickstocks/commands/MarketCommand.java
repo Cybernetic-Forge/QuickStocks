@@ -1,11 +1,12 @@
 package net.cyberneticforge.quickstocks.commands;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.application.queries.QueryService;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.services.*;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
-import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
+import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,29 +28,9 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     
     private static final Logger logger = Logger.getLogger(MarketCommand.class.getName());
     
-    private final QueryService queryService;
-    private final TradingService tradingService;
-    private final HoldingsService holdingsService;
-    private final WalletService walletService;
-    private final WatchlistService watchlistService;
-    private final CompanyService companyService;
-    private final CompanyMarketService companyMarketService;
-    private final GUIConfigManager guiConfigManager;
     private final Db database;
     
-    public MarketCommand(QueryService queryService, TradingService tradingService,
-                         HoldingsService holdingsService, WalletService walletService,
-                         WatchlistService watchlistService, CompanyService companyService,
-                         CompanyMarketService companyMarketService, GUIConfigManager guiConfigManager,
-                         Db database) {
-        this.queryService = queryService;
-        this.tradingService = tradingService;
-        this.holdingsService = holdingsService;
-        this.walletService = walletService;
-        this.watchlistService = watchlistService;
-        this.companyService = companyService;
-        this.companyMarketService = companyMarketService;
-        this.guiConfigManager = guiConfigManager;
+    public MarketCommand(Db database) {
         this.database = database;
     }
     
@@ -134,7 +115,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     private void showMarketOverview(Player player) throws Exception {
         // Open the Market GUI instead of showing chat messages
         try {
-            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService, companyService, guiConfigManager);
+            MarketGUI marketGUI = new MarketGUI(player);
             marketGUI.open();
         } catch (Exception e) {
             logger.warning("Failed to open Market GUI for " + player.getName() + ": " + e.getMessage());
@@ -147,7 +128,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
      * Fallback method to show market overview in chat (when GUI fails)
      */
     private void showMarketOverviewInChat(Player player) throws Exception {
-        List<Company> companiesOnMarket = companyService.getCompaniesOnMarket();
+        List<Company> companiesOnMarket = QuickStocksPlugin.getCompanyService().getCompaniesOnMarket();
         
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Market Overview" + ChatColor.GOLD + " ===");
         player.sendMessage(ChatColor.YELLOW + "Companies on Market:");
@@ -162,7 +143,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             String symbol = company.getSymbol();
             String displayName = company.getName();
             double balance = company.getBalance();
-            double sharePrice = companyMarketService.calculateSharePrice(company);
+            double sharePrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(company);
             
             player.sendMessage(String.format(ChatColor.GRAY + "%d. " + ChatColor.GREEN + "%s " + 
                 ChatColor.GRAY + "(%s) " + ChatColor.YELLOW + "Price: $%.2f " + ChatColor.GRAY + "Balance: $%.2f",
@@ -190,7 +171,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             playerUuid
         );
         
-        double walletBalance = walletService.getBalance(playerUuid);
+        double walletBalance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
         
         // Calculate total portfolio value
         double portfolioValue = 0.0;
@@ -200,9 +181,9 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             
             if (companyId != null) {
                 // Get company to calculate current share price
-                Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+                Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(companyId);
                 if (companyOpt.isPresent()) {
-                    double currentPrice = companyMarketService.calculateSharePrice(companyOpt.get());
+                    double currentPrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(companyOpt.get());
                     portfolioValue += shares * currentPrice;
                 }
             }
@@ -227,10 +208,10 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             double avgCost = ((Number) share.get("avg_cost")).doubleValue();
             
             // Get company to calculate current share price
-            Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+            Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(companyId);
             if (companyOpt.isEmpty()) continue;
             
-            double currentPrice = companyMarketService.calculateSharePrice(companyOpt.get());
+            double currentPrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(companyOpt.get());
             double unrealizedPnL = (currentPrice - avgCost) * shares;
             double unrealizedPnLPercent = ((currentPrice - avgCost) / avgCost) * 100;
             
@@ -285,7 +266,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     }
     
     private void showWatchlistSummary(Player player, String playerUuid) throws Exception {
-        List<WatchlistService.WatchlistItem> watchlist = watchlistService.getWatchlist(playerUuid);
+        List<WatchlistService.WatchlistItem> watchlist = QuickStocksPlugin.getWatchlistService().getWatchlist(playerUuid);
         
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Watchlist Summary" + ChatColor.GOLD + " ===");
         
@@ -324,7 +305,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             }
             
             // Try to find company by name or symbol
-            Optional<Company> companyOpt = companyService.getCompanyByNameOrSymbol(companyNameOrSymbol);
+            Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByNameOrSymbol(companyNameOrSymbol);
             if (companyOpt.isEmpty()) {
                 player.sendMessage(ChatColor.RED + "Company not found: " + companyNameOrSymbol);
                 return;
@@ -338,11 +319,11 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                 return;
             }
             
-            double sharePrice = companyMarketService.calculateSharePrice(company);
+            double sharePrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(company);
             double totalCost = quantity * sharePrice;
             
             // Execute purchase
-            companyMarketService.buyShares(company.getId(), playerUuid, quantity);
+            QuickStocksPlugin.getCompanyMarketService().buyShares(company.getId(), playerUuid, quantity);
             
             player.sendMessage(ChatColor.GREEN + "Successfully purchased " + String.format("%.2f", quantity) + " shares!");
             player.sendMessage(ChatColor.YELLOW + "Company: " + ChatColor.WHITE + company.getName() + 
@@ -369,7 +350,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             }
             
             // Try to find company by name or symbol
-            Optional<Company> companyOpt = companyService.getCompanyByNameOrSymbol(companyNameOrSymbol);
+            Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByNameOrSymbol(companyNameOrSymbol);
             if (companyOpt.isEmpty()) {
                 player.sendMessage(ChatColor.RED + "Company not found: " + companyNameOrSymbol);
                 return;
@@ -383,11 +364,11 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                 return;
             }
             
-            double sharePrice = companyMarketService.calculateSharePrice(company);
+            double sharePrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(company);
             double totalValue = quantity * sharePrice;
             
             // Execute sale
-            companyMarketService.sellShares(company.getId(), playerUuid, quantity);
+            QuickStocksPlugin.getCompanyMarketService().sellShares(company.getId(), playerUuid, quantity);
             
             player.sendMessage(ChatColor.GREEN + "Successfully sold " + String.format("%.2f", quantity) + " shares!");
             player.sendMessage(ChatColor.YELLOW + "Company: " + ChatColor.WHITE + company.getName() + 
@@ -407,7 +388,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
      */
     private void handleShareholders(Player player, String companyNameOrSymbol) throws Exception {
         // Try to find company by name or symbol
-        Optional<Company> companyOpt = companyService.getCompanyByNameOrSymbol(companyNameOrSymbol);
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByNameOrSymbol(companyNameOrSymbol);
         if (companyOpt.isEmpty()) {
             player.sendMessage(ChatColor.RED + "Company not found: " + companyNameOrSymbol);
             return;
@@ -421,7 +402,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         }
         
         // Get shareholders
-        List<Map<String, Object>> shareholders = companyMarketService.getShareholders(company.getId());
+        List<Map<String, Object>> shareholders = QuickStocksPlugin.getCompanyMarketService().getShareholders(company.getId());
         
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + company.getName() + " Shareholders" + ChatColor.GOLD + " ===");
         player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + company.getSymbol());
@@ -431,7 +412,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             return;
         }
         
-        double totalShares = companyMarketService.getIssuedSharesFromHoldings(company.getId());
+        double totalShares = QuickStocksPlugin.getCompanyMarketService().getIssuedSharesFromHoldings(company.getId());
         
         player.sendMessage(ChatColor.YELLOW + "Total Issued Shares: " + ChatColor.WHITE + String.format("%.2f", totalShares));
         player.sendMessage(ChatColor.YELLOW + "\nShareholders:");
@@ -463,7 +444,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                                   args[0].equalsIgnoreCase("shareholders"))) {
             // Show company symbols for trading commands
             try {
-                List<Company> companies = companyService.getCompaniesOnMarket();
+                List<Company> companies = QuickStocksPlugin.getCompanyService().getCompaniesOnMarket();
                 return companies.stream()
                     .map(c -> c.getSymbol() != null ? c.getSymbol() : c.getName())
                     .filter(symbol -> symbol.toLowerCase().startsWith(args[1].toLowerCase()))

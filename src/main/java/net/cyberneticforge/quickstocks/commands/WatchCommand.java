@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.commands;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.application.queries.QueryService;
 import net.cyberneticforge.quickstocks.core.services.WatchlistService;
 import org.bukkit.ChatColor;
@@ -22,14 +23,6 @@ import java.util.stream.Collectors;
 public class WatchCommand implements CommandExecutor, TabCompleter {
     
     private static final Logger logger = Logger.getLogger(WatchCommand.class.getName());
-    
-    private final WatchlistService watchlistService;
-    private final QueryService queryService;
-    
-    public WatchCommand(WatchlistService watchlistService, QueryService queryService) {
-        this.watchlistService = watchlistService;
-        this.queryService = queryService;
-    }
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -103,16 +96,16 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
     
     private void handleAddToWatchlist(Player player, String playerUuid, String symbol) throws Exception {
         // Get instrument ID from symbol
-        String instrumentId = queryService.getInstrumentIdBySymbol(symbol.toUpperCase());
+        String instrumentId = QuickStocksPlugin.getQueryService().getInstrumentIdBySymbol(symbol.toUpperCase());
         if (instrumentId == null) {
             player.sendMessage(ChatColor.RED + "Instrument not found: " + symbol);
             return;
         }
         
-        boolean added = watchlistService.addToWatchlist(playerUuid, instrumentId);
+        boolean added = QuickStocksPlugin.getWatchlistService().addToWatchlist(playerUuid, instrumentId);
         if (added) {
             // Get instrument display name for confirmation
-            String displayName = queryService.getInstrumentDisplayName(instrumentId);
+            String displayName = QuickStocksPlugin.getQueryService().getInstrumentDisplayName(instrumentId);
             player.sendMessage(ChatColor.GREEN + "✓ Added " + ChatColor.WHITE + symbol.toUpperCase() + 
                               ChatColor.GRAY + " (" + displayName + ")" + ChatColor.GREEN + " to your watchlist.");
         } else {
@@ -122,13 +115,13 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
     
     private void handleRemoveFromWatchlist(Player player, String playerUuid, String symbol) throws Exception {
         // Get instrument ID from symbol
-        String instrumentId = queryService.getInstrumentIdBySymbol(symbol.toUpperCase());
+        String instrumentId = QuickStocksPlugin.getQueryService().getInstrumentIdBySymbol(symbol.toUpperCase());
         if (instrumentId == null) {
             player.sendMessage(ChatColor.RED + "Instrument not found: " + symbol);
             return;
         }
         
-        boolean removed = watchlistService.removeFromWatchlist(playerUuid, instrumentId);
+        boolean removed = QuickStocksPlugin.getWatchlistService().removeFromWatchlist(playerUuid, instrumentId);
         if (removed) {
             player.sendMessage(ChatColor.GREEN + "✓ Removed " + ChatColor.WHITE + symbol.toUpperCase() + 
                               ChatColor.GREEN + " from your watchlist.");
@@ -138,7 +131,7 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
     }
     
     private void showWatchlist(Player player, String playerUuid) throws Exception {
-        List<WatchlistService.WatchlistItem> watchlist = watchlistService.getWatchlist(playerUuid);
+        List<WatchlistService.WatchlistItem> watchlist = QuickStocksPlugin.getWatchlistService().getWatchlist(playerUuid);
         
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Your Watchlist" + ChatColor.GOLD + " ===");
         
@@ -178,14 +171,14 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
     
     private void showWatchlistItemDetails(Player player, String playerUuid, String symbol) throws Exception {
         // Get instrument ID from symbol
-        String instrumentId = queryService.getInstrumentIdBySymbol(symbol.toUpperCase());
+        String instrumentId = QuickStocksPlugin.getQueryService().getInstrumentIdBySymbol(symbol.toUpperCase());
         if (instrumentId == null) {
             player.sendMessage(ChatColor.RED + "Instrument not found: " + symbol);
             return;
         }
         
         // Check if it's in watchlist
-        if (!watchlistService.isInWatchlist(playerUuid, instrumentId)) {
+        if (!QuickStocksPlugin.getWatchlistService().isInWatchlist(playerUuid, instrumentId)) {
             player.sendMessage(ChatColor.YELLOW + "⚠ " + symbol.toUpperCase() + " is not in your watchlist.");
             player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/watch add " + symbol.toLowerCase() + 
                               ChatColor.GRAY + " to add it to your watchlist.");
@@ -193,7 +186,7 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
         }
         
         // Get detailed information
-        List<WatchlistService.WatchlistItem> watchlist = watchlistService.getWatchlist(playerUuid);
+        List<WatchlistService.WatchlistItem> watchlist = QuickStocksPlugin.getWatchlistService().getWatchlist(playerUuid);
         WatchlistService.WatchlistItem item = watchlist.stream()
             .filter(i -> i.getSymbol().equalsIgnoreCase(symbol))
             .findFirst()
@@ -227,13 +220,13 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
     }
     
     private void handleClearWatchlist(Player player, String playerUuid) throws Exception {
-        int count = watchlistService.getWatchlistCount(playerUuid);
+        int count = QuickStocksPlugin.getWatchlistService().getWatchlistCount(playerUuid);
         if (count == 0) {
             player.sendMessage(ChatColor.GRAY + "Your watchlist is already empty.");
             return;
         }
         
-        int removed = watchlistService.clearWatchlist(playerUuid);
+        int removed = QuickStocksPlugin.getWatchlistService().clearWatchlist(playerUuid);
         player.sendMessage(ChatColor.GREEN + "✓ Cleared your watchlist (" + removed + " items removed).");
     }
     
@@ -249,7 +242,7 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("info"))) {
             // For add/remove/info commands, suggest instrument symbols
             try {
-                return queryService.getInstrumentSymbols()
+                return QuickStocksPlugin.getQueryService().getInstrumentSymbols()
                         .stream()
                         .filter(symbol -> symbol.toLowerCase().startsWith(args[1].toLowerCase()))
                         .limit(20)

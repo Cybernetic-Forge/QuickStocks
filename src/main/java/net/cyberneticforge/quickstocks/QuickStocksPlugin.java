@@ -19,8 +19,7 @@ import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
 import net.cyberneticforge.quickstocks.listeners.PortfolioGUIListener;
-import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
-import net.cyberneticforge.quickstocks.utils.RecipeManager;
+import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import net.cyberneticforge.quickstocks.utils.TranslationManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,25 +30,42 @@ public final class QuickStocksPlugin extends JavaPlugin {
 
     @Getter
     private static JavaPlugin instance;
-
-    private StockMarketService stockMarketService;
-    private SimulationEngine simulationEngine;
-    private DatabaseManager databaseManager;
-    private QueryService queryService;
-    private CryptoService cryptoService;
-    private TranslationManager translationManager;
-    private RecipeManager recipeManager;
-    private GUIConfigManager guiConfigManager;
-    private WalletService walletService;
-    private HoldingsService holdingsService;
-    private TradingService tradingService;
-    private WatchlistService watchlistService;
-    private AuditService auditService;
-    private CompanyService companyService;
-    private InvitationService invitationService;
-    private CompanyMarketService companyMarketService;
-    private BukkitRunnable marketUpdateTask;
-    
+    @Getter
+    private static StockMarketService stockMarketService;
+    @Getter
+    private static SimulationEngine simulationEngine;
+    @Getter
+    private static DatabaseManager databaseManager;
+    @Getter
+    private static QueryService queryService;
+    @Getter
+    private static CryptoService cryptoService;
+    @Getter
+    private static TranslationManager translationManager;
+    @Getter
+    private static GuiConfig guiConfig;
+    @Getter
+    private static WalletService walletService;
+    @Getter
+    private static HoldingsService holdingsService;
+    @Getter
+    private static TradingService tradingService;
+    @Getter
+    private static WatchlistService watchlistService;
+    @Getter
+    private static AuditService auditService;
+    @Getter
+    private static CompanyService companyService;
+    @Getter
+    private static InvitationService invitationService;
+    @Getter
+    private static CompanyMarketService companyMarketService;
+    @Getter
+    private static BukkitRunnable marketUpdateTask;
+    @Getter
+    private static InstrumentPersistenceService instrumentPersistenceService;
+    @Getter
+    private static AnalyticsService analyticsService;
     @Getter
     private static HookManager hookManager;
 
@@ -68,7 +84,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             translationManager = new TranslationManager(this);
             
             // Initialize GUI configuration manager
-            guiConfigManager = new GUIConfigManager(this);
+            guiConfig = new GuiConfig();
             
             // Load configuration for threshold controller
             DatabaseConfig config = ConfigLoader.loadDatabaseConfig();
@@ -78,7 +94,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             stockMarketService = new StockMarketService(thresholdController);
             
             // Initialize simulation engine
-            simulationEngine = new SimulationEngine(stockMarketService, databaseManager.getDb());
+            simulationEngine = new SimulationEngine(databaseManager.getDb());
             
             // Initialize query service
             queryService = new QueryService(databaseManager.getDb());
@@ -93,22 +109,22 @@ public final class QuickStocksPlugin extends JavaPlugin {
             holdingsService = new HoldingsService(databaseManager.getDb());
             
             // Initialize trading service
-            tradingService = new TradingService(databaseManager.getDb(), walletService, holdingsService);
+            tradingService = new TradingService(databaseManager.getDb());
             
             // Initialize watchlist service
             watchlistService = new WatchlistService(databaseManager);
 
             // Initialize audit service
-            auditService = new AuditService(databaseManager.getDb(), holdingsService);
+            auditService = new AuditService(databaseManager.getDb());
+
+            // Initialize instrument persistence service
+            instrumentPersistenceService = new InstrumentPersistenceService(databaseManager.getDb());
 
             // Initialize company services
             CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
-            companyService = new CompanyService(databaseManager.getDb(), walletService, companyConfig);
-            invitationService = new InvitationService(databaseManager.getDb(), companyService);
-            companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyService, walletService, companyConfig);
-            
-            // Wire up trading services for company market operations
-            companyMarketService.setTradingServices(tradingService, holdingsService);
+            companyService = new CompanyService(databaseManager.getDb(), companyConfig);
+            invitationService = new InvitationService(databaseManager.getDb());
+            companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyConfig);
 
             // Connect trading service to market service for threshold tracking
             tradingService.setStockMarketService(stockMarketService);
@@ -121,13 +137,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Initialize recipe manager
             MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
-            recipeManager = new RecipeManager(this, marketDeviceCommand, translationManager);
             
             // Register listeners
             registerListeners();
-            
-            // Register recipes
-            registerRecipes();
             
             // Start the simulation engine
             simulationEngine.start();
@@ -158,11 +170,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Close the market
         if (stockMarketService != null) {
             stockMarketService.setMarketOpen(false);
-        }
-        
-        // Remove recipes
-        if (recipeManager != null) {
-            recipeManager.removeRecipes();
         }
         
         // Shutdown database
@@ -202,43 +209,34 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Registers commands with the server.
      */
     private void registerCommands() {
-        StocksCommand stocksCommand = new StocksCommand(queryService, auditService);
+        StocksCommand stocksCommand = new StocksCommand();
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
-        WalletCommand walletCommand = new WalletCommand(walletService);
-        MarketCommand marketCommand = new MarketCommand(queryService, tradingService, holdingsService, walletService, watchlistService, companyService, companyMarketService, guiConfigManager, databaseManager.getDb());
+        WalletCommand walletCommand = new WalletCommand();
+        MarketCommand marketCommand = new MarketCommand(databaseManager.getDb());
         MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
-        WatchCommand watchCommand = new WatchCommand(watchlistService, queryService);
-        CompanyCommand companyCommand = new CompanyCommand(companyService, invitationService, companyMarketService, guiConfigManager);
+        WatchCommand watchCommand = new WatchCommand();
+        CompanyCommand companyCommand = new CompanyCommand();
         
         // Register the /stocks command
         getCommand("stocks").setExecutor(stocksCommand);
-        getCommand("stocks").setTabCompleter(stocksCommand);
         
         // Register the /crypto command
         getCommand("crypto").setExecutor(cryptoCommand);
-        getCommand("crypto").setTabCompleter(cryptoCommand);
         
         // Register the /wallet command
         getCommand("wallet").setExecutor(walletCommand);
-        getCommand("wallet").setTabCompleter(walletCommand);
         
         // Register the /market command
         getCommand("market").setExecutor(marketCommand);
-        getCommand("market").setTabCompleter(marketCommand);
         
         // Register the /marketdevice command
         getCommand("marketdevice").setExecutor(marketDeviceCommand);
-        getCommand("marketdevice").setTabCompleter(marketDeviceCommand);
         
         // Register the /watch command
         getCommand("watch").setExecutor(watchCommand);
-        getCommand("watch").setTabCompleter(watchCommand);
         
         // Register the /company command
         getCommand("company").setExecutor(companyCommand);
-        getCommand("company").setTabCompleter(companyCommand);
-        
-        getLogger().info("Registered /stocks, /crypto, /wallet, /market, /marketdevice, /watch, and /company commands");
     }
     
     /**
@@ -249,8 +247,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
         MarketDeviceListener deviceListener = new MarketDeviceListener(this, translationManager, marketDeviceCommand);
 
         // Register GUI listeners for the new market interface
-        MarketGUIListener marketGUIListener = new MarketGUIListener(queryService, tradingService, holdingsService, walletService, companyService, companyMarketService, guiConfigManager);
-        PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener(queryService, tradingService, holdingsService, walletService, companyService, guiConfigManager);
+        MarketGUIListener marketGUIListener = new MarketGUIListener();
+        PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener();
         CompanySettingsGUIListener companySettingsGUIListener = new CompanySettingsGUIListener();
         
         getServer().getPluginManager().registerEvents(deviceListener, this);
@@ -283,15 +281,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
     }
     
     /**
-     * Registers crafting recipes if enabled in config.
-     */
-    private void registerRecipes() {
-        if (recipeManager != null) {
-            recipeManager.registerRecipes();
-        }
-    }
-    
-    /**
      * Initializes some default stocks for testing and demonstration.
      * DEPRECATED: Example stocks have been removed. The system uses real Minecraft items and company shares instead.
      */
@@ -301,27 +290,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // 1. Minecraft items (seeded via ItemSeeder)
         // 2. Company shares (created via /company market enable)
         getLogger().info("Using real market instruments (Minecraft items and company shares)");
-    }
-    
-    /**
-     * Gets the stock market service instance.
-     */
-    public StockMarketService getStockMarketService() {
-        return stockMarketService;
-    }
-    
-    /**
-     * Gets the query service instance.
-     */
-    public QueryService getQueryService() {
-        return queryService;
-    }
-    
-    /**
-     * Gets the crypto service instance.
-     */
-    public CryptoService getCryptoService() {
-        return cryptoService;
     }
 }
 
