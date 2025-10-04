@@ -1,7 +1,6 @@
 package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
-import net.cyberneticforge.quickstocks.application.queries.QueryService;
 import net.cyberneticforge.quickstocks.core.services.AuditService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,11 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * /stocks command implementation with pretty Adventure Components output.

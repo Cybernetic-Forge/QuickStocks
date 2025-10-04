@@ -1,7 +1,6 @@
 package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
-import net.cyberneticforge.quickstocks.core.services.WalletService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

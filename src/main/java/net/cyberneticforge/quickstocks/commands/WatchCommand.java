@@ -1,7 +1,6 @@
 package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
-import net.cyberneticforge.quickstocks.application.queries.QueryService;
 import net.cyberneticforge.quickstocks.core.services.WatchlistService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

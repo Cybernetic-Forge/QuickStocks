@@ -1,15 +1,11 @@
 package net.cyberneticforge.quickstocks.listeners;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
-import net.cyberneticforge.quickstocks.application.queries.QueryService;
-import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
 import net.cyberneticforge.quickstocks.core.services.TradingService;
-import net.cyberneticforge.quickstocks.core.services.WalletService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
-import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

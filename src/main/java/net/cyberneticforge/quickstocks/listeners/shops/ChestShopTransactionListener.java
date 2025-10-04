@@ -18,7 +18,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

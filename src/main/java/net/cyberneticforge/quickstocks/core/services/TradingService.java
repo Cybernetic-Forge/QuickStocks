@@ -1,8 +1,8 @@
 package net.cyberneticforge.quickstocks.core.services;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;

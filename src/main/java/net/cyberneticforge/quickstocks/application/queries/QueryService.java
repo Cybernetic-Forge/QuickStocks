@@ -3,8 +3,6 @@ package net.cyberneticforge.quickstocks.application.queries;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

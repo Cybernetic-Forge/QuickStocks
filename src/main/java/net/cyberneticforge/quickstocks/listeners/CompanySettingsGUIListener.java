@@ -1,7 +1,7 @@
 package net.cyberneticforge.quickstocks.listeners;
 
-import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
 import net.cyberneticforge.quickstocks.core.model.Company;
+import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

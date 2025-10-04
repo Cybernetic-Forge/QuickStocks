@@ -9,7 +9,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**

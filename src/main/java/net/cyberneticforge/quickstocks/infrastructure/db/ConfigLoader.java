@@ -1,8 +1,8 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
-import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
 

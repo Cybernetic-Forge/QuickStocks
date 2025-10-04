@@ -1,12 +1,10 @@
 package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
-import net.cyberneticforge.quickstocks.application.queries.QueryService;
 import net.cyberneticforge.quickstocks.core.model.Company;
-import net.cyberneticforge.quickstocks.core.services.*;
+import net.cyberneticforge.quickstocks.core.services.WatchlistService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
-import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

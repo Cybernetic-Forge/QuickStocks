@@ -1,6 +1,5 @@
 package net.cyberneticforge.quickstocks.infrastructure.hooks;
 
-import com.Acrobot.ChestShop.ChestShop;
 import com.Acrobot.ChestShop.Database.Account;
 import com.Acrobot.ChestShop.UUIDs.NameManager;
 import net.cyberneticforge.quickstocks.core.model.Company;
