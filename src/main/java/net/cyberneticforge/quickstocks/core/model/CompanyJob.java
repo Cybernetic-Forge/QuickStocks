@@ -11,9 +11,11 @@ public class CompanyJob {
     private final boolean canCreateTitles;
     private final boolean canWithdraw;
     private final boolean canManageCompany;
+    private final boolean canManageChestShop;
     
     public CompanyJob(String id, String companyId, String title, boolean canInvite, 
-                     boolean canCreateTitles, boolean canWithdraw, boolean canManageCompany) {
+                     boolean canCreateTitles, boolean canWithdraw, boolean canManageCompany, 
+                     boolean canManageChestShop) {
         this.id = id;
         this.companyId = companyId;
         this.title = title;
@@ -21,6 +23,7 @@ public class CompanyJob {
         this.canCreateTitles = canCreateTitles;
         this.canWithdraw = canWithdraw;
         this.canManageCompany = canManageCompany;
+        this.canManageChestShop = canManageChestShop;
     }
     
     public String getId() {
@@ -49,5 +52,9 @@ public class CompanyJob {
     
     public boolean canManageCompany() {
         return canManageCompany;
+    }
+    
+    public boolean canManageChestShop() {
+        return canManageChestShop;
     }
 }
