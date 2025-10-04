@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="further fixes">
-      <change afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/hooks/HookManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/hooks/HookType.java" afterDir="false" />
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="some fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/QuickStocksPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/QuickStocksPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CraftingListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopTransactionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopTransactionListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +23,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="copilot/fix-e9d8dc9c-f39a-4af6-b3a9-ddd150f38531" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -60,10 +56,11 @@
     &quot;Application.SimulationDemo.executor&quot;: &quot;Run&quot;,
     &quot;Maven.QuickStocks [clean].executor&quot;: &quot;Run&quot;,
     &quot;Maven.QuickStocks [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.QuickStocks [test].executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#81 on copilot/fix-24aba55b-1caa-4bb3-82…00d8e&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -83,7 +80,11 @@
   }
 }</component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\maksy\IdeaProjects\QuickStocks\libs" />
+    </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="net.cyberneticforge.quickstocks.utils" />
       <recent name="net.cyberneticforge.quickstocks.infrastructure.hooks" />
     </key>
   </component>
@@ -122,7 +123,9 @@
       <workItem from="1759137963420" duration="3266000" />
       <workItem from="1759262134921" duration="3075000" />
       <workItem from="1759431791208" duration="7463000" />
-      <workItem from="1759482219694" duration="406000" />
+      <workItem from="1759482219694" duration="21719000" />
+      <workItem from="1759575833236" duration="5134000" />
+      <workItem from="1759609941784" duration="848000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />
@@ -252,7 +255,87 @@
       <option name="project" value="LOCAL" />
       <updated>1759444385952</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="hook preparations">
+      <option name="closed" value="true" />
+      <created>1759482640993</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1759482640993</updated>
+    </task>
+    <task id="LOCAL-00018" summary="added ChatUT.java">
+      <option name="closed" value="true" />
+      <created>1759483441803</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1759483441803</updated>
+    </task>
+    <task id="LOCAL-00019" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1759490115514</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1759490115514</updated>
+    </task>
+    <task id="LOCAL-00020" summary="improvements">
+      <option name="closed" value="true" />
+      <created>1759492238762</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1759492238762</updated>
+    </task>
+    <task id="LOCAL-00021" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1759497457597</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1759497457597</updated>
+    </task>
+    <task id="LOCAL-00022" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1759501787206</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1759501787206</updated>
+    </task>
+    <task id="LOCAL-00023" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1759530458513</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1759530458513</updated>
+    </task>
+    <task id="LOCAL-00024" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1759530698715</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1759530698715</updated>
+    </task>
+    <task id="LOCAL-00025" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1759579358586</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1759579358586</updated>
+    </task>
+    <task id="LOCAL-00026" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1759579574424</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1759579574424</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -278,6 +361,10 @@
     <MESSAGE value="resolving some conflicts" />
     <MESSAGE value="fixes" />
     <MESSAGE value="further fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="further fixes" />
+    <MESSAGE value="hook preparations" />
+    <MESSAGE value="added ChatUT.java" />
+    <MESSAGE value="improvements" />
+    <MESSAGE value="some fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="some fixes" />
   </component>
 </project>

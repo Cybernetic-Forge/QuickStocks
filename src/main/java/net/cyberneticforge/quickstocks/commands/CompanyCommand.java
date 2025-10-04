@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.commands;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
@@ -8,6 +9,7 @@ import net.cyberneticforge.quickstocks.core.services.CompanyMarketService;
 import net.cyberneticforge.quickstocks.core.services.InvitationService;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
 import net.cyberneticforge.quickstocks.utils.GUIConfigManager;
+import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -134,6 +136,18 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handleNotifications(player, playerUuid);
                     break;
                     
+                case "leave":
+                    handleLeave(player, playerUuid, args);
+                    break;
+                    
+                case "transferownership":
+                    handleTransferOwnership(player, playerUuid, args);
+                    break;
+                    
+                case "fire":
+                    handleFire(player, playerUuid, args);
+                    break;
+                    
                 default:
                     player.sendMessage(ChatColor.RED + "Unknown subcommand. Use /company for help.");
                     break;
@@ -163,6 +177,9 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "/company createjob <company> <title> <perms>" + ChatColor.GRAY + " - Create job");
         player.sendMessage(ChatColor.YELLOW + "/company editjob <company> <title> <perms>" + ChatColor.GRAY + " - Edit job");
         player.sendMessage(ChatColor.YELLOW + "/company assignjob <company> <player> <job>" + ChatColor.GRAY + " - Assign job");
+        player.sendMessage(ChatColor.YELLOW + "/company leave <company>" + ChatColor.GRAY + " - Leave company");
+        player.sendMessage(ChatColor.YELLOW + "/company fire <company> <player>" + ChatColor.GRAY + " - Fire employee");
+        player.sendMessage(ChatColor.YELLOW + "/company transferownership <company> <player>" + ChatColor.GRAY + " - Transfer ownership");
         player.sendMessage(ChatColor.YELLOW + "/company settings [company]" + ChatColor.GRAY + " - Open settings GUI");
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Market Commands" + ChatColor.GOLD + " ===");
         player.sendMessage(ChatColor.YELLOW + "/company setsymbol <company> <symbol>" + ChatColor.GRAY + " - Set trading symbol");
@@ -245,7 +262,8 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canManageCompany() ? "Manage " : "") +
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
-                             (job.canWithdraw() ? "Withdraw" : ""));
+                             (job.canWithdraw() ? "Withdraw " : "") +
+                             (job.canManageChestShop() ? "ChestShop" : ""));
         }
     }
     
@@ -305,39 +323,93 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         player.sendMessage(ChatColor.GREEN + "Invitation sent to " + targetPlayerName);
         targetPlayer.sendMessage(ChatColor.GOLD + "You've been invited to join " + ChatColor.WHITE + companyOpt.get().getName());
-        targetPlayer.sendMessage(ChatColor.GRAY + "Use " + ChatColor.YELLOW + "/company accept " + invitation.getId() + 
+        targetPlayer.sendMessage(ChatColor.GRAY + "Use " + ChatColor.YELLOW + "/company accept " + companyOpt.get().getName() + 
                                ChatColor.GRAY + " to accept");
     }
     
     private void handleAccept(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /company accept <invitation-id>");
+            player.sendMessage(ChatColor.RED + "Usage: /company accept <company>");
             return;
         }
         
-        String invitationId = args[1];
-        invitationService.acceptInvitation(invitationId, playerUuid);
+        String companyName = args[1];
         
-        // Get company info
-        Optional<CompanyInvitation> invOpt = invitationService.getInvitationById(invitationId);
-        if (invOpt.isPresent()) {
-            Optional<Company> companyOpt = companyService.getCompanyById(invOpt.get().getCompanyId());
-            if (companyOpt.isPresent()) {
-                player.sendMessage(ChatColor.GREEN + "You've joined " + companyOpt.get().getName() + "!");
+        // Get company by name
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        // Find pending invitation for this company
+        List<CompanyInvitation> invitations = invitationService.getPendingInvitations(playerUuid);
+        CompanyInvitation targetInvitation = null;
+        
+        for (CompanyInvitation inv : invitations) {
+            if (inv.getCompanyId().equals(companyOpt.get().getId())) {
+                targetInvitation = inv;
+                break;
             }
+        }
+        
+        if (targetInvitation == null) {
+            player.sendMessage(ChatColor.RED + "No pending invitation from " + companyName);
+            return;
+        }
+        
+        invitationService.acceptInvitation(targetInvitation.getId(), playerUuid);
+        
+        // Show job details
+        Optional<CompanyJob> jobOpt = companyService.getPlayerJob(companyOpt.get().getId(), playerUuid);
+        if (jobOpt.isPresent()) {
+            CompanyJob job = jobOpt.get();
+            player.sendMessage(ChatColor.GREEN + "You've joined " + companyOpt.get().getName() + " as " + job.getTitle() + "!");
+            player.sendMessage(ChatColor.GRAY + "Permissions: " + 
+                             (job.canManageCompany() ? "Manage " : "") +
+                             (job.canInvite() ? "Invite " : "") +
+                             (job.canCreateTitles() ? "CreateJobs " : "") +
+                             (job.canWithdraw() ? "Withdraw " : "") +
+                             (job.canManageChestShop() ? "ChestShop" : ""));
+        } else {
+            player.sendMessage(ChatColor.GREEN + "You've joined " + companyOpt.get().getName() + "!");
         }
     }
     
     private void handleDecline(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /company decline <invitation-id>");
+            player.sendMessage(ChatColor.RED + "Usage: /company decline <company>");
             return;
         }
         
-        String invitationId = args[1];
-        invitationService.declineInvitation(invitationId, playerUuid);
+        String companyName = args[1];
         
-        player.sendMessage(ChatColor.YELLOW + "Invitation declined.");
+        // Get company by name
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        // Find pending invitation for this company
+        List<CompanyInvitation> invitations = invitationService.getPendingInvitations(playerUuid);
+        CompanyInvitation targetInvitation = null;
+        
+        for (CompanyInvitation inv : invitations) {
+            if (inv.getCompanyId().equals(companyOpt.get().getId())) {
+                targetInvitation = inv;
+                break;
+            }
+        }
+        
+        if (targetInvitation == null) {
+            player.sendMessage(ChatColor.RED + "No pending invitation from " + companyName);
+            return;
+        }
+        
+        invitationService.declineInvitation(targetInvitation.getId(), playerUuid);
+        
+        player.sendMessage(ChatColor.YELLOW + "Invitation from " + companyName + " declined.");
     }
     
     private void handleInvitations(Player player, String playerUuid) throws Exception {
@@ -351,11 +423,14 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Pending Invitations" + ChatColor.GOLD + " ===");
         for (CompanyInvitation invitation : invitations) {
             Optional<Company> companyOpt = companyService.getCompanyById(invitation.getCompanyId());
-            if (companyOpt.isPresent()) {
+            Optional<CompanyJob> jobOpt = companyService.getJobById(invitation.getJobId());
+            if (companyOpt.isPresent() && jobOpt.isPresent()) {
                 Company company = companyOpt.get();
+                CompanyJob job = jobOpt.get();
                 player.sendMessage(ChatColor.YELLOW + company.getName() + ChatColor.GRAY + 
-                                 " - ID: " + ChatColor.WHITE + invitation.getId());
+                                 " - Job: " + ChatColor.WHITE + job.getTitle());
                 player.sendMessage(ChatColor.GRAY + "  Expires: " + dateFormat.format(new Date(invitation.getExpiresAt())));
+                player.sendMessage(ChatColor.GRAY + "  Use: " + ChatColor.YELLOW + "/company accept " + company.getName());
             }
         }
     }
@@ -478,14 +553,15 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canManageCompany() ? "Manage " : "") +
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
-                             (job.canWithdraw() ? "Withdraw" : ""));
+                             (job.canWithdraw() ? "Withdraw" : "") +
+                             (job.canManageChestShop() ? "ChestShop" : ""));
         }
     }
     
     private void handleCreateJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             player.sendMessage(ChatColor.RED + "Usage: /company createjob <company> <title> <permissions>");
-            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage (comma-separated)");
+            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage," + (QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? "chestshop" : "") + " (comma-separated)");
             return;
         }
         
@@ -503,9 +579,10 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canCreateTitles = permsStr.contains("createjobs");
         boolean canWithdraw = permsStr.contains("withdraw");
         boolean canManage = permsStr.contains("manage");
+        boolean canChestShop = permsStr.contains("chestshop");
         
         companyService.createJobTitle(companyOpt.get().getId(), playerUuid, title, 
-                                     canInvite, canCreateTitles, canWithdraw, canManage);
+                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop);
         
         player.sendMessage(ChatColor.GREEN + "Created job title: " + title);
     }
@@ -513,7 +590,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     private void handleEditJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             player.sendMessage(ChatColor.RED + "Usage: /company editjob <company> <title> <permissions>");
-            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage (comma-separated)");
+            player.sendMessage(ChatColor.GRAY + "Permissions format: invite,createjobs,withdraw,manage,chestshop (comma-separated)");
             return;
         }
         
@@ -531,16 +608,18 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canCreateTitles = permsStr.contains("createjobs");
         boolean canWithdraw = permsStr.contains("withdraw");
         boolean canManage = permsStr.contains("manage");
+        boolean canChestShop = permsStr.contains("chestshop");
         
         companyService.updateJobTitle(companyOpt.get().getId(), playerUuid, title,
-                                     canInvite, canCreateTitles, canWithdraw, canManage);
+                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop);
         
         player.sendMessage(ChatColor.GREEN + "Updated job title: " + title);
         player.sendMessage(ChatColor.GRAY + "New permissions: " + 
                          (canManage ? "Manage " : "") +
                          (canInvite ? "Invite " : "") +
                          (canCreateTitles ? "CreateJobs " : "") +
-                         (canWithdraw ? "Withdraw" : ""));
+                         (canWithdraw ? "Withdraw " : "") +
+                         (canChestShop ? "ChestShop" : ""));
     }
     
     private void handleAssignJob(Player player, String playerUuid, String[] args) throws Exception {
@@ -622,7 +701,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
                                    "invitations", "deposit", "withdraw", "employees", "jobs", 
                                    "createjob", "editjob", "assignjob", "settings",
-                                   "setsymbol", "market", "notifications")
+                                   "setsymbol", "market", "notifications", "leave", "transferownership", "fire")
                     .stream()
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
@@ -653,8 +732,10 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     return getCompanyNames(args[1]);
                 }
                 
-                // For invite, createjob, editjob, assignjob - suggest player's companies
-                if (subcommand.equals("invite") || subcommand.equals("createjob") || subcommand.equals("editjob") || subcommand.equals("assignjob")) {
+                // For invite, createjob, editjob, assignjob, leave, fire, transferownership - suggest player's companies
+                if (subcommand.equals("invite") || subcommand.equals("createjob") || subcommand.equals("editjob") || 
+                    subcommand.equals("assignjob") || subcommand.equals("leave") || subcommand.equals("fire") || 
+                    subcommand.equals("transferownership")) {
                     return getPlayerCompanyNames(playerUuid, args[1]);
                 }
             }
@@ -683,9 +764,12 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 return getJobTitles(companyName, args[3]);
             }
             
-            // Player names for assignjob command (3rd arg)
-            if (args.length == 3 && args[0].equalsIgnoreCase("assignjob")) {
-                return getOnlinePlayerNames(args[2]);
+            // Player names for assignjob, fire, and transferownership commands (3rd arg)
+            if (args.length == 3) {
+                String subcommand = args[0].toLowerCase();
+                if (subcommand.equals("assignjob") || subcommand.equals("fire") || subcommand.equals("transferownership")) {
+                    return getOnlinePlayerNames(args[2]);
+                }
             }
             
             // Job titles for assignjob command (4th arg)
@@ -702,13 +786,16 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             
             // Permission suggestions for createjob and editjob (4th arg)
             if (args.length == 4 && (args[0].equalsIgnoreCase("createjob") || args[0].equalsIgnoreCase("editjob"))) {
-                return Arrays.asList("invite", "createjobs", "withdraw", "manage", "invite,createjobs", 
-                                   "invite,withdraw", "manage,invite,createjobs,withdraw")
-                    .stream()
-                    .filter(option -> option.toLowerCase().startsWith(args[3].toLowerCase()))
-                    .collect(Collectors.toList());
+                List<String> permissions = Arrays.asList("invite", "createjobs", "withdraw", "manage", "invite,createjobs", "invite,withdraw", "manage,invite,createjobs,withdraw");
+
+                if(QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) {
+                    permissions.remove("manage,invite,createjobs,withdraw");
+                    permissions.add("manage,invite,createjobs,withdraw, chestshop");
+                    permissions.add("chestshop");
+                }
+
+                return permissions.stream().filter(option -> option.toLowerCase().startsWith(args[3].toLowerCase())).collect(Collectors.toList());
             }
-            
         } catch (Exception e) {
             // Silently fail for tab completion
             logger.fine("Error in tab completion: " + e.getMessage());
@@ -902,5 +989,105 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Mark all as read
         companyMarketService.markAllNotificationsRead(playerUuid);
         player.sendMessage(ChatColor.GRAY + "All notifications marked as read.");
+    }
+    
+    /**
+     * Handles leaving a company.
+     */
+    private void handleLeave(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 2) {
+            player.sendMessage(ChatColor.RED + "Usage: /company leave <company>");
+            return;
+        }
+        
+        String companyName = args[1];
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        // Try to leave the company
+        try {
+            companyService.removeEmployee(company.getId(), playerUuid);
+            player.sendMessage(ChatColor.GREEN + "You have left " + company.getName());
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(ChatColor.RED + e.getMessage());
+        }
+    }
+    
+    /**
+     * Handles transferring company ownership.
+     */
+    private void handleTransferOwnership(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 3) {
+            player.sendMessage(ChatColor.RED + "Usage: /company transferownership <company> <player>");
+            return;
+        }
+        
+        String companyName = args[1];
+        String targetPlayerName = args[2];
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+        if (targetPlayer == null) {
+            player.sendMessage(ChatColor.RED + "Player not found or not online: " + targetPlayerName);
+            return;
+        }
+        
+        String targetUuid = targetPlayer.getUniqueId().toString();
+        Company company = companyOpt.get();
+        
+        try {
+            companyService.transferOwnership(company.getId(), playerUuid, targetUuid);
+            player.sendMessage(ChatColor.GREEN + "Ownership of " + company.getName() + " transferred to " + targetPlayerName);
+            targetPlayer.sendMessage(ChatColor.GOLD + "You are now the owner of " + ChatColor.WHITE + company.getName() + ChatColor.GOLD + "!");
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(ChatColor.RED + e.getMessage());
+        }
+    }
+    
+    /**
+     * Handles firing an employee.
+     */
+    private void handleFire(Player player, String playerUuid, String[] args) throws Exception {
+        if (args.length < 3) {
+            player.sendMessage(ChatColor.RED + "Usage: /company fire <company> <player>");
+            return;
+        }
+        
+        String companyName = args[1];
+        String targetPlayerName = args[2];
+        
+        Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
+        if (companyOpt.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            return;
+        }
+        
+        Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+        if (targetPlayer == null) {
+            player.sendMessage(ChatColor.RED + "Player not found or not online: " + targetPlayerName);
+            return;
+        }
+        
+        String targetUuid = targetPlayer.getUniqueId().toString();
+        Company company = companyOpt.get();
+        
+        try {
+            companyService.fireEmployee(company.getId(), playerUuid, targetUuid);
+            player.sendMessage(ChatColor.GREEN + "Fired " + targetPlayerName + " from " + company.getName());
+            targetPlayer.sendMessage(ChatColor.RED + "You have been fired from " + company.getName());
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(ChatColor.RED + e.getMessage());
+        }
     }
 }

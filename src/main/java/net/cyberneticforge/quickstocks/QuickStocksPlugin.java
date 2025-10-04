@@ -9,6 +9,12 @@ import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
+import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopAccountProvider;
+import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook;
+import net.cyberneticforge.quickstocks.infrastructure.hooks.HookManager;
+import net.cyberneticforge.quickstocks.listeners.shops.ChestShopListener;
+import net.cyberneticforge.quickstocks.listeners.shops.ChestShopProtectionListener;
+import net.cyberneticforge.quickstocks.listeners.shops.ChestShopTransactionListener;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
@@ -43,12 +49,18 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private InvitationService invitationService;
     private CompanyMarketService companyMarketService;
     private BukkitRunnable marketUpdateTask;
+    
+    @Getter
+    private static HookManager hookManager;
 
     @Override
     public void onEnable() {
         getLogger().info("QuickStocks enabling (Paper 1.21.8)...");
         instance = this;
         try {
+            // Initialize hook manager to detect external plugins
+            hookManager = new HookManager();
+            
             // Initialize database
             initializeDatabase();
             
@@ -245,6 +257,27 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(marketGUIListener, this);
         getServer().getPluginManager().registerEvents(portfolioGUIListener, this);
         getServer().getPluginManager().registerEvents(companySettingsGUIListener, this);
+        
+        // Register ChestShop integration listeners if ChestShop is hooked
+        if (hookManager.isHooked(net.cyberneticforge.quickstocks.infrastructure.hooks.HookType.ChestShop)) {
+            CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
+            ChestShopHook chestShopHook = new ChestShopHook(companyService);
+            
+            // Register company names as valid ChestShop accounts
+            ChestShopAccountProvider accountProvider = new ChestShopAccountProvider(companyService);
+            accountProvider.registerWithChestShop();
+            
+            ChestShopListener chestShopListener = new ChestShopListener(this, companyService, companyConfig, accountProvider);
+            ChestShopTransactionListener chestShopTransactionListener = 
+                new ChestShopTransactionListener(this, chestShopHook, companyConfig, walletService);
+            ChestShopProtectionListener chestShopProtectionListener =
+                new ChestShopProtectionListener(this, chestShopHook, companyConfig);
+            
+            getServer().getPluginManager().registerEvents(chestShopListener, this);
+            getServer().getPluginManager().registerEvents(chestShopTransactionListener, this);
+            getServer().getPluginManager().registerEvents(chestShopProtectionListener, this);
+            getLogger().info("Registered ChestShop integration listeners and account provider");
+        }
         
         getLogger().info("Registered Market Device, Crafting, and GUI event listeners");
     }
