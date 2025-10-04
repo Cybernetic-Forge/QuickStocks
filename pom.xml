@@ -66,14 +66,6 @@
             <version>42.6.0</version>
         </dependency>
         
-        <!-- Vault API for economy integration -->
-        <dependency>
-            <groupId>com.github.MilkBowl</groupId>
-            <artifactId>VaultAPI</artifactId>
-            <version>1.7</version>
-            <scope>provided</scope>
-        </dependency>
-        
         <!-- JUnit for testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -90,10 +82,17 @@
 
         <!-- Hooks -->
         <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.acrobot.chestshop</groupId>
             <artifactId>chestshop</artifactId>
-            <version>3.12.2</version>
-            <scope>provided</scope>
+            <version>3.12.3</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/ChestShop.jar</systemPath>
         </dependency>
     </dependencies>
 
