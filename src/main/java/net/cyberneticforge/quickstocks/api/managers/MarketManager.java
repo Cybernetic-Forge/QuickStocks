@@ -1,18 +1,15 @@
 package net.cyberneticforge.quickstocks.api.managers;
 
-import net.cyberneticforge.quickstocks.core.services.HoldingsService;
-import net.cyberneticforge.quickstocks.core.services.StockMarketService;
-import net.cyberneticforge.quickstocks.core.services.InstrumentPersistenceService;
-import net.cyberneticforge.quickstocks.core.model.Stock;
 import net.cyberneticforge.quickstocks.core.model.Instrument;
 import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.core.model.PriceHistory;
+import net.cyberneticforge.quickstocks.core.model.Stock;
+import net.cyberneticforge.quickstocks.core.services.InstrumentPersistenceService;
+import net.cyberneticforge.quickstocks.core.services.StockMarketService;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * API Manager for market and instrument operations.
