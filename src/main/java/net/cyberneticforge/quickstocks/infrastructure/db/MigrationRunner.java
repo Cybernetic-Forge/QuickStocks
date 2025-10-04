@@ -102,6 +102,7 @@ public class MigrationRunner {
             "V7__fix_strftime_indexes.sql",
             "V8__companies.sql",
             "V9__company_market.sql",
+            "V10__chestshop_permission.sql",
         };
         
         for (String filename : expectedMigrations) {
