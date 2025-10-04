@@ -26,10 +26,12 @@ public class ChestShopProtectionListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(ChestShopProtectionListener.class.getName());
 
+    private final QuickStocksPlugin plugin;
     private final ChestShopHook chestShopHook;
     private final CompanyConfig companyConfig;
     
-    public ChestShopProtectionListener(ChestShopHook chestShopHook, CompanyConfig companyConfig) {
+    public ChestShopProtectionListener(QuickStocksPlugin plugin, ChestShopHook chestShopHook, CompanyConfig companyConfig) {
+        this.plugin = plugin;
         this.chestShopHook = chestShopHook;
         this.companyConfig = companyConfig;
     }
@@ -41,7 +43,7 @@ public class ChestShopProtectionListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onProtectionCheck(ProtectionCheckEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         Sign sign = uBlock.getConnectedSign(event.getBlock());
         if (sign == null) return;
@@ -56,7 +58,7 @@ public class ChestShopProtectionListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onProtectionCheck(AccountAccessEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         Account account = event.getAccount();
         // Check if this is a company shop and if the player has permission
