@@ -1,12 +1,8 @@
 package net.cyberneticforge.quickstocks.listeners.shops;
 
-import com.Acrobot.ChestShop.ChestShop;
-import com.Acrobot.ChestShop.Database.Account;
-import com.Acrobot.ChestShop.Events.AccountQueryEvent;
 import com.Acrobot.ChestShop.Events.Economy.AccountCheckEvent;
 import com.Acrobot.ChestShop.Events.Economy.CurrencyCheckEvent;
 import com.Acrobot.ChestShop.Events.Economy.CurrencyTransferEvent;
-import com.Acrobot.ChestShop.Events.PreTransactionEvent;
 import com.Acrobot.ChestShop.Events.TransactionEvent;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
@@ -22,9 +18,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -103,7 +97,7 @@ public class ChestShopTransactionListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onCurrencyTransfer(CurrencyTransferEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         
         try {
@@ -139,7 +133,7 @@ public class ChestShopTransactionListener implements Listener {
                     logger.info("Successfully removed $" + amount + " from company '" + senderCompany.getName() + "'");
                 } else {
                     logger.warning("Failed to remove funds from company '" + senderCompany.getName() + "'");
-                    event.setCancelled(true);
+                    event.setHandled(true);
                     return;
                 }
                 
@@ -154,11 +148,9 @@ public class ChestShopTransactionListener implements Listener {
                 try {
                     String playerUuid = receiverPlayer.getUniqueId().toString();
                     walletService.addBalance(playerUuid, amount.doubleValue());
-                    receiverPlayer.sendMessage(ChatColor.GREEN + "You sold items for " + ChatColor.GOLD + "$" + String.format("%.2f", amount.doubleValue()));
-                    logger.info("Added $" + amount + " to player " + receiverPlayer.getName());
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Error adding balance to player", e);
-                    event.setCancelled(true);
+                    event.setHandled(true);
                 }
             }
             
@@ -168,22 +160,19 @@ public class ChestShopTransactionListener implements Listener {
                 try {
                     String playerUuid = senderPlayer.getUniqueId().toString();
                     if (walletService.removeBalance(playerUuid, amount.doubleValue())) {
-                        senderPlayer.sendMessage(ChatColor.GREEN + "You bought items for " + ChatColor.GOLD + "$" + String.format("%.2f", amount.doubleValue()));
                         logger.info("Removed $" + amount + " from player " + senderPlayer.getName());
                     } else {
-                        senderPlayer.sendMessage(ChatColor.RED + "Insufficient funds!");
-                        event.setCancelled(true);
+                        event.setHandled(true);
                         logger.warning("Player " + senderPlayer.getName() + " has insufficient funds");
                     }
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Error removing balance from player", e);
-                    event.setCancelled(true);
+                    event.setHandled(true);
                 }
             }
-            
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error handling ChestShop currency transfer", e);
-            event.setCancelled(true);
+            event.setHandled(true);
         }
     }
     
@@ -194,7 +183,7 @@ public class ChestShopTransactionListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTransaction(TransactionEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         
         try {
@@ -210,23 +199,12 @@ public class ChestShopTransactionListener implements Listener {
                 
                 // Send appropriate message based on transaction type
                 if (event.getTransactionType() == TransactionEvent.TransactionType.BUY) {
-                    // Customer bought from shop
-                    if (client != null) {
-                        client.sendMessage(ChatColor.GRAY + "You bought " + ChatColor.WHITE + quantity + " " + itemName + 
-                                         ChatColor.GRAY + " for " + ChatColor.GOLD + "$" + String.format("%.2f", price) +
-                                         ChatColor.GRAY + " from " + ChatColor.YELLOW + company.getName());
-                    }
                     logger.info("Transaction: " + (client != null ? client.getName() : "Unknown") + 
                                " bought " + quantity + " " + itemName + " for $" + price + 
                                " from company " + company.getName());
                     
                 } else if (event.getTransactionType() == TransactionEvent.TransactionType.SELL) {
                     // Customer sold to shop
-                    if (client != null) {
-                        client.sendMessage(ChatColor.GRAY + "You sold " + ChatColor.WHITE + quantity + " " + itemName + 
-                                         ChatColor.GRAY + " for " + ChatColor.GOLD + "$" + String.format("%.2f", price) +
-                                         ChatColor.GRAY + " to " + ChatColor.YELLOW + company.getName());
-                    }
                     logger.info("Transaction: " + (client != null ? client.getName() : "Unknown") + 
                                " sold " + quantity + " " + itemName + " for $" + price + 
                                " to company " + company.getName());
