@@ -141,6 +141,7 @@ Company:
   NotificationsHeader: '&6===== &eNotifications &6====='
   NotificationsRead: '&7All notifications marked as read.'
   NoNotifications: '&7No notifications.'
+  NoEmployees: '&7No employees found.'
   Error:
     CompanyNotFound: '&cCompany not found: %company%'
     AlreadyExists: '&cA company with that name already exists!'
@@ -154,3 +155,4 @@ Company:
     InvalidJob: '&cInvalid job title: %job%'
     SymbolTaken: '&cThat trading symbol is already taken!'
     NotOnMarket: '&c%company% is not on the market.'
+    OwnerOnly: '&cOnly the company owner can do that.'

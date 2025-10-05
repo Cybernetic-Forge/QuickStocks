@@ -142,6 +142,7 @@ public enum Translation {
     Company_NotificationsHeader("Company.NotificationsHeader"),
     Company_NotificationsRead("Company.NotificationsRead"),
     Company_NoNotifications("Company.NoNotifications"),
+    Company_NoEmployees("Company.NoEmployees"),
     Company_Error_CompanyNotFound("Company.Error.CompanyNotFound"),
     Company_Error_AlreadyExists("Company.Error.AlreadyExists"),
     Company_Error_InsufficientFunds("Company.Error.InsufficientFunds"),
@@ -154,6 +155,7 @@ public enum Translation {
     Company_Error_InvalidJob("Company.Error.InvalidJob"),
     Company_Error_SymbolTaken("Company.Error.SymbolTaken"),
     Company_Error_NotOnMarket("Company.Error.NotOnMarket"),
+    Company_Error_OwnerOnly("Company.Error.OwnerOnly"),
 
     Errors_Database("Errors.Database"),
     Errors_Internal("Errors.Internal");
