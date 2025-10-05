@@ -141,7 +141,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             
         } catch (Exception e) {
             logger.warning("Error in company command for " + player.getName() + ": " + e.getMessage());
-            Translation.Errors_Internal.sendMessage(player);
+            Translation.Errors_Internal.sendMessage(player, new Replaceable("%error%", e.getMessage()));
         }
         
         return true;
@@ -552,7 +552,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     private void handleCreateJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company createjob <company> <title> <permissions>"));
-            player.sendMessage(ChatUT.hexComp(STR."&cPermissions format: invite,createjobs,withdraw,manage,\{QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? "chestshop" : ""} (comma-separated)"));
+            player.sendMessage(ChatUT.hexComp(String.format("&cPermissions format: invite,createjobs,withdraw,manage,%s (comma-separated)", QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? "chestshop" : "")));
             return;
         }
         
@@ -580,7 +580,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     private void handleEditJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company editjob <company> <title> <permissions>"));
-            player.sendMessage(ChatUT.hexComp(STR."&cPermissions format: invite,createjobs,withdraw,manage,\{QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? "chestshop" : ""} (comma-separated)"));
+            player.sendMessage(ChatUT.hexComp(String.format("&cPermissions format: invite,createjobs,withdraw,manage,%s (comma-separated)", QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? "chestshop" : "")));
             return;
         }
         

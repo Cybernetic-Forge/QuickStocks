@@ -169,6 +169,7 @@ public enum Translation {
     Company_Error_SymbolTaken("Company.Error.SymbolTaken"),
     Company_Error_NotOnMarket("Company.Error.NotOnMarket"),
     Company_Error_OwnerOnly("Company.Error.OwnerOnly"),
+    Company_Error_OwnerDemote("Company.Error.OwnerDemote"),
 
     Errors_Database("Errors.Database"),
     Errors_Internal("Errors.Internal");

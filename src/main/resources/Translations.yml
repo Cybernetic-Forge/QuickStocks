@@ -74,7 +74,7 @@ Watch:
 
 Errors:
   Database: '&cDatabase error occurred. Please contact an administrator.'
-  Internal: '&cAn internal error occurred. Please try again.'
+  Internal: '&c%error%'
 
 Company:
   Help:
@@ -189,3 +189,4 @@ Company:
     SymbolTaken: '&cThat trading symbol is already taken!'
     NotOnMarket: '&c%company% is not on the market.'
     OwnerOnly: '&cOnly the company owner can do that.'
+    OwnerDemote: '&cYou cannot demote as the company Owner.'

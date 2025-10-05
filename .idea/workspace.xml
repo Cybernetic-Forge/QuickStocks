@@ -4,11 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="issue fixes and translation service">
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="additions">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI_ARCHITECTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/Copilot-Changes/GUI_ARCHITECTURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI_CONFIGURATION_GUIDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/Copilot-Changes/GUI_CONFIGURATION_GUIDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI_MIGRATION_EXAMPLES.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/Copilot-Changes/GUI_MIGRATION_EXAMPLES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/enums/Translation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/enums/Translation.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/Translations.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/Translations.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/plugin.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,6 +88,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\maksy\IdeaProjects\QuickStocks\Documentation\Copilot-Changes" />
       <recent name="C:\Users\maksy\IdeaProjects\QuickStocks\libs" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -132,7 +138,7 @@
       <workItem from="1759575833236" duration="5134000" />
       <workItem from="1759609941784" duration="848000" />
       <workItem from="1759616639603" duration="123000" />
-      <workItem from="1759653299381" duration="5661000" />
+      <workItem from="1759653299381" duration="7465000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />
@@ -374,7 +380,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759656117396</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="additions">
+      <option name="closed" value="true" />
+      <created>1759659685529</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1759659685529</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -407,6 +421,7 @@
     <MESSAGE value="refactoring work" />
     <MESSAGE value="optimized imports" />
     <MESSAGE value="issue fixes and translation service" />
-    <option name="LAST_COMMIT_MESSAGE" value="issue fixes and translation service" />
+    <MESSAGE value="additions" />
+    <option name="LAST_COMMIT_MESSAGE" value="additions" />
   </component>
 </project>
