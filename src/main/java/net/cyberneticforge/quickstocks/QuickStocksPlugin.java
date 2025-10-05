@@ -67,12 +67,17 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static AnalyticsService analyticsService;
     @Getter
     private static HookManager hookManager;
+    @Getter
+    private static MetricsService metricsService;
 
     @Override
     public void onEnable() {
         getLogger().info("QuickStocks enabling (Paper 1.21.8)...");
         instance = this;
         try {
+            // Save default config if it doesn't exist
+            saveDefaultConfig();
+            
             // Initialize hook manager to detect external plugins
             hookManager = new HookManager();
 
@@ -143,6 +148,18 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Start the simulation engine
             simulationEngine.start();
             
+            // Initialize bStats metrics if enabled
+            if (getConfig().getBoolean("metrics.enabled", true)) {
+                metricsService = new MetricsService(
+                    this,
+                    config,
+                    stockMarketService,
+                    companyService,
+                    holdingsService
+                );
+                metricsService.initialize();
+            }
+            
             getLogger().info("QuickStocks enabled successfully! Market is now running.");
             
         } catch (Exception e) {
@@ -169,6 +186,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Close the market
         if (stockMarketService != null) {
             stockMarketService.setMarketOpen(false);
+        }
+        
+        // Shutdown metrics
+        if (metricsService != null) {
+            metricsService.shutdown();
         }
         
         // Shutdown database

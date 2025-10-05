@@ -189,4 +189,15 @@ public class HoldingsService {
             return getTotalCost() > 0 ? (getUnrealizedPnL() / getTotalCost()) * 100 : 0; 
         }
     }
+    
+    /**
+     * Gets the count of unique players with holdings (for metrics).
+     * @return Number of players with at least one holding
+     */
+    public int getPlayerCountWithHoldings() throws SQLException {
+        String result = database.queryValue(
+            "SELECT COUNT(DISTINCT player_uuid) FROM user_holdings WHERE qty > 0"
+        );
+        return result != null ? Integer.parseInt(result) : 0;
+    }
 }
