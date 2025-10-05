@@ -216,7 +216,18 @@ QuickStocks is released under the MIT License. See LICENSE file for details.
 
 - **[Full Documentation](Documentation/Getting-Started.md)** - Complete user and admin guides
 - **[GitHub Issues](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Report bugs and request features
+- **[bStats Statistics](https://bstats.org/plugin/bukkit/QuickStocks/24106)** - View anonymous usage statistics
 - **[Discord](https://discord.gg/your-invite)** - Get support and discuss with community
+
+---
+
+## 📊 Anonymous Statistics
+
+QuickStocks collects anonymous usage statistics through [bStats](https://bstats.org/) to help us understand how the plugin is used and improve it. This data includes server counts, plugin versions, and aggregate usage metrics. No personal or player information is collected.
+
+You can view our public statistics at: https://bstats.org/plugin/bukkit/QuickStocks/24106
+
+To opt-out, set `metrics.enabled: false` in `config.yml` or disable bStats globally in `plugins/bStats/config.yml`.
 
 ---
 

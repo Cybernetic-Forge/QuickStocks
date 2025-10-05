@@ -58,6 +58,10 @@ analytics:
     volatility: 1440  # 24 hours  
     correlation: 1440  # 24 hours
 
+# bStats Metrics Configuration
+metrics:
+  enabled: true  # Enable anonymous usage statistics (bStats)
+
 # Trading Economy Configuration
 trading:
   fee:

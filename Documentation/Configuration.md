@@ -297,6 +297,42 @@ analytics:
 
 ---
 
+## 📈 Metrics Configuration (bStats)
+
+Configure anonymous usage statistics collection through bStats.
+
+```yaml
+metrics:
+  enabled: true
+```
+
+**Parameters:**
+
+### `enabled`
+- **Type:** Boolean
+- **Default:** `true`
+- **Description:** Enable/disable anonymous usage statistics
+- **Purpose:** Helps plugin developers understand usage patterns and improve the plugin
+
+**What data is collected:**
+- Server version and player count (standard bStats metrics)
+- Database provider type (SQLite, MySQL, PostgreSQL)
+- Number of active instruments/stocks
+- Number of companies created
+- Number of active traders (players with holdings)
+- Market open/closed status
+
+**Privacy:**
+- All data is anonymous
+- No player names or identifiable information is collected
+- Data is aggregated across all servers using QuickStocks
+- View public statistics at: https://bstats.org/plugin/bukkit/QuickStocks/24106
+
+**Disabling metrics:**
+Set `enabled: false` to opt-out of data collection. You can also disable bStats globally by setting `enabled: false` in `plugins/bStats/config.yml`.
+
+---
+
 ## 💰 Trading Configuration
 
 Configure trading fees, limits, and safeguards.
