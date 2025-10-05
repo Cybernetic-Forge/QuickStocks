@@ -71,6 +71,16 @@ public enum Translation {
     Market_Shareholders_Usage("Market.Shareholders_Usage"),
     Market_UnknownSubcommand("Market.UnknownSubcommand"),
     Market_ErrorProcessing("Market.ErrorProcessing"),
+    // Market GUI and Trading Messages
+    Market_Portfolio_Cash("Market.Portfolio.Cash"),
+    Market_Portfolio_Value("Market.Portfolio.Value"),
+    Market_Portfolio_Total("Market.Portfolio.Total"),
+    Market_Portfolio_Empty("Market.Portfolio.Empty"),
+    Market_Balance_Updated("Market.Balance_Updated"),
+    Market_Buy_CustomPrompt("Market.Buy.CustomPrompt"),
+    Market_CompanyDetails("Market.CompanyDetails"),
+    Market_Error_NoShares("Market.Error.NoShares"),
+    Market_Error_TransactionFailed("Market.Error.TransactionFailed"),
 
     // Wallet Messages
     Wallet_Usage("Wallet.Usage"),
@@ -212,20 +222,6 @@ public enum Translation {
     Company_Error_NotOnMarket("Company.Error.NotOnMarket"),
     Company_Error_OwnerOnly("Company.Error.OwnerOnly"),
     Company_Error_OwnerDemote("Company.Error.OwnerDemote"),
-
-    // Market GUI and Trading Messages
-    Market_Portfolio_Header("Market.Portfolio.Header"),
-    Market_Portfolio_Cash("Market.Portfolio.Cash"),
-    Market_Portfolio_Value("Market.Portfolio.Value"),
-    Market_Portfolio_Total("Market.Portfolio.Total"),
-    Market_Portfolio_Empty("Market.Portfolio.Empty"),
-    Market_Portfolio_HoldingsHeader("Market.Portfolio.HoldingsHeader"),
-    Market_Portfolio_HoldingItem("Market.Portfolio.HoldingItem"),
-    Market_Balance_Updated("Market.Balance_Updated"),
-    Market_Buy_CustomPrompt("Market.Buy.CustomPrompt"),
-    Market_CompanyDetails("Market.CompanyDetails"),
-    Market_Error_NoShares("Market.Error.NoShares"),
-    Market_Error_TransactionFailed("Market.Error.TransactionFailed"),
 
     // GUI Messages
     GUI_CompanySettings_Refresh_Success("GUI.CompanySettings.Refresh_Success"),

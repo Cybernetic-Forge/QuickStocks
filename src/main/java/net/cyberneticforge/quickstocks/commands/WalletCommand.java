@@ -2,8 +2,7 @@ package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
-import net.cyberneticforge.quickstocks.core.services.TranslationService;
-import net.cyberneticforge.quickstocks.utils.Replaceable;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,7 +24,7 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            Translation.ConsoleNotAllowed.sendMessage(sender);
+            Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
         

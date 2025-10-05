@@ -3,11 +3,10 @@ package net.cyberneticforge.quickstocks.listeners;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
-import net.cyberneticforge.quickstocks.utils.ChatUT;
-import net.cyberneticforge.quickstocks.utils.Replaceable;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -118,7 +117,7 @@ public class MarketGUIListener implements Listener {
         // Find company by symbol
         Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByNameOrSymbol(symbol);
         if (companyOpt.isEmpty()) {
-            Translation.Company_NotFound.sendMessage(player,
+            Translation.Company_Error_CompanyNotFound.sendMessage(player,
                 new Replaceable("%company%", symbol));
             return;
         }
@@ -126,7 +125,7 @@ public class MarketGUIListener implements Listener {
         Company company = companyOpt.get();
         
         if (!company.isOnMarket()) {
-            Translation.Company_NotOnMarket.sendMessage(player,
+            Translation.Company_Error_NotOnMarket.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
             return;
         }
@@ -171,7 +170,7 @@ public class MarketGUIListener implements Listener {
             double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
             
             if (balance < price) {
-                Translation.Market_Error_InsufficientFunds.sendMessage(player,
+                Translation.Company_Error_InsufficientFunds.sendMessage(player,
                     new Replaceable("%needed%", String.format("%.2f", price - balance)));
                 playErrorSound(player);
                 return;

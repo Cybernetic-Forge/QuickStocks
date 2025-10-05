@@ -2,8 +2,8 @@ package net.cyberneticforge.quickstocks.listeners;
 
 import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
-import net.cyberneticforge.quickstocks.utils.Replaceable;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

@@ -27,7 +27,7 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            Translation.PlayersOnly.sendMessage(sender);
+            Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
         
