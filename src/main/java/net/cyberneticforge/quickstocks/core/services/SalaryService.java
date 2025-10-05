@@ -270,20 +270,14 @@ public class SalaryService {
      * Parse cycle duration string to milliseconds.
      */
     private long parseCycleDuration(String cycle) {
-        switch (cycle) {
-            case "1h":
-                return 60 * 60 * 1000L; // 1 hour
-            case "24h":
-                return 24 * 60 * 60 * 1000L; // 24 hours
-            case "1w":
-                return 7 * 24 * 60 * 60 * 1000L; // 1 week
-            case "2w":
-                return 14 * 24 * 60 * 60 * 1000L; // 2 weeks
-            case "1m":
-                return 30L * 24 * 60 * 60 * 1000L; // 30 days (approximate month)
-            default:
-                return 24 * 60 * 60 * 1000L; // Default to 24 hours
-        }
+        return switch (cycle) {
+            case "1h" -> 60 * 60 * 1000L; // 1 hour
+            case "24h" -> 24 * 60 * 60 * 1000L; // 24 hours
+            case "1w" -> 7 * 24 * 60 * 60 * 1000L; // 1 week
+            case "2w" -> 14 * 24 * 60 * 60 * 1000L; // 2 weeks
+            case "1m" -> 30L * 24 * 60 * 60 * 1000L; // 30 days (approximate month)
+            default -> 24 * 60 * 60 * 1000L; // Default to 24 hours
+        };
     }
     
     /**
