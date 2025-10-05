@@ -77,28 +77,59 @@ Market:
   ErrorProcessing: '&cAn error occurred while processing your market command.'
 
 Wallet:
+  Usage: '&cUsage: /wallet [balance|deposit|withdraw|pay <player> <amount>]'
   Balance: '&eYour balance: &a$%balance%'
   Deposit: '&aDeposited $%amount%!'
   Withdraw: '&aWithdrawn $%amount%!'
   Pay: '&aPaid $%amount% to %player%!'
   Received: '&aReceived $%amount% from %player%!'
+  UnknownSubcommand: '&cUnknown subcommand. Use: /wallet [balance|deposit|withdraw|pay]'
+  ErrorProcessing: '&cAn error occurred while processing your wallet command.'
   Error:
     InsufficientFunds: '&cInsufficient funds!'
     InvalidAmount: '&cInvalid amount!'
     PlayerNotFound: '&cPlayer not found!'
 
 Watch:
+  Usage_Add: '&cUsage: /watch add <symbol>'
+  Usage_Remove: '&cUsage: /watch remove <symbol>'
+  Usage_Clear: '&cUsage: /watch clear'
   Added: '&aAdded %symbol% to watchlist!'
   Removed: '&cRemoved %symbol% from watchlist!'
-  ListHeader: '&6=== &fWatchlist Summary &6==='
-  ListItem: '&7- &e%symbol% &7(&f$%price%&7) %change%'
+  Cleared: '&aWatchlist cleared!'
+  ListHeader: '&6=== &fYour Watchlist &6==='
+  ListItem: '&e★ &f%symbol% &7(%name%) &e$%price% %arrow%%change%%'
+  DetailItem: '&f%symbol% &7(%name%): &e$%price% %arrow%%color%%change%%'
   Empty: '&7Your watchlist is empty.'
   EmptyHint: '&7Use &f/watch add <symbol> &7to add instruments to your watchlist.'
   WatchingHeader: '&eWatching %count% instruments:'
   CompanyItem: '&f%company% &7(%symbol%) &ePrice: $%price%'
   AlreadyExists: '&cThat symbol is already in your watchlist!'
-  NotFound: '&cSymbol not found in watchlist!'
+  NotFound: '&c%symbol% not found!'
+  NotInWatchlist: '&c%symbol% is not in your watchlist!'
+  UnknownSubcommand: '&cUnknown subcommand. Usage: /watch [add|remove|clear|list]'
+  ErrorProcessing: '&cAn error occurred while processing your watchlist command.'
   Alert: '&e[ALERT] &f%symbol% &7%message%'
+
+GUI:
+  CompanySettings:
+    Refresh_Success: '&aCompany settings refreshed!'
+    Refresh_Error: '&cFailed to refresh company settings.'
+  Portfolio:
+    Refresh_Success: '&aPortfolio refreshed!'
+    Refresh_Error: '&cFailed to refresh portfolio.'
+  Market:
+    Refresh_Success: '&aMarket data refreshed!'
+    Refresh_Error: '&cFailed to refresh market data.'
+
+ChestShop:
+  Created: '&aChest shop created!'
+  Removed: '&cChest shop removed!'
+  NoPermission: '&cYou don''t have permission to create chest shops for this company.'
+  NotEmployee: '&cYou must be an employee to create a chest shop for this company.'
+  Transaction_Buy: '&aBought %qty%x %item% for $%price%'
+  Transaction_Sell: '&aSold %qty%x %item% for $%price%'
+  Error: '&cChest shop transaction failed: %error%'
 
 Errors:
   Database: '&cDatabase error occurred. Please contact an administrator.'

@@ -73,26 +73,37 @@ public enum Translation {
     Market_ErrorProcessing("Market.ErrorProcessing"),
 
     // Wallet Messages
+    Wallet_Usage("Wallet.Usage"),
     Wallet_Balance("Wallet.Balance"),
     Wallet_Deposit("Wallet.Deposit"),
     Wallet_Withdraw("Wallet.Withdraw"),
     Wallet_Pay("Wallet.Pay"),
     Wallet_Received("Wallet.Received"),
+    Wallet_UnknownSubcommand("Wallet.UnknownSubcommand"),
+    Wallet_ErrorProcessing("Wallet.ErrorProcessing"),
     Wallet_Error_InsufficientFunds("Wallet.Error.InsufficientFunds"),
     Wallet_Error_InvalidAmount("Wallet.Error.InvalidAmount"),
     Wallet_Error_PlayerNotFound("Wallet.Error.PlayerNotFound"),
 
     // Watch Messages
+    Watch_Usage_Add("Watch.Usage_Add"),
+    Watch_Usage_Remove("Watch.Usage_Remove"),
+    Watch_Usage_Clear("Watch.Usage_Clear"),
     Watch_Added("Watch.Added"),
     Watch_Removed("Watch.Removed"),
+    Watch_Cleared("Watch.Cleared"),
     Watch_ListHeader("Watch.ListHeader"),
     Watch_ListItem("Watch.ListItem"),
+    Watch_DetailItem("Watch.DetailItem"),
     Watch_Empty("Watch.Empty"),
     Watch_EmptyHint("Watch.EmptyHint"),
     Watch_WatchingHeader("Watch.WatchingHeader"),
     Watch_CompanyItem("Watch.CompanyItem"),
     Watch_AlreadyExists("Watch.AlreadyExists"),
     Watch_NotFound("Watch.NotFound"),
+    Watch_NotInWatchlist("Watch.NotInWatchlist"),
+    Watch_UnknownSubcommand("Watch.UnknownSubcommand"),
+    Watch_ErrorProcessing("Watch.ErrorProcessing"),
     Watch_Alert("Watch.Alert"),
 
     // Company Messages
@@ -187,6 +198,23 @@ public enum Translation {
     Company_Error_NotOnMarket("Company.Error.NotOnMarket"),
     Company_Error_OwnerOnly("Company.Error.OwnerOnly"),
     Company_Error_OwnerDemote("Company.Error.OwnerDemote"),
+
+    // GUI Messages
+    GUI_CompanySettings_Refresh_Success("GUI.CompanySettings.Refresh_Success"),
+    GUI_CompanySettings_Refresh_Error("GUI.CompanySettings.Refresh_Error"),
+    GUI_Portfolio_Refresh_Success("GUI.Portfolio.Refresh_Success"),
+    GUI_Portfolio_Refresh_Error("GUI.Portfolio.Refresh_Error"),
+    GUI_Market_Refresh_Success("GUI.Market.Refresh_Success"),
+    GUI_Market_Refresh_Error("GUI.Market.Refresh_Error"),
+
+    // ChestShop Messages
+    ChestShop_Created("ChestShop.Created"),
+    ChestShop_Removed("ChestShop.Removed"),
+    ChestShop_NoPermission("ChestShop.NoPermission"),
+    ChestShop_NotEmployee("ChestShop.NotEmployee"),
+    ChestShop_Transaction_Buy("ChestShop.Transaction_Buy"),
+    ChestShop_Transaction_Sell("ChestShop.Transaction_Sell"),
+    ChestShop_Error("ChestShop.Error"),
 
     Errors_Database("Errors.Database"),
     Errors_Internal("Errors.Internal");
