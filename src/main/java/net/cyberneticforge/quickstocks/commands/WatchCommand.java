@@ -1,8 +1,9 @@
 package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.enums.Translation;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.WatchlistService;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -26,7 +27,7 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be used by players.");
+            Translation.PlayersOnly.sendMessage(sender);
             return true;
         }
         
@@ -45,7 +46,7 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
             switch (subcommand) {
                 case "add":
                     if (args.length < 2) {
-                        player.sendMessage(ChatColor.RED + "Usage: /watch add <symbol>");
+                        Translation.Watch_Usage_Add.sendMessage(player);
                         return true;
                     }
                     handleAddToWatchlist(player, playerUuid, args[1]);
@@ -56,7 +57,7 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
                 case "delete":
                 case "del":
                     if (args.length < 2) {
-                        player.sendMessage(ChatColor.RED + "Usage: /watch remove <symbol>");
+                        Translation.Watch_Usage_Remove.sendMessage(player);
                         return true;
                     }
                     handleRemoveFromWatchlist(player, playerUuid, args[1]);
@@ -70,7 +71,7 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
                 case "info":
                 case "details":
                     if (args.length < 2) {
-                        player.sendMessage(ChatColor.RED + "Usage: /watch info <symbol>");
+                        Translation.Watch_Usage_Info.sendMessage(player);
                         return true;
                     }
                     showWatchlistItemDetails(player, playerUuid, args[1]);
@@ -81,13 +82,13 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
                     break;
                     
                 default:
-                    player.sendMessage(ChatColor.RED + "Unknown subcommand. Usage: /watch [add|remove|list|info|clear] [symbol]");
+                    Translation.Watch_UnknownSubcommand.sendMessage(player);
                     break;
             }
             
         } catch (Exception e) {
             logger.warning("Error in watch command for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "An error occurred while processing your watchlist command.");
+            Translation.Watch_ErrorProcessing.sendMessage(player);
         }
         
         return true;
@@ -97,7 +98,8 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
         // Get instrument ID from symbol
         String instrumentId = QuickStocksPlugin.getQueryService().getInstrumentIdBySymbol(symbol.toUpperCase());
         if (instrumentId == null) {
-            player.sendMessage(ChatColor.RED + "Instrument not found: " + symbol);
+            Translation.Watch_NotFound.sendMessage(player,
+                new Replaceable("%symbol%", symbol));
             return;
         }
         
@@ -105,10 +107,12 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
         if (added) {
             // Get instrument display name for confirmation
             String displayName = QuickStocksPlugin.getQueryService().getInstrumentDisplayName(instrumentId);
-            player.sendMessage(ChatColor.GREEN + "✓ Added " + ChatColor.WHITE + symbol.toUpperCase() + 
-                              ChatColor.GRAY + " (" + displayName + ")" + ChatColor.GREEN + " to your watchlist.");
+            Translation.Watch_Added.sendMessage(player,
+                new Replaceable("%symbol%", symbol.toUpperCase()),
+                new Replaceable("%displayname%", displayName));
         } else {
-            player.sendMessage(ChatColor.YELLOW + "⚠ " + symbol.toUpperCase() + " is already in your watchlist.");
+            Translation.Watch_AlreadyInWatchlist.sendMessage(player,
+                new Replaceable("%symbol%", symbol.toUpperCase()));
         }
     }
     
@@ -116,71 +120,71 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
         // Get instrument ID from symbol
         String instrumentId = QuickStocksPlugin.getQueryService().getInstrumentIdBySymbol(symbol.toUpperCase());
         if (instrumentId == null) {
-            player.sendMessage(ChatColor.RED + "Instrument not found: " + symbol);
+            Translation.Watch_NotFound.sendMessage(player,
+                new Replaceable("%symbol%", symbol));
             return;
         }
         
         boolean removed = QuickStocksPlugin.getWatchlistService().removeFromWatchlist(playerUuid, instrumentId);
         if (removed) {
-            player.sendMessage(ChatColor.GREEN + "✓ Removed " + ChatColor.WHITE + symbol.toUpperCase() + 
-                              ChatColor.GREEN + " from your watchlist.");
+            Translation.Watch_Removed.sendMessage(player,
+                new Replaceable("%symbol%", symbol.toUpperCase()));
         } else {
-            player.sendMessage(ChatColor.YELLOW + "⚠ " + symbol.toUpperCase() + " was not in your watchlist.");
+            Translation.Watch_NotInWatchlist.sendMessage(player,
+                new Replaceable("%symbol%", symbol.toUpperCase()));
         }
     }
     
     private void showWatchlist(Player player, String playerUuid) throws Exception {
         List<WatchlistService.WatchlistItem> watchlist = QuickStocksPlugin.getWatchlistService().getWatchlist(playerUuid);
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Your Watchlist" + ChatColor.GOLD + " ===");
+        Translation.Watch_ListHeader.sendMessage(player);
         
         if (watchlist.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "Your watchlist is empty.");
-            player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/watch add <symbol>" + 
-                              ChatColor.GRAY + " to add instruments to your watchlist.");
+            Translation.Watch_Empty.sendMessage(player);
+            Translation.Watch_EmptyHint.sendMessage(player);
             return;
         }
         
-        player.sendMessage(ChatColor.YELLOW + "Watching " + watchlist.size() + " instruments:");
+        Translation.Watch_WatchingHeader.sendMessage(player,
+            new Replaceable("%count%", String.valueOf(watchlist.size())));
         player.sendMessage(""); // Empty line for readability
         
         for (WatchlistService.WatchlistItem item : watchlist) {
             // Format price change colors and arrows
-            ChatColor changeColor = item.getChange24h() >= 0 ? ChatColor.GREEN : ChatColor.RED;
+            String changeColor = item.getChange24h() >= 0 ? "&a" : "&c";
             String changeArrow = item.getChange24h() >= 0 ? "▲" : "▼";
             
             // Format the display line
-            player.sendMessage(String.format(
-                ChatColor.WHITE + "%s " + ChatColor.GRAY + "(%s) " + 
-                ChatColor.YELLOW + "$%.2f " + changeColor + "%s%.2f%%" + 
-                ChatColor.DARK_GRAY + " | 1h: " + changeColor + "%+.2f%%",
-                item.getSymbol(),
-                item.getDisplayName(),
-                item.getLastPrice(),
-                changeArrow,
-                Math.abs(item.getChange24h()),
-                item.getChange1h()
-            ));
+            Translation.Watch_ListItem.sendMessage(player,
+                new Replaceable("%symbol%", item.getSymbol()),
+                new Replaceable("%displayname%", item.getDisplayName()),
+                new Replaceable("%price%", String.format("%.2f", item.getLastPrice())),
+                new Replaceable("%color%", changeColor),
+                new Replaceable("%arrow%", changeArrow),
+                new Replaceable("%change%", String.format("%.2f", Math.abs(item.getChange24h()))),
+                new Replaceable("%change1h%", String.format("%+.2f", item.getChange1h())));
         }
         
         player.sendMessage(""); // Empty line
-        player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/watch info <symbol>" + 
-                          ChatColor.GRAY + " for detailed information.");
+        Translation.Watch_InfoHint.sendMessage(player);
     }
     
     private void showWatchlistItemDetails(Player player, String playerUuid, String symbol) throws Exception {
         // Get instrument ID from symbol
         String instrumentId = QuickStocksPlugin.getQueryService().getInstrumentIdBySymbol(symbol.toUpperCase());
         if (instrumentId == null) {
-            player.sendMessage(ChatColor.RED + "Instrument not found: " + symbol);
+            Translation.Watch_NotFound.sendMessage(player,
+                new Replaceable("%symbol%", symbol));
             return;
         }
         
         // Check if it's in watchlist
         if (!QuickStocksPlugin.getWatchlistService().isInWatchlist(playerUuid, instrumentId)) {
-            player.sendMessage(ChatColor.YELLOW + "⚠ " + symbol.toUpperCase() + " is not in your watchlist.");
-            player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/watch add " + symbol.toLowerCase() + 
-                              ChatColor.GRAY + " to add it to your watchlist.");
+            Translation.Watch_NotInWatchlist.sendMessage(player,
+                new Replaceable("%symbol%", symbol.toUpperCase()));
+            Translation.Watch_NotInWatchlistHint.sendMessage(player,
+                new Replaceable("%symbol%", symbol.toLowerCase()));
             return;
         }
         
@@ -192,41 +196,54 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
             .orElse(null);
             
         if (item == null) {
-            player.sendMessage(ChatColor.RED + "Error retrieving watchlist item details.");
+            Translation.Watch_ErrorRetrieving.sendMessage(player);
             return;
         }
         
         // Format the detailed display
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + item.getSymbol() + " Details" + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "Name: " + ChatColor.WHITE + item.getDisplayName());
-        player.sendMessage(ChatColor.YELLOW + "Type: " + ChatColor.WHITE + item.getType());
-        player.sendMessage(ChatColor.YELLOW + "Current Price: " + ChatColor.WHITE + "$" + String.format("%.2f", item.getLastPrice()));
+        Translation.Watch_DetailsHeader.sendMessage(player,
+            new Replaceable("%symbol%", item.getSymbol()));
+        Translation.Watch_DetailsName.sendMessage(player,
+            new Replaceable("%displayname%", item.getDisplayName()));
+        Translation.Watch_DetailsType.sendMessage(player,
+            new Replaceable("%type%", item.getType()));
+        Translation.Watch_DetailsCurrentPrice.sendMessage(player,
+            new Replaceable("%price%", String.format("%.2f", item.getLastPrice())));
         
         // Change indicators with colors
-        ChatColor change24hColor = item.getChange24h() >= 0 ? ChatColor.GREEN : ChatColor.RED;
-        ChatColor change1hColor = item.getChange1h() >= 0 ? ChatColor.GREEN : ChatColor.RED;
+        String change24hColor = item.getChange24h() >= 0 ? "&a" : "&c";
+        String change1hColor = item.getChange1h() >= 0 ? "&a" : "&c";
         String arrow24h = item.getChange24h() >= 0 ? "▲" : "▼";
         String arrow1h = item.getChange1h() >= 0 ? "▲" : "▼";
         
-        player.sendMessage(ChatColor.YELLOW + "24h Change: " + change24hColor + arrow24h + String.format("%.2f%%", item.getChange24h()));
-        player.sendMessage(ChatColor.YELLOW + "1h Change: " + change1hColor + arrow1h + String.format("%.2f%%", item.getChange1h()));
-        player.sendMessage(ChatColor.YELLOW + "Volatility: " + ChatColor.WHITE + String.format("%.2f", item.getVolatility24h()));
+        Translation.Watch_Details24hChange.sendMessage(player,
+            new Replaceable("%color%", change24hColor),
+            new Replaceable("%arrow%", arrow24h),
+            new Replaceable("%change%", String.format("%.2f%%", item.getChange24h())));
+        Translation.Watch_Details1hChange.sendMessage(player,
+            new Replaceable("%color%", change1hColor),
+            new Replaceable("%arrow%", arrow1h),
+            new Replaceable("%change%", String.format("%.2f%%", item.getChange1h())));
+        Translation.Watch_DetailsVolatility.sendMessage(player,
+            new Replaceable("%volatility%", String.format("%.2f", item.getVolatility24h())));
         
         // Show when added
         Date addedDate = new Date(item.getAddedAt());
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm");
-        player.sendMessage(ChatColor.YELLOW + "Added to watchlist: " + ChatColor.GRAY + sdf.format(addedDate));
+        Translation.Watch_DetailsAddedAt.sendMessage(player,
+            new Replaceable("%date%", sdf.format(addedDate)));
     }
     
     private void handleClearWatchlist(Player player, String playerUuid) throws Exception {
         int count = QuickStocksPlugin.getWatchlistService().getWatchlistCount(playerUuid);
         if (count == 0) {
-            player.sendMessage(ChatColor.GRAY + "Your watchlist is already empty.");
+            Translation.Watch_AlreadyEmpty.sendMessage(player);
             return;
         }
         
         int removed = QuickStocksPlugin.getWatchlistService().clearWatchlist(playerUuid);
-        player.sendMessage(ChatColor.GREEN + "✓ Cleared your watchlist (" + removed + " items removed).");
+        Translation.Watch_Cleared.sendMessage(player,
+            new Replaceable("%count%", String.valueOf(removed)));
     }
     
     @Override
