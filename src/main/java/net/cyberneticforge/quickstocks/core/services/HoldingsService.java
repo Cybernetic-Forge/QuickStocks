@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.core.services;
 
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
+import org.bukkit.Bukkit;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -198,6 +199,7 @@ public class HoldingsService {
         String result = database.queryValue(
             "SELECT COUNT(DISTINCT player_uuid) FROM user_holdings WHERE qty > 0"
         );
+        Bukkit.getConsoleSender().sendMessage("Result: " + result);
         return result != null ? Integer.parseInt(result) : 0;
     }
 }

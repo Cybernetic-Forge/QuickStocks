@@ -150,13 +150,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Initialize bStats metrics if enabled
             if (getConfig().getBoolean("metrics.enabled", true)) {
-                metricsService = new MetricsService(
-                    this,
-                    config,
-                    stockMarketService,
-                    companyService,
-                    holdingsService
-                );
+                metricsService = new MetricsService();
                 metricsService.initialize();
             }
             

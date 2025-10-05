@@ -1,6 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
@@ -15,33 +15,13 @@ import java.util.logging.Logger;
 public class MetricsService {
     
     private static final Logger logger = Logger.getLogger(MetricsService.class.getName());
-    private static final int BSTATS_PLUGIN_ID = 24106; // bStats plugin ID for QuickStocks
-    
-    private final JavaPlugin plugin;
-    private final DatabaseConfig databaseConfig;
-    private final StockMarketService stockMarketService;
-    private final CompanyService companyService;
-    private final HoldingsService holdingsService;
+    private static final int BSTATS_PLUGIN_ID = 27476; // bStats plugin ID for QuickStocks
     private Metrics metrics;
     
     /**
      * Creates a new MetricsService instance.
-     *
-     * @param plugin The plugin instance
-     * @param databaseConfig The database configuration
-     * @param stockMarketService The stock market service for market stats
-     * @param companyService The company service for company stats
-     * @param holdingsService The holdings service for trader stats
      */
-    public MetricsService(JavaPlugin plugin, DatabaseConfig databaseConfig, 
-                          StockMarketService stockMarketService,
-                          CompanyService companyService,
-                          HoldingsService holdingsService) {
-        this.plugin = plugin;
-        this.databaseConfig = databaseConfig;
-        this.stockMarketService = stockMarketService;
-        this.companyService = companyService;
-        this.holdingsService = holdingsService;
+    public MetricsService() {
     }
     
     /**
@@ -49,10 +29,9 @@ public class MetricsService {
      */
     public void initialize() {
         try {
-            metrics = new Metrics(plugin, BSTATS_PLUGIN_ID);
+            metrics = new Metrics(QuickStocksPlugin.getInstance(), BSTATS_PLUGIN_ID);
             
             // Register custom charts
-            registerDatabaseProviderChart();
             registerActiveInstrumentsChart();
             registerCompaniesChart();
             registerActiveTradersChart();
@@ -65,24 +44,12 @@ public class MetricsService {
     }
     
     /**
-     * Registers a chart showing the database provider being used.
-     */
-    private void registerDatabaseProviderChart() {
-        metrics.addCustomChart(new SimplePie("database_provider", () -> {
-            if (databaseConfig != null && databaseConfig.getProvider() != null) {
-                return databaseConfig.getProvider().toUpperCase();
-            }
-            return "UNKNOWN";
-        }));
-    }
-    
-    /**
      * Registers a chart showing the number of active instruments (stocks/cryptos).
      */
     private void registerActiveInstrumentsChart() {
         metrics.addCustomChart(new SingleLineChart("active_instruments", () -> {
-            if (stockMarketService != null) {
-                return stockMarketService.getAllStocks().size();
+            if (QuickStocksPlugin.getStockMarketService() != null) {
+                return QuickStocksPlugin.getStockMarketService().getAllStocks().size();
             }
             return 0;
         }));
@@ -93,9 +60,9 @@ public class MetricsService {
      */
     private void registerCompaniesChart() {
         metrics.addCustomChart(new SingleLineChart("total_companies", () -> {
-            if (companyService != null) {
+            if (QuickStocksPlugin.getCompanyService() != null) {
                 try {
-                    return companyService.getAllCompanies().size();
+                    return QuickStocksPlugin.getCompanyService().getAllCompanies().size();
                 } catch (Exception e) {
                     logger.warning("Failed to get company count for metrics: " + e.getMessage());
                     return 0;
@@ -110,9 +77,9 @@ public class MetricsService {
      */
     private void registerActiveTradersChart() {
         metrics.addCustomChart(new SingleLineChart("active_traders", () -> {
-            if (holdingsService != null) {
+            if (QuickStocksPlugin.getHoldingsService() != null) {
                 try {
-                    return holdingsService.getPlayerCountWithHoldings();
+                    return QuickStocksPlugin.getHoldingsService().getPlayerCountWithHoldings();
                 } catch (Exception e) {
                     logger.warning("Failed to get active traders count for metrics: " + e.getMessage());
                     return 0;
@@ -127,8 +94,8 @@ public class MetricsService {
      */
     private void registerMarketStatusChart() {
         metrics.addCustomChart(new SimplePie("market_status", () -> {
-            if (stockMarketService != null) {
-                return stockMarketService.isMarketOpen() ? "Open" : "Closed";
+            if (QuickStocksPlugin.getStockMarketService() != null) {
+                return QuickStocksPlugin.getStockMarketService().isMarketOpen() ? "Open" : "Closed";
             }
             return "Unknown";
         }));
