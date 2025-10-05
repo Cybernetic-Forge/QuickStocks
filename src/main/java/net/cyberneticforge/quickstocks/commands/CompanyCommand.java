@@ -1,13 +1,14 @@
 package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,7 +33,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be used by players.");
+            Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
         
@@ -146,43 +147,40 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     }
     
     private void showHelp(Player player) {
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Company Commands" + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "/company create <name> <type>" + ChatColor.GRAY + " - Create a company");
-        player.sendMessage(ChatColor.YELLOW + "/company info [name]" + ChatColor.GRAY + " - View company info");
-        player.sendMessage(ChatColor.YELLOW + "/company list" + ChatColor.GRAY + " - List all companies");
-        player.sendMessage(ChatColor.YELLOW + "/company invite <player> <job>" + ChatColor.GRAY + " - Invite player");
-        player.sendMessage(ChatColor.YELLOW + "/company invitations" + ChatColor.GRAY + " - View your invitations");
-        player.sendMessage(ChatColor.YELLOW + "/company accept <id>" + ChatColor.GRAY + " - Accept invitation");
-        player.sendMessage(ChatColor.YELLOW + "/company decline <id>" + ChatColor.GRAY + " - Decline invitation");
-        player.sendMessage(ChatColor.YELLOW + "/company deposit <company> <amount>" + ChatColor.GRAY + " - Deposit funds");
-        player.sendMessage(ChatColor.YELLOW + "/company withdraw <company> <amount>" + ChatColor.GRAY + " - Withdraw funds");
-        player.sendMessage(ChatColor.YELLOW + "/company employees <company>" + ChatColor.GRAY + " - List employees");
-        player.sendMessage(ChatColor.YELLOW + "/company jobs <company>" + ChatColor.GRAY + " - List job titles");
-        player.sendMessage(ChatColor.YELLOW + "/company createjob <company> <title> <perms>" + ChatColor.GRAY + " - Create job");
-        player.sendMessage(ChatColor.YELLOW + "/company editjob <company> <title> <perms>" + ChatColor.GRAY + " - Edit job");
-        player.sendMessage(ChatColor.YELLOW + "/company assignjob <company> <player> <job>" + ChatColor.GRAY + " - Assign job");
-        player.sendMessage(ChatColor.YELLOW + "/company leave <company>" + ChatColor.GRAY + " - Leave company");
-        player.sendMessage(ChatColor.YELLOW + "/company fire <company> <player>" + ChatColor.GRAY + " - Fire employee");
-        player.sendMessage(ChatColor.YELLOW + "/company transferownership <company> <player>" + ChatColor.GRAY + " - Transfer ownership");
-        player.sendMessage(ChatColor.YELLOW + "/company settings [company]" + ChatColor.GRAY + " - Open settings GUI");
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Market Commands" + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "/company setsymbol <company> <symbol>" + ChatColor.GRAY + " - Set trading symbol");
-        player.sendMessage(ChatColor.YELLOW + "/company market enable <company>" + ChatColor.GRAY + " - Enable market");
-        player.sendMessage(ChatColor.YELLOW + "/company market disable <company>" + ChatColor.GRAY + " - Disable market");
-        player.sendMessage(ChatColor.YELLOW + "/company market settings <company>" + ChatColor.GRAY + " - View/edit settings");
-        player.sendMessage(ChatColor.GRAY + "For buying/selling shares, use " + ChatColor.WHITE + "/market buy" + ChatColor.GRAY + " or " + ChatColor.WHITE + "/market sell");
-        player.sendMessage(ChatColor.YELLOW + "/company notifications" + ChatColor.GRAY + " - View notifications");
+        Translation.Company_Help_Header.sendMessage(player);
+        Translation.Company_Help_Create.sendMessage(player);
+        Translation.Company_Help_Info.sendMessage(player);
+        Translation.Company_Help_List.sendMessage(player);
+        Translation.Company_Help_Invite.sendMessage(player);
+        Translation.Company_Help_Invitations.sendMessage(player);
+        Translation.Company_Help_Accept.sendMessage(player);
+        Translation.Company_Help_Decline.sendMessage(player);
+        Translation.Company_Help_Deposit.sendMessage(player);
+        Translation.Company_Help_Withdraw.sendMessage(player);
+        Translation.Company_Help_Employees.sendMessage(player);
+        Translation.Company_Help_Jobs.sendMessage(player);
+        Translation.Company_Help_CreateJob.sendMessage(player);
+        Translation.Company_Help_EditJob.sendMessage(player);
+        Translation.Company_Help_AssignJob.sendMessage(player);
+        Translation.Company_Help_Leave.sendMessage(player);
+        Translation.Company_Help_Fire.sendMessage(player);
+        Translation.Company_Help_Transfer.sendMessage(player);
+        Translation.Company_Help_SettingsGUI.sendMessage(player);
+        Translation.Company_Help_Symbol.sendMessage(player);
+        Translation.Company_Help_EnableMarket.sendMessage(player);
+        Translation.Company_Help_DisableMarket.sendMessage(player);
+        Translation.Company_Help_Settings.sendMessage(player);
+        Translation.Company_Help_Notifications.sendMessage(player);
     }
     
     private void handleCreate(Player player, String playerUuid, String[] args) throws Exception {
         if (!player.hasPermission("quickstocks.company.create")) {
-            player.sendMessage(ChatColor.RED + "You don't have permission to create companies.");
+            Translation.NoPermission.sendMessage(player);
             return;
         }
         
         if (args.length < 3) {
-            player.sendMessage(ChatColor.RED + "Usage: /company create <name> <type>");
-            player.sendMessage(ChatColor.GRAY + "Types: PRIVATE, PUBLIC, DAO");
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company create <name> <type>"));
             return;
         }
         
@@ -191,8 +189,8 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         Company company = QuickStocksPlugin.getCompanyService().createCompany(playerUuid, name, type);
         
-        player.sendMessage(ChatColor.GREEN + "Successfully created company: " + ChatColor.WHITE + name);
-        player.sendMessage(ChatColor.GRAY + "Type: " + type + " | Balance: $0.00");
+        Translation.Company_Created.sendMessage(player, new Replaceable("%company%", name));
+        Translation.Company_InfoType.sendMessage(player, new Replaceable("%type%", type));
     }
     
     private void handleInfo(Player player, String playerUuid, String[] args) throws Exception {
