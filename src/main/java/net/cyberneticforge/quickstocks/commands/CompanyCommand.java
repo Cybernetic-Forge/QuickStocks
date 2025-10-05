@@ -201,19 +201,20 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             List<Company> companies = QuickStocksPlugin.getCompanyService().getCompaniesByPlayer(playerUuid);
             
             if (companies.isEmpty()) {
-                player.sendMessage(ChatColor.YELLOW + "You are not part of any company.");
+                Translation.Company_Error_NotEmployee.sendMessage(player, new Replaceable("%company%", "any"));
                 return;
             }
             
-            player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Your Companies" + ChatColor.GOLD + " ===");
+            Translation.Company_ListHeader.sendMessage(player);
             for (Company company : companies) {
                 Optional<CompanyJob> job = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
                 String jobTitle = job.isPresent() ? job.get().getTitle() : "Unknown";
                 
-                player.sendMessage(ChatColor.YELLOW + company.getName() + ChatColor.GRAY + 
-                                 " (" + company.getType() + ") - " + ChatColor.WHITE + jobTitle);
-                player.sendMessage(ChatColor.GRAY + "  Balance: " + ChatColor.GREEN + "$" + 
-                                 String.format("%.2f", company.getBalance()));
+                Translation.Company_ListItem.sendMessage(player, 
+                    new Replaceable("%company%", company.getName()),
+                    new Replaceable("%type%", company.getType() + " - " + jobTitle));
+                Translation.Company_InfoBalance.sendMessage(player,
+                    new Replaceable("%balance%", String.format("%.2f", company.getBalance())));
             }
             return;
         }
@@ -222,30 +223,30 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
         
         if (companyOpt.isEmpty()) {
-            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
             return;
         }
         
         Company company = companyOpt.get();
         OfflinePlayer owner = Bukkit.getOfflinePlayer(UUID.fromString(company.getOwnerUuid()));
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + company.getName() + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "Type: " + ChatColor.WHITE + company.getType());
-        player.sendMessage(ChatColor.YELLOW + "Owner: " + ChatColor.WHITE + (owner.getName() != null ? owner.getName() : "Unknown"));
-        player.sendMessage(ChatColor.YELLOW + "Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", company.getBalance()));
-        player.sendMessage(ChatColor.YELLOW + "Created: " + ChatColor.WHITE + dateFormat.format(new Date(company.getCreatedAt())));
+        Translation.Company_InfoHeader.sendMessage(player, new Replaceable("%company%", company.getName()));
+        Translation.Company_InfoType.sendMessage(player, new Replaceable("%type%", company.getType()));
+        Translation.Company_InfoOwner.sendMessage(player, new Replaceable("%owner%", owner.getName() != null ? owner.getName() : "Unknown"));
+        Translation.Company_InfoBalance.sendMessage(player, new Replaceable("%balance%", String.format("%.2f", company.getBalance())));
+        Translation.Company_InfoCreated.sendMessage(player, new Replaceable("%date%", dateFormat.format(new Date(company.getCreatedAt()))));
         
         // Show player's job if they're an employee
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
         if (playerJob.isPresent()) {
             CompanyJob job = playerJob.get();
-            player.sendMessage(ChatColor.YELLOW + "Your Job: " + ChatColor.WHITE + job.getTitle());
-            player.sendMessage(ChatColor.GRAY + "Permissions: " + 
-                             (job.canManageCompany() ? "Manage " : "") +
+            String permissions = (job.canManageCompany() ? "Manage " : "") +
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
-                             (job.canManageChestShop() ? "ChestShop" : ""));
+                             (job.canManageChestShop() ? "ChestShop" : "");
+            Translation.Company_JobItem.sendMessage(player, new Replaceable("%job%", job.getTitle()));
+            Translation.Company_JobPermissions.sendMessage(player, new Replaceable("%permissions%", permissions));
         }
     }
     
@@ -256,7 +257,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 page = Integer.parseInt(args[1]) - 1;
                 if (page < 0) page = 0;
             } catch (NumberFormatException e) {
-                player.sendMessage(ChatColor.RED + "Invalid page number.");
+                Translation.InvalidNumber.sendMessage(player);
                 return;
             }
         }
@@ -264,21 +265,23 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         List<Company> companies = QuickStocksPlugin.getCompanyService().listCompanies(page, 10);
         
         if (companies.isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW + "No companies found.");
+            Translation.Company_NoNotifications.sendMessage(player);
             return;
         }
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Companies (Page " + (page + 1) + ")" + ChatColor.GOLD + " ===");
+        Translation.Company_ListHeader.sendMessage(player);
         for (Company company : companies) {
-            player.sendMessage(ChatColor.YELLOW + company.getName() + ChatColor.GRAY + 
-                             " (" + company.getType() + ") - Balance: " + ChatColor.GREEN + "$" + 
-                             String.format("%.2f", company.getBalance()));
+            Translation.Company_ListItem.sendMessage(player,
+                new Replaceable("%company%", company.getName()),
+                new Replaceable("%type%", company.getType()));
+            Translation.Company_InfoBalance.sendMessage(player,
+                new Replaceable("%balance%", String.format("%.2f", company.getBalance())));
         }
     }
     
     private void handleInvite(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
-            player.sendMessage(ChatColor.RED + "Usage: /company invite <company> <player> <job>");
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company invite <company> <player> <job>"));
             return;
         }
         
@@ -288,13 +291,13 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
         if (companyOpt.isEmpty()) {
-            player.sendMessage(ChatColor.RED + "Company not found: " + companyName);
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
             return;
         }
         
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer == null) {
-            player.sendMessage(ChatColor.RED + "Player not found or not online: " + targetPlayerName);
+            Translation.Company_Error_PlayerNotFound.sendMessage(player, new Replaceable("%player%", targetPlayerName));
             return;
         }
         
@@ -303,10 +306,14 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         CompanyInvitation invitation = QuickStocksPlugin.getInvitationService().createInvitation(companyId, playerUuid, targetUuid, jobTitle);
         
-        player.sendMessage(ChatColor.GREEN + "Invitation sent to " + targetPlayerName);
-        targetPlayer.sendMessage(ChatColor.GOLD + "You've been invited to join " + ChatColor.WHITE + companyOpt.get().getName());
-        targetPlayer.sendMessage(ChatColor.GRAY + "Use " + ChatColor.YELLOW + "/company accept " + companyOpt.get().getName() + 
-                               ChatColor.GRAY + " to accept");
+        Translation.Company_InviteSent.sendMessage(player,
+            new Replaceable("%player%", targetPlayerName),
+            new Replaceable("%job%", jobTitle));
+        Translation.Company_InviteReceived.sendMessage(targetPlayer,
+            new Replaceable("%company%", companyOpt.get().getName()),
+            new Replaceable("%job%", jobTitle));
+        Translation.Company_InviteAcceptPrompt.sendMessage(targetPlayer,
+            new Replaceable("%id%", companyOpt.get().getName()));
     }
     
     private void handleAccept(Player player, String playerUuid, String[] args) throws Exception {
