@@ -28,8 +28,6 @@ Market:
     Lore:
       Usage: '&7Right-click to open the market.'
       Bound: '&8Bound to: %player%'
-
-Market:
   Overview:
     Header: '&6=== &fMarket Overview &6==='
     CompaniesHeader: '&eCompanies on Market:'
@@ -44,6 +42,10 @@ Market:
     NoHoldings: '&7No holdings found.'
     HoldingsHeader: '&e\nHoldings:'
     HoldingItem: '&f%company% (%symbol%): &7%shares% shares @ $%avgcost% avg &e($%current% current) %arrow%%pnlcolor%$%pnl% (%percent%%)'
+    Cash: '&eCash Balance: &a$%balance%'
+    Value: '&ePortfolio Value: &a$%value%'
+    Total: '&eTotal Assets: &a$%total%'
+    Empty: '&7No holdings found.'
   History:
     Header: '&6=== &fOrder History &6==='
     NoHistory: '&7No order history found.'
@@ -64,6 +66,9 @@ Market:
     InvalidQuantity: '&cInvalid quantity: %qty%'
     QuantityPositive: '&cQuantity must be positive.'
     Error: '&c%error%'
+    CustomPrompt:
+      - '&eEnter amount to %action% for %company%:'
+      - '&7Use: &f/market %action% %symbol% <amount>'
   Sell:
     Usage: '&cUsage: /market sell <company> <quantity>'
     Success: '&aSuccessfully sold %qty% shares!'
@@ -75,6 +80,17 @@ Market:
   Shareholders_Usage: '&cUsage: /market shareholders <company>'
   UnknownSubcommand: '&cUnknown subcommand. Usage: /market [browse|buy|sell|shareholders|portfolio|history|watchlist]'
   ErrorProcessing: '&cAn error occurred while processing your market command.'
+  Balance_Updated: '&7New balance: $%balance%'
+  CompanyDetails:
+    - '&6=== %company% (%symbol%) ==='
+    - '&eShare Price: &f$%price%'
+    - '&eCompany Balance: &f$%balance%'
+    - '&eMarket %: &f%market_pct%%'
+    - '&7Use left-click to buy, right-click to sell'
+    - '&7Shift+click for custom amounts'
+  Error:
+    NoShares: '&cYou don''t have any shares of %company%!'
+    TransactionFailed: '&c✗ Transaction failed: %error%'
 
 Wallet:
   Usage: '&cUsage: /wallet [balance|deposit|withdraw|pay <player> <amount>]'
@@ -85,7 +101,6 @@ Wallet:
   Received: '&aReceived $%amount% from %player%!'
   UnknownSubcommand: '&cUnknown subcommand. Use: /wallet [balance|deposit|withdraw|pay]'
   ErrorProcessing: '&cAn error occurred while processing your wallet command.'
-  UnknownSubcommand: '&cUnknown subcommand. Usage: /wallet [balance|add|set] [amount]'
   Error:
     InsufficientFunds: '&cInsufficient funds!'
     InvalidAmount: '&cInvalid amount!'
@@ -130,21 +145,56 @@ GUI:
   CompanySettings:
     Refresh_Success: '&aCompany settings refreshed!'
     Refresh_Error: '&cFailed to refresh company settings.'
+    Error: '&cAn error occurred while processing your click.'
+    DepositHint: '&eUse command: &f/company deposit %company% <amount>'
+    WithdrawHint: '&eUse command: &f/company withdraw %company% <amount>'
+    AssignJobHint: '&eUse command: &f/company assignjob %company% <player> <job>'
+    InviteHint: '&eUse command: &f/company invite %company% <player> <job>'
+    CreateJobHint:
+      - '&eUse command: &f/company createjob %company% <title> <permissions>'
+      - '&7Permissions: invite, createjobs, withdraw, manage (comma-separated)'
+    EditJobHint:
+      - '&eUse command: &f/company editjob %company% <title> <permissions>'
+      - '&7Permissions: invite, createjobs, withdraw, manage (comma-separated)'
   Portfolio:
     Refresh_Success: '&aPortfolio refreshed!'
     Refresh_Error: '&cFailed to refresh portfolio.'
+    Error: '&cAn error occurred while processing your request.'
+    StockNotFound: '&cStock not found: %symbol%'
+    NoShares: "&cYou don't own any shares of %symbol%"
+    SoldAll: '&a✓ Sold all %qty% shares of %symbol%'
+    Received: '&aReceived: $%total%'
+    NewBalance: '&7New balance: $%balance%'
+    SaleFailed: '&c✗ Sale failed: %message%'
+    HoldingDetails:
+      Header: '&6=== %symbol% Holdings ==='
+      Shares: '&eShares: &f%qty%'
+      AvgCost: '&eAverage Cost: &f$%cost%'
+      CurrentPrice: '&eCurrent Price: &f$%price%'
+      TotalValue: '&eTotal Value: &f$%value%'
+      PnL: '&eP&L: %color%%arrow%$%pnl% (%percent%%)'
+      SellHint: '&7Right-click to sell all shares'
+    MarketOpenError: '&cUnable to open market at this time.'
   Market:
     Refresh_Success: '&aMarket data refreshed!'
     Refresh_Error: '&cFailed to refresh market data.'
+    Error: '&cAn error occurred while processing your request.'
 
 ChestShop:
-  Created: '&aChest shop created!'
-  Removed: '&cChest shop removed!'
-  NoPermission: '&cYou don''t have permission to create chest shops for this company.'
   NotEmployee: '&cYou must be an employee to create a chest shop for this company.'
   Transaction_Buy: '&aBought %qty%x %item% for $%price%'
   Transaction_Sell: '&aSold %qty%x %item% for $%price%'
   Error: '&cChest shop transaction failed: %error%'
+  Created: '&aChestShop successfully created for company ''%company%''!'
+  Removed: '&cChestShop removed for company ''%company%''.'
+  NoPermission: '&cYou do not have permission to create chest shops for company ''%company%''.'
+  InsufficientBalance:
+    - '&cCompany ''%company%'' does not have sufficient balance to create chest shops.'
+    - '&7Required: $%required%'
+    - '&7Current: $%current%'
+  Transaction:
+    Buy: '&aTransaction: %player% bought %qty% %item% for $%price% from company %company%.'
+    Sell: '&aTransaction: %player% sold %qty% %item% for $%price% to company %company%.'
 
 Errors:
   Database: '&cDatabase error occurred. Please contact an administrator.'
@@ -299,80 +349,3 @@ Company:
       NotEmployee: '&cYou are not an employee of this company'
       InvalidCycle: '&c%error%'
     PaymentReceived: '&a💰 Salary payment received: &e$%amount% &afrom &e%company%'
-
-# Market GUI and Trading Messages  
-Market:
-  Portfolio:
-    Header: '&6=== &fYour Portfolio &6==='
-    Cash: '&eCash Balance: &a$%balance%'
-    Value: '&ePortfolio Value: &a$%value%'
-    Total: '&eTotal Assets: &a$%total%'
-    Empty: '&7No holdings found.'
-    HoldingsHeader: '&e\nHoldings:'
-    HoldingItem: '&f%symbol%: &7%qty% shares @ $%avgcost% avg &e($%current% current) %arrow%%pnlcolor%$%pnl% (%percent%%)'
-  Balance_Updated: '&7New balance: $%balance%'
-  Buy:
-    CustomPrompt:
-      - '&eEnter amount to %action% for %company%:'
-      - '&7Use: &f/market %action% %symbol% <amount>'
-  CompanyDetails:
-    - '&6=== %company% (%symbol%) ==='
-    - '&eShare Price: &f$%price%'
-    - '&eCompany Balance: &f$%balance%'
-    - '&eMarket %: &f%market_pct%%'
-    - '&7Use left-click to buy, right-click to sell'
-    - '&7Shift+click for custom amounts'
-  Error:
-    NoShares: '&cYou don''t have any shares of %company%!'
-    TransactionFailed: '&c✗ Transaction failed: %error%'
-
-# GUI Messages
-GUI:
-  CompanySettings:
-    Refresh_Success: '&aCompany settings refreshed!'
-    Error: '&cAn error occurred while processing your click.'
-    DepositHint: '&eUse command: &f/company deposit %company% <amount>'
-    WithdrawHint: '&eUse command: &f/company withdraw %company% <amount>'
-    AssignJobHint: '&eUse command: &f/company assignjob %company% <player> <job>'
-    InviteHint: '&eUse command: &f/company invite %company% <player> <job>'
-    CreateJobHint:
-      - '&eUse command: &f/company createjob %company% <title> <permissions>'
-      - '&7Permissions: invite, createjobs, withdraw, manage (comma-separated)'
-    EditJobHint:
-      - '&eUse command: &f/company editjob %company% <title> <permissions>'
-      - '&7Permissions: invite, createjobs, withdraw, manage (comma-separated)'
-  Market:
-    Refresh_Success: '&aMarket data refreshed!'
-    Error: '&cAn error occurred while processing your request.'
-  Portfolio:
-    Refresh_Success: '&aPortfolio refreshed!'
-    Error: '&cAn error occurred while processing your request.'
-    StockNotFound: '&cStock not found: %symbol%'
-    NoShares: "&cYou don't own any shares of %symbol%"
-    SoldAll: '&a✓ Sold all %qty% shares of %symbol%'
-    Received: '&aReceived: $%total%'
-    NewBalance: '&7New balance: $%balance%'
-    SaleFailed: '&c✗ Sale failed: %message%'
-    HoldingDetails:
-      Header: '&6=== %symbol% Holdings ==='
-      Shares: '&eShares: &f%qty%'
-      AvgCost: '&eAverage Cost: &f$%cost%'
-      CurrentPrice: '&eCurrent Price: &f$%price%'
-      TotalValue: '&eTotal Value: &f$%value%'
-      PnL: '&eP&L: %color%%arrow%$%pnl% (%percent%%)'
-      SellHint: '&7Right-click to sell all shares'
-    MarketOpenError: '&cUnable to open market at this time.'
-
-# ChestShop Integration
-ChestShop:
-  Created: '&aChestShop successfully created for company ''%company%''!'
-  Removed: '&cChestShop removed for company ''%company%''.'
-  NoPermission: '&cYou do not have permission to create chest shops for company ''%company%''.'
-  InsufficientBalance:
-    - '&cCompany ''%company%'' does not have sufficient balance to create chest shops.'
-    - '&7Required: $%required%'
-    - '&7Current: $%current%'
-  Error: '&cAn error occurred while validating the company.'
-  Transaction:
-    Buy: '&aTransaction: %player% bought %qty% %item% for $%price% from company %company%.'
-    Sell: '&aTransaction: %player% sold %qty% %item% for $%price% to company %company%.'

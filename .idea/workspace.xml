@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="removed unused content">
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="improvements">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/SalaryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/SalaryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/Translations.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/Translations.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -397,7 +397,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759662462232</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="improvements">
+      <option name="closed" value="true" />
+      <created>1759681074732</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1759681074732</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -425,13 +433,13 @@
     <MESSAGE value="further fixes" />
     <MESSAGE value="hook preparations" />
     <MESSAGE value="added ChatUT.java" />
-    <MESSAGE value="improvements" />
     <MESSAGE value="refactoring work" />
     <MESSAGE value="optimized imports" />
     <MESSAGE value="issue fixes and translation service" />
     <MESSAGE value="additions" />
     <MESSAGE value="some fixes" />
     <MESSAGE value="removed unused content" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed unused content" />
+    <MESSAGE value="improvements" />
+    <option name="LAST_COMMIT_MESSAGE" value="improvements" />
   </component>
 </project>
