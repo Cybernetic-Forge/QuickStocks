@@ -25,6 +25,11 @@ public class CompanyConfig {
     private boolean chestShopEnabled = true;
     private double chestShopCompanyMinBalance = 1000.0;
     
+    // Salary settings
+    private List<String> paymentCycles = Arrays.asList("1h", "24h", "1w", "2w", "1m");
+    private double defaultJobSalary = 0.0;
+    private boolean offlinePayment = true;
+    
     public CompanyConfig() {
         // Set default permissions
         JobPermissions ceoPerms = new JobPermissions();
@@ -32,10 +37,12 @@ public class CompanyConfig {
         ceoPerms.setCanInvite(true);
         ceoPerms.setCanCreateJobTitles(true);
         ceoPerms.setCanWithdraw(true);
+        ceoPerms.setCanManageSalaries(true);
         permissionsByTitle.put("CEO", ceoPerms);
         
         JobPermissions cfoPerms = new JobPermissions();
         cfoPerms.setCanWithdraw(true);
+        cfoPerms.setCanManageSalaries(true);
         permissionsByTitle.put("CFO", cfoPerms);
         
         JobPermissions employeePerms = new JobPermissions();
@@ -126,12 +133,37 @@ public class CompanyConfig {
         this.chestShopCompanyMinBalance = chestShopCompanyMinBalance;
     }
     
+    public List<String> getPaymentCycles() {
+        return paymentCycles;
+    }
+    
+    public void setPaymentCycles(List<String> paymentCycles) {
+        this.paymentCycles = paymentCycles;
+    }
+    
+    public double getDefaultJobSalary() {
+        return defaultJobSalary;
+    }
+    
+    public void setDefaultJobSalary(double defaultJobSalary) {
+        this.defaultJobSalary = defaultJobSalary;
+    }
+    
+    public boolean isOfflinePayment() {
+        return offlinePayment;
+    }
+    
+    public void setOfflinePayment(boolean offlinePayment) {
+        this.offlinePayment = offlinePayment;
+    }
+    
     public static class JobPermissions {
         private boolean canManageCompany = false;
         private boolean canInvite = false;
         private boolean canCreateJobTitles = false;
         private boolean canWithdraw = false;
         private boolean canManageChestShop = false;
+        private boolean canManageSalaries = false;
         
         public boolean isCanManageCompany() {
             return canManageCompany;
@@ -171,6 +203,14 @@ public class CompanyConfig {
         
         public void setCanManageChestShop(boolean canManageChestShop) {
             this.canManageChestShop = canManageChestShop;
+        }
+        
+        public boolean isCanManageSalaries() {
+            return canManageSalaries;
+        }
+        
+        public void setCanManageSalaries(boolean canManageSalaries) {
+            this.canManageSalaries = canManageSalaries;
         }
     }
 }

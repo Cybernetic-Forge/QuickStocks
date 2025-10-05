@@ -24,6 +24,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 public final class QuickStocksPlugin extends JavaPlugin {
 
@@ -59,6 +61,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static InvitationService invitationService;
     @Getter
     private static CompanyMarketService companyMarketService;
+    @Getter
+    private static SalaryService salaryService;
     @Getter
     private static BukkitRunnable marketUpdateTask;
     @Getter
@@ -114,6 +118,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             companyService = new CompanyService(databaseManager.getDb(), companyConfig);
             invitationService = new InvitationService(databaseManager.getDb());
             companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyConfig);
+            salaryService = new SalaryService(databaseManager.getDb(), companyConfig, companyService);
 
             // Initialize holdings service
             holdingsService = new HoldingsService(databaseManager.getDb());
@@ -148,6 +153,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Start the simulation engine
             simulationEngine.start();
             
+            // Start salary payment scheduler (check every 5 minutes)
+            startSalaryPaymentScheduler();
             // Initialize bStats metrics if enabled
             if (getConfig().getBoolean("metrics.enabled", true)) {
                 metricsService = new MetricsService();
@@ -304,6 +311,46 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // 1. Minecraft items (seeded via ItemSeeder)
         // 2. Company shares (created via /company market enable)
         getLogger().info("Using real market instruments (Minecraft items and company shares)");
+    }
+    
+    /**
+     * Starts a scheduler to process salary payments for all companies.
+     * Checks every 5 minutes if any company needs to pay salaries.
+     */
+    private void startSalaryPaymentScheduler() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    // Get all companies
+                    List<Map<String, Object>> companies = databaseManager.getDb().query(
+                        "SELECT id, name FROM companies"
+                    );
+                    
+                    int totalPayments = 0;
+                    for (Map<String, Object> company : companies) {
+                        String companyId = (String) company.get("id");
+                        String companyName = (String) company.get("name");
+                        
+                        try {
+                            int payments = salaryService.processSalaryPayments(companyId);
+                            if (payments > 0) {
+                                totalPayments += payments;
+                                getLogger().info("Processed " + payments + " salary payments for company " + companyName);
+                            }
+                        } catch (Exception e) {
+                            getLogger().warning("Failed to process salaries for company " + companyName + ": " + e.getMessage());
+                        }
+                    }
+                    
+                    if (totalPayments > 0) {
+                        getLogger().info("Total salary payments processed: " + totalPayments);
+                    }
+                } catch (Exception e) {
+                    getLogger().warning("Error in salary payment scheduler: " + e.getMessage());
+                }
+            }
+        }.runTaskTimerAsynchronously(this, 20L * 60 * 5, 20L * 60 * 5); // Run every 5 minutes
     }
 }
 

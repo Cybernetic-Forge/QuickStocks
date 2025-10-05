@@ -103,14 +103,27 @@ companies:
       canInvite: true
       canCreateJobTitles: true
       canWithdraw: true
+      canManageSalaries: true
     CFO:
       canWithdraw: true
       canInvite: false
       canCreateJobTitles: false
+      canManageSalaries: true
     EMPLOYEE:
       canInvite: false
       canWithdraw: false
       canCreateJobTitles: false
+      canManageSalaries: false
+  # Salary settings
+  salaries:
+    paymentCycles:  # Available payment cycle options
+      - 1h      # Every hour
+      - 24h     # Daily
+      - 1w      # Weekly
+      - 2w      # Bi-weekly
+      - 1m      # Monthly (30 days)
+    defaultJobSalary: 0.0     # Default salary if not configured
+    offlinePayment: true      # Whether offline employees receive salary payments
   # ChestShop Integration (soft-depends on ChestShop plugin)
   chestshop:
     enabled: true                # Enable company-owned chest shops
