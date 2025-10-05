@@ -218,6 +218,15 @@ public class SalaryService {
                 continue; // No salary configured
             }
             
+            // Check if offline payment is disabled and player is offline
+            if (!config.isOfflinePayment()) {
+                org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(java.util.UUID.fromString(playerUuid));
+                if (!offlinePlayer.isOnline()) {
+                    logger.fine("Skipping salary payment for offline player " + playerUuid + " (offline_payment disabled)");
+                    continue;
+                }
+            }
+            
             if (companyBalance < salary) {
                 logger.warning("Insufficient company balance to pay salary to " + playerUuid + 
                               " in company " + companyId);

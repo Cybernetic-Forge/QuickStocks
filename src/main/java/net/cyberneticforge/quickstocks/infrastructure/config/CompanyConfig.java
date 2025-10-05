@@ -28,6 +28,7 @@ public class CompanyConfig {
     // Salary settings
     private List<String> paymentCycles = Arrays.asList("1h", "24h", "1w", "2w", "1m");
     private double defaultJobSalary = 0.0;
+    private boolean offlinePayment = true;
     
     public CompanyConfig() {
         // Set default permissions
@@ -146,6 +147,14 @@ public class CompanyConfig {
     
     public void setDefaultJobSalary(double defaultJobSalary) {
         this.defaultJobSalary = defaultJobSalary;
+    }
+    
+    public boolean isOfflinePayment() {
+        return offlinePayment;
+    }
+    
+    public void setOfflinePayment(boolean offlinePayment) {
+        this.offlinePayment = offlinePayment;
     }
     
     public static class JobPermissions {

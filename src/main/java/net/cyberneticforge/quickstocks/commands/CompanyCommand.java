@@ -177,7 +177,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         Translation.Company_Help_DisableMarket.sendMessage(player);
         Translation.Company_Help_Settings.sendMessage(player);
         Translation.Company_Help_Notifications.sendMessage(player);
-        player.sendMessage("§e/company salary §7- Manage employee salaries");
+        Translation.Company_Salary_Help_Main.sendMessage(player);
     }
     
     private void handleCreate(Player player, String playerUuid, String[] args) throws Exception {
@@ -1157,18 +1157,18 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     }
     
     private void showSalaryHelp(Player player) {
-        player.sendMessage("§e§l=== Company Salary Commands ===");
-        player.sendMessage("§e/company salary set <company> <job> <amount> §7- Set job salary");
-        player.sendMessage("§e/company salary setplayer <company> <player> <amount> §7- Set player salary");
-        player.sendMessage("§e/company salary removeplayer <company> <player> §7- Remove player salary override");
-        player.sendMessage("§e/company salary cycle <company> <cycle> §7- Set payment cycle (1h, 24h, 1w, 2w, 1m)");
-        player.sendMessage("§e/company salary reset <company> <job> <amount> §7- Reset job salary");
-        player.sendMessage("§e/company salary info <company> §7- View salary configuration");
+        Translation.Company_Salary_Help_Header.sendMessage(player);
+        Translation.Company_Salary_Help_Set.sendMessage(player);
+        Translation.Company_Salary_Help_SetPlayer.sendMessage(player);
+        Translation.Company_Salary_Help_RemovePlayer.sendMessage(player);
+        Translation.Company_Salary_Help_Cycle.sendMessage(player);
+        Translation.Company_Salary_Help_Reset.sendMessage(player);
+        Translation.Company_Salary_Help_Info.sendMessage(player);
     }
     
     private void handleSalarySet(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 5) {
-            player.sendMessage("§cUsage: /company salary set <company> <job> <amount>");
+            Translation.Company_Salary_Usage_Set.sendMessage(player);
             return;
         }
         
@@ -1184,7 +1184,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         }
         
         if (amount < 0) {
-            player.sendMessage("§cSalary amount cannot be negative");
+            Translation.Company_Salary_Error_NegativeAmount.sendMessage(player);
             return;
         }
         
@@ -1199,24 +1199,26 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
         if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
-            player.sendMessage("§cYou don't have permission to manage salaries in this company");
+            Translation.Company_Salary_Error_NoPermission.sendMessage(player);
             return;
         }
         
         // Get target job
         Optional<CompanyJob> targetJob = QuickStocksPlugin.getCompanyService().getJobByTitle(company.getId(), jobTitle);
         if (targetJob.isEmpty()) {
-            player.sendMessage("§cJob title not found: " + jobTitle);
+            Translation.Company_Error_InvalidJob.sendMessage(player, new Replaceable("%job%", jobTitle));
             return;
         }
         
         QuickStocksPlugin.getSalaryService().setJobSalary(targetJob.get().getId(), amount);
-        player.sendMessage("§aSet salary for job §e" + jobTitle + "§a to §e$" + String.format("%.2f", amount));
+        Translation.Company_Salary_Set.sendMessage(player, 
+            new Replaceable("%job%", jobTitle),
+            new Replaceable("%amount%", String.format("%.2f", amount)));
     }
     
     private void handleSalarySetPlayer(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 5) {
-            player.sendMessage("§cUsage: /company salary setplayer <company> <player> <amount>");
+            Translation.Company_Salary_Usage_SetPlayer.sendMessage(player);
             return;
         }
         
@@ -1232,7 +1234,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         }
         
         if (amount < 0) {
-            player.sendMessage("§cSalary amount cannot be negative");
+            Translation.Company_Salary_Error_NegativeAmount.sendMessage(player);
             return;
         }
         
@@ -1247,7 +1249,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
         if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
-            player.sendMessage("§cYou don't have permission to manage salaries in this company");
+            Translation.Company_Salary_Error_NoPermission.sendMessage(player);
             return;
         }
         
@@ -1263,17 +1265,19 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Check if target is an employee
         Optional<CompanyJob> targetJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), targetUuid);
         if (targetJob.isEmpty()) {
-            player.sendMessage("§cPlayer is not an employee of this company");
+            Translation.Company_Salary_Error_NotEmployee.sendMessage(player);
             return;
         }
         
         QuickStocksPlugin.getSalaryService().setPlayerSalary(company.getId(), targetUuid, amount, playerUuid);
-        player.sendMessage("§aSet custom salary for §e" + targetPlayerName + "§a to §e$" + String.format("%.2f", amount));
+        Translation.Company_Salary_SetPlayer.sendMessage(player,
+            new Replaceable("%player%", targetPlayerName),
+            new Replaceable("%amount%", String.format("%.2f", amount)));
     }
     
     private void handleSalaryRemovePlayer(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
-            player.sendMessage("§cUsage: /company salary removeplayer <company> <player>");
+            Translation.Company_Salary_Usage_RemovePlayer.sendMessage(player);
             return;
         }
         
@@ -1291,7 +1295,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
         if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
-            player.sendMessage("§cYou don't have permission to manage salaries in this company");
+            Translation.Company_Salary_Error_NoPermission.sendMessage(player);
             return;
         }
         
@@ -1305,13 +1309,12 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         String targetUuid = targetPlayer.getUniqueId().toString();
         
         QuickStocksPlugin.getSalaryService().removePlayerSalary(company.getId(), targetUuid);
-        player.sendMessage("§aRemoved custom salary for §e" + targetPlayerName + "§a. They will now receive their job salary.");
+        Translation.Company_Salary_RemovePlayer.sendMessage(player, new Replaceable("%player%", targetPlayerName));
     }
     
     private void handleSalaryCycle(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
-            player.sendMessage("§cUsage: /company salary cycle <company> <cycle>");
-            player.sendMessage("§7Available cycles: 1h, 24h, 1w, 2w, 1m");
+            Translation.Company_Salary_Usage_Cycle.sendMessage(player);
             return;
         }
         
@@ -1329,21 +1332,23 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
         if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
-            player.sendMessage("§cYou don't have permission to manage salaries in this company");
+            Translation.Company_Salary_Error_NoPermission.sendMessage(player);
             return;
         }
         
         try {
             QuickStocksPlugin.getSalaryService().setPaymentCycle(company.getId(), cycle);
-            player.sendMessage("§aSet payment cycle for §e" + companyName + "§a to §e" + cycle);
+            Translation.Company_Salary_Cycle.sendMessage(player,
+                new Replaceable("%company%", companyName),
+                new Replaceable("%cycle%", cycle));
         } catch (IllegalArgumentException e) {
-            player.sendMessage("§c" + e.getMessage());
+            Translation.Company_Salary_Error_InvalidCycle.sendMessage(player, new Replaceable("%error%", e.getMessage()));
         }
     }
     
     private void handleSalaryReset(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 5) {
-            player.sendMessage("§cUsage: /company salary reset <company> <job> <amount>");
+            Translation.Company_Salary_Usage_Reset.sendMessage(player);
             return;
         }
         
@@ -1359,7 +1364,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         }
         
         if (amount < 0) {
-            player.sendMessage("§cSalary amount cannot be negative");
+            Translation.Company_Salary_Error_NegativeAmount.sendMessage(player);
             return;
         }
         
@@ -1374,24 +1379,26 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
         if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
-            player.sendMessage("§cYou don't have permission to manage salaries in this company");
+            Translation.Company_Salary_Error_NoPermission.sendMessage(player);
             return;
         }
         
         // Get target job
         Optional<CompanyJob> targetJob = QuickStocksPlugin.getCompanyService().getJobByTitle(company.getId(), jobTitle);
         if (targetJob.isEmpty()) {
-            player.sendMessage("§cJob title not found: " + jobTitle);
+            Translation.Company_Error_InvalidJob.sendMessage(player, new Replaceable("%job%", jobTitle));
             return;
         }
         
         QuickStocksPlugin.getSalaryService().setJobSalary(targetJob.get().getId(), amount);
-        player.sendMessage("§aReset salary for job §e" + jobTitle + "§a to §e$" + String.format("%.2f", amount));
+        Translation.Company_Salary_Reset.sendMessage(player,
+            new Replaceable("%job%", jobTitle),
+            new Replaceable("%amount%", String.format("%.2f", amount)));
     }
     
     private void handleSalaryInfo(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 3) {
-            player.sendMessage("§cUsage: /company salary info <company>");
+            Translation.Company_Salary_Usage_Info.sendMessage(player);
             return;
         }
         
@@ -1408,7 +1415,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Check if player is an employee
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
         if (playerJob.isEmpty()) {
-            player.sendMessage("§cYou are not an employee of this company");
+            Translation.Company_Salary_Error_NotEmployee.sendMessage(player);
             return;
         }
         
@@ -1416,19 +1423,20 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         String cycle = QuickStocksPlugin.getSalaryService().getPaymentCycle(company.getId());
         long lastPayment = QuickStocksPlugin.getSalaryService().getLastPaymentTime(company.getId());
         
-        player.sendMessage("§e§l=== Salary Info for " + companyName + " ===");
-        player.sendMessage("§7Payment Cycle: §e" + cycle);
+        Translation.Company_Salary_InfoHeader.sendMessage(player, new Replaceable("%company%", companyName));
+        Translation.Company_Salary_InfoCycle.sendMessage(player, new Replaceable("%cycle%", cycle));
         if (lastPayment > 0) {
-            player.sendMessage("§7Last Payment: §e" + dateFormat.format(new Date(lastPayment)));
+            Translation.Company_Salary_InfoLastPayment.sendMessage(player, 
+                new Replaceable("%date%", dateFormat.format(new Date(lastPayment))));
         } else {
-            player.sendMessage("§7Last Payment: §eNever");
+            Translation.Company_Salary_InfoLastPaymentNever.sendMessage(player);
         }
         player.sendMessage("");
         
         // Get salary info for all employees
         List<Map<String, Object>> salaryInfo = QuickStocksPlugin.getSalaryService().getCompanySalaryInfo(company.getId());
         
-        player.sendMessage("§e§lEmployee Salaries:");
+        Translation.Company_Salary_InfoEmployeesHeader.sendMessage(player);
         for (Map<String, Object> info : salaryInfo) {
             String empUuid = (String) info.get("player_uuid");
             String jobTitle = (String) info.get("job_title");
@@ -1446,11 +1454,15 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             }
             
             if (playerSalary != null) {
-                player.sendMessage("§7  " + playerName + " (" + jobTitle + "): §e$" + 
-                    String.format("%.2f", playerSalary) + " §7(custom)");
+                Translation.Company_Salary_InfoEmployeeCustom.sendMessage(player,
+                    new Replaceable("%player%", playerName),
+                    new Replaceable("%job%", jobTitle),
+                    new Replaceable("%amount%", String.format("%.2f", playerSalary)));
             } else {
-                player.sendMessage("§7  " + playerName + " (" + jobTitle + "): §e$" + 
-                    String.format("%.2f", jobSalary) + " §7(from job)");
+                Translation.Company_Salary_InfoEmployeeJob.sendMessage(player,
+                    new Replaceable("%player%", playerName),
+                    new Replaceable("%job%", jobTitle),
+                    new Replaceable("%amount%", String.format("%.2f", jobSalary)));
             }
         }
     }

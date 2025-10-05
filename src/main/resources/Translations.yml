@@ -264,6 +264,40 @@ Company:
     NotOnMarket: '&c%company% is not on the market.'
     OwnerOnly: '&cOnly the company owner can do that.'
     OwnerDemote: '&cYou cannot demote as the company Owner.'
+  Salary:
+    Help:
+      Header: '&e&l=== Company Salary Commands ==='
+      Set: '&e/company salary set <company> <job> <amount> &7- Set job salary'
+      SetPlayer: '&e/company salary setplayer <company> <player> <amount> &7- Set player salary'
+      RemovePlayer: '&e/company salary removeplayer <company> <player> &7- Remove player salary override'
+      Cycle: '&e/company salary cycle <company> <cycle> &7- Set payment cycle (1h, 24h, 1w, 2w, 1m)'
+      Reset: '&e/company salary reset <company> <job> <amount> &7- Reset job salary'
+      Info: '&e/company salary info <company> &7- View salary configuration'
+      Main: '&e/company salary &7- Manage employee salaries'
+    Usage:
+      Set: '&cUsage: /company salary set <company> <job> <amount>'
+      SetPlayer: '&cUsage: /company salary setplayer <company> <player> <amount>'
+      RemovePlayer: '&cUsage: /company salary removeplayer <company> <player>'
+      Cycle: '&cUsage: /company salary cycle <company> <cycle>'
+      Reset: '&cUsage: /company salary reset <company> <job> <amount>'
+      Info: '&cUsage: /company salary info <company>'
+    Set: '&aSet salary for job &e%job% &ato &e$%amount%'
+    SetPlayer: '&aSet custom salary for &e%player% &ato &e$%amount%'
+    RemovePlayer: '&aRemoved custom salary for &e%player%&a. They will now receive their job salary.'
+    Cycle: '&aSet payment cycle for &e%company% &ato &e%cycle%'
+    Reset: '&aReset salary for job &e%job% &ato &e$%amount%'
+    InfoHeader: '&e&l=== Salary Info for %company% ==='
+    InfoCycle: '&7Payment Cycle: &e%cycle%'
+    InfoLastPayment: '&7Last Payment: &e%date%'
+    InfoLastPaymentNever: '&7Last Payment: &eNever'
+    InfoEmployeesHeader: '&e&lEmployee Salaries:'
+    InfoEmployeeCustom: '&7  %player% (%job%): &e$%amount% &7(custom)'
+    InfoEmployeeJob: '&7  %player% (%job%): &e$%amount% &7(from job)'
+    Error:
+      NegativeAmount: '&cSalary amount cannot be negative'
+      NoPermission: '&cYou don''t have permission to manage salaries in this company'
+      NotEmployee: '&cYou are not an employee of this company'
+      InvalidCycle: '&c%error%'
 
 # Market GUI and Trading Messages  
 Market:
