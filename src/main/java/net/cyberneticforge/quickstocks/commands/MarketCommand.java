@@ -1,11 +1,12 @@
 package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.WatchlistService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,7 +36,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be used by players.");
+            Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
         
@@ -60,7 +61,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                 case "buy":
                     // Unified buy command - now buys company shares
                     if (args.length < 3) {
-                        player.sendMessage(ChatColor.RED + "Usage: /market buy <company> <quantity>");
+                        Translation.Market_Buy_Usage.sendMessage(player);
                         return true;
                     }
                     handleBuyShares(player, playerUuid, args[1], args[2]);
@@ -69,7 +70,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                 case "sell":
                     // Unified sell command - now sells company shares
                     if (args.length < 3) {
-                        player.sendMessage(ChatColor.RED + "Usage: /market sell <company> <quantity>");
+                        Translation.Market_Sell_Usage.sendMessage(player);
                         return true;
                     }
                     handleSellShares(player, playerUuid, args[1], args[2]);
@@ -77,7 +78,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                     
                 case "shareholders":
                     if (args.length < 2) {
-                        player.sendMessage(ChatColor.RED + "Usage: /market shareholders <company>");
+                        Translation.Market_Shareholders_Usage.sendMessage(player);
                         return true;
                     }
                     handleShareholders(player, args[1]);
@@ -98,13 +99,13 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                     break;
                     
                 default:
-                    player.sendMessage(ChatColor.RED + "Unknown subcommand. Usage: /market [browse|buy|sell|shareholders|portfolio|history|watchlist]");
+                    Translation.Market_UnknownSubcommand.sendMessage(player);
                     break;
             }
             
         } catch (Exception e) {
             logger.warning("Error in market command for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "An error occurred while processing your market command.");
+            Translation.Market_ErrorProcessing.sendMessage(player);
         }
         
         return true;
@@ -128,11 +129,11 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     private void showMarketOverviewInChat(Player player) throws Exception {
         List<Company> companiesOnMarket = QuickStocksPlugin.getCompanyService().getCompaniesOnMarket();
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Market Overview" + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "Companies on Market:");
+        Translation.Market_Overview_Header.sendMessage(player);
+        Translation.Market_Overview_CompaniesHeader.sendMessage(player);
         
         if (companiesOnMarket.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "No companies are currently on the market.");
+            Translation.Market_Overview_NoCompanies.sendMessage(player);
             return;
         }
         
@@ -143,13 +144,15 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             double balance = company.getBalance();
             double sharePrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(company);
             
-            player.sendMessage(String.format(ChatColor.GRAY + "%d. " + ChatColor.GREEN + "%s " + 
-                ChatColor.GRAY + "(%s) " + ChatColor.YELLOW + "Price: $%.2f " + ChatColor.GRAY + "Balance: $%.2f",
-                rank++, displayName, symbol, sharePrice, balance));
+            Translation.Market_Overview_CompanyItem.sendMessage(player,
+                new Replaceable("%num%", String.valueOf(rank++)),
+                new Replaceable("%company%", displayName),
+                new Replaceable("%symbol%", symbol),
+                new Replaceable("%price%", String.format("%.2f", sharePrice)),
+                new Replaceable("%balance%", String.format("%.2f", balance)));
         }
         
-        player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/market buy <company> <qty>" + 
-                          ChatColor.GRAY + " to purchase company shares.");
+        Translation.Market_Overview_BuyHint.sendMessage(player);
     }
     
     private void showPortfolio(Player player, String playerUuid) throws Exception {
@@ -187,17 +190,20 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             }
         }
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Your Portfolio" + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "Cash Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance));
-        player.sendMessage(ChatColor.YELLOW + "Portfolio Value: " + ChatColor.GREEN + "$" + String.format("%.2f", portfolioValue));
-        player.sendMessage(ChatColor.YELLOW + "Total Assets: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance + portfolioValue));
+        Translation.Market_Portfolio_Header.sendMessage(player);
+        Translation.Market_Portfolio_CashBalance.sendMessage(player,
+            new Replaceable("%balance%", String.format("%.2f", walletBalance)));
+        Translation.Market_Portfolio_PortfolioValue.sendMessage(player,
+            new Replaceable("%value%", String.format("%.2f", portfolioValue)));
+        Translation.Market_Portfolio_TotalAssets.sendMessage(player,
+            new Replaceable("%total%", String.format("%.2f", walletBalance + portfolioValue)));
         
         if (companyShares.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "No holdings found.");
+            Translation.Market_Portfolio_NoHoldings.sendMessage(player);
             return;
         }
         
-        player.sendMessage(ChatColor.YELLOW + "\nHoldings:");
+        Translation.Market_Portfolio_HoldingsHeader.sendMessage(player);
         for (Map<String, Object> share : companyShares) {
             String companyId = (String) share.get("company_id");
             String name = (String) share.get("name");
@@ -213,13 +219,19 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             double unrealizedPnL = (currentPrice - avgCost) * shares;
             double unrealizedPnLPercent = ((currentPrice - avgCost) / avgCost) * 100;
             
-            ChatColor pnlColor = unrealizedPnL >= 0 ? ChatColor.GREEN : ChatColor.RED;
+            String pnlColor = unrealizedPnL >= 0 ? "&a" : "&c";
             String pnlArrow = unrealizedPnL >= 0 ? "▲" : "▼";
             
-            player.sendMessage(String.format(ChatColor.WHITE + "%s (%s): " + ChatColor.GRAY + "%.2f shares @ $%.2f avg " +
-                ChatColor.YELLOW + "($%.2f current) " + pnlColor + "%s$%.2f (%.1f%%)",
-                name, symbol, shares, avgCost, currentPrice, pnlArrow, Math.abs(unrealizedPnL), 
-                unrealizedPnLPercent));
+            Translation.Market_Portfolio_HoldingItem.sendMessage(player,
+                new Replaceable("%company%", name),
+                new Replaceable("%symbol%", symbol),
+                new Replaceable("%shares%", String.format("%.2f", shares)),
+                new Replaceable("%avgcost%", String.format("%.2f", avgCost)),
+                new Replaceable("%current%", String.format("%.2f", currentPrice)),
+                new Replaceable("%arrow%", pnlArrow),
+                new Replaceable("%pnlcolor%", pnlColor),
+                new Replaceable("%pnl%", String.format("%.2f", Math.abs(unrealizedPnL))),
+                new Replaceable("%percent%", String.format("%.1f", unrealizedPnLPercent)));
         }
     }
     
@@ -239,10 +251,10 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             playerUuid
         );
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Order History" + ChatColor.GOLD + " ===");
+        Translation.Market_History_Header.sendMessage(player);
         
         if (transactions.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "No order history found.");
+            Translation.Market_History_NoHistory.sendMessage(player);
             return;
         }
         
@@ -254,41 +266,37 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             double price = ((Number) tx.get("price")).doubleValue();
             long timestamp = ((Number) tx.get("ts")).longValue();
             
-            ChatColor sideColor = type.equals("BUY") ? ChatColor.GREEN : ChatColor.RED;
             java.util.Date date = new java.util.Date(timestamp);
+            String timeStr = String.format("%tF %<tT", date);
             
-            player.sendMessage(String.format(sideColor + "%s " + ChatColor.WHITE + "%s (%s): " + 
-                ChatColor.GRAY + "%.2f @ $%.2f " + ChatColor.DARK_GRAY + "(%tF %<tT)",
-                type, name, symbol, shares, price, date));
+            Translation.Market_History_TransactionItem.sendMessage(player,
+                new Replaceable("%time%", timeStr),
+                new Replaceable("%type%", type),
+                new Replaceable("%company%", name + " @ $" + String.format("%.2f", price)),
+                new Replaceable("%price%", String.format("%.2f", price)));
         }
     }
     
     private void showWatchlistSummary(Player player, String playerUuid) throws Exception {
         List<WatchlistService.WatchlistItem> watchlist = QuickStocksPlugin.getWatchlistService().getWatchlist(playerUuid);
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Watchlist Summary" + ChatColor.GOLD + " ===");
+        Translation.Watch_ListHeader.sendMessage(player);
         
         if (watchlist.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "Your watchlist is empty.");
-            player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/watch add <symbol>" + 
-                              ChatColor.GRAY + " to add instruments to your watchlist.");
+            Translation.Watch_Empty.sendMessage(player);
+            Translation.Watch_EmptyHint.sendMessage(player);
             return;
         }
         
-        player.sendMessage(ChatColor.YELLOW + "Watching " + watchlist.size() + " instruments:");
+        Translation.Watch_WatchingHeader.sendMessage(player,
+            new Replaceable("%count%", String.valueOf(watchlist.size())));
         
         for (WatchlistService.WatchlistItem item : watchlist) {
-            ChatColor changeColor = item.getChange24h() >= 0 ? ChatColor.GREEN : ChatColor.RED;
-            String changeArrow = item.getChange24h() >= 0 ? "▲" : "▼";
-            
-            player.sendMessage(String.format(ChatColor.YELLOW + "★ " + ChatColor.WHITE + "%s " + 
-                ChatColor.GRAY + "(%s) " + ChatColor.YELLOW + "$%.2f " + changeColor + "%s%.2f%%",
-                item.getSymbol(), item.getDisplayName(), item.getLastPrice(), 
-                changeArrow, Math.abs(item.getChange24h())));
+            Translation.Watch_CompanyItem.sendMessage(player,
+                new Replaceable("%company%", item.getDisplayName()),
+                new Replaceable("%symbol%", item.getSymbol()),
+                new Replaceable("%price%", String.format("%.2f", item.getLastPrice())));
         }
-        
-        player.sendMessage(ChatColor.GRAY + "Use " + ChatColor.WHITE + "/watch" + ChatColor.GRAY + 
-                          " for detailed watchlist management.");
     }
     
     /**
@@ -298,14 +306,15 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         try {
             double quantity = Double.parseDouble(qtyStr);
             if (quantity <= 0) {
-                player.sendMessage(ChatColor.RED + "Quantity must be positive.");
+                Translation.Market_Buy_QuantityPositive.sendMessage(player);
                 return;
             }
             
             // Try to find company by name or symbol
             Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByNameOrSymbol(companyNameOrSymbol);
             if (companyOpt.isEmpty()) {
-                player.sendMessage(ChatColor.RED + "Company not found: " + companyNameOrSymbol);
+                Translation.Market_Buy_CompanyNotFound.sendMessage(player,
+                    new Replaceable("%company%", companyNameOrSymbol));
                 return;
             }
             
@@ -313,7 +322,8 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             
             // Check if company is on market
             if (!company.isOnMarket()) {
-                player.sendMessage(ChatColor.RED + "Company '" + company.getName() + "' is not on the market.");
+                Translation.Market_Buy_NotOnMarket.sendMessage(player,
+                    new Replaceable("%company%", company.getName()));
                 return;
             }
             
@@ -323,16 +333,20 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             // Execute purchase
             QuickStocksPlugin.getCompanyMarketService().buyShares(company.getId(), playerUuid, quantity);
             
-            player.sendMessage(ChatColor.GREEN + "Successfully purchased " + String.format("%.2f", quantity) + " shares!");
-            player.sendMessage(ChatColor.YELLOW + "Company: " + ChatColor.WHITE + company.getName() + 
-                             ChatColor.GRAY + " (" + company.getSymbol() + ")");
-            player.sendMessage(ChatColor.YELLOW + "Price per share: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
-            player.sendMessage(ChatColor.YELLOW + "Total cost: " + ChatColor.WHITE + "$" + String.format("%.2f", totalCost));
+            Translation.Market_Buy_Success.sendMessage(player,
+                new Replaceable("%qty%", String.format("%.2f", quantity)));
+            Translation.Market_Buy_Details.sendMessage(player,
+                new Replaceable("%company%", company.getName()),
+                new Replaceable("%symbol%", company.getSymbol()),
+                new Replaceable("%price%", String.format("%.2f", sharePrice)),
+                new Replaceable("%total%", String.format("%.2f", totalCost)));
             
         } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Invalid quantity: " + qtyStr);
+            Translation.Market_Buy_InvalidQuantity.sendMessage(player,
+                new Replaceable("%qty%", qtyStr));
         } catch (IllegalArgumentException e) {
-            player.sendMessage(ChatColor.RED + e.getMessage());
+            Translation.Market_Buy_Error.sendMessage(player,
+                new Replaceable("%error%", e.getMessage()));
         }
     }
     
@@ -343,14 +357,15 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         try {
             double quantity = Double.parseDouble(qtyStr);
             if (quantity <= 0) {
-                player.sendMessage(ChatColor.RED + "Quantity must be positive.");
+                Translation.Market_Buy_QuantityPositive.sendMessage(player);
                 return;
             }
             
             // Try to find company by name or symbol
             Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByNameOrSymbol(companyNameOrSymbol);
             if (companyOpt.isEmpty()) {
-                player.sendMessage(ChatColor.RED + "Company not found: " + companyNameOrSymbol);
+                Translation.Market_Buy_CompanyNotFound.sendMessage(player,
+                    new Replaceable("%company%", companyNameOrSymbol));
                 return;
             }
             
@@ -358,7 +373,8 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             
             // Check if company is on market
             if (!company.isOnMarket()) {
-                player.sendMessage(ChatColor.RED + "Company '" + company.getName() + "' is not on the market.");
+                Translation.Market_Buy_NotOnMarket.sendMessage(player,
+                    new Replaceable("%company%", company.getName()));
                 return;
             }
             
@@ -368,16 +384,20 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             // Execute sale
             QuickStocksPlugin.getCompanyMarketService().sellShares(company.getId(), playerUuid, quantity);
             
-            player.sendMessage(ChatColor.GREEN + "Successfully sold " + String.format("%.2f", quantity) + " shares!");
-            player.sendMessage(ChatColor.YELLOW + "Company: " + ChatColor.WHITE + company.getName() + 
-                             ChatColor.GRAY + " (" + company.getSymbol() + ")");
-            player.sendMessage(ChatColor.YELLOW + "Price per share: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
-            player.sendMessage(ChatColor.YELLOW + "Total received: " + ChatColor.WHITE + "$" + String.format("%.2f", totalValue));
+            Translation.Market_Sell_Success.sendMessage(player,
+                new Replaceable("%qty%", String.format("%.2f", quantity)));
+            Translation.Market_Sell_Details.sendMessage(player,
+                new Replaceable("%company%", company.getName()),
+                new Replaceable("%symbol%", company.getSymbol()),
+                new Replaceable("%price%", String.format("%.2f", sharePrice)),
+                new Replaceable("%total%", String.format("%.2f", totalValue)));
             
         } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Invalid quantity: " + qtyStr);
+            Translation.Market_Buy_InvalidQuantity.sendMessage(player,
+                new Replaceable("%qty%", qtyStr));
         } catch (IllegalArgumentException e) {
-            player.sendMessage(ChatColor.RED + e.getMessage());
+            Translation.Market_Sell_Error.sendMessage(player,
+                new Replaceable("%error%", e.getMessage()));
         }
     }
     
@@ -388,32 +408,31 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         // Try to find company by name or symbol
         Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByNameOrSymbol(companyNameOrSymbol);
         if (companyOpt.isEmpty()) {
-            player.sendMessage(ChatColor.RED + "Company not found: " + companyNameOrSymbol);
+            Translation.Market_Buy_CompanyNotFound.sendMessage(player,
+                new Replaceable("%company%", companyNameOrSymbol));
             return;
         }
         
         Company company = companyOpt.get();
         
         if (!company.isOnMarket()) {
-            player.sendMessage(ChatColor.RED + "Company '" + company.getName() + "' is not on the market.");
+            Translation.Market_Buy_NotOnMarket.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
             return;
         }
         
         // Get shareholders
         List<Map<String, Object>> shareholders = QuickStocksPlugin.getCompanyMarketService().getShareholders(company.getId());
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + company.getName() + " Shareholders" + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + company.getSymbol());
+        Translation.Market_Shareholders_Header.sendMessage(player,
+            new Replaceable("%company%", company.getName()));
         
         if (shareholders.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "No shareholders found.");
+            Translation.Market_Shareholders_NoShareholders.sendMessage(player);
             return;
         }
         
         double totalShares = QuickStocksPlugin.getCompanyMarketService().getIssuedSharesFromHoldings(company.getId());
-        
-        player.sendMessage(ChatColor.YELLOW + "Total Issued Shares: " + ChatColor.WHITE + String.format("%.2f", totalShares));
-        player.sendMessage(ChatColor.YELLOW + "\nShareholders:");
         
         for (Map<String, Object> sh : shareholders) {
             String playerUuid = (String) sh.get("player_uuid");
@@ -424,8 +443,10 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(java.util.UUID.fromString(playerUuid));
             String playerName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown";
             
-            player.sendMessage(String.format(ChatColor.WHITE + "%s: " + ChatColor.GRAY + "%.2f shares (%.1f%%)",
-                playerName, shares, percentage));
+            Translation.Market_Shareholders_ShareholderItem.sendMessage(player,
+                new Replaceable("%player%", playerName),
+                new Replaceable("%shares%", String.format("%.2f", shares)),
+                new Replaceable("%percentage%", String.format("%.1f", percentage)));
         }
     }
 
