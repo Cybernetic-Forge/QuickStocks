@@ -165,14 +165,24 @@ Each job title in a company can have these permissions:
   - Withdraw money from company
   - Manage finances
 
+#### `canManageSalaries`
+- **Description:** Manage employee salaries and payment cycles
+- **Default Roles:** CEO, CFO
+- **Abilities:**
+  - Set job-level salaries
+  - Set player-specific salaries
+  - Configure payment cycles
+  - View salary information
+  - Remove player salary overrides
+
 **Creating Custom Jobs:**
 ```
-/company createjob TechCorp Manager invite,withdraw
+/company createjob TechCorp Manager invite,withdraw,salaries
 ```
 
 **Editing Jobs:**
 ```
-/company editjob TechCorp Manager invite,withdraw,manage
+/company editjob TechCorp Manager invite,withdraw,manage,salaries
 ```
 
 Permission strings for job creation:
@@ -180,6 +190,8 @@ Permission strings for job creation:
 - `withdraw` - Can withdraw funds
 - `createjobs` - Can create job titles
 - `manage` - Full company management
+- `salaries` - Manage employee salaries
+- `chestshop` - Manage ChestShop permissions (if ChestShop is installed)
 
 ---
 

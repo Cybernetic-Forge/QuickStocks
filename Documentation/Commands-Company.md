@@ -28,6 +28,16 @@ The `/company` command provides comprehensive company management including creat
 | `/company deposit <company> <amount>` | Deposit funds | Employee |
 | `/company withdraw <company> <amount>` | Withdraw funds | Role-based |
 
+### Salary Management
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/company salary set <company> <job> <amount>` | Set job salary | Role-based |
+| `/company salary setplayer <company> <player> <amount>` | Set player salary | Role-based |
+| `/company salary removeplayer <company> <player>` | Remove player salary | Role-based |
+| `/company salary cycle <company> <cycle>` | Set payment cycle | Role-based |
+| `/company salary reset <company> <job> <amount>` | Reset job salary | Role-based |
+| `/company salary info <company>` | View salary info | Employee |
+
 ### Job Management
 | Command | Description | Permission |
 |---------|-------------|------------|
@@ -971,6 +981,223 @@ View offline notifications about company events.
 - **[`/market`](Commands-Market.md)** - Trade company shares
 - **[`/wallet`](Commands-Wallet.md)** - Manage funds for deposits
 - **[`/stocks`](Commands-Stocks.md)** - View company stock prices
+
+---
+
+## 💰 Salary Management
+
+### `/company salary set <company> <job> <amount>`
+
+Set the salary for a job title. All employees with this job will receive this salary.
+
+**Permission:** Role-based (`canManageSalaries`)
+
+**Arguments:**
+- `<company>` - Company name
+- `<job>` - Job title (CEO, CFO, EMPLOYEE, or custom)
+- `<amount>` - Salary amount per payment cycle
+
+**Examples:**
+```
+/company salary set TechCorp CEO 1000
+/company salary set TechCorp EMPLOYEE 250
+/company salary set MiningInc Manager 500
+```
+
+**Sample Output:**
+```
+✅ Set salary for job CEO to $1000.00
+All employees with this job will receive this salary.
+```
+
+---
+
+### `/company salary setplayer <company> <player> <amount>`
+
+Set a custom salary for a specific player, overriding their job salary.
+
+**Permission:** Role-based (`canManageSalaries`)
+
+**Arguments:**
+- `<company>` - Company name
+- `<player>` - Player name
+- `<amount>` - Custom salary amount
+
+**Examples:**
+```
+/company salary setplayer TechCorp Steve 1500
+/company salary setplayer MiningInc Alex 800
+```
+
+**Sample Output:**
+```
+✅ Set custom salary for Steve to $1500.00
+This overrides their job salary.
+```
+
+**Note:** Player-specific salaries always take precedence over job salaries.
+
+---
+
+### `/company salary removeplayer <company> <player>`
+
+Remove a player's custom salary, reverting them to their job salary.
+
+**Permission:** Role-based (`canManageSalaries`)
+
+**Arguments:**
+- `<company>` - Company name
+- `<player>` - Player name
+
+**Examples:**
+```
+/company salary removeplayer TechCorp Steve
+/company salary removeplayer MiningInc Alex
+```
+
+**Sample Output:**
+```
+✅ Removed custom salary for Steve
+They will now receive their job salary.
+```
+
+---
+
+### `/company salary cycle <company> <cycle>`
+
+Set the payment cycle for salary payments.
+
+**Permission:** Role-based (`canManageSalaries`)
+
+**Arguments:**
+- `<company>` - Company name
+- `<cycle>` - Payment cycle: `1h`, `24h`, `1w`, `2w`, `1m`
+
+**Cycle Options:**
+- `1h` - Every hour
+- `24h` - Every 24 hours (daily)
+- `1w` - Every week (7 days)
+- `2w` - Every two weeks (14 days)
+- `1m` - Every month (30 days)
+
+**Examples:**
+```
+/company salary cycle TechCorp 1w
+/company salary cycle MiningInc 24h
+/company salary cycle GamersDAO 1m
+```
+
+**Sample Output:**
+```
+✅ Set payment cycle for TechCorp to 1w
+Employees will be paid every 7 days.
+```
+
+**Note:** The configured payment cycles in `config.yml` determine available options.
+
+---
+
+### `/company salary reset <company> <job> <amount>`
+
+Reset a job's salary to a specific value (same as `set` but clearer intent).
+
+**Permission:** Role-based (`canManageSalaries`)
+
+**Arguments:**
+- `<company>` - Company name
+- `<job>` - Job title
+- `<amount>` - New salary amount
+
+**Examples:**
+```
+/company salary reset TechCorp CEO 1000
+/company salary reset MiningInc EMPLOYEE 200
+```
+
+**Sample Output:**
+```
+✅ Reset salary for job CEO to $1000.00
+```
+
+---
+
+### `/company salary info <company>`
+
+View salary configuration and employee salaries for a company.
+
+**Permission:** Employee status required
+
+**Arguments:**
+- `<company>` - Company name
+
+**Examples:**
+```
+/company salary info TechCorp
+/company salary info MiningInc
+```
+
+**Sample Output:**
+```
+═══ Salary Info for TechCorp ═══
+Payment Cycle: 1w
+Last Payment: 2024-10-05 10:30
+
+Employee Salaries:
+  Steve (CEO): $1500.00 (custom)
+  Alex (CFO): $1000.00 (from job)
+  Bob (EMPLOYEE): $250.00 (from job)
+  Charlie (Manager): $500.00 (from job)
+```
+
+**Legend:**
+- `(custom)` - Player has a custom salary set
+- `(from job)` - Salary comes from job title configuration
+
+---
+
+## 💵 Salary System Behavior
+
+### Automatic Payments
+
+Salaries are paid automatically based on the configured payment cycle:
+- The system checks all companies every 5 minutes
+- Payments are processed only when the cycle duration has elapsed
+- Company balance is checked before each payment
+- Failed payments are logged but don't stop other payments
+
+### Payment Priority
+
+1. **Player-specific salaries** override job salaries
+2. **Job salaries** apply when no player-specific salary exists
+3. **Default salary** (from config) applies if no job salary is set
+
+### Payment Failures
+
+Payments can fail if:
+- Company has insufficient balance
+- Player is no longer an employee
+- Player's UUID is invalid
+
+Failed payments are logged and can be reviewed in the server logs.
+
+### Balance Management
+
+- Companies must maintain sufficient balance for salary payments
+- Consider the total salary burden when setting payment cycles
+- Use `/company info` to check company balance before payday
+
+**Example Calculation:**
+```
+Company: TechCorp
+Payment Cycle: 1w (weekly)
+Employees:
+- CEO: $1000
+- CFO: $800
+- 3x Employees: $250 each
+
+Total Weekly Cost: $2,550
+Recommended Balance: $5,000+ (2 weeks buffer)
+```
 
 ---
 

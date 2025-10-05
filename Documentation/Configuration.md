@@ -518,14 +518,17 @@ companies:
       canInvite: true
       canCreateJobTitles: true
       canWithdraw: true
+      canManageSalaries: true
     CFO:
       canWithdraw: true
       canInvite: false
       canCreateJobTitles: false
+      canManageSalaries: true
     EMPLOYEE:
       canInvite: false
       canWithdraw: false
       canCreateJobTitles: false
+      canManageSalaries: false
 ```
 
 **Available Permissions:**
@@ -546,6 +549,11 @@ companies:
 - **Description:** Withdraw funds from company balance
 - **Allows:** Transfer money to personal wallet
 
+### `canManageSalaries`
+- **Description:** Manage employee salaries and payment cycles
+- **Allows:** Set job salaries, player salaries, configure payment cycles
+- **Default Roles:** CEO, CFO
+
 **Example Custom Role:**
 ```yaml
 Manager:
@@ -553,7 +561,62 @@ Manager:
   canInvite: true
   canCreateJobTitles: false
   canWithdraw: true
+  canManageSalaries: true
 ```
+
+---
+
+### Salary Configuration
+
+```yaml
+companies:
+  salaries:
+    paymentCycles:
+      - 1h      # Every hour
+      - 24h     # Daily
+      - 1w      # Weekly
+      - 2w      # Bi-weekly
+      - 1m      # Monthly (30 days)
+    defaultJobSalary: 0.0
+```
+
+**Parameters:**
+
+### `paymentCycles`
+- **Type:** Array of strings
+- **Default:** `[1h, 24h, 1w, 2w, 1m]`
+- **Description:** Available payment cycle options for companies
+- **Note:** Company owners can only choose from configured cycles
+- **Customization:** Add or remove cycles to match your server economy
+
+**Cycle Options:**
+- `1h` - Every hour
+- `24h` - Every 24 hours (daily)
+- `1w` - Every week (7 days)
+- `2w` - Every two weeks (14 days)
+- `1m` - Every month (30 days)
+
+### `defaultJobSalary`
+- **Type:** Decimal
+- **Default:** `0.0`
+- **Description:** Default salary amount if not configured for a job
+- **Note:** Set to 0.0 to require explicit salary configuration
+
+**Salary System Features:**
+- Job-level salaries apply to all employees with that job title
+- Player-specific salaries can override job salaries
+- Automatic payment processing based on configured cycle
+- Payment history tracking for auditing
+- Company balance checks before payments
+- Failed payments are logged but don't stop other payments
+
+**Commands:**
+- `/company salary set <company> <job> <amount>` - Set job salary
+- `/company salary setplayer <company> <player> <amount>` - Set player salary
+- `/company salary removeplayer <company> <player>` - Remove player salary override
+- `/company salary cycle <company> <cycle>` - Set payment cycle
+- `/company salary reset <company> <job> <amount>` - Reset job salary
+- `/company salary info <company>` - View salary configuration
 
 ---
 

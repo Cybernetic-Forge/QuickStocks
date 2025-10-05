@@ -37,6 +37,12 @@ QuickStocks uses a relational database to store:
 - `company_share_tx` - Share trade history
 - `player_notifications` - Offline notifications
 
+**Salaries:**
+- `company_job_salaries` - Job-level salary configuration
+- `company_employee_salaries` - Player-specific salary overrides
+- `company_salary_config` - Payment cycle configuration
+- `company_salary_payments` - Salary payment history
+
 **Player Data:**
 - `wallets` - Player wallet balances (if not using Vault)
 - `watchlists` - Player watchlists
@@ -240,14 +246,17 @@ QuickStocks uses versioned migrations to update the database schema:
 **Migration Files:**
 ```
 plugins/QuickStocks/migrations/
-├── V1__init.sql              # Initial schema
-├── V2__add_watchlists.sql    # Watchlist feature
-├── V3__add_holdings.sql      # Holdings tracking
-├── V4__add_wallet.sql        # Wallet system
-├── V5__update_jobs.sql       # Job permissions
-├── V6__add_analytics.sql     # Analytics tables
-├── V7__companies.sql         # Company system
-└── V9__company_market.sql    # Company IPO
+├── V1__init.sql                  # Initial schema
+├── V2__holdings_orders.sql       # Holdings and orders
+├── V3__trading_economy.sql       # Trading system
+├── V4__watchlists.sql            # Watchlist feature
+├── V5__analytics_views.sql       # Analytics tables
+├── V6__portfolio_tracking.sql    # Portfolio tracking
+├── V7__fix_strftime_indexes.sql  # Index fixes
+├── V8__companies.sql             # Company system
+├── V9__company_market.sql        # Company IPO
+├── V10__chestshop_permission.sql # ChestShop integration
+└── V11__employee_salaries.sql    # Salary system
 ```
 
 ### Viewing Migration Status
@@ -435,6 +444,64 @@ SELECT name, type, balance, owner_uuid
 FROM companies
 ORDER BY balance DESC
 LIMIT 10;
+```
+
+**Salary Payments This Week:**
+```sql
+SELECT 
+  c.name,
+  COUNT(*) as payments,
+  SUM(csp.amount) as total_paid
+FROM company_salary_payments csp
+JOIN companies c ON csp.company_id = c.id
+WHERE csp.payment_ts >= strftime('%s', 'now', '-7 days') * 1000
+GROUP BY c.name
+ORDER BY total_paid DESC;
+```
+
+**Employees with Custom Salaries:**
+```sql
+SELECT 
+  c.name as company,
+  ces.player_uuid,
+  ces.salary_amount as custom_salary,
+  cjs.salary_amount as job_salary
+FROM company_employee_salaries ces
+JOIN companies c ON ces.company_id = c.id
+JOIN company_employees ce ON ces.company_id = ce.company_id AND ces.player_uuid = ce.player_uuid
+JOIN company_job_salaries cjs ON ce.job_id = cjs.job_id
+ORDER BY c.name, ces.salary_amount DESC;
+```
+
+**Company Payroll Summary:**
+```sql
+SELECT 
+  c.name,
+  c.balance,
+  COUNT(ce.player_uuid) as employees,
+  COALESCE(SUM(COALESCE(ces.salary_amount, cjs.salary_amount, 0)), 0) as total_payroll,
+  csc.payment_cycle
+FROM companies c
+LEFT JOIN company_employees ce ON c.id = ce.company_id
+LEFT JOIN company_employee_salaries ces ON ce.company_id = ces.company_id AND ce.player_uuid = ces.player_uuid
+LEFT JOIN company_job_salaries cjs ON ce.job_id = cjs.job_id
+LEFT JOIN company_salary_config csc ON c.id = csc.company_id
+GROUP BY c.name
+ORDER BY total_payroll DESC;
+```
+
+**Recent Payment History:**
+```sql
+SELECT 
+  c.name,
+  csp.player_uuid,
+  csp.amount,
+  datetime(csp.payment_ts / 1000, 'unixepoch') as payment_time,
+  csp.cycle
+FROM company_salary_payments csp
+JOIN companies c ON csp.company_id = c.id
+ORDER BY csp.payment_ts DESC
+LIMIT 20;
 ```
 
 ---
