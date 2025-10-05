@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Command handler for company operations (/company).
@@ -363,6 +364,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
+                             (job.canManageSalaries() ? "Salaries " : "") +
                              (job.canManageChestShop() ? "ChestShop" : "");
             Translation.Company_JoinedWithJob.sendMessage(player,
                 new Replaceable("%company%", companyOpt.get().getName()),
@@ -547,6 +549,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
+                             (job.canManageSalaries() ? "Salaries " : "") +
                              (job.canManageChestShop() ? "ChestShop" : "");
             Translation.Company_JobDetails.sendMessage(player,
                 new Replaceable("%job%", job.getTitle()),
@@ -753,8 +756,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             
             // Cycle options for salary cycle command
             if (args.length == 4 && args[0].equalsIgnoreCase("salary") && args[1].equalsIgnoreCase("cycle")) {
-                return Arrays.asList("1h", "24h", "1w", "2w", "1m")
-                    .stream()
+                return Stream.of("1h", "24h", "1w", "2w", "1m")
                     .filter(option -> option.toLowerCase().startsWith(args[3].toLowerCase()))
                     .collect(Collectors.toList());
             }
@@ -1196,7 +1198,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
-        if (playerJob.isEmpty() || !playerJob.get().canManageSalaries()) {
+        if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
             player.sendMessage("§cYou don't have permission to manage salaries in this company");
             return;
         }
@@ -1244,7 +1246,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
-        if (playerJob.isEmpty() || !playerJob.get().canManageSalaries()) {
+        if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
             player.sendMessage("§cYou don't have permission to manage salaries in this company");
             return;
         }
@@ -1288,7 +1290,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
-        if (playerJob.isEmpty() || !playerJob.get().canManageSalaries()) {
+        if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
             player.sendMessage("§cYou don't have permission to manage salaries in this company");
             return;
         }
@@ -1326,7 +1328,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
-        if (playerJob.isEmpty() || !playerJob.get().canManageSalaries()) {
+        if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
             player.sendMessage("§cYou don't have permission to manage salaries in this company");
             return;
         }
@@ -1371,7 +1373,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         // Check permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
-        if (playerJob.isEmpty() || !playerJob.get().canManageSalaries()) {
+        if (!company.getOwnerUuid().equalsIgnoreCase(playerUuid) && (playerJob.isEmpty() || !playerJob.get().canManageSalaries())) {
             player.sendMessage("§cYou don't have permission to manage salaries in this company");
             return;
         }

@@ -130,9 +130,9 @@ public class CompanyManager {
      */
     public CompanyJob createJob(String companyId, String creatorUuid, String title,
                                 boolean canInvite, boolean canCreateTitles,
-                                boolean canWithdraw, boolean canManageCompany, boolean canManageChestShops) throws SQLException {
+                                boolean canWithdraw, boolean canManageCompany, boolean canManageSalaries, boolean canManageChestShops) throws SQLException {
         return companyService.createJobTitle(companyId, creatorUuid, title, 
-                                            canInvite, canCreateTitles, canWithdraw, canManageCompany, canManageChestShops);
+                                            canInvite, canCreateTitles, canWithdraw, canManageCompany, canManageSalaries, canManageChestShops);
     }
     
     /**
