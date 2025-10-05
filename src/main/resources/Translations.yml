@@ -85,6 +85,7 @@ Wallet:
   Received: '&aReceived $%amount% from %player%!'
   UnknownSubcommand: '&cUnknown subcommand. Use: /wallet [balance|deposit|withdraw|pay]'
   ErrorProcessing: '&cAn error occurred while processing your wallet command.'
+  UnknownSubcommand: '&cUnknown subcommand. Usage: /wallet [balance|add|set] [amount]'
   Error:
     InsufficientFunds: '&cInsufficient funds!'
     InvalidAmount: '&cInvalid amount!'
@@ -249,3 +250,65 @@ Company:
     NotOnMarket: '&c%company% is not on the market.'
     OwnerOnly: '&cOnly the company owner can do that.'
     OwnerDemote: '&cYou cannot demote as the company Owner.'
+
+# Market GUI and Trading Messages  
+Market:
+  Portfolio:
+    Header: '&6=== &fYour Portfolio &6==='
+    Cash: '&eCash Balance: &a$%balance%'
+    Value: '&ePortfolio Value: &a$%value%'
+    Total: '&eTotal Assets: &a$%total%'
+    Empty: '&7No holdings found.'
+    HoldingsHeader: '&e\nHoldings:'
+    HoldingItem: '&f%symbol%: &7%qty% shares @ $%avgcost% avg &e($%current% current) %arrow%%pnlcolor%$%pnl% (%percent%%)'
+  Balance_Updated: '&7New balance: $%balance%'
+  Buy:
+    CustomPrompt:
+      - '&eEnter amount to %action% for %company%:'
+      - '&7Use: &f/market %action% %symbol% <amount>'
+  CompanyDetails:
+    - '&6=== %company% (%symbol%) ==='
+    - '&eShare Price: &f$%price%'
+    - '&eCompany Balance: &f$%balance%'
+    - '&eMarket %: &f%market_pct%%'
+    - '&7Use left-click to buy, right-click to sell'
+    - '&7Shift+click for custom amounts'
+  Error:
+    NoShares: '&cYou don''t have any shares of %company%!'
+    TransactionFailed: '&c✗ Transaction failed: %error%'
+
+# GUI Messages
+GUI:
+  CompanySettings:
+    Refresh_Success: '&aCompany settings refreshed!'
+    Error: '&cAn error occurred while processing your click.'
+    DepositHint: '&eUse command: &f/company deposit %company% <amount>'
+    WithdrawHint: '&eUse command: &f/company withdraw %company% <amount>'
+    AssignJobHint: '&eUse command: &f/company assignjob %company% <player> <job>'
+    InviteHint: '&eUse command: &f/company invite %company% <player> <job>'
+    CreateJobHint:
+      - '&eUse command: &f/company createjob %company% <title> <permissions>'
+      - '&7Permissions: invite, createjobs, withdraw, manage (comma-separated)'
+    EditJobHint:
+      - '&eUse command: &f/company editjob %company% <title> <permissions>'
+      - '&7Permissions: invite, createjobs, withdraw, manage (comma-separated)'
+  Market:
+    Refresh_Success: '&aMarket data refreshed!'
+    Error: '&cAn error occurred while processing your request.'
+  Portfolio:
+    Refresh_Success: '&aPortfolio refreshed!'
+    Error: '&cUnable to display portfolio at this time.'
+
+# ChestShop Integration
+ChestShop:
+  Created: '&aChestShop successfully created for company ''%company%''!'
+  Removed: '&cChestShop removed for company ''%company%''.'
+  NoPermission: '&cYou do not have permission to create chest shops for company ''%company%''.'
+  InsufficientBalance:
+    - '&cCompany ''%company%'' does not have sufficient balance to create chest shops.'
+    - '&7Required: $%required%'
+    - '&7Current: $%current%'
+  Error: '&cAn error occurred while validating the company.'
+  Transaction:
+    Buy: '&aTransaction: %player% bought %qty% %item% for $%price% from company %company%.'
+    Sell: '&aTransaction: %player% sold %qty% %item% for $%price% to company %company%.'

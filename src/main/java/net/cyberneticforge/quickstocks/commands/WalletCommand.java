@@ -1,7 +1,9 @@
 package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
-import org.bukkit.ChatColor;
+import net.cyberneticforge.quickstocks.core.enums.Translation;
+import net.cyberneticforge.quickstocks.core.services.TranslationService;
+import net.cyberneticforge.quickstocks.utils.Replaceable;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,7 +25,7 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be used by players.");
+            Translation.ConsoleNotAllowed.sendMessage(sender);
             return true;
         }
         
@@ -47,68 +49,70 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
                     
                 case "add":
                     if (args.length < 2) {
-                        player.sendMessage(ChatColor.RED + "Usage: /wallet add <amount>");
+                        Translation.Wallet_Usage.sendMessage(player);
                         return true;
                     }
                     
                     if (!player.hasPermission("quickstocks.wallet.add")) {
-                        player.sendMessage(ChatColor.RED + "You don't have permission to add money.");
+                        Translation.NoPermission.sendMessage(player);
                         return true;
                     }
                     
                     try {
                         double amount = Double.parseDouble(args[1]);
                         if (amount <= 0) {
-                            player.sendMessage(ChatColor.RED + "Amount must be positive.");
+                            Translation.Wallet_Error_InvalidAmount.sendMessage(player);
                             return true;
                         }
 
                         QuickStocksPlugin.getWalletService().addBalance(playerUuid, amount);
                         double newBalance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
                         
-                        player.sendMessage(ChatColor.GREEN + "Added $" + String.format("%.2f", amount) + 
-                                         " to your wallet. New balance: $" + String.format("%.2f", newBalance));
+                        Translation.Wallet_Deposit.sendMessage(player,
+                            new Replaceable("%amount%", String.format("%.2f", amount)),
+                            new Replaceable("%balance%", String.format("%.2f", newBalance)));
                         
                     } catch (NumberFormatException e) {
-                        player.sendMessage(ChatColor.RED + "Invalid amount: " + args[1]);
+                        Translation.Wallet_Error_InvalidAmount.sendMessage(player);
                     }
                     break;
                     
                 case "set":
                     if (args.length < 2) {
-                        player.sendMessage(ChatColor.RED + "Usage: /wallet set <amount>");
+                        Translation.Wallet_Usage.sendMessage(player);
                         return true;
                     }
                     
                     if (!player.hasPermission("quickstocks.wallet.set")) {
-                        player.sendMessage(ChatColor.RED + "You don't have permission to set wallet balance.");
+                        Translation.NoPermission.sendMessage(player);
                         return true;
                     }
                     
                     try {
                         double amount = Double.parseDouble(args[1]);
                         if (amount < 0) {
-                            player.sendMessage(ChatColor.RED + "Amount cannot be negative.");
+                            Translation.Wallet_Error_InvalidAmount.sendMessage(player);
                             return true;
                         }
 
                         QuickStocksPlugin.getWalletService().setBalance(playerUuid, amount);
                         
-                        player.sendMessage(ChatColor.GREEN + "Set wallet balance to $" + String.format("%.2f", amount));
+                        Translation.Wallet_Balance.sendMessage(player,
+                            new Replaceable("%balance%", String.format("%.2f", amount)));
                         
                     } catch (NumberFormatException e) {
-                        player.sendMessage(ChatColor.RED + "Invalid amount: " + args[1]);
+                        Translation.Wallet_Error_InvalidAmount.sendMessage(player);
                     }
                     break;
                     
                 default:
-                    player.sendMessage(ChatColor.RED + "Unknown subcommand. Usage: /wallet [balance|add|set] [amount]");
+                    Translation.Wallet_UnknownSubcommand.sendMessage(player);
                     break;
             }
             
         } catch (Exception e) {
             logger.warning("Error in wallet command for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "An error occurred while processing your wallet command.");
+            Translation.Wallet_ErrorProcessing.sendMessage(player);
         }
         
         return true;
@@ -117,8 +121,8 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
     private void showBalance(Player player, String playerUuid) throws Exception {
         double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Wallet Balance" + ChatColor.GOLD + " ===");
-        player.sendMessage(ChatColor.YELLOW + "Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", balance));
+        Translation.Wallet_Balance.sendMessage(player,
+            new Replaceable("%balance%", String.format("%.2f", balance)));
     }
     
     @Override
