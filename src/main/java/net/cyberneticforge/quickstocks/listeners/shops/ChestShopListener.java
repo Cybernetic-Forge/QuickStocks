@@ -2,12 +2,13 @@ package net.cyberneticforge.quickstocks.listeners.shops;
 
 import com.Acrobot.ChestShop.Events.ShopCreatedEvent;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -67,12 +68,10 @@ public class ChestShopListener implements Listener {
                 
                 // Check if company has sufficient balance
                 if (company.getBalance() < companyConfig.getChestShopCompanyMinBalance()) {
-                    event.getPlayer().sendMessage(ChatColor.RED + "Company '" + company.getName() + 
-                        "' does not have sufficient balance to create chest shops.");
-                    event.getPlayer().sendMessage(ChatColor.GRAY + "Required: $" + 
-                        String.format("%.2f", companyConfig.getChestShopCompanyMinBalance()));
-                    event.getPlayer().sendMessage(ChatColor.GRAY + "Current: $" + 
-                        String.format("%.2f", company.getBalance()));
+                    Translation.ChestShop_InsufficientBalance.sendMessage(event.getPlayer(),
+                        new Replaceable("%company%", company.getName()),
+                        new Replaceable("%required%", String.format("%.2f", companyConfig.getChestShopCompanyMinBalance())),
+                        new Replaceable("%current%", String.format("%.2f", company.getBalance())));
                     event.setCancelled(true);
                     return;
                 }
@@ -82,9 +81,8 @@ public class ChestShopListener implements Listener {
                 var jobOpt = companyService.getPlayerJob(company.getId(), playerUuid);
                 
                 if (jobOpt.isEmpty() || !jobOpt.get().canManageChestShop()) {
-                    event.getPlayer().sendMessage(ChatColor.RED + "You do not have permission to create chest shops for company '" + 
-                        company.getName() + "'");
-                    event.getPlayer().sendMessage(ChatColor.GRAY + "Required permission: chestshop");
+                    Translation.ChestShop_NoPermission.sendMessage(event.getPlayer(),
+                        new Replaceable("%company%", company.getName()));
                     event.setCancelled(true);
                     return;
                 }
@@ -96,7 +94,7 @@ public class ChestShopListener implements Listener {
             
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error validating company for ChestShop sign", e);
-            event.getPlayer().sendMessage(ChatColor.RED + "An error occurred while validating the company.");
+            Translation.ChestShop_Error.sendMessage(event.getPlayer());
             event.setCancelled(true);
         }
     }
@@ -121,8 +119,8 @@ public class ChestShopListener implements Listener {
                 // Ensure company is registered (in case registration didn't happen during sign creation)
                 accountProvider.registerCompany(companyOpt.get());
                 
-                event.getPlayer().sendMessage(ChatColor.GREEN + "ChestShop successfully created for company '" + 
-                    companyOpt.get().getName() + "'");
+                Translation.ChestShop_Created.sendMessage(event.getPlayer(),
+                    new Replaceable("%company%", companyOpt.get().getName()));
                 logger.info("ChestShop successfully created for company '" + companyOpt.get().getName() + 
                     "' by player " + event.getPlayer().getName());
             }

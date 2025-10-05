@@ -1,10 +1,11 @@
 package net.cyberneticforge.quickstocks.gui;
 
-import net.cyberneticforge.quickstocks.application.queries.QueryService;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
-import net.cyberneticforge.quickstocks.core.services.WalletService;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -20,245 +21,245 @@ import java.util.logging.Logger;
  * Portfolio GUI showing player's holdings and assets
  */
 public class PortfolioGUI implements InventoryHolder {
-    
+
     private static final Logger logger = Logger.getLogger(PortfolioGUI.class.getName());
-    private static final int GUI_SIZE = 54; // 6 rows
-    
+
     private final Player player;
-    private final QueryService queryService;
-    private final HoldingsService holdingsService;
-    private final WalletService walletService;
     private final Inventory inventory;
-    
-    public PortfolioGUI(Player player, QueryService queryService, HoldingsService holdingsService, WalletService walletService) {
+
+    public PortfolioGUI(Player player) {
         this.player = player;
-        this.queryService = queryService;
-        this.holdingsService = holdingsService;
-        this.walletService = walletService;
-        this.inventory = Bukkit.createInventory(this, GUI_SIZE, ChatColor.GOLD + "Portfolio - " + player.getName());
-        
+
+        int guiSize = QuickStocksPlugin.getGuiConfig().getConfig().getInt("portfolio.size", 54);
+        String title = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.title", "&6Portfolio - {player_name}")
+                .replace("{player_name}", player.getName());
+
+        this.inventory = Bukkit.createInventory(this, guiSize, ChatUT.hexComp(title));
+
         setupGUI();
     }
-    
+
     @Override
     public Inventory getInventory() {
         return inventory;
     }
-    
+
     /**
      * Sets up the portfolio GUI
      */
     private void setupGUI() {
         try {
             String playerUuid = player.getUniqueId().toString();
-            
+
             // Add wallet info (top left)
             addWalletInfo();
-            
+
             // Add portfolio summary (top right)
             addPortfolioSummary();
-            
+
             // Add holdings
             addHoldings();
-            
+
             // Add navigation buttons
             addNavigationButtons();
-            
+
         } catch (Exception e) {
             logger.warning("Error setting up Portfolio GUI for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "Failed to load portfolio data.");
+            String errorMsg = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.error_message", "&cFailed to load portfolio data.");
+            player.sendMessage(ChatUT.hexComp(errorMsg));
         }
     }
-    
+
     /**
      * Adds wallet information
      */
     private void addWalletInfo() {
         try {
-            ItemStack walletItem = new ItemStack(Material.GOLD_INGOT);
+            Material walletMaterial = QuickStocksPlugin.getGuiConfig().getItemMaterial("portfolio.wallet", Material.GOLD_INGOT);
+            int walletSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("portfolio.wallet", 0);
+            ItemStack walletItem = new ItemStack(walletMaterial);
             ItemMeta meta = walletItem.getItemMeta();
-            meta.setDisplayName(ChatColor.GOLD + "Cash Balance");
-            
-            List<String> lore = new ArrayList<>();
-            double balance = walletService.getBalance(player.getUniqueId().toString());
-            
-            lore.add(ChatColor.YELLOW + "Available Cash:");
-            lore.add(ChatColor.GREEN + "$" + String.format("%.2f", balance));
-            lore.add("");
-            lore.add(ChatColor.GRAY + "Ready for trading");
-            
-            meta.setLore(lore);
+            meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName("portfolio.wallet"));
+
+            double balance = QuickStocksPlugin.getWalletService().getBalance(player.getUniqueId().toString());
+            List<String> lorePatt = QuickStocksPlugin.getGuiConfig().getConfig().getStringList("portfolio.wallet.lore");
+            List<Component> lore = new ArrayList<>();
+
+            for (String line : lorePatt) {
+                String processedLine = line.replace("{balance}", String.format("%.2f", balance));
+                lore.add(ChatUT.hexComp(processedLine));
+            }
+
+            meta.lore(lore);
             walletItem.setItemMeta(meta);
-            inventory.setItem(0, walletItem);
-            
+            inventory.setItem(walletSlot, walletItem);
+
         } catch (Exception e) {
             logger.warning("Error adding wallet info: " + e.getMessage());
         }
     }
-    
+
     /**
      * Adds portfolio summary
      */
     private void addPortfolioSummary() {
         try {
-            ItemStack summaryItem = new ItemStack(Material.EMERALD);
+            Material summaryMaterial = QuickStocksPlugin.getGuiConfig().getItemMaterial("portfolio.summary", Material.EMERALD);
+            int summarySlot = QuickStocksPlugin.getGuiConfig().getItemSlot("portfolio.summary", 8);
+            ItemStack summaryItem = new ItemStack(summaryMaterial);
             ItemMeta meta = summaryItem.getItemMeta();
-            meta.setDisplayName(ChatColor.GREEN + "Portfolio Summary");
-            
-            List<String> lore = new ArrayList<>();
+            meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName("portfolio.summary"));
+
             String playerUuid = player.getUniqueId().toString();
-            
-            double walletBalance = walletService.getBalance(playerUuid);
-            double portfolioValue = holdingsService.getPortfolioValue(playerUuid);
+            double walletBalance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
+            double portfolioValue = QuickStocksPlugin.getHoldingsService().getPortfolioValue(playerUuid);
             double totalAssets = walletBalance + portfolioValue;
-            
-            lore.add(ChatColor.YELLOW + "Portfolio Value: " + ChatColor.GREEN + "$" + String.format("%.2f", portfolioValue));
-            lore.add(ChatColor.YELLOW + "Cash Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", walletBalance));
-            lore.add(ChatColor.YELLOW + "Total Assets: " + ChatColor.AQUA + "$" + String.format("%.2f", totalAssets));
-            lore.add("");
-            lore.add(ChatColor.GRAY + "Your complete financial overview");
-            
-            meta.setLore(lore);
+
+            List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("portfolio.summary",
+                    new Replaceable("{portfolio_value}", String.format("%.2f", portfolioValue)),
+                    new Replaceable("{cash_balance}", String.format("%.2f", walletBalance)),
+                    new Replaceable("{total_assets}", String.format("%.2f", totalAssets)));
+            meta.lore(lore);
             summaryItem.setItemMeta(meta);
-            inventory.setItem(8, summaryItem);
-            
+            inventory.setItem(summarySlot, summaryItem);
+
         } catch (Exception e) {
             logger.warning("Error adding portfolio summary: " + e.getMessage());
         }
     }
-    
+
     /**
      * Adds holdings to the GUI
      */
     private void addHoldings() {
         try {
-            List<HoldingsService.Holding> holdings = holdingsService.getHoldings(player.getUniqueId().toString());
-            
+            List<HoldingsService.Holding> holdings = QuickStocksPlugin.getHoldingsService().getHoldings(player.getUniqueId().toString());
+
             int slot = 9; // Start from second row
             for (HoldingsService.Holding holding : holdings) {
                 if (slot >= 45) break; // Leave bottom row for navigation
-                
+
                 ItemStack holdingItem = createHoldingItem(holding);
                 inventory.setItem(slot, holdingItem);
                 slot++;
             }
-            
+
             // Fill empty slots if no holdings
             if (holdings.isEmpty()) {
-                ItemStack noHoldings = new ItemStack(Material.BARRIER);
+                Material noHoldingsMat = QuickStocksPlugin.getGuiConfig().getItemMaterial("portfolio.no_holdings", Material.BARRIER);
+                int noHoldingsSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("portfolio.no_holdings", 22);
+                ItemStack noHoldings = new ItemStack(noHoldingsMat);
                 ItemMeta meta = noHoldings.getItemMeta();
-                meta.setDisplayName(ChatColor.GRAY + "No Holdings");
-                List<String> lore = new ArrayList<>();
-                lore.add(ChatColor.GRAY + "You don't own any stocks yet");
-                lore.add(ChatColor.YELLOW + "Visit the market to start trading!");
-                meta.setLore(lore);
+                meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName("portfolio.no_holdings"));
+                meta.lore(QuickStocksPlugin.getGuiConfig().getItemLore("portfolio.no_holdings"));
                 noHoldings.setItemMeta(meta);
-                inventory.setItem(22, noHoldings); // Center slot
+                inventory.setItem(noHoldingsSlot, noHoldings);
             }
-            
+
             // Fill remaining slots with glass panes
+            Material fillerMat = QuickStocksPlugin.getGuiConfig().getItemMaterial("portfolio.filler", Material.GRAY_STAINED_GLASS_PANE);
+            String fillerName = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.filler.name", " ");
             for (int i = slot; i < 45; i++) {
-                ItemStack filler = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+                ItemStack filler = new ItemStack(fillerMat);
                 ItemMeta meta = filler.getItemMeta();
-                meta.setDisplayName(" ");
+                meta.displayName(ChatUT.hexComp(fillerName));
                 filler.setItemMeta(meta);
                 inventory.setItem(i, filler);
             }
-            
+
         } catch (Exception e) {
             logger.warning("Error adding holdings: " + e.getMessage());
         }
     }
-    
+
     /**
      * Creates an ItemStack representing a holding
      */
     private ItemStack createHoldingItem(HoldingsService.Holding holding) {
         // Choose material based on P&L performance
         Material material;
-        ChatColor nameColor;
-        
+        String colorCode;
+
         if (holding.getUnrealizedPnL() >= 0) {
-            material = holding.getUnrealizedPnL() > 100 ? Material.DIAMOND : Material.EMERALD;
-            nameColor = ChatColor.GREEN;
+            String highMat = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.holding_item.profit_materials.high", "DIAMOND");
+            String medMat = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.holding_item.profit_materials.medium", "EMERALD");
+            material = holding.getUnrealizedPnL() > 100 ?
+                    Material.valueOf(highMat) : Material.valueOf(medMat);
+            colorCode = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.holding_item.profit_color", "&a");
         } else {
-            material = holding.getUnrealizedPnL() < -100 ? Material.COAL : Material.REDSTONE;
-            nameColor = ChatColor.RED;
+            String highMat = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.holding_item.loss_materials.high", "COAL");
+            String medMat = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.holding_item.loss_materials.medium", "REDSTONE");
+            material = holding.getUnrealizedPnL() < -100 ?
+                    Material.valueOf(highMat) : Material.valueOf(medMat);
+            colorCode = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.holding_item.loss_color", "&c");
         }
-        
+
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        
+
         // Set display name
-        meta.setDisplayName(nameColor + holding.getSymbol());
-        
-        // Create detailed lore
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.YELLOW + "Shares Owned: " + ChatColor.WHITE + String.format("%.2f", holding.getQty()));
-        lore.add(ChatColor.YELLOW + "Purchase Price: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getAvgCost()));
-        lore.add(ChatColor.YELLOW + "Current Price: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getCurrentPrice()));
-        lore.add(ChatColor.YELLOW + "Total Value: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getQty() * holding.getCurrentPrice()));
-        lore.add("");
-        
+        meta.displayName(ChatUT.hexComp(colorCode + holding.getSymbol()));
+
         // P&L information with color coding
         double pnl = holding.getUnrealizedPnL();
         double pnlPercent = holding.getUnrealizedPnLPercent();
-        ChatColor pnlColor = pnl >= 0 ? ChatColor.GREEN : ChatColor.RED;
+        String pnlColor = pnl >= 0 ?
+                QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.holding_item.profit_color", "&a") :
+                QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.holding_item.loss_color", "&c");
         String pnlArrow = pnl >= 0 ? "▲" : "▼";
-        
-        lore.add(ChatColor.YELLOW + "Gain/Loss from Purchase:");
-        lore.add(pnlColor + pnlArrow + " $" + String.format("%.2f", Math.abs(pnl)) + " (" + String.format("%.1f%%", Math.abs(pnlPercent)) + ")");
-        lore.add("");
-        lore.add(ChatColor.GRAY + "Right-click to sell all shares");
-        
-        meta.setLore(lore);
+        List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("portfolio.holding_item",
+                new Replaceable("{qty}", String.format("%.2f", holding.getQty())),
+                new Replaceable("{avg_cost}", String.format("%.2f", holding.getAvgCost())),
+                new Replaceable("{current_price}", String.format("%.2f", holding.getCurrentPrice())),
+                new Replaceable("{total_value}", String.format("%.2f", holding.getQty() * holding.getCurrentPrice())),
+                new Replaceable("{pnl_color}", pnlColor),
+                new Replaceable("{pnl_arrow}", pnlArrow),
+                new Replaceable("{pnl_abs}", String.format("%.2f", Math.abs(pnl))),
+                new Replaceable("{pnl_percent}", String.format("%.1f", Math.abs(pnlPercent)))
+        );
+        meta.lore(lore);
         item.setItemMeta(meta);
-        
+
         return item;
     }
-    
+
     /**
      * Adds navigation buttons
      */
     private void addNavigationButtons() {
         // Back to market button
-        ItemStack marketItem = new ItemStack(Material.COMPASS);
-        ItemMeta marketMeta = marketItem.getItemMeta();
-        marketMeta.setDisplayName(ChatColor.AQUA + "Back to Market");
-        List<String> marketLore = new ArrayList<>();
-        marketLore.add(ChatColor.GRAY + "Return to market overview");
-        marketMeta.setLore(marketLore);
-        marketItem.setItemMeta(marketMeta);
-        inventory.setItem(45, marketItem);
-        
+        addButton("back_to_market");
+
         // Refresh button
-        ItemStack refreshItem = new ItemStack(Material.CLOCK);
-        ItemMeta refreshMeta = refreshItem.getItemMeta();
-        refreshMeta.setDisplayName(ChatColor.YELLOW + "Refresh Portfolio");
-        List<String> refreshLore = new ArrayList<>();
-        refreshLore.add(ChatColor.GRAY + "Update portfolio values");
-        refreshMeta.setLore(refreshLore);
-        refreshItem.setItemMeta(refreshMeta);
-        inventory.setItem(49, refreshItem);
-        
+        addButton("refresh");
+
         // Close button
-        ItemStack closeItem = new ItemStack(Material.BARRIER);
-        ItemMeta closeMeta = closeItem.getItemMeta();
-        closeMeta.setDisplayName(ChatColor.RED + "Close Portfolio");
-        List<String> closeLore = new ArrayList<>();
-        closeLore.add(ChatColor.GRAY + "Close this interface");
-        closeMeta.setLore(closeLore);
-        closeItem.setItemMeta(closeMeta);
-        inventory.setItem(53, closeItem);
+        addButton("close");
     }
-    
+
+    /**
+     * Helper method to add a button from config
+     */
+    private void addButton(String buttonName) {
+        String path = "portfolio." + buttonName;
+        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial(path, Material.STONE);
+        int slot = QuickStocksPlugin.getGuiConfig().getItemSlot(path, 0);
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName(path));
+        meta.lore(QuickStocksPlugin.getGuiConfig().getItemLore(path));
+        item.setItemMeta(meta);
+        inventory.setItem(slot, item);
+    }
+
     /**
      * Opens the GUI for the player
      */
     public void open() {
         player.openInventory(inventory);
     }
-    
+
     /**
      * Refreshes the GUI content
      */
@@ -266,7 +267,7 @@ public class PortfolioGUI implements InventoryHolder {
         inventory.clear();
         setupGUI();
     }
-    
+
     /**
      * Gets the holding symbol from an inventory slot
      */
@@ -275,8 +276,8 @@ public class PortfolioGUI implements InventoryHolder {
         if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
             return null;
         }
-        
+
         String displayName = item.getItemMeta().getDisplayName();
-        return ChatColor.stripColor(displayName);
+        return ChatUT.extractText(displayName);
     }
 }

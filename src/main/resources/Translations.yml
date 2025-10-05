@@ -1,26 +1,343 @@
 # QuickStocks Translations
 # Used for localization and customizable messages
+HoverPlaceholder: '%hover%'
 
-market:
-  device:
-    name: "&dMarket Link Device"
-    given: "&aMarket Device granted to {player}."
-    opened: "&7Opening Market..."
-    cooldown: "&cPlease wait a moment."
-    wrong_owner: "&cThis device is bound to {owner}."
-    drop_prevented: "&cThis device is soulbound and cannot be dropped."
-    lore:
-      usage: "&7Right-click to open the market."
-      bound: "&8Bound to: {player}"
+General:
+  NoConsoleSender: '&cThis command can only be executed by a player.'
+  NoPermission: '&cYou do not have permission to execute this command.'
+  CommandSyntax: '&cWrong command syntax: &c%command%'
+  InvalidPlayer: '&cThe specified player could not be found.'
+  InvalidItem: '&cThe specified item could not be found.'
+  InvalidNumber: '&cThe specified number is invalid.'
+  NegativeValue: '&cThe specified amount cannot be negative.'
+  HigherZero: '&cThe specified amount must be greater than zero.'
+  UnknownException: '&cAn unknown error occurred. Please contact an administrator.'
+  Reload: '&bReloading configuration...'
+  ReloadFinished: '&bConfiguration reloaded successfully.'
 
-commands:
-  marketdevice:
-    no_permission: "&cYou don't have permission to use this command."
-    usage: "&cUsage: /marketdevice give [player]"
-    player_not_found: "&cPlayer '{player}' not found."
-    self_given: "&aYou received a Market Link Device!"
-    other_given: "&aGave Market Link Device to {player}."
+Market:
+  Device:
+    Name: '&dMarket Link Device'
+    Given: '&aMarket Device granted to %player%.'
+    Opened: '&7Opening Market...'
+    Cooldown: '&cPlease wait a moment.'
+    WrongOwner: '&cThis device is bound to %owner%.'
+    DropPrevented: '&cThis device is soulbound and cannot be dropped.'
+    SelfGiven: '&aYou received a Market Link Device!'
+    OtherGiven: '&aGave Market Link Device to %player%.'
+    Lore:
+      Usage: '&7Right-click to open the market.'
+      Bound: '&8Bound to: %player%'
 
-errors:
-  database: "&cDatabase error occurred. Please contact an administrator."
-  internal: "&cAn internal error occurred. Please try again."
+Market:
+  Overview:
+    Header: '&6=== &fMarket Overview &6==='
+    CompaniesHeader: '&eCompanies on Market:'
+    NoCompanies: '&7No companies are currently on the market.'
+    CompanyItem: '&7%num%. &a%company% &7(%symbol%) &ePrice: $%price% &7Balance: $%balance%'
+    BuyHint: '&7Use &f/market buy <company> <qty> &7to purchase company shares.'
+  Portfolio:
+    Header: '&6=== &fYour Portfolio &6==='
+    CashBalance: '&eCash Balance: &a$%balance%'
+    PortfolioValue: '&ePortfolio Value: &a$%value%'
+    TotalAssets: '&eTotal Assets: &a$%total%'
+    NoHoldings: '&7No holdings found.'
+    HoldingsHeader: '&e\nHoldings:'
+    HoldingItem: '&f%company% (%symbol%): &7%shares% shares @ $%avgcost% avg &e($%current% current) %arrow%%pnlcolor%$%pnl% (%percent%%)'
+  History:
+    Header: '&6=== &fOrder History &6==='
+    NoHistory: '&7No order history found.'
+    TransactionItem: '&7[%time%] %type% %.2f %company% @ $%price%'
+  Shareholders:
+    Header: '&6=== &f%company% Shareholders &6==='
+    NoShareholders: '&7No shareholders found.'
+    ShareholderItem: '&e%player%&7: %.2f shares (%.1f%%)'
+  Buy:
+    Usage: '&cUsage: /market buy <company> <quantity>'
+    Success: '&aSuccessfully purchased %qty% shares!'
+    Details:
+      - '&eCompany: &f%company% &7(%symbol%)'
+      - '&ePrice per share: &f$%price%'
+      - '&eTotal cost: &f$%total%'
+    CompanyNotFound: '&cCompany not found: %company%'
+    NotOnMarket: '&cCompany ''%company%'' is not on the market.'
+    InvalidQuantity: '&cInvalid quantity: %qty%'
+    QuantityPositive: '&cQuantity must be positive.'
+    Error: '&c%error%'
+  Sell:
+    Usage: '&cUsage: /market sell <company> <quantity>'
+    Success: '&aSuccessfully sold %qty% shares!'
+    Details:
+      - '&eCompany: &f%company% &7(%symbol%)'
+      - '&ePrice per share: &f$%price%'
+      - '&eTotal revenue: &f$%total%'
+    Error: '&c%error%'
+  Shareholders_Usage: '&cUsage: /market shareholders <company>'
+  UnknownSubcommand: '&cUnknown subcommand. Usage: /market [browse|buy|sell|shareholders|portfolio|history|watchlist]'
+  ErrorProcessing: '&cAn error occurred while processing your market command.'
+
+Wallet:
+  Usage: '&cUsage: /wallet [balance|deposit|withdraw|pay <player> <amount>]'
+  Balance: '&eYour balance: &a$%balance%'
+  Deposit: '&aDeposited $%amount%!'
+  Withdraw: '&aWithdrawn $%amount%!'
+  Pay: '&aPaid $%amount% to %player%!'
+  Received: '&aReceived $%amount% from %player%!'
+  UnknownSubcommand: '&cUnknown subcommand. Use: /wallet [balance|deposit|withdraw|pay]'
+  ErrorProcessing: '&cAn error occurred while processing your wallet command.'
+  UnknownSubcommand: '&cUnknown subcommand. Usage: /wallet [balance|add|set] [amount]'
+  Error:
+    InsufficientFunds: '&cInsufficient funds!'
+    InvalidAmount: '&cInvalid amount!'
+    PlayerNotFound: '&cPlayer not found!'
+
+Watch:
+  Usage_Add: '&cUsage: /watch add <symbol>'
+  Usage_Remove: '&cUsage: /watch remove <symbol>'
+  Usage_Info: '&cUsage: /watch info <symbol>'
+  Usage_Clear: '&cUsage: /watch clear'
+  Added: '&a✓ Added &f%symbol% &7(%displayname%) &ato your watchlist.'
+  Removed: '&a✓ Removed &f%symbol% &afrom your watchlist.'
+  Cleared: '&a✓ Cleared your watchlist (%count% items removed).'
+  AlreadyInWatchlist: '&e⚠ %symbol% is already in your watchlist.'
+  ListHeader: '&6=== &fYour Watchlist &6==='
+  ListItem: '&f%symbol% &7(%displayname%) &e$%price% %color%%arrow%%change%% &8| 1h: %color%%change1h%%'
+  DetailItem: '&f%symbol% &7(%name%): &e$%price% %arrow%%color%%change%%'
+  Empty: '&7Your watchlist is empty.'
+  EmptyHint: '&7Use &f/watch add <symbol> &7to add instruments to your watchlist.'
+  WatchingHeader: '&eWatching %count% instruments:'
+  InfoHint: '&7Use &f/watch info <symbol> &7for detailed information.'
+  CompanyItem: '&f%company% &7(%symbol%) &ePrice: $%price%'
+  AlreadyExists: '&e⚠ %symbol% is already in your watchlist!'
+  NotFound: '&cInstrument not found: %symbol%'
+  NotInWatchlist: '&e⚠ %symbol% is not in your watchlist.'
+  NotInWatchlistHint: '&7Use &f/watch add %symbol% &7to add it to your watchlist.'
+  UnknownSubcommand: '&cUnknown subcommand. Usage: /watch [add|remove|list|info|clear] [symbol]'
+  ErrorProcessing: '&cAn error occurred while processing your watchlist command.'
+  ErrorRetrieving: '&cError retrieving watchlist item details.'
+  Alert: '&e[ALERT] &f%symbol% &7%message%'
+  AlreadyEmpty: '&7Your watchlist is already empty.'
+  DetailsHeader: '&6=== &f%symbol% Details &6==='
+  DetailsName: '&eName: &f%displayname%'
+  DetailsType: '&eType: &f%type%'
+  DetailsCurrentPrice: '&eCurrent Price: &f$%price%'
+  Details24hChange: '&e24h Change: %color%%arrow%%change%%'
+  Details1hChange: '&e1h Change: %color%%arrow%%change%%'
+  DetailsVolatility: '&eVolatility: &f%volatility%'
+  DetailsAddedAt: '&eAdded to watchlist: &7%date%'
+
+GUI:
+  CompanySettings:
+    Refresh_Success: '&aCompany settings refreshed!'
+    Refresh_Error: '&cFailed to refresh company settings.'
+  Portfolio:
+    Refresh_Success: '&aPortfolio refreshed!'
+    Refresh_Error: '&cFailed to refresh portfolio.'
+  Market:
+    Refresh_Success: '&aMarket data refreshed!'
+    Refresh_Error: '&cFailed to refresh market data.'
+
+ChestShop:
+  Created: '&aChest shop created!'
+  Removed: '&cChest shop removed!'
+  NoPermission: '&cYou don''t have permission to create chest shops for this company.'
+  NotEmployee: '&cYou must be an employee to create a chest shop for this company.'
+  Transaction_Buy: '&aBought %qty%x %item% for $%price%'
+  Transaction_Sell: '&aSold %qty%x %item% for $%price%'
+  Error: '&cChest shop transaction failed: %error%'
+
+Errors:
+  Database: '&cDatabase error occurred. Please contact an administrator.'
+  Internal: '&c%error%'
+
+Company:
+  Help:
+    Header: '&6===== &eCompany Commands &6====='
+    Create: '&7 - Create a company'
+    Info: '&7 - View company info'
+    List: '&7 - List all companies'
+    Invite: '&7 - Invite player'
+    Accept: '&7 - Accept invitation'
+    Decline: '&7 - Decline invitation'
+    Invitations: '&7 - View your invitations'
+    Deposit: '&7 - Deposit funds'
+    Withdraw: '&7 - Withdraw funds'
+    Employees: '&7 - List employees'
+    Jobs: '&7 - List job titles'
+    CreateJob: '&7 - Create job'
+    AssignJob: '&7 - Assign job'
+    EditJob: '&7 - Edit job'
+    Fire: '&7 - Fire employee'
+    Leave: '&7 - Leave company'
+    Transfer: '&7 - Transfer ownership'
+    Settings: '&7 - View/edit settings'
+    SettingsGUI: '&7 - Open settings GUI'
+    Notifications: '&7 - View notifications'
+    Symbol: '&7 - Set trading symbol'
+    EnableMarket: '&7 - Enable market'
+    DisableMarket: '&7 - Disable market'
+  Created: '&aCompany &e%company% &acreated successfully!'
+  CreationCost: '&7Creation cost: &a$%cost%'
+  InfoHeader: '&6===== &e%company% &6====='
+  InfoType: '&7Type: &f%type%'
+  InfoBalance: '&7Balance: &a$%balance%'
+  InfoOwner: '&7Owner: &e%owner%'
+  InfoCreated: '&7Created: &f%date%'
+  InfoEmployees: '&7Employees: &f%count%'
+  ListHeader: '&6===== &eCompanies &6====='
+  ListItem: '&7- &e%company% &7(&f%type%&7)'
+  InviteSent: '&aInvitation sent to &e%player% &afor job &e%job%&a!'
+  InviteReceived: '&aYou have been invited to join &e%company% &aas &e%job%&a!'
+  InviteAcceptPrompt: '&7Use &e/company accept %id% &7to accept'
+  InviteAccepted: '&aYou have joined &e%company% &aas &e%job%&a!'
+  InviteDeclined: '&cInvitation declined.'
+  NoInvitations: '&7You have no pending invitations.'
+  InvitationsHeader: '&6===== &ePending Invitations &6====='
+  InvitationItem: '&7[&e%id%&7] &e%company% &7- &f%job%'
+  InvitationExpires: '&7  Expires: %date%'
+  InvitationDetails:
+    - '&e%company% &7- Job: &f%job%'
+    - '&7  Expires: %date%'
+    - '&7  Use: &e/company accept %company%'
+  JoinedWithJob:
+    - '&aYou''ve joined &e%company% &aas &e%job%&a!'
+    - '&7Permissions: %permissions%'
+  JoinedWithoutJob: '&aYou''ve joined &e%company%&a!'
+  Deposited: '&aDeposited &e$%amount% &ato &e%company%&a!'
+  Withdrawn: '&aWithdrawn &e$%amount% &afrom &e%company%&a!'
+  EmployeesHeader: '&6===== &e%company% Employees &6====='
+  EmployeeItem: '&7- &e%player% &7- &f%job%'
+  JobsHeader: '&6===== &e%company% Job Titles &6====='
+  JobItem: '&7- &e%job%'
+  JobPermissions: '&7  Permissions: %permissions%'
+  JobDetails:
+    - '&e%job%'
+    - '&7  Permissions: %permissions%'
+  NoJobs: '&eNo job titles found.'
+  JobCreated: '&aJob title &e%job% &acreated!'
+  JobAssigned: '&aAssigned &e%player% &ato &e%job%&a!'
+  JobEdited: '&aJob title &e%job% &aedited!'
+  JobEditedWithPerms:
+    - '&aJob title &e%job% &aedited!'
+    - '&7New permissions: %permissions%'
+  Fired: '&cYou have been fired from &e%company%&c!'
+  FiredOther: '&cFired &e%player% &cfrom &e%company%&c!'
+  Left: '&7You have left &e%company%&7.'
+  TransferredOwnership: '&aOwnership of &e%company% &atransferred to &e%player%&a!'
+  SymbolSet: '&aTrading symbol set to &e%symbol%&a!'
+  MarketEnabled: '&aCompany market enabled!'
+  MarketEnabledDetails:
+    - '&aCompany is now on the market!'
+    - '&eSymbol: &f%symbol%'
+    - '&ePlayers can now buy shares with: &f/market buy %company% <quantity>'
+  MarketDisabled: '&cCompany market disabled!'
+  MarketDisabledDetails:
+    - '&aCompany has been delisted from the market.'
+    - '&eAll shareholders have been paid out.'
+  MarketSettings:
+    - '&6=== &f%company% Market Settings &6==='
+    - '&eOn Market: &f%status%'
+    - '&eSymbol: &f%symbol%'
+    - '&eMarket Percentage: &f%percentage%%'
+    - '&eBuyout Protection: &f%buyout%'
+    - '&eShare Price: &f$%price%'
+  MarketPercentageUpdated: '&aMarket percentage updated to %percentage%%'
+  MarketBuyoutUpdated: '&aBuyout protection %status%'
+  NotificationsHeader: '&6=== &fCompany Notifications &6==='
+  NotificationsRead: '&7All notifications marked as read.'
+  NoNotifications: '&7No new notifications.'
+  NotificationItem: '&e[%time%] &f%message%'
+  UnknownMarketAction: '&cUnknown market action. Use: enable, disable, or settings'
+  NoEmployees: '&7No employees found.'
+  Error:
+    CompanyNotFound: '&cCompany not found: %company%'
+    AlreadyExists: '&cA company with that name already exists!'
+    InsufficientFunds: '&cInsufficient funds! You need $%amount%'
+    NotEmployee: '&cYou are not an employee of %company%'
+    NoPermission: '&cYou don''t have permission to do that!'
+    InvalidInvitation: '&cInvalid invitation ID!'
+    InvitationExpired: '&cThis invitation has expired.'
+    PlayerNotFound: '&cPlayer not found: %player%'
+    InvalidAmount: '&cInvalid amount!'
+    InvalidJob: '&cInvalid job title: %job%'
+    SymbolTaken: '&cThat trading symbol is already taken!'
+    NotOnMarket: '&c%company% is not on the market.'
+    OwnerOnly: '&cOnly the company owner can do that.'
+    OwnerDemote: '&cYou cannot demote as the company Owner.'
+
+# Market GUI and Trading Messages  
+Market:
+  Portfolio:
+    Header: '&6=== &fYour Portfolio &6==='
+    Cash: '&eCash Balance: &a$%balance%'
+    Value: '&ePortfolio Value: &a$%value%'
+    Total: '&eTotal Assets: &a$%total%'
+    Empty: '&7No holdings found.'
+    HoldingsHeader: '&e\nHoldings:'
+    HoldingItem: '&f%symbol%: &7%qty% shares @ $%avgcost% avg &e($%current% current) %arrow%%pnlcolor%$%pnl% (%percent%%)'
+  Balance_Updated: '&7New balance: $%balance%'
+  Buy:
+    CustomPrompt:
+      - '&eEnter amount to %action% for %company%:'
+      - '&7Use: &f/market %action% %symbol% <amount>'
+  CompanyDetails:
+    - '&6=== %company% (%symbol%) ==='
+    - '&eShare Price: &f$%price%'
+    - '&eCompany Balance: &f$%balance%'
+    - '&eMarket %: &f%market_pct%%'
+    - '&7Use left-click to buy, right-click to sell'
+    - '&7Shift+click for custom amounts'
+  Error:
+    NoShares: '&cYou don''t have any shares of %company%!'
+    TransactionFailed: '&c✗ Transaction failed: %error%'
+
+# GUI Messages
+GUI:
+  CompanySettings:
+    Refresh_Success: '&aCompany settings refreshed!'
+    Error: '&cAn error occurred while processing your click.'
+    DepositHint: '&eUse command: &f/company deposit %company% <amount>'
+    WithdrawHint: '&eUse command: &f/company withdraw %company% <amount>'
+    AssignJobHint: '&eUse command: &f/company assignjob %company% <player> <job>'
+    InviteHint: '&eUse command: &f/company invite %company% <player> <job>'
+    CreateJobHint:
+      - '&eUse command: &f/company createjob %company% <title> <permissions>'
+      - '&7Permissions: invite, createjobs, withdraw, manage (comma-separated)'
+    EditJobHint:
+      - '&eUse command: &f/company editjob %company% <title> <permissions>'
+      - '&7Permissions: invite, createjobs, withdraw, manage (comma-separated)'
+  Market:
+    Refresh_Success: '&aMarket data refreshed!'
+    Error: '&cAn error occurred while processing your request.'
+  Portfolio:
+    Refresh_Success: '&aPortfolio refreshed!'
+    Error: '&cAn error occurred while processing your request.'
+    StockNotFound: '&cStock not found: %symbol%'
+    NoShares: "&cYou don't own any shares of %symbol%"
+    SoldAll: '&a✓ Sold all %qty% shares of %symbol%'
+    Received: '&aReceived: $%total%'
+    NewBalance: '&7New balance: $%balance%'
+    SaleFailed: '&c✗ Sale failed: %message%'
+    HoldingDetails:
+      Header: '&6=== %symbol% Holdings ==='
+      Shares: '&eShares: &f%qty%'
+      AvgCost: '&eAverage Cost: &f$%cost%'
+      CurrentPrice: '&eCurrent Price: &f$%price%'
+      TotalValue: '&eTotal Value: &f$%value%'
+      PnL: '&eP&L: %color%%arrow%$%pnl% (%percent%%)'
+      SellHint: '&7Right-click to sell all shares'
+    MarketOpenError: '&cUnable to open market at this time.'
+
+# ChestShop Integration
+ChestShop:
+  Created: '&aChestShop successfully created for company ''%company%''!'
+  Removed: '&cChestShop removed for company ''%company%''.'
+  NoPermission: '&cYou do not have permission to create chest shops for company ''%company%''.'
+  InsufficientBalance:
+    - '&cCompany ''%company%'' does not have sufficient balance to create chest shops.'
+    - '&7Required: $%required%'
+    - '&7Current: $%current%'
+  Error: '&cAn error occurred while validating the company.'
+  Transaction:
+    Buy: '&aTransaction: %player% bought %qty% %item% for $%price% from company %company%.'
+    Sell: '&aTransaction: %player% sold %qty% %item% for $%price% to company %company%.'

@@ -1,10 +1,13 @@
 package net.cyberneticforge.quickstocks.gui;
 
+import lombok.Getter;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
-import net.cyberneticforge.quickstocks.core.services.CompanyService;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -12,47 +15,49 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
  * Company Settings GUI for managing company settings and viewing information
  */
 public class CompanySettingsGUI implements InventoryHolder {
-    
+
     private static final Logger logger = Logger.getLogger(CompanySettingsGUI.class.getName());
-    private static final int GUI_SIZE = 54; // 6 rows
-    
+
     private final Player player;
-    private final CompanyService companyService;
+
+    /**
+     * -- GETTER --
+     * Gets the company associated with this GUI
+     */
+    @Getter
     private Company company;  // Not final so it can be refreshed
     private final Inventory inventory;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    
-    public CompanySettingsGUI(Player player, CompanyService companyService, Company company) {
+
+    public CompanySettingsGUI(Player player, Company company) {
         this.player = player;
-        this.companyService = companyService;
         this.company = company;
-        this.inventory = Bukkit.createInventory(this, GUI_SIZE, 
-            ChatColor.GOLD + "Company: " + ChatColor.WHITE + company.getName());
-        
+
+        int guiSize = QuickStocksPlugin.getGuiConfig().getConfig().getInt("company_settings.size", 54);
+        String title = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.title", "&6Company: &f{company_name}")
+                .replace("{company_name}", company.getName());
+        this.inventory = Bukkit.createInventory(this, guiSize, ChatUT.hexComp(title));
         setupGUI();
     }
-    
+
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
-    
-    /**
-     * Gets the company associated with this GUI
-     */
-    public Company getCompany() {
-        return company;
-    }
-    
+
     /**
      * Sets up the GUI with company information and action buttons
      */
@@ -60,260 +65,204 @@ public class CompanySettingsGUI implements InventoryHolder {
         try {
             // Add company info (top section)
             addCompanyInfo();
-            
+
             // Add player's job info
             addPlayerJobInfo();
-            
+
             // Add action buttons
             addActionButtons();
-            
+
             // Add navigation buttons
             addNavigationButtons();
-            
+
         } catch (Exception e) {
             logger.warning("Error setting up Company Settings GUI for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "Failed to load company settings.");
+            String errorMsg = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.error_message", "&cFailed to load company settings.");
+            player.sendMessage(ChatUT.hexComp(errorMsg));
         }
     }
-    
+
     /**
      * Adds company information display
      */
     private void addCompanyInfo() {
         try {
-            // Company info item (top left)
-            ItemStack companyItem = new ItemStack(Material.GOLDEN_HELMET);
+            // Company info item
+            Material companyMaterial = QuickStocksPlugin.getGuiConfig().getItemMaterial("company_settings.company_info", Material.GOLDEN_HELMET);
+            int companySlot = QuickStocksPlugin.getGuiConfig().getItemSlot("company_settings.company_info", 4);
+            ItemStack companyItem = new ItemStack(companyMaterial);
             ItemMeta meta = companyItem.getItemMeta();
-            meta.setDisplayName(ChatColor.GOLD + company.getName());
-            
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.GRAY + "Type: " + ChatColor.WHITE + company.getType());
-            lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", company.getBalance()));
-            
+
+            String companyName = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.company_info.name", "&6{company_name}")
+                    .replace("{company_name}", company.getName());
+            meta.setDisplayName(ChatUT.serialize(ChatUT.hexComp(companyName)));
+
             OfflinePlayer owner = Bukkit.getOfflinePlayer(UUID.fromString(company.getOwnerUuid()));
-            String ownerName = owner.getName() != null ? owner.getName() : "Unknown";
-            lore.add(ChatColor.GRAY + "Owner: " + ChatColor.YELLOW + ownerName);
-            lore.add(ChatColor.GRAY + "Created: " + ChatColor.WHITE + dateFormat.format(new Date(company.getCreatedAt())));
-            
-            meta.setLore(lore);
+            List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("company_settings.company_info", new Replaceable("{company_name}", company.getName())
+                    , new Replaceable("{company_type}", company.getType())
+                    , new Replaceable("{balance}", String.format("%.2f", company.getBalance()))
+                    , new Replaceable("{owner_name}", owner.getName() != null ? owner.getName() : "Unknown")
+                    , new Replaceable("{created_date}", dateFormat.format(new Date(company.getCreatedAt()))));
+
+            meta.lore(lore);
             companyItem.setItemMeta(meta);
-            inventory.setItem(4, companyItem);
-            
+            inventory.setItem(companySlot, companyItem);
+
             // Balance display
-            ItemStack balanceItem = new ItemStack(Material.GOLD_INGOT);
+            Material balanceMaterial = QuickStocksPlugin.getGuiConfig().getItemMaterial("company_settings.balance_display", Material.GOLD_INGOT);
+            int balanceSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("company_settings.balance_display", 0);
+            ItemStack balanceItem = new ItemStack(balanceMaterial);
             ItemMeta balanceMeta = balanceItem.getItemMeta();
-            balanceMeta.setDisplayName(ChatColor.GOLD + "Company Balance");
-            
-            List<String> balanceLore = new ArrayList<>();
-            balanceLore.add(ChatColor.GREEN + "$" + String.format("%.2f", company.getBalance()));
-            balanceLore.add("");
-            balanceLore.add(ChatColor.GRAY + "Use deposit/withdraw commands");
-            balanceLore.add(ChatColor.GRAY + "to manage funds");
-            
-            balanceMeta.setLore(balanceLore);
+            balanceMeta.displayName(QuickStocksPlugin.getGuiConfig().getItemName("company_settings.balance_display"));
+
+            List<Component> balanceLore = QuickStocksPlugin.getGuiConfig().getItemLore("company_settings.balance_display", new Replaceable("{balance}", String.format("%.2f", company.getBalance())));
+            balanceMeta.lore(balanceLore);
             balanceItem.setItemMeta(balanceMeta);
-            inventory.setItem(0, balanceItem);
-            
+            inventory.setItem(balanceSlot, balanceItem);
+
         } catch (Exception e) {
             logger.warning("Error adding company info: " + e.getMessage());
         }
     }
-    
+
     /**
      * Adds player's job information
      */
     private void addPlayerJobInfo() {
         try {
             String playerUuid = player.getUniqueId().toString();
-            Optional<CompanyJob> jobOpt = companyService.getPlayerJob(company.getId(), playerUuid);
-            
+            Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
+
             if (jobOpt.isEmpty()) {
                 return;
             }
-            
+
             CompanyJob job = jobOpt.get();
-            
-            ItemStack jobItem = new ItemStack(Material.NAME_TAG);
+
+            Material jobMaterial = QuickStocksPlugin.getGuiConfig().getItemMaterial("company_settings.player_job", Material.NAME_TAG);
+            int jobSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("company_settings.player_job", 8);
+            ItemStack jobItem = new ItemStack(jobMaterial);
             ItemMeta meta = jobItem.getItemMeta();
-            meta.setDisplayName(ChatColor.YELLOW + "Your Position");
-            
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.WHITE + job.getTitle());
-            lore.add("");
-            lore.add(ChatColor.GRAY + "Permissions:");
-            
+            meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName("company_settings.player_job"));
+
+            List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("company_settings.player_job", new Replaceable("{job_title}", job.getTitle()));
+
+            String permPrefix = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.player_job.permission_prefix", "&a✓ &f");
+            String noPerm = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.player_job.no_permissions", "&cNo special permissions");
+
+            boolean hasPerms = false;
             if (job.canManageCompany()) {
-                lore.add(ChatColor.GREEN + "✓ " + ChatColor.WHITE + "Manage Company");
+                lore.add(ChatUT.hexComp(permPrefix + "Manage Company"));
+                hasPerms = true;
             }
             if (job.canInvite()) {
-                lore.add(ChatColor.GREEN + "✓ " + ChatColor.WHITE + "Invite Players");
+                lore.add(ChatUT.hexComp(permPrefix + "Invite Players"));
+                hasPerms = true;
             }
             if (job.canCreateTitles()) {
-                lore.add(ChatColor.GREEN + "✓ " + ChatColor.WHITE + "Create Job Titles");
+                lore.add(ChatUT.hexComp(permPrefix + "Create Job Titles"));
+                hasPerms = true;
             }
             if (job.canWithdraw()) {
-                lore.add(ChatColor.GREEN + "✓ " + ChatColor.WHITE + "Withdraw Funds");
+                lore.add(ChatUT.hexComp(permPrefix + "Withdraw Funds"));
+                hasPerms = true;
             }
-            
-            if (!job.canManageCompany() && !job.canInvite() && !job.canCreateTitles() && !job.canWithdraw()) {
-                lore.add(ChatColor.RED + "No special permissions");
+
+            if (!hasPerms) {
+                lore.add(ChatUT.hexComp(noPerm));
             }
-            
-            meta.setLore(lore);
+
+            meta.lore(lore);
             jobItem.setItemMeta(meta);
-            inventory.setItem(8, jobItem);
-            
+            inventory.setItem(jobSlot, jobItem);
+
         } catch (Exception e) {
             logger.warning("Error adding player job info: " + e.getMessage());
         }
     }
-    
+
     /**
      * Adds action buttons for quick commands
      */
     private void addActionButtons() {
         try {
             String playerUuid = player.getUniqueId().toString();
-            Optional<CompanyJob> jobOpt = companyService.getPlayerJob(company.getId(), playerUuid);
-            
+            Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
+
             // View Employees button
-            ItemStack employeesItem = new ItemStack(Material.PLAYER_HEAD);
-            ItemMeta employeesMeta = employeesItem.getItemMeta();
-            employeesMeta.setDisplayName(ChatColor.AQUA + "View Employees");
-            List<String> employeesLore = new ArrayList<>();
-            employeesLore.add(ChatColor.GRAY + "Click to view all employees");
-            employeesLore.add(ChatColor.YELLOW + "Command: /company employees " + company.getName());
-            employeesMeta.setLore(employeesLore);
-            employeesItem.setItemMeta(employeesMeta);
-            inventory.setItem(19, employeesItem);
-            
+            addButton("view_employees", null);
+
             // View Jobs button
-            ItemStack jobsItem = new ItemStack(Material.WRITABLE_BOOK);
-            ItemMeta jobsMeta = jobsItem.getItemMeta();
-            jobsMeta.setDisplayName(ChatColor.AQUA + "View Job Titles");
-            List<String> jobsLore = new ArrayList<>();
-            jobsLore.add(ChatColor.GRAY + "Click to view all job titles");
-            jobsLore.add(ChatColor.YELLOW + "Command: /company jobs " + company.getName());
-            jobsMeta.setLore(jobsLore);
-            jobsItem.setItemMeta(jobsMeta);
-            inventory.setItem(20, jobsItem);
-            
+            addButton("view_jobs", null);
+
             // Deposit button
-            ItemStack depositItem = new ItemStack(Material.HOPPER);
-            ItemMeta depositMeta = depositItem.getItemMeta();
-            depositMeta.setDisplayName(ChatColor.GREEN + "Deposit Funds");
-            List<String> depositLore = new ArrayList<>();
-            depositLore.add(ChatColor.GRAY + "Click to deposit funds");
-            depositLore.add(ChatColor.YELLOW + "Command: /company deposit " + company.getName() + " <amount>");
-            depositMeta.setLore(depositLore);
-            depositItem.setItemMeta(depositMeta);
-            inventory.setItem(21, depositItem);
-            
+            addButton("deposit", null);
+
             // Withdraw button (if player has permission)
             if (jobOpt.isPresent() && jobOpt.get().canWithdraw()) {
-                ItemStack withdrawItem = new ItemStack(Material.DISPENSER);
-                ItemMeta withdrawMeta = withdrawItem.getItemMeta();
-                withdrawMeta.setDisplayName(ChatColor.GOLD + "Withdraw Funds");
-                List<String> withdrawLore = new ArrayList<>();
-                withdrawLore.add(ChatColor.GRAY + "Click to withdraw funds");
-                withdrawLore.add(ChatColor.YELLOW + "Command: /company withdraw " + company.getName() + " <amount>");
-                withdrawMeta.setLore(withdrawLore);
-                withdrawItem.setItemMeta(withdrawMeta);
-                inventory.setItem(22, withdrawItem);
-            }
-            
-            // Invite Player button (if player has permission)
-            if (jobOpt.isPresent() && jobOpt.get().canInvite()) {
-                ItemStack inviteItem = new ItemStack(Material.PAPER);
-                ItemMeta inviteMeta = inviteItem.getItemMeta();
-                inviteMeta.setDisplayName(ChatColor.GREEN + "Invite Player");
-                List<String> inviteLore = new ArrayList<>();
-                inviteLore.add(ChatColor.GRAY + "Click to invite a player");
-                inviteLore.add(ChatColor.YELLOW + "Command: /company invite " + company.getName() + " <player> <job>");
-                inviteMeta.setLore(inviteLore);
-                inviteItem.setItemMeta(inviteMeta);
-                inventory.setItem(24, inviteItem);
-            }
-            
-            // Create Job button (if player has permission)
-            if (jobOpt.isPresent() && jobOpt.get().canCreateTitles()) {
-                ItemStack createJobItem = new ItemStack(Material.BOOK);
-                ItemMeta createJobMeta = createJobItem.getItemMeta();
-                createJobMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "Create Job Title");
-                List<String> createJobLore = new ArrayList<>();
-                createJobLore.add(ChatColor.GRAY + "Click to create a new job");
-                createJobLore.add(ChatColor.YELLOW + "Command: /company createjob " + company.getName());
-                createJobLore.add(ChatColor.YELLOW + "         <title> <permissions>");
-                createJobMeta.setLore(createJobLore);
-                createJobItem.setItemMeta(createJobMeta);
-                inventory.setItem(25, createJobItem);
-            }
-
-            // Edit Job button (if player has permission)
-            if (jobOpt.isPresent() && jobOpt.get().canCreateTitles()) {
-                ItemStack editJobItem = new ItemStack(Material.WRITABLE_BOOK);
-                ItemMeta editJobMeta = editJobItem.getItemMeta();
-                editJobMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "Edit Job Title");
-                List<String> editJobLore = new ArrayList<>();
-                editJobLore.add(ChatColor.GRAY + "Click to edit an existing job");
-                editJobLore.add(ChatColor.YELLOW + "Command: /company editjob " + company.getName());
-                editJobLore.add(ChatColor.YELLOW + "         <title> <permissions>");
-                editJobMeta.setLore(editJobLore);
-                editJobItem.setItemMeta(editJobMeta);
-                inventory.setItem(26, editJobItem);
+                addButton("withdraw", null);
             }
 
             // Assign Job button (if player has permission)
             if (jobOpt.isPresent() && jobOpt.get().canManageCompany()) {
-                ItemStack assignJobItem = new ItemStack(Material.ENCHANTED_BOOK);
-                ItemMeta assignJobMeta = assignJobItem.getItemMeta();
-                assignJobMeta.setDisplayName(ChatColor.AQUA + "Assign Job Title");
-                List<String> assignJobLore = new ArrayList<>();
-                assignJobLore.add(ChatColor.GRAY + "Click to assign a job to employee");
-                assignJobLore.add(ChatColor.YELLOW + "Command: /company assignjob " + company.getName());
-                assignJobLore.add(ChatColor.YELLOW + "         <player> <job>");
-                assignJobMeta.setLore(assignJobLore);
-                assignJobItem.setItemMeta(assignJobMeta);
-                inventory.setItem(23, assignJobItem);
+                addButton("assign_job", null);
             }
-            
+
+            // Invite Player button (if player has permission)
+            if (jobOpt.isPresent() && jobOpt.get().canInvite()) {
+                addButton("invite_player", null);
+            }
+
+            // Create Job button (if player has permission)
+            if (jobOpt.isPresent() && jobOpt.get().canCreateTitles()) {
+                addButton("create_job", null);
+            }
+
+            // Edit Job button (if player has permission)
+            if (jobOpt.isPresent() && jobOpt.get().canCreateTitles()) {
+                addButton("edit_job", null);
+            }
+
         } catch (Exception e) {
             logger.warning("Error adding action buttons: " + e.getMessage());
         }
     }
-    
+
     /**
      * Adds navigation buttons
      */
     private void addNavigationButtons() {
         // Refresh button
-        ItemStack refreshItem = new ItemStack(Material.CLOCK);
-        ItemMeta refreshMeta = refreshItem.getItemMeta();
-        refreshMeta.setDisplayName(ChatColor.YELLOW + "Refresh");
-        List<String> refreshLore = new ArrayList<>();
-        refreshLore.add(ChatColor.GRAY + "Click to refresh company info");
-        refreshMeta.setLore(refreshLore);
-        refreshItem.setItemMeta(refreshMeta);
-        inventory.setItem(49, refreshItem);
-        
+        addButton("refresh", null);
+
         // Close button
-        ItemStack closeItem = new ItemStack(Material.BARRIER);
-        ItemMeta closeMeta = closeItem.getItemMeta();
-        closeMeta.setDisplayName(ChatColor.RED + "Close");
-        List<String> closeLore = new ArrayList<>();
-        closeLore.add(ChatColor.GRAY + "Click to close this menu");
-        closeMeta.setLore(closeLore);
-        closeItem.setItemMeta(closeMeta);
-        inventory.setItem(53, closeItem);
+        addButton("close", null);
     }
-    
+
+    /**
+     * Helper method to add a button from config
+     */
+    private void addButton(String buttonName, CompanyJob job) {
+        String path = "company_settings." + buttonName;
+        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial(path, Material.STONE);
+        int slot = QuickStocksPlugin.getGuiConfig().getItemSlot(path, 0);
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName(path));
+        List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore(path, new Replaceable("{company_name}", company.getName()));
+        meta.lore(lore);
+        item.setItemMeta(meta);
+        inventory.setItem(slot, item);
+    }
+
     /**
      * Opens the GUI for the player
      */
     public void open() {
         player.openInventory(inventory);
     }
-    
+
     /**
      * Refreshes the GUI with updated information
      */
@@ -321,19 +270,20 @@ public class CompanySettingsGUI implements InventoryHolder {
         try {
             // Clear the inventory
             inventory.clear();
-            
+
             // Reload company data
-            Optional<Company> updatedCompanyOpt = companyService.getCompanyById(company.getId());
+            Optional<Company> updatedCompanyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(company.getId());
             if (updatedCompanyOpt.isPresent()) {
                 // Replace with the updated company object
                 this.company = updatedCompanyOpt.get();
-                
+
                 // Rebuild GUI
                 setupGUI();
             }
         } catch (Exception e) {
             logger.warning("Error refreshing Company Settings GUI: " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "Failed to refresh company settings.");
+            String errorMsg = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.refresh_error", "&cFailed to refresh company settings.");
+            player.sendMessage(ChatUT.hexComp(errorMsg));
         }
     }
 }

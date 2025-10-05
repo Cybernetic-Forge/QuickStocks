@@ -10,15 +10,16 @@ import net.cyberneticforge.quickstocks.core.services.WalletService;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,7 +57,7 @@ public class ChestShopTransactionListener implements Listener {
             Company company = chestShopHook.getCompanyByAccountId(event.getAccount());
             if (company != null) {
                 event.hasAccount(true);
-                Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Reestablished account for company '" + company.getName() + "'");
+                Bukkit.getConsoleSender().sendMessage(ChatUT.serialize(ChatUT.hexComp("&aReestablished account for company '" + company.getName() + "'")));
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error handling ChestShop account query", e);
@@ -79,11 +80,11 @@ public class ChestShopTransactionListener implements Listener {
                 double balance = company.getBalance();
                 if( balance < companyConfig.getChestShopCompanyMinBalance() || balance < event.getAmount().doubleValue()) {
                     event.hasEnough(false);
-                    Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Company shop '" + company.getName() + "' has insufficient balance: $" + balance);
+                    Bukkit.getConsoleSender().sendMessage(ChatUT.serialize(ChatUT.hexComp("&cCompany shop '" + company.getName() + "' has insufficient balance: $" + balance)));
                     return;
                 }
                 event.hasEnough(true);
-                Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Validated currency for company shop '" + company.getName() + "'");
+                Bukkit.getConsoleSender().sendMessage(ChatUT.serialize(ChatUT.hexComp("&aValidated currency for company shop '" + company.getName() + "'")));
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error handling ChestShop currency check", e);

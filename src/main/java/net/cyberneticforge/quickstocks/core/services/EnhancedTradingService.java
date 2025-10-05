@@ -1,10 +1,11 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
 import net.cyberneticforge.quickstocks.core.model.OrderType;
-import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.core.services.TradingService.TradeResult;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
+import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,19 +23,14 @@ public class EnhancedTradingService {
     private static final Logger logger = Logger.getLogger(EnhancedTradingService.class.getName());
     
     private final Db database;
-    private final WalletService walletService;
-    private final HoldingsService holdingsService;
     private final FeeService feeService;
     private final SlippageService slippageService;
     private final RateLimitService rateLimitService;
     private final CircuitBreakerService circuitBreakerService;
     private final TradingConfig tradingConfig;
     
-    public EnhancedTradingService(Db database, WalletService walletService, HoldingsService holdingsService,
-                                 TradingConfig tradingConfig) {
+    public EnhancedTradingService(Db database, TradingConfig tradingConfig) {
         this.database = database;
-        this.walletService = walletService;
-        this.holdingsService = holdingsService;
         this.tradingConfig = tradingConfig;
         
         // Initialize component services
@@ -127,7 +123,7 @@ public class EnhancedTradingService {
         double totalCost = notionalValue + fee;
         
         // Check wallet balance
-        if (!walletService.hasBalance(orderRequest.getPlayerUuid(), totalCost)) {
+        if (!QuickStocksPlugin.getWalletService().hasBalance(orderRequest.getPlayerUuid(), totalCost)) {
             return new TradeResult(false, String.format(
                 "Insufficient funds. Required: $%.2f (including $%.2f fee)", totalCost, fee
             ));
@@ -135,12 +131,12 @@ public class EnhancedTradingService {
         
         try {
             // Remove total cost from wallet
-            if (!walletService.removeBalance(orderRequest.getPlayerUuid(), totalCost)) {
+            if (!QuickStocksPlugin.getWalletService().removeBalance(orderRequest.getPlayerUuid(), totalCost)) {
                 return new TradeResult(false, "Failed to debit wallet");
             }
             
             // Add shares to holdings
-            holdingsService.addHolding(orderRequest.getPlayerUuid(), orderRequest.getInstrumentId(), 
+            QuickStocksPlugin.getHoldingsService().addHolding(orderRequest.getPlayerUuid(), orderRequest.getInstrumentId(),
                                      orderRequest.getQty(), executionPrice);
             
             // Record the order
@@ -157,7 +153,7 @@ public class EnhancedTradingService {
         } catch (SQLException e) {
             // Rollback wallet debit
             try {
-                walletService.addBalance(orderRequest.getPlayerUuid(), totalCost);
+                QuickStocksPlugin.getWalletService().addBalance(orderRequest.getPlayerUuid(), totalCost);
             } catch (SQLException rollbackError) {
                 logger.severe("Failed to rollback wallet debit: " + rollbackError.getMessage());
             }
@@ -170,7 +166,7 @@ public class EnhancedTradingService {
      */
     private TradeResult executeSellOrder(OrderRequest orderRequest, double executionPrice, double fee) throws SQLException {
         // Check if player has sufficient shares
-        HoldingsService.Holding holding = holdingsService.getHolding(orderRequest.getPlayerUuid(), orderRequest.getInstrumentId());
+        HoldingsService.Holding holding = QuickStocksPlugin.getHoldingsService().getHolding(orderRequest.getPlayerUuid(), orderRequest.getInstrumentId());
         if (holding == null || holding.getQty() < orderRequest.getQty()) {
             return new TradeResult(false, "Insufficient shares. Available: " + 
                 (holding != null ? String.format("%.2f", holding.getQty()) : "0"));
@@ -181,12 +177,12 @@ public class EnhancedTradingService {
         
         try {
             // Remove shares from holdings
-            if (!holdingsService.removeHolding(orderRequest.getPlayerUuid(), orderRequest.getInstrumentId(), orderRequest.getQty())) {
+            if (!QuickStocksPlugin.getHoldingsService().removeHolding(orderRequest.getPlayerUuid(), orderRequest.getInstrumentId(), orderRequest.getQty())) {
                 return new TradeResult(false, "Failed to remove shares from portfolio");
             }
             
             // Add net proceeds to wallet
-            walletService.addBalance(orderRequest.getPlayerUuid(), netProceeds);
+            QuickStocksPlugin.getWalletService().addBalance(orderRequest.getPlayerUuid(), netProceeds);
             
             // Record the order
             recordOrder(orderRequest, executionPrice, fee);
@@ -202,7 +198,7 @@ public class EnhancedTradingService {
         } catch (SQLException e) {
             // Rollback share removal
             try {
-                holdingsService.addHolding(orderRequest.getPlayerUuid(), orderRequest.getInstrumentId(), 
+                QuickStocksPlugin.getHoldingsService().addHolding(orderRequest.getPlayerUuid(), orderRequest.getInstrumentId(),
                                          orderRequest.getQty(), executionPrice);
             } catch (SQLException rollbackError) {
                 logger.severe("Failed to rollback share removal: " + rollbackError.getMessage());

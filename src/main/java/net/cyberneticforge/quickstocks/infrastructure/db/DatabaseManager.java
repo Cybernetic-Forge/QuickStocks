@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
 import net.cyberneticforge.quickstocks.application.boot.ItemSeeder;
+
 import java.sql.SQLException;
 import java.util.logging.Logger;
 

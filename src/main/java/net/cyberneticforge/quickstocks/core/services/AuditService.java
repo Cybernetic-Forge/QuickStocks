@@ -15,11 +15,9 @@ public class AuditService {
     private static final Logger logger = Logger.getLogger(AuditService.class.getName());
 
     private final Db database;
-    private final HoldingsService holdingsService;
 
-    public AuditService(Db database, HoldingsService holdingsService) {
+    public AuditService(Db database) {
         this.database = database;
-        this.holdingsService = holdingsService;
     }
 
     /**

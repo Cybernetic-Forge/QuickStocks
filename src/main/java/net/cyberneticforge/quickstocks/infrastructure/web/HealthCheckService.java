@@ -1,9 +1,9 @@
 package net.cyberneticforge.quickstocks.infrastructure.web;
 
-import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.io.IOException;
 import java.io.OutputStream;

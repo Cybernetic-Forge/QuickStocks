@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
@@ -17,12 +18,10 @@ public class CompanyService {
     private static final Logger logger = Logger.getLogger(CompanyService.class.getName());
     
     private final Db database;
-    private final WalletService walletService;
     private final CompanyConfig config;
     
-    public CompanyService(Db database, WalletService walletService, CompanyConfig config) {
+    public CompanyService(Db database, CompanyConfig config) {
         this.database = database;
-        this.walletService = walletService;
         this.config = config;
     }
     
@@ -48,12 +47,12 @@ public class CompanyService {
         
         // Charge creation cost
         if (config.getCreationCost() > 0) {
-            double balance = walletService.getBalance(playerUuid);
+            double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
             if (balance < config.getCreationCost()) {
                 throw new IllegalArgumentException("Insufficient funds. Required: $" + 
                     String.format("%.2f", config.getCreationCost()));
             }
-            walletService.removeBalance(playerUuid, config.getCreationCost());
+            QuickStocksPlugin.getWalletService().removeBalance(playerUuid, config.getCreationCost());
         }
         
         // Create company
@@ -298,7 +297,7 @@ public class CompanyService {
         }
         
         // Withdraw from player wallet
-        walletService.removeBalance(playerUuid, amount);
+        QuickStocksPlugin.getWalletService().removeBalance(playerUuid, amount);
         
         // Add to company balance
         database.execute(
@@ -347,7 +346,7 @@ public class CompanyService {
         );
         
         // Add to player wallet
-        walletService.addBalance(playerUuid, amount);
+        QuickStocksPlugin.getWalletService().addBalance(playerUuid, amount);
         
         // Record transaction
         String txId = UUID.randomUUID().toString();
@@ -685,8 +684,7 @@ public class CompanyService {
             "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout " +
             "FROM companies " +
             "WHERE on_market = 1 AND symbol IS NOT NULL " +
-            "ORDER BY name",
-            new Object[0]
+            "ORDER BY name"
         );
         
         List<Company> companies = new ArrayList<>();

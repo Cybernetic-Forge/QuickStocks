@@ -1,11 +1,10 @@
 package net.cyberneticforge.quickstocks.api.managers;
 
-import net.cyberneticforge.quickstocks.core.services.TradingService;
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
+import net.cyberneticforge.quickstocks.core.services.TradingService;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * API Manager for trading operations.

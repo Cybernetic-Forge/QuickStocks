@@ -1,13 +1,12 @@
 package net.cyberneticforge.quickstocks.listeners;
 
-import net.cyberneticforge.quickstocks.application.queries.QueryService;
-import net.cyberneticforge.quickstocks.core.services.CompanyService;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.enums.Translation;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
 import net.cyberneticforge.quickstocks.core.services.TradingService;
-import net.cyberneticforge.quickstocks.core.services.WalletService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,22 +23,6 @@ import java.util.logging.Logger;
 public class PortfolioGUIListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(PortfolioGUIListener.class.getName());
-    
-    private final QueryService queryService;
-    private final TradingService tradingService;
-    private final HoldingsService holdingsService;
-    private final WalletService walletService;
-    private final CompanyService companyService;
-    
-    public PortfolioGUIListener(QueryService queryService, TradingService tradingService,
-                              HoldingsService holdingsService, WalletService walletService,
-                              CompanyService companyService) {
-        this.queryService = queryService;
-        this.tradingService = tradingService;
-        this.holdingsService = holdingsService;
-        this.walletService = walletService;
-        this.companyService = companyService;
-    }
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -69,7 +52,7 @@ public class PortfolioGUIListener implements Listener {
             handlePortfolioClick(player, portfolioGUI, slot, clickedItem, event.getClick());
         } catch (Exception e) {
             logger.warning("Error handling portfolio GUI click for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "An error occurred while processing your request.");
+            Translation.GUI_Portfolio_Error.sendMessage(player);
         }
     }
     
@@ -87,7 +70,7 @@ public class PortfolioGUIListener implements Listener {
         if (slot == 49 && item.getType() == Material.CLOCK) {
             // Refresh button
             portfolioGUI.refresh();
-            player.sendMessage(ChatColor.GREEN + "Portfolio refreshed!");
+            Translation.GUI_Portfolio_Refresh_Success.sendMessage(player);
             return;
         }
         
@@ -113,16 +96,18 @@ public class PortfolioGUIListener implements Listener {
         String playerUuid = player.getUniqueId().toString();
         
         // Get instrument ID
-        String instrumentId = queryService.getInstrumentIdBySymbol(symbol);
+        String instrumentId = QuickStocksPlugin.getQueryService().getInstrumentIdBySymbol(symbol);
         if (instrumentId == null) {
-            player.sendMessage(ChatColor.RED + "Stock not found: " + symbol);
+            Translation.GUI_Portfolio_StockNotFound.sendMessage(player,
+                new Replaceable("%symbol%", symbol));
             return;
         }
         
         // Get holding info
-        HoldingsService.Holding holding = holdingsService.getHolding(playerUuid, instrumentId);
+        HoldingsService.Holding holding = QuickStocksPlugin.getHoldingsService().getHolding(playerUuid, instrumentId);
         if (holding == null) {
-            player.sendMessage(ChatColor.RED + "You don't own any shares of " + symbol);
+            Translation.GUI_Portfolio_NoShares.sendMessage(player,
+                new Replaceable("%symbol%", symbol));
             return;
         }
         
@@ -142,17 +127,22 @@ public class PortfolioGUIListener implements Listener {
         double qty = holding.getQty();
         
         // Execute the trade
-        TradingService.TradeResult result = tradingService.executeSellOrder(playerUuid, instrumentId, qty);
+        TradingService.TradeResult result = QuickStocksPlugin.getTradingService().executeSellOrder(playerUuid, instrumentId, qty);
         
         if (result.isSuccess()) {
             double totalValue = qty * holding.getCurrentPrice();
-            player.sendMessage(ChatColor.GREEN + "✓ Sold all " + String.format("%.2f", qty) + " shares of " + symbol);
-            player.sendMessage(ChatColor.GREEN + "Received: $" + String.format("%.2f", totalValue));
-            player.sendMessage(ChatColor.GRAY + "New balance: $" + String.format("%.2f", walletService.getBalance(playerUuid)));
+            Translation.GUI_Portfolio_SoldAll.sendMessage(player,
+                new Replaceable("%qty%", String.format("%.2f", qty)),
+                new Replaceable("%symbol%", symbol));
+            Translation.GUI_Portfolio_Received.sendMessage(player,
+                new Replaceable("%total%", String.format("%.2f", totalValue)));
+            Translation.GUI_Portfolio_NewBalance.sendMessage(player,
+                new Replaceable("%balance%", String.format("%.2f", QuickStocksPlugin.getWalletService().getBalance(playerUuid))));
             
             // Note: GUI will be refreshed on next view
         } else {
-            player.sendMessage(ChatColor.RED + "✗ Sale failed: " + result.getMessage());
+            Translation.GUI_Portfolio_SaleFailed.sendMessage(player,
+                new Replaceable("%message%", result.getMessage()));
         }
     }
     
@@ -160,20 +150,28 @@ public class PortfolioGUIListener implements Listener {
      * Shows detailed holding information
      */
     private void showHoldingDetails(Player player, HoldingsService.Holding holding) {
-        player.sendMessage(ChatColor.GOLD + "=== " + holding.getSymbol() + " Holdings ===");
-        player.sendMessage(ChatColor.YELLOW + "Shares: " + ChatColor.WHITE + String.format("%.2f", holding.getQty()));
-        player.sendMessage(ChatColor.YELLOW + "Average Cost: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getAvgCost()));
-        player.sendMessage(ChatColor.YELLOW + "Current Price: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getCurrentPrice()));
-        player.sendMessage(ChatColor.YELLOW + "Total Value: " + ChatColor.WHITE + "$" + String.format("%.2f", holding.getQty() * holding.getCurrentPrice()));
+        Translation.GUI_Portfolio_HoldingDetails_Header.sendMessage(player,
+            new Replaceable("%symbol%", holding.getSymbol()));
+        Translation.GUI_Portfolio_HoldingDetails_Shares.sendMessage(player,
+            new Replaceable("%qty%", String.format("%.2f", holding.getQty())));
+        Translation.GUI_Portfolio_HoldingDetails_AvgCost.sendMessage(player,
+            new Replaceable("%cost%", String.format("%.2f", holding.getAvgCost())));
+        Translation.GUI_Portfolio_HoldingDetails_CurrentPrice.sendMessage(player,
+            new Replaceable("%price%", String.format("%.2f", holding.getCurrentPrice())));
+        Translation.GUI_Portfolio_HoldingDetails_TotalValue.sendMessage(player,
+            new Replaceable("%value%", String.format("%.2f", holding.getQty() * holding.getCurrentPrice())));
         
         double pnl = holding.getUnrealizedPnL();
-        ChatColor pnlColor = pnl >= 0 ? ChatColor.GREEN : ChatColor.RED;
+        String pnlColor = pnl >= 0 ? "&a" : "&c";
         String pnlArrow = pnl >= 0 ? "▲" : "▼";
         
-        player.sendMessage(ChatColor.YELLOW + "P&L: " + pnlColor + pnlArrow + "$" + String.format("%.2f", Math.abs(pnl)) + 
-                          " (" + String.format("%.1f%%", Math.abs(holding.getUnrealizedPnLPercent())) + ")");
+        Translation.GUI_Portfolio_HoldingDetails_PnL.sendMessage(player,
+            new Replaceable("%color%", pnlColor),
+            new Replaceable("%arrow%", pnlArrow),
+            new Replaceable("%pnl%", String.format("%.2f", Math.abs(pnl))),
+            new Replaceable("%percent%", String.format("%.1f%%", Math.abs(holding.getUnrealizedPnLPercent()))));
         
-        player.sendMessage(ChatColor.GRAY + "Right-click to sell all shares");
+        Translation.GUI_Portfolio_HoldingDetails_SellHint.sendMessage(player);
     }
     
     /**
@@ -181,11 +179,11 @@ public class PortfolioGUIListener implements Listener {
      */
     private void openMarketGUI(Player player) {
         try {
-            MarketGUI marketGUI = new MarketGUI(player, queryService, tradingService, holdingsService, walletService, companyService);
+            MarketGUI marketGUI = new MarketGUI(player);
             marketGUI.open();
         } catch (Exception e) {
             logger.warning("Error opening market GUI for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "Unable to open market at this time.");
+            Translation.GUI_Portfolio_MarketOpenError.sendMessage(player);
         }
     }
 }

@@ -1,6 +1,5 @@
 package net.cyberneticforge.quickstocks.infrastructure.hooks;
 
-import com.Acrobot.Breeze.Utils.NameUtil;
 import com.Acrobot.ChestShop.UUIDs.NameManager;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;

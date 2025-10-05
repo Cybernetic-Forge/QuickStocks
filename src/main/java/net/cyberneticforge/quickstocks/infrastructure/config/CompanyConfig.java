@@ -1,6 +1,9 @@
 package net.cyberneticforge.quickstocks.infrastructure.config;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Configuration holder for company system settings.

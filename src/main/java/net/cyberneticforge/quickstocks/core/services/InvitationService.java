@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
@@ -17,11 +18,9 @@ public class InvitationService {
     private static final long INVITATION_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000L; // 7 days
     
     private final Db database;
-    private final CompanyService companyService;
-    
-    public InvitationService(Db database, CompanyService companyService) {
+
+    public InvitationService(Db database) {
         this.database = database;
-        this.companyService = companyService;
     }
     
     /**
@@ -30,19 +29,19 @@ public class InvitationService {
     public CompanyInvitation createInvitation(String companyId, String inviterUuid, 
                                              String inviteeUuid, String jobTitle) throws SQLException {
         // Check if inviter has permission
-        Optional<CompanyJob> inviterJob = companyService.getPlayerJob(companyId, inviterUuid);
+        Optional<CompanyJob> inviterJob = QuickStocksPlugin.getCompanyService().getPlayerJob(companyId, inviterUuid);
         if (inviterJob.isEmpty() || !inviterJob.get().canInvite()) {
             throw new IllegalArgumentException("Player does not have permission to invite");
         }
         
         // Check if target job exists
-        Optional<CompanyJob> targetJob = companyService.getJobByTitle(companyId, jobTitle);
+        Optional<CompanyJob> targetJob = QuickStocksPlugin.getCompanyService().getJobByTitle(companyId, jobTitle);
         if (targetJob.isEmpty()) {
             throw new IllegalArgumentException("Job title does not exist");
         }
         
         // Check if player is already an employee
-        Optional<CompanyJob> existingJob = companyService.getPlayerJob(companyId, inviteeUuid);
+        Optional<CompanyJob> existingJob = QuickStocksPlugin.getCompanyService().getPlayerJob(companyId, inviteeUuid);
         if (existingJob.isPresent()) {
             throw new IllegalArgumentException("Player is already an employee of this company");
         }
@@ -152,7 +151,7 @@ public class InvitationService {
         CompanyInvitation invitation = invitationOpt.get();
         
         // Check if canceller has permission (must be inviter or have manage permission)
-        Optional<CompanyJob> job = companyService.getPlayerJob(invitation.getCompanyId(), cancellerUuid);
+        Optional<CompanyJob> job = QuickStocksPlugin.getCompanyService().getPlayerJob(invitation.getCompanyId(), cancellerUuid);
         boolean isInviter = invitation.getInviterUuid().equals(cancellerUuid);
         boolean canManage = job.isPresent() && job.get().canManageCompany();
         

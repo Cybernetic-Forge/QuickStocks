@@ -1,9 +1,9 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.core.model.Stock;
 import net.cyberneticforge.quickstocks.core.model.Instrument;
 import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.core.model.PriceHistory;
+import net.cyberneticforge.quickstocks.core.model.Stock;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;

@@ -1,8 +1,9 @@
 package net.cyberneticforge.quickstocks.listeners;
 
-import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
+import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
-import org.bukkit.ChatColor;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
+import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -48,7 +49,7 @@ public class CompanySettingsGUIListener implements Listener {
             handleClick(player, gui, slot, clickedItem, company);
         } catch (Exception e) {
             logger.warning("Error handling Company Settings GUI click for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(ChatColor.RED + "An error occurred while processing your click.");
+            Translation.GUI_CompanySettings_Error.sendMessage(player);
         }
     }
     
@@ -61,7 +62,7 @@ public class CompanySettingsGUIListener implements Listener {
         // Refresh button (slot 49)
         if (slot == 49 && item.getType() == Material.CLOCK) {
             gui.refresh();
-            player.sendMessage(ChatColor.GREEN + "Company settings refreshed!");
+            Translation.GUI_CompanySettings_Refresh_Success.sendMessage(player);
             return;
         }
         
@@ -88,44 +89,48 @@ public class CompanySettingsGUIListener implements Listener {
         // Deposit button (slot 21)
         if (slot == 21 && item.getType() == Material.HOPPER) {
             player.closeInventory();
-            player.sendMessage(ChatColor.YELLOW + "Use command: " + ChatColor.WHITE + "/company deposit " + company.getName() + " <amount>");
+            Translation.GUI_CompanySettings_DepositHint.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
             return;
         }
         
         // Withdraw button (slot 22)
         if (slot == 22 && item.getType() == Material.DISPENSER) {
             player.closeInventory();
-            player.sendMessage(ChatColor.YELLOW + "Use command: " + ChatColor.WHITE + "/company withdraw " + company.getName() + " <amount>");
+            Translation.GUI_CompanySettings_WithdrawHint.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
             return;
         }
         
         // Assign Job button (slot 23)
         if (slot == 23 && item.getType() == Material.ENCHANTED_BOOK) {
             player.closeInventory();
-            player.sendMessage(ChatColor.YELLOW + "Use command: " + ChatColor.WHITE + "/company assignjob " + company.getName() + " <player> <job>");
+            Translation.GUI_CompanySettings_AssignJobHint.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
             return;
         }
         
         // Invite Player button (slot 24)
         if (slot == 24 && item.getType() == Material.PAPER) {
             player.closeInventory();
-            player.sendMessage(ChatColor.YELLOW + "Use command: " + ChatColor.WHITE + "/company invite " + company.getName() + " <player> <job>");
+            Translation.GUI_CompanySettings_InviteHint.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
             return;
         }
         
         // Create Job button (slot 25)
         if (slot == 25 && item.getType() == Material.BOOK) {
             player.closeInventory();
-            player.sendMessage(ChatColor.YELLOW + "Use command: " + ChatColor.WHITE + "/company createjob " + company.getName() + " <title> <permissions>");
-            player.sendMessage(ChatColor.GRAY + "Permissions: invite, createjobs, withdraw, manage (comma-separated)");
+            Translation.GUI_CompanySettings_CreateJobHint.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
             return;
         }
         
         // Edit Job button (slot 26)
         if (slot == 26 && item.getType() == Material.WRITABLE_BOOK) {
             player.closeInventory();
-            player.sendMessage(ChatColor.YELLOW + "Use command: " + ChatColor.WHITE + "/company editjob " + company.getName() + " <title> <permissions>");
-            player.sendMessage(ChatColor.GRAY + "Permissions: invite, createjobs, withdraw, manage (comma-separated)");
+            Translation.GUI_CompanySettings_EditJobHint.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
             return;
         }
     }

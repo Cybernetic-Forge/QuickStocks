@@ -9,7 +9,6 @@ import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;

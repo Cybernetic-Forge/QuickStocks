@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
@@ -8,7 +9,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -19,26 +23,11 @@ public class CompanyMarketService {
     private static final Logger logger = Logger.getLogger(CompanyMarketService.class.getName());
     
     private final Db database;
-    private final CompanyService companyService;
-    private final WalletService walletService;
     private final CompanyConfig config;
-    private TradingService tradingService; // Injected later to avoid circular dependency
-    private HoldingsService holdingsService; // Injected later to avoid circular dependency
     
-    public CompanyMarketService(Db database, CompanyService companyService, 
-                               WalletService walletService, CompanyConfig config) {
+    public CompanyMarketService(Db database, CompanyConfig config) {
         this.database = database;
-        this.companyService = companyService;
-        this.walletService = walletService;
         this.config = config;
-    }
-    
-    /**
-     * Sets the trading and holdings services. Called after initialization to avoid circular dependencies.
-     */
-    public void setTradingServices(TradingService tradingService, HoldingsService holdingsService) {
-        this.tradingService = tradingService;
-        this.holdingsService = holdingsService;
     }
     
     /**
@@ -73,7 +62,7 @@ public class CompanyMarketService {
      * Creates an instrument entry so the company can be traded using the standard instruments infrastructure.
      */
     public void enableMarket(String companyId, String actorUuid) throws SQLException {
-        Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(companyId);
         if (companyOpt.isEmpty()) {
             throw new IllegalArgumentException("Company not found");
         }
@@ -150,7 +139,7 @@ public class CompanyMarketService {
      * This now works with the instruments infrastructure.
      */
     public void disableMarket(String companyId, String actorUuid) throws SQLException {
-        Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(companyId);
         if (companyOpt.isEmpty()) {
             throw new IllegalArgumentException("Company not found");
         }
@@ -181,11 +170,11 @@ public class CompanyMarketService {
             double payout = shares * sharePrice;
             
             // Sell all shares using TradingService (this updates user_holdings and creates order records)
-            if (tradingService != null) {
-                tradingService.executeSellOrder(playerUuid, instrumentId, shares);
+            if (QuickStocksPlugin.getTradingService() != null) {
+                QuickStocksPlugin.getTradingService().executeSellOrder(playerUuid, instrumentId, shares);
             } else {
                 // Fallback if trading service not available
-                walletService.addBalance(playerUuid, payout);
+                QuickStocksPlugin.getWalletService().addBalance(playerUuid, payout);
                 database.execute("DELETE FROM user_holdings WHERE instrument_id = ? AND player_uuid = ?",
                     instrumentId, playerUuid);
             }
@@ -212,7 +201,7 @@ public class CompanyMarketService {
      */
     public void updateMarketSettings(String companyId, String actorUuid, 
                                     Double marketPercentage, Boolean allowBuyout) throws SQLException {
-        Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(companyId);
         if (companyOpt.isEmpty()) {
             throw new IllegalArgumentException("Company not found");
         }
@@ -249,11 +238,11 @@ public class CompanyMarketService {
             throw new IllegalArgumentException("Quantity must be positive");
         }
         
-        if (tradingService == null || holdingsService == null) {
+        if (QuickStocksPlugin.getTradingService() == null || QuickStocksPlugin.getHoldingsService() == null) {
             throw new IllegalStateException("Trading services not initialized. Call setTradingServices() first.");
         }
         
-        Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(companyId);
         if (companyOpt.isEmpty()) {
             throw new IllegalArgumentException("Company not found");
         }
@@ -289,7 +278,7 @@ public class CompanyMarketService {
         }
         
         // Use TradingService to execute the buy order
-        TradingService.TradeResult result = tradingService.executeBuyOrder(playerUuid, instrumentId, quantity);
+        TradingService.TradeResult result = QuickStocksPlugin.getTradingService().executeBuyOrder(playerUuid, instrumentId, quantity);
         
         if (!result.isSuccess()) {
             throw new IllegalArgumentException("Failed to execute buy order: " + result.getMessage());
@@ -312,7 +301,7 @@ public class CompanyMarketService {
                 
                 // Update employee record to CEO
                 Optional<CompanyJob> ceoJob =
-                    companyService.getJobByTitle(companyId, "CEO");
+                    QuickStocksPlugin.getCompanyService().getJobByTitle(companyId, "CEO");
                 if (ceoJob.isPresent()) {
                     // Check if player is already an employee
                     List<Map<String, Object>> empCheck = database.query(
@@ -361,11 +350,11 @@ public class CompanyMarketService {
             throw new IllegalArgumentException("Quantity must be positive");
         }
         
-        if (tradingService == null || holdingsService == null) {
+        if (QuickStocksPlugin.getTradingService() == null || QuickStocksPlugin.getHoldingsService() == null) {
             throw new IllegalStateException("Trading services not initialized. Call setTradingServices() first.");
         }
         
-        Optional<Company> companyOpt = companyService.getCompanyById(companyId);
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(companyId);
         if (companyOpt.isEmpty()) {
             throw new IllegalArgumentException("Company not found");
         }
@@ -390,7 +379,7 @@ public class CompanyMarketService {
         }
         
         // Use TradingService to execute the sell order
-        TradingService.TradeResult result = tradingService.executeSellOrder(playerUuid, instrumentId, quantity);
+        TradingService.TradeResult result = QuickStocksPlugin.getTradingService().executeSellOrder(playerUuid, instrumentId, quantity);
         
         if (!result.isSuccess()) {
             throw new IllegalArgumentException("Failed to execute sell order: " + result.getMessage());

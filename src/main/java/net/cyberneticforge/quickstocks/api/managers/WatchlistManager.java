@@ -4,7 +4,6 @@ import net.cyberneticforge.quickstocks.core.services.WatchlistService;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * API Manager for watchlist operations.
