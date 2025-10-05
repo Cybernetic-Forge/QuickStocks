@@ -298,6 +298,7 @@ Company:
       NoPermission: '&cYou don''t have permission to manage salaries in this company'
       NotEmployee: '&cYou are not an employee of this company'
       InvalidCycle: '&c%error%'
+    PaymentReceived: '&a💰 Salary payment received: &e$%amount% &afrom &e%company%'
 
 # Market GUI and Trading Messages  
 Market:

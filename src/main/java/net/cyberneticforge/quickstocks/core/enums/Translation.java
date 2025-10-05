@@ -254,6 +254,7 @@ public enum Translation {
     Company_Salary_Error_NoPermission("Company.Salary.Error.NoPermission"),
     Company_Salary_Error_NotEmployee("Company.Salary.Error.NotEmployee"),
     Company_Salary_Error_InvalidCycle("Company.Salary.Error.InvalidCycle"),
+    Company_Salary_PaymentReceived("Company.Salary.PaymentReceived"),
 
     // GUI Messages
     GUI_CompanySettings_Refresh_Success("GUI.CompanySettings.Refresh_Success"),

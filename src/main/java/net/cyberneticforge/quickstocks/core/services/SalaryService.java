@@ -1,8 +1,12 @@
 package net.cyberneticforge.quickstocks.core.services;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.enums.Translation;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -191,9 +195,9 @@ public class SalaryService {
             return 0; // Not yet time for payment
         }
         
-        // Get company balance
+        // Get company balance and name
         List<Map<String, Object>> companyResults = database.query(
-            "SELECT balance FROM companies WHERE id = ?", companyId
+            "SELECT balance, name FROM companies WHERE id = ?", companyId
         );
         
         if (companyResults.isEmpty()) {
@@ -201,6 +205,7 @@ public class SalaryService {
         }
         
         double companyBalance = ((Number) companyResults.get(0).get("balance")).doubleValue();
+        String companyName = (String) companyResults.get(0).get("name");
         
         // Get all employees of the company
         List<Map<String, Object>> employees = database.query(
@@ -255,6 +260,14 @@ public class SalaryService {
                 totalPaid += salary;
                 
                 logger.fine("Paid salary of $" + salary + " to " + playerUuid + " from company " + companyId);
+                
+                // Notify player if they are online
+                Player onlinePlayer = Bukkit.getPlayer(UUID.fromString(playerUuid));
+                if (onlinePlayer != null && onlinePlayer.isOnline()) {
+                    Translation.Company_Salary_PaymentReceived.sendMessage(onlinePlayer,
+                        new Replaceable("%amount%", String.format("%.2f", salary)),
+                        new Replaceable("%company%", companyName));
+                }
                 
             } catch (Exception e) {
                 logger.warning("Failed to pay salary to " + playerUuid + ": " + e.getMessage());
