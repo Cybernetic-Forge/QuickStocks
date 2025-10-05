@@ -20,7 +20,6 @@ import net.cyberneticforge.quickstocks.listeners.PortfolioGUIListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopProtectionListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopTransactionListener;
-import net.cyberneticforge.quickstocks.utils.TranslationManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
