@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.core.services;
 
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
+import org.bukkit.Bukkit;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -188,5 +189,17 @@ public class HoldingsService {
         public double getUnrealizedPnLPercent() { 
             return getTotalCost() > 0 ? (getUnrealizedPnL() / getTotalCost()) * 100 : 0; 
         }
+    }
+    
+    /**
+     * Gets the count of unique players with holdings (for metrics).
+     * @return Number of players with at least one holding
+     */
+    public int getPlayerCountWithHoldings() throws SQLException {
+        String result = database.queryValue(
+            "SELECT COUNT(DISTINCT player_uuid) FROM user_holdings WHERE qty > 0"
+        );
+        Bukkit.getConsoleSender().sendMessage("Result: " + result);
+        return result != null ? Integer.parseInt(result) : 0;
     }
 }
