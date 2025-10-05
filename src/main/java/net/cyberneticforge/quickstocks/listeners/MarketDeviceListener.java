@@ -1,14 +1,15 @@
 package net.cyberneticforge.quickstocks.listeners;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.commands.MarketDeviceCommand;
-import net.cyberneticforge.quickstocks.utils.TranslationManager;
+import net.cyberneticforge.quickstocks.core.enums.Translation;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,17 +19,11 @@ import java.util.UUID;
  * Handles Market Device interactions and restrictions
  */
 public class MarketDeviceListener implements Listener {
-    
-    private final JavaPlugin plugin;
-    private final TranslationManager translations;
-    private final MarketDeviceCommand deviceCommand;
+
     private final Map<UUID, Long> cooldowns;
     private final long cooldownTime; // in milliseconds
     
-    public MarketDeviceListener(JavaPlugin plugin, TranslationManager translations, MarketDeviceCommand deviceCommand) {
-        this.plugin = plugin;
-        this.translations = translations;
-        this.deviceCommand = deviceCommand;
+    public MarketDeviceListener() {
         this.cooldowns = new HashMap<>();
         this.cooldownTime = 1000; // 1 second cooldown
     }
@@ -39,7 +34,7 @@ public class MarketDeviceListener implements Listener {
         ItemStack item = event.getItem();
         
         // Check if player is holding a Market Device
-        if (!deviceCommand.isMarketDevice(item)) {
+        if (!MarketDeviceCommand.isMarketDevice(item)) {
             return;
         }
         
@@ -51,10 +46,10 @@ public class MarketDeviceListener implements Listener {
         event.setCancelled(true); // Prevent placing the item
         
         // Check ownership
-        UUID deviceOwner = deviceCommand.getDeviceOwner(item);
+        UUID deviceOwner = MarketDeviceCommand.getDeviceOwner(item);
         if (deviceOwner == null || !deviceOwner.equals(player.getUniqueId())) {
             String ownerName = deviceOwner != null ? getPlayerName(deviceOwner) : "Unknown";
-            player.sendMessage(translations.getMessage("market.device.wrong_owner", "owner", ownerName));
+            Translation.Market_Device_WrongOwner.sendMessage(player, new Replaceable("owner", ownerName));
             return;
         }
         
@@ -65,7 +60,7 @@ public class MarketDeviceListener implements Listener {
         if (cooldowns.containsKey(playerId)) {
             long lastUse = cooldowns.get(playerId);
             if (currentTime - lastUse < cooldownTime) {
-                player.sendMessage(translations.getMessage("market.device.cooldown"));
+                Translation.Market_Device_Cooldown.sendMessage(player);
                 return;
             }
         }
@@ -83,15 +78,15 @@ public class MarketDeviceListener implements Listener {
         Player player = event.getPlayer();
         
         // Check if it's a Market Device
-        if (!deviceCommand.isMarketDevice(item)) {
+        if (!MarketDeviceCommand.isMarketDevice(item)) {
             return;
         }
         
         // Check if soulbound (bound to different player)
-        UUID deviceOwner = deviceCommand.getDeviceOwner(item);
+        UUID deviceOwner = MarketDeviceCommand.getDeviceOwner(item);
         if (deviceOwner != null && !deviceOwner.equals(player.getUniqueId())) {
             event.setCancelled(true);
-            player.sendMessage(translations.getMessage("market.device.drop_prevented"));
+            Translation.Market_Device_DropPrevented.sendMessage(player);
         }
     }
     
@@ -100,8 +95,7 @@ public class MarketDeviceListener implements Listener {
      * Now properly opens the /market command interface
      */
     private void openMarketForPlayer(Player player) {
-        player.sendMessage(translations.getMessage("market.device.opened"));
-        
+        Translation.Market_Device_Opened.sendMessage(player);
         // Execute the market command to open the market interface
         player.performCommand("market");
     }
@@ -110,7 +104,7 @@ public class MarketDeviceListener implements Listener {
      * Gets player name from UUID (basic implementation)
      */
     private String getPlayerName(UUID uuid) {
-        Player player = plugin.getServer().getPlayer(uuid);
+        Player player = QuickStocksPlugin.getInstance().getServer().getPlayer(uuid);
         if (player != null) {
             return player.getName();
         }

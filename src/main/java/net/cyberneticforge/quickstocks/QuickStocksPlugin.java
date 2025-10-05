@@ -31,6 +31,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     @Getter
     private static JavaPlugin instance;
     @Getter
+    private static TranslationService translationService;
+    @Getter
     private static StockMarketService stockMarketService;
     @Getter
     private static SimulationEngine simulationEngine;
@@ -40,8 +42,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static QueryService queryService;
     @Getter
     private static CryptoService cryptoService;
-    @Getter
-    private static TranslationManager translationManager;
     @Getter
     private static GuiConfig guiConfig;
     @Getter
@@ -76,12 +76,12 @@ public final class QuickStocksPlugin extends JavaPlugin {
         try {
             // Initialize hook manager to detect external plugins
             hookManager = new HookManager();
-            
+
+            // Initialize translation service
+            translationService = new TranslationService();
+
             // Initialize database
             initializeDatabase();
-            
-            // Initialize translation manager
-            translationManager = new TranslationManager(this);
             
             // Initialize GUI configuration manager
             guiConfig = new GuiConfig();
@@ -104,7 +104,13 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Initialize wallet service
             walletService = new WalletService(databaseManager.getDb());
-            
+
+            // Initialize company services
+            CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
+            companyService = new CompanyService(databaseManager.getDb(), companyConfig);
+            invitationService = new InvitationService(databaseManager.getDb());
+            companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyConfig);
+
             // Initialize holdings service
             holdingsService = new HoldingsService(databaseManager.getDb());
             
@@ -120,12 +126,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Initialize instrument persistence service
             instrumentPersistenceService = new InstrumentPersistenceService(databaseManager.getDb());
 
-            // Initialize company services
-            CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
-            companyService = new CompanyService(databaseManager.getDb(), companyConfig);
-            invitationService = new InvitationService(databaseManager.getDb());
-            companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyConfig);
-
             // Connect trading service to market service for threshold tracking
             tradingService.setStockMarketService(stockMarketService);
             
@@ -136,7 +136,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             registerCommands();
             
             // Initialize recipe manager
-            MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
+            MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand();
             
             // Register listeners
             registerListeners();
@@ -213,7 +213,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
         WalletCommand walletCommand = new WalletCommand();
         MarketCommand marketCommand = new MarketCommand(databaseManager.getDb());
-        MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
+        MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand();
         WatchCommand watchCommand = new WatchCommand();
         CompanyCommand companyCommand = new CompanyCommand();
         
@@ -243,8 +243,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Registers event listeners with the server.
      */
     private void registerListeners() {
-        MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand(this, translationManager);
-        MarketDeviceListener deviceListener = new MarketDeviceListener(this, translationManager, marketDeviceCommand);
+        MarketDeviceListener deviceListener = new MarketDeviceListener();
 
         // Register GUI listeners for the new market interface
         MarketGUIListener marketGUIListener = new MarketGUIListener();

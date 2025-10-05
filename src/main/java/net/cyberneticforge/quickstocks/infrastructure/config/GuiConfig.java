@@ -28,8 +28,11 @@ public class GuiConfig {
      * @param path The path to the GUI title in the YAML file
      * @return The GUI title as a Component
      */
-    public Component getTitle(String path) {
+    public Component getTitle(String path, Replaceable... replaceables) {
         String title = config.getString(path + ".title", "GUI");
+        for (Replaceable r : replaceables) {
+            title = title.replace(r.getKey(), r.getValue());
+        }
         return ChatUT.hexComp(title);
     }
     
@@ -38,8 +41,11 @@ public class GuiConfig {
      * @param path The path to the item in the YAML file
      * @return The display name as a Component
      */
-    public Component getItemName(String path) {
+    public Component getItemName(String path, Replaceable... replaceables) {
         String name = config.getString(path + ".name", "Item");
+        for (Replaceable r : replaceables) {
+            name = name.replace(r.getKey(), r.getValue());
+        }
         return ChatUT.hexComp(name);
     }
     

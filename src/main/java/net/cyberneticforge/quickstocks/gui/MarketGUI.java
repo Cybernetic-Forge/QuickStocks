@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -143,7 +144,7 @@ public class MarketGUI implements InventoryHolder {
             }
 
         } catch (Exception e) {
-            logger.warning("Error adding companies to GUI: " + e.getMessage());
+            logger.warning("Error adding companies to GUI: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -168,10 +169,8 @@ public class MarketGUI implements InventoryHolder {
         ItemMeta meta = item.getItemMeta();
 
         // Set display name
-        String namePatt = QuickStocksPlugin.getGuiConfig().getConfig().getString("market.company_item.name", "&a{company_name} ({symbol})")
-                .replace("{company_name}", displayName)
-                .replace("{symbol}", symbol);
-        meta.displayName(ChatUT.hexComp(namePatt));
+        Component name = QuickStocksPlugin.getGuiConfig().getItemName("market.company_item", new Replaceable("{company_name}", displayName), new Replaceable("{symbol}", symbol));
+        meta.displayName(name);
 
         // Create detailed lore
         List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("market.company_item",
@@ -191,18 +190,14 @@ public class MarketGUI implements InventoryHolder {
      * Determines the appropriate material for a company based on type
      */
     private Material getMaterialForCompany(String type) {
-        if (type == null) type = "other";
+        if (type == null) type = "default";
 
         // Try to get material from config
-        String materialName = QuickStocksPlugin.getGuiConfig().getConfig().getString("market.company_item.materials." + type.toLowerCase(), null);
-        if (materialName == null) {
-            materialName = QuickStocksPlugin.getGuiConfig().getConfig().getString("market.company_item.materials.default", "PAPER");
-        }
-
+        String materialName = QuickStocksPlugin.getGuiConfig().getConfig().getString("market.company_item.materials." + type.toLowerCase(), "PAPER");
         try {
             return Material.valueOf(materialName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            logger.warning("Invalid material '" + materialName + "' for company type '" + type + "', using PAPER");
+            Bukkit.getConsoleSender().sendMessage("Invalid material '" + materialName + "' for company type '" + type + "', using PAPER");
             return Material.PAPER;
         }
     }

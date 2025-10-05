@@ -684,8 +684,7 @@ public class CompanyService {
             "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout " +
             "FROM companies " +
             "WHERE on_market = 1 AND symbol IS NOT NULL " +
-            "ORDER BY name",
-            new Object[0]
+            "ORDER BY name"
         );
         
         List<Company> companies = new ArrayList<>();
