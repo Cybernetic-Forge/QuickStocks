@@ -354,15 +354,18 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(companyOpt.get().getId(), playerUuid);
         if (jobOpt.isPresent()) {
             CompanyJob job = jobOpt.get();
-            player.sendMessage(ChatColor.GREEN + "You've joined " + companyOpt.get().getName() + " as " + job.getTitle() + "!");
-            player.sendMessage(ChatColor.GRAY + "Permissions: " + 
-                             (job.canManageCompany() ? "Manage " : "") +
+            String permissions = (job.canManageCompany() ? "Manage " : "") +
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
-                             (job.canManageChestShop() ? "ChestShop" : ""));
+                             (job.canManageChestShop() ? "ChestShop" : "");
+            Translation.Company_JoinedWithJob.sendMessage(player,
+                new Replaceable("%company%", companyOpt.get().getName()),
+                new Replaceable("%job%", job.getTitle()),
+                new Replaceable("%permissions%", permissions));
         } else {
-            player.sendMessage(ChatColor.GREEN + "You've joined " + companyOpt.get().getName() + "!");
+            Translation.Company_JoinedWithoutJob.sendMessage(player,
+                new Replaceable("%company%", companyOpt.get().getName()));
         }
     }
     
@@ -409,17 +412,17 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Pending Invitations" + ChatColor.GOLD + " ===");
+        Translation.Company_InvitationsHeader.sendMessage(player);
         for (CompanyInvitation invitation : invitations) {
             Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(invitation.getCompanyId());
             Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getJobById(invitation.getJobId());
             if (companyOpt.isPresent() && jobOpt.isPresent()) {
                 Company company = companyOpt.get();
                 CompanyJob job = jobOpt.get();
-                player.sendMessage(ChatColor.YELLOW + company.getName() + ChatColor.GRAY + 
-                                 " - Job: " + ChatColor.WHITE + job.getTitle());
-                player.sendMessage(ChatColor.GRAY + "  Expires: " + dateFormat.format(new Date(invitation.getExpiresAt())));
-                player.sendMessage(ChatColor.GRAY + "  Use: " + ChatColor.YELLOW + "/company accept " + company.getName());
+                Translation.Company_InvitationDetails.sendMessage(player,
+                    new Replaceable("%company%", company.getName()),
+                    new Replaceable("%job%", job.getTitle()),
+                    new Replaceable("%date%", dateFormat.format(new Date(invitation.getExpiresAt()))));
             }
         }
     }
@@ -497,15 +500,17 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + companyOpt.get().getName() + 
-                         " Employees" + ChatColor.GOLD + " ===");
+        Translation.Company_EmployeesHeader.sendMessage(player,
+            new Replaceable("%company%", companyOpt.get().getName()));
         for (Map<String, Object> emp : employees) {
             String playerUuid = (String) emp.get("player_uuid");
             String title = (String) emp.get("title");
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(playerUuid));
             String playerName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown";
             
-            player.sendMessage(ChatColor.YELLOW + playerName + ChatColor.GRAY + " - " + ChatColor.WHITE + title);
+            Translation.Company_EmployeeItem.sendMessage(player,
+                new Replaceable("%player%", playerName),
+                new Replaceable("%job%", title));
         }
     }
     
@@ -526,20 +531,21 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         List<CompanyJob> jobs = QuickStocksPlugin.getCompanyService().getCompanyJobs(companyOpt.get().getId());
         
         if (jobs.isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW + "No job titles found.");
+            Translation.Company_NoJobs.sendMessage(player);
             return;
         }
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + companyOpt.get().getName() + 
-                         " Job Titles" + ChatColor.GOLD + " ===");
+        Translation.Company_JobsHeader.sendMessage(player,
+            new Replaceable("%company%", companyOpt.get().getName()));
         for (CompanyJob job : jobs) {
-            player.sendMessage(ChatColor.YELLOW + job.getTitle());
-            player.sendMessage(ChatColor.GRAY + "  Permissions: " + 
-                             (job.canManageCompany() ? "Manage " : "") +
+            String permissions = (job.canManageCompany() ? "Manage " : "") +
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
-                             (job.canWithdraw() ? "Withdraw" : "") +
-                             (job.canManageChestShop() ? "ChestShop" : ""));
+                             (job.canWithdraw() ? "Withdraw " : "") +
+                             (job.canManageChestShop() ? "ChestShop" : "");
+            Translation.Company_JobDetails.sendMessage(player,
+                new Replaceable("%job%", job.getTitle()),
+                new Replaceable("%permissions%", permissions));
         }
     }
     
@@ -597,13 +603,14 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         QuickStocksPlugin.getCompanyService().updateJobTitle(companyOpt.get().getId(), playerUuid, title,
                                      canInvite, canCreateTitles, canWithdraw, canManage, canChestShop);
 
-        Translation.Company_JobEdited.sendMessage(player, new Replaceable("%company%", companyName), new Replaceable("%job%", title));
-        player.sendMessage(ChatColor.GRAY + "New permissions: " + 
-                         (canManage ? "Manage " : "") +
+        String permissions = (canManage ? "Manage " : "") +
                          (canInvite ? "Invite " : "") +
                          (canCreateTitles ? "CreateJobs " : "") +
                          (canWithdraw ? "Withdraw " : "") +
-                         (canChestShop ? "ChestShop" : ""));
+                         (canChestShop ? "ChestShop" : "");
+        Translation.Company_JobEditedWithPerms.sendMessage(player,
+            new Replaceable("%job%", title),
+            new Replaceable("%permissions%", permissions));
     }
     
     private void handleAssignJob(Player player, String playerUuid, String[] args) throws Exception {
@@ -900,30 +907,27 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         switch (action) {
             case "enable":
                 QuickStocksPlugin.getCompanyMarketService().enableMarket(company.getId(), playerUuid);
-                player.sendMessage(ChatColor.GREEN + "Company is now on the market!");
-                player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + company.getSymbol());
-                player.sendMessage(ChatColor.YELLOW + "Players can now buy shares with: " + 
-                    ChatColor.WHITE + "/market buy " + companyName + " <quantity>");
+                Translation.Company_MarketEnabledDetails.sendMessage(player,
+                    new Replaceable("%symbol%", company.getSymbol()),
+                    new Replaceable("%company%", companyName));
                 break;
                 
             case "disable":
                 QuickStocksPlugin.getCompanyMarketService().disableMarket(company.getId(), playerUuid);
-                player.sendMessage(ChatColor.GREEN + "Company has been delisted from the market.");
-                player.sendMessage(ChatColor.YELLOW + "All shareholders have been paid out.");
+                Translation.Company_MarketDisabledDetails.sendMessage(player);
                 break;
                 
             case "settings":
                 if (args.length < 4) {
                     // Show current settings
-                    player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + company.getName() + " Market Settings" + ChatColor.GOLD + " ===");
-                    player.sendMessage(ChatColor.YELLOW + "On Market: " + ChatColor.WHITE + (company.isOnMarket() ? "Yes" : "No"));
-                    player.sendMessage(ChatColor.YELLOW + "Symbol: " + ChatColor.WHITE + (company.getSymbol() != null ? company.getSymbol() : "Not set"));
-                    player.sendMessage(ChatColor.YELLOW + "Market Percentage: " + ChatColor.WHITE + String.format("%.1f%%", company.getMarketPercentage()));
-                    player.sendMessage(ChatColor.YELLOW + "Buyout Protection: " + ChatColor.WHITE + (company.isAllowBuyout() ? "Disabled" : "Enabled"));
-                    
                     double sharePrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(company);
-                    double issuedShares = QuickStocksPlugin.getCompanyMarketService().getPlayerSharesFromHoldings(company.getId(), playerUuid); // This gets player's shares, need to sum all
-                    player.sendMessage(ChatColor.YELLOW + "Share Price: " + ChatColor.WHITE + "$" + String.format("%.2f", sharePrice));
+                    Translation.Company_MarketSettings.sendMessage(player,
+                        new Replaceable("%company%", company.getName()),
+                        new Replaceable("%status%", company.isOnMarket() ? "Yes" : "No"),
+                        new Replaceable("%symbol%", company.getSymbol() != null ? company.getSymbol() : "Not set"),
+                        new Replaceable("%percentage%", String.format("%.1f", company.getMarketPercentage())),
+                        new Replaceable("%buyout%", company.isAllowBuyout() ? "Disabled" : "Enabled"),
+                        new Replaceable("%price%", String.format("%.2f", sharePrice)));
                 } else {
                     // Update settings: /company market settings <company> <percentage|buyout> <value>
                     String setting = args[3].toLowerCase();
@@ -931,19 +935,22 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     if (setting.equals("percentage") && args.length >= 5) {
                         double percentage = Double.parseDouble(args[4]);
                         QuickStocksPlugin.getCompanyMarketService().updateMarketSettings(company.getId(), playerUuid, percentage, null);
-                        player.sendMessage(ChatColor.GREEN + "Market percentage updated to " + String.format("%.1f%%", percentage));
+                        Translation.Company_MarketPercentageUpdated.sendMessage(player,
+                            new Replaceable("%percentage%", String.format("%.1f", percentage)));
                     } else if (setting.equals("buyout") && args.length >= 5) {
                         boolean allowBuyout = Boolean.parseBoolean(args[4]);
                         QuickStocksPlugin.getCompanyMarketService().updateMarketSettings(company.getId(), playerUuid, null, allowBuyout);
-                        player.sendMessage(ChatColor.GREEN + "Buyout protection " + (allowBuyout ? "disabled" : "enabled"));
+                        Translation.Company_MarketBuyoutUpdated.sendMessage(player,
+                            new Replaceable("%status%", allowBuyout ? "disabled" : "enabled"));
                     } else {
-                        player.sendMessage(ChatColor.RED + "Usage: /company market settings <company> <percentage|buyout> <value>");
+                        Translation.CommandSyntax.sendMessage(player,
+                            new Replaceable("%command%", "/company market settings <company> <percentage|buyout> <value>"));
                     }
                 }
                 break;
                 
             default:
-                player.sendMessage(ChatColor.RED + "Unknown market action. Use: enable, disable, or settings");
+                Translation.Company_UnknownMarketAction.sendMessage(player);
                 break;
         }
     }
@@ -955,23 +962,25 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         List<Map<String, Object>> notifications = QuickStocksPlugin.getCompanyMarketService().getUnreadNotifications(playerUuid);
         
         if (notifications.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY + "No new notifications.");
+            Translation.Company_NoNotifications.sendMessage(player);
             return;
         }
         
-        player.sendMessage(ChatColor.GOLD + "=== " + ChatColor.WHITE + "Company Notifications" + ChatColor.GOLD + " ===");
+        Translation.Company_NotificationsHeader.sendMessage(player);
         
         for (Map<String, Object> notif : notifications) {
             String message = (String) notif.get("message");
             long createdAt = ((Number) notif.get("created_at")).longValue();
             String timeStr = dateFormat.format(new Date(createdAt));
             
-            player.sendMessage(ChatColor.YELLOW + "[" + timeStr + "] " + ChatColor.WHITE + message);
+            Translation.Company_NotificationItem.sendMessage(player,
+                new Replaceable("%time%", timeStr),
+                new Replaceable("%message%", message));
         }
         
         // Mark all as read
         QuickStocksPlugin.getCompanyMarketService().markAllNotificationsRead(playerUuid);
-        player.sendMessage(ChatColor.GRAY + "All notifications marked as read.");
+        Translation.Company_NotificationsRead.sendMessage(player);
     }
     
     /**
@@ -996,7 +1005,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         // Try to leave the company
         try {
             QuickStocksPlugin.getCompanyService().removeEmployee(company.getId(), playerUuid);
-            player.sendMessage(ChatColor.GREEN + "You have left " + company.getName());
+            Translation.Company_Left.sendMessage(player, new Replaceable("%company%", company.getName()));
         } catch (IllegalArgumentException e) {
             Translation.Errors_Internal.sendMessage(player);
         }
