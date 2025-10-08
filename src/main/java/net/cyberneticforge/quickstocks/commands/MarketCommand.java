@@ -35,12 +35,11 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
-        
-        Player player = (Player) sender;
+
         String playerUuid = player.getUniqueId().toString();
         
         try {
@@ -159,8 +158,8 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         // Get company shares from user_holdings (instruments infrastructure)
         List<Map<String, Object>> companyShares = database.query(
             """
-            SELECT 
-                uh.instrument_id, uh.qty as shares, uh.avg_cost, 
+            SELECT\s
+                uh.instrument_id, uh.qty as shares, uh.avg_cost,\s
                 i.symbol, i.display_name as name,
                 c.id as company_id, c.balance
             FROM user_holdings uh
@@ -168,7 +167,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             LEFT JOIN companies c ON i.id = 'COMPANY_' || c.id
             WHERE uh.player_uuid = ? AND uh.qty > 0 AND i.type = 'EQUITY'
             ORDER BY i.symbol
-            """,
+           \s""",
             playerUuid
         );
         
@@ -239,7 +238,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         // Get company share transaction history from orders table (instruments infrastructure)
         List<Map<String, Object>> transactions = database.query(
             """
-            SELECT 
+            SELECT\s
                 o.side as type, o.qty as shares, o.price, o.ts,
                 i.display_name as name, i.symbol
             FROM orders o
@@ -247,7 +246,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             WHERE o.player_uuid = ? AND i.type = 'EQUITY'
             ORDER BY o.ts DESC
             LIMIT 10
-            """,
+           \s""",
             playerUuid
         );
         
@@ -293,9 +292,9 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         
         for (WatchlistService.WatchlistItem item : watchlist) {
             Translation.Watch_CompanyItem.sendMessage(player,
-                new Replaceable("%company%", item.getDisplayName()),
-                new Replaceable("%symbol%", item.getSymbol()),
-                new Replaceable("%price%", String.format("%.2f", item.getLastPrice())));
+                new Replaceable("%company%", item.displayName()),
+                new Replaceable("%symbol%", item.symbol()),
+                new Replaceable("%price%", String.format("%.2f", item.lastPrice())));
         }
     }
     

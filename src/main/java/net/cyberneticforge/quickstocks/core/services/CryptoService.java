@@ -65,10 +65,10 @@ public class CryptoService {
             
             // Create the instrument
             database.execute("""
-                INSERT INTO instruments 
+                INSERT INTO instruments\s
                 (id, type, symbol, display_name, mc_material, decimals, created_by, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
+               \s""",
                 instrumentId,
                 "CUSTOM_CRYPTO",
                 symbol,
@@ -81,10 +81,10 @@ public class CryptoService {
             
             // Initialize the instrument state with a starting price of $1.00
             database.execute("""
-                INSERT INTO instrument_state 
+                INSERT INTO instrument_state\s
                 (instrument_id, last_price, last_volume, change_1h, change_24h, volatility_24h, market_cap, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
+               \s""",
                 instrumentId,
                 1.0, // Starting price of $1.00
                 0.0, // No initial volume
@@ -97,10 +97,10 @@ public class CryptoService {
             
             // Add initial price history entry
             database.execute("""
-                INSERT INTO instrument_price_history 
+                INSERT INTO instrument_price_history\s
                 (id, instrument_id, ts, price, volume, reason)
                 VALUES (?, ?, ?, ?, ?, ?)
-                """,
+               \s""",
                 UUID.randomUUID().toString(),
                 instrumentId,
                 now,
@@ -145,11 +145,11 @@ public class CryptoService {
         }
         
         var stateRow = database.queryOne("""
-            SELECT instrument_id, last_price, last_volume, change_1h, change_24h, 
+            SELECT instrument_id, last_price, last_volume, change_1h, change_24h,\s
                    volatility_24h, market_cap, updated_at
             FROM instrument_state
             WHERE instrument_id = ?
-            """, cryptoId);
+           \s""", cryptoId);
         
         if (stateRow == null) {
             return Optional.empty();
@@ -180,11 +180,11 @@ public class CryptoService {
         
         String instrumentId = (String) instrumentRow.get("id");
         var stateRow = database.queryOne("""
-            SELECT instrument_id, last_price, last_volume, change_1h, change_24h, 
+            SELECT instrument_id, last_price, last_volume, change_1h, change_24h,\s
                    volatility_24h, market_cap, updated_at
             FROM instrument_state
             WHERE instrument_id = ?
-            """, instrumentId);
+           \s""", instrumentId);
         
         if (stateRow == null) {
             return Optional.empty();
@@ -204,12 +204,12 @@ public class CryptoService {
     public List<Crypto> getAllCryptos() throws SQLException {
         var results = database.query("""
             SELECT i.id, i.type, i.symbol, i.display_name, i.mc_material, i.decimals, i.created_by, i.created_at,
-                   s.instrument_id, s.last_price, s.last_volume, s.change_1h, s.change_24h, 
+                   s.instrument_id, s.last_price, s.last_volume, s.change_1h, s.change_24h,\s
                    s.volatility_24h, s.market_cap, s.updated_at
             FROM instruments i
             JOIN instrument_state s ON i.id = s.instrument_id
             WHERE i.type = 'CRYPTO' OR i.type = 'CUSTOM_CRYPTO'
-            """);
+           \s""");
         
         return results.stream()
                 .map(row -> {
@@ -230,12 +230,12 @@ public class CryptoService {
     public List<Crypto> getCryptosByCreator(String playerUuid) throws SQLException {
         var results = database.query("""
             SELECT i.id, i.type, i.symbol, i.display_name, i.mc_material, i.decimals, i.created_by, i.created_at,
-                   s.instrument_id, s.last_price, s.last_volume, s.change_1h, s.change_24h, 
+                   s.instrument_id, s.last_price, s.last_volume, s.change_1h, s.change_24h,\s
                    s.volatility_24h, s.market_cap, s.updated_at
             FROM instruments i
             JOIN instrument_state s ON i.id = s.instrument_id
             WHERE (i.type = 'CRYPTO' OR i.type = 'CUSTOM_CRYPTO') AND i.created_by = ?
-            """, playerUuid);
+           \s""", playerUuid);
         
         return results.stream()
                 .map(row -> {

@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 
 import java.sql.Connection;
@@ -107,7 +108,7 @@ public class WatchlistService {
      */
     public List<WatchlistItem> getWatchlist(String playerUuid) throws SQLException {
         String sql = """
-            SELECT 
+            SELECT\s
                 w.instrument_id,
                 w.added_at,
                 i.symbol,
@@ -122,7 +123,7 @@ public class WatchlistService {
             LEFT JOIN instrument_state s ON w.instrument_id = s.instrument_id
             WHERE w.player_uuid = ?
             ORDER BY w.added_at DESC
-            """;
+           \s""";
         
         List<WatchlistItem> items = new ArrayList<>();
         
@@ -192,43 +193,13 @@ public class WatchlistService {
             return rows;
         }
     }
-    
+
     /**
      * Represents an item in a player's watchlist with current market data.
+     *
+     * @param instrumentId Getters
      */
-    public static class WatchlistItem {
-        private final String instrumentId;
-        private final String symbol;
-        private final String displayName;
-        private final String type;
-        private final long addedAt;
-        private final double lastPrice;
-        private final double change24h;
-        private final double change1h;
-        private final double volatility24h;
-        
-        public WatchlistItem(String instrumentId, String symbol, String displayName, String type, 
-                           long addedAt, double lastPrice, double change24h, double change1h, double volatility24h) {
-            this.instrumentId = instrumentId;
-            this.symbol = symbol;
-            this.displayName = displayName;
-            this.type = type;
-            this.addedAt = addedAt;
-            this.lastPrice = lastPrice;
-            this.change24h = change24h;
-            this.change1h = change1h;
-            this.volatility24h = volatility24h;
-        }
-        
-        // Getters
-        public String getInstrumentId() { return instrumentId; }
-        public String getSymbol() { return symbol; }
-        public String getDisplayName() { return displayName; }
-        public String getType() { return type; }
-        public long getAddedAt() { return addedAt; }
-        public double getLastPrice() { return lastPrice; }
-        public double getChange24h() { return change24h; }
-        public double getChange1h() { return change1h; }
-        public double getVolatility24h() { return volatility24h; }
+        public record WatchlistItem(String instrumentId, String symbol, String displayName, String type, long addedAt,
+                                    double lastPrice, double change24h, double change1h, double volatility24h) {
     }
 }

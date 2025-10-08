@@ -40,14 +40,11 @@ public class CryptoCommand implements CommandExecutor, TabCompleter {
         }
         
         String subCommand = args[0].toLowerCase();
-        
-        switch (subCommand) {
-            case "create":
-                handleCreateCommand(sender, Arrays.copyOfRange(args, 1, args.length));
-                break;
-            default:
-                showUsage(sender);
-                break;
+
+        if (subCommand.equals("create")) {
+            handleCreateCommand(sender, Arrays.copyOfRange(args, 1, args.length));
+        } else {
+            showUsage(sender);
         }
         
         return true;

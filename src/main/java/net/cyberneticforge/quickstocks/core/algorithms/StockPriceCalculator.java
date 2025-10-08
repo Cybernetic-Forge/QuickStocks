@@ -185,12 +185,12 @@ public class StockPriceCalculator {
         // Find recent high and low
         double recentHigh = history.stream()
             .skip(Math.max(0, history.size() - 20))
-            .mapToDouble(Stock.PriceHistory::getPrice)
+            .mapToDouble(Stock.PriceHistory::price)
             .max().orElse(currentPrice);
             
         double recentLow = history.stream()
             .skip(Math.max(0, history.size() - 20))
-            .mapToDouble(Stock.PriceHistory::getPrice)
+            .mapToDouble(Stock.PriceHistory::price)
             .min().orElse(currentPrice);
         
         // If near resistance, slight downward pressure
@@ -211,12 +211,12 @@ public class StockPriceCalculator {
         // Calculate simple moving averages
         double shortMA = history.stream()
             .skip(history.size() - 5)
-            .mapToDouble(Stock.PriceHistory::getPrice)
+            .mapToDouble(Stock.PriceHistory::price)
             .average().orElse(0.0);
             
         double longMA = history.stream()
             .skip(history.size() - 10)
-            .mapToDouble(Stock.PriceHistory::getPrice)
+            .mapToDouble(Stock.PriceHistory::price)
             .average().orElse(0.0);
         
         // Trending up if short MA > long MA
@@ -268,7 +268,7 @@ public class StockPriceCalculator {
         // Calculate long-term average price
         double longTermAverage = history.stream()
             .skip(Math.max(0, history.size() - 50))
-            .mapToDouble(Stock.PriceHistory::getPrice)
+            .mapToDouble(Stock.PriceHistory::price)
             .average().orElse(newPrice);
         
         // If price is very far from average, apply gentle pull back

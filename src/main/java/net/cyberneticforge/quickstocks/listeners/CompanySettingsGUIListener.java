@@ -22,20 +22,17 @@ public class CompanySettingsGUIListener implements Listener {
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
-        
-        Player player = (Player) event.getWhoClicked();
-        
+
         // Check if this is a CompanySettingsGUI
-        if (!(event.getInventory().getHolder() instanceof CompanySettingsGUI)) {
+        if (!(event.getInventory().getHolder() instanceof CompanySettingsGUI gui)) {
             return;
         }
         
         event.setCancelled(true); // Prevent item pickup/movement
-        
-        CompanySettingsGUI gui = (CompanySettingsGUI) event.getInventory().getHolder();
+
         ItemStack clickedItem = event.getCurrentItem();
         
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
@@ -57,8 +54,6 @@ public class CompanySettingsGUIListener implements Listener {
      * Handles clicks in the Company Settings GUI
      */
     private void handleClick(Player player, CompanySettingsGUI gui, int slot, ItemStack item, Company company) {
-        String displayName = item.getItemMeta().getDisplayName();
-        
         // Refresh button (slot 49)
         if (slot == 49 && item.getType() == Material.CLOCK) {
             gui.refresh();

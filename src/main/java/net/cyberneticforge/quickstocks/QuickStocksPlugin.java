@@ -1,18 +1,17 @@
 package net.cyberneticforge.quickstocks;
 
 import lombok.Getter;
-import net.cyberneticforge.quickstocks.core.services.QueryService;
 import net.cyberneticforge.quickstocks.commands.*;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
 import net.cyberneticforge.quickstocks.core.services.*;
+import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
+import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
+import net.cyberneticforge.quickstocks.hooks.HookManager;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
-import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
-import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
-import net.cyberneticforge.quickstocks.hooks.HookManager;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
@@ -24,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -163,9 +163,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             getLogger().info("QuickStocks enabled successfully! Market is now running.");
             
-        } catch (Exception e) {
-            getLogger().severe("Failed to enable QuickStocks: " + e.getMessage());
-            e.printStackTrace();
+        } catch (Exception ex) {
+            getLogger().severe("Failed to enable QuickStocks: " + ex.getMessage());
+            getLogger().severe("StackTrace: " + Arrays.toString(ex.getStackTrace()));
             getServer().getPluginManager().disablePlugin(this);
         }
     }

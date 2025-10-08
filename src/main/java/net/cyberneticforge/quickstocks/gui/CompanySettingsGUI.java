@@ -95,7 +95,7 @@ public class CompanySettingsGUI implements InventoryHolder {
 
             String companyName = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.company_info.name", "&6{company_name}")
                     .replace("{company_name}", company.getName());
-            meta.setDisplayName(ChatUT.serialize(ChatUT.hexComp(companyName)));
+            meta.displayName(ChatUT.hexComp(companyName));
 
             OfflinePlayer owner = Bukkit.getOfflinePlayer(UUID.fromString(company.getOwnerUuid()));
             List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("company_settings.company_info", new Replaceable("{company_name}", company.getName())
@@ -190,37 +190,37 @@ public class CompanySettingsGUI implements InventoryHolder {
             Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
 
             // View Employees button
-            addButton("view_employees", null);
+            addButton("view_employees");
 
             // View Jobs button
-            addButton("view_jobs", null);
+            addButton("view_jobs");
 
             // Deposit button
-            addButton("deposit", null);
+            addButton("deposit");
 
             // Withdraw button (if player has permission)
             if (jobOpt.isPresent() && jobOpt.get().canWithdraw()) {
-                addButton("withdraw", null);
+                addButton("withdraw");
             }
 
             // Assign Job button (if player has permission)
             if (jobOpt.isPresent() && jobOpt.get().canManageCompany()) {
-                addButton("assign_job", null);
+                addButton("assign_job");
             }
 
             // Invite Player button (if player has permission)
             if (jobOpt.isPresent() && jobOpt.get().canInvite()) {
-                addButton("invite_player", null);
+                addButton("invite_player");
             }
 
             // Create Job button (if player has permission)
             if (jobOpt.isPresent() && jobOpt.get().canCreateTitles()) {
-                addButton("create_job", null);
+                addButton("create_job");
             }
 
             // Edit Job button (if player has permission)
             if (jobOpt.isPresent() && jobOpt.get().canCreateTitles()) {
-                addButton("edit_job", null);
+                addButton("edit_job");
             }
 
         } catch (Exception e) {
@@ -233,16 +233,16 @@ public class CompanySettingsGUI implements InventoryHolder {
      */
     private void addNavigationButtons() {
         // Refresh button
-        addButton("refresh", null);
+        addButton("refresh");
 
         // Close button
-        addButton("close", null);
+        addButton("close");
     }
 
     /**
      * Helper method to add a button from config
      */
-    private void addButton(String buttonName, CompanyJob job) {
+    private void addButton(String buttonName) {
         String path = "company_settings." + buttonName;
         Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial(path, Material.STONE);
         int slot = QuickStocksPlugin.getGuiConfig().getItemSlot(path, 0);

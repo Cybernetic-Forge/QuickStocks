@@ -81,17 +81,17 @@ public class StockMarketService {
      * Gets the default volatility rating for a sector.
      */
     private double getSectorVolatility(String sector) {
-        switch (sector.toLowerCase()) {
-            case "technology": return 0.8;
-            case "biotech": return 0.9;
-            case "crypto": return 1.0;
-            case "energy": return 0.7;
-            case "finance": return 0.6;
-            case "healthcare": return 0.5;
-            case "utilities": return 0.3;
-            case "consumer": return 0.4;
-            default: return 0.5;
-        }
+        return switch (sector.toLowerCase()) {
+            case "technology" -> 0.8;
+            case "biotech" -> 0.9;
+            case "crypto" -> 1.0;
+            case "energy" -> 0.7;
+            case "finance" -> 0.6;
+            case "healthcare" -> 0.5;
+            case "utilities" -> 0.3;
+            case "consumer" -> 0.4;
+            default -> 0.5;
+        };
     }
     
     /**
@@ -153,7 +153,7 @@ public class StockMarketService {
      */
     public List<Stock> getWorstPerformers(int count) {
         return stocks.values().stream()
-            .sorted((a, b) -> Double.compare(a.getPriceChangePercent(), b.getPriceChangePercent()))
+            .sorted(Comparator.comparingDouble(Stock::getPriceChangePercent))
             .limit(count)
             .collect(Collectors.toList());
     }
@@ -241,47 +241,22 @@ public class StockMarketService {
     public boolean isMarketOpen() {
         return marketOpen;
     }
-    
+
     /**
-     * Market statistics data class.
-     */
-    public static class MarketStats {
-        private final int totalStocks;
-        private final double averagePrice;
-        private final double averageChange;
-        private final double totalVolume;
-        private final double totalMarketCap;
-        private final long gainers;
-        private final double marketSentiment;
-        
-        public MarketStats(int totalStocks, double averagePrice, double averageChange, 
-                          double totalVolume, double totalMarketCap, long gainers, 
-                          double marketSentiment) {
-            this.totalStocks = totalStocks;
-            this.averagePrice = averagePrice;
-            this.averageChange = averageChange;
-            this.totalVolume = totalVolume;
-            this.totalMarketCap = totalMarketCap;
-            this.gainers = gainers;
-            this.marketSentiment = marketSentiment;
+         * Market statistics data class.
+         */
+        public record MarketStats(int totalStocks, double averagePrice, double averageChange, double totalVolume,
+                                  double totalMarketCap, long gainers, double marketSentiment) {
+        public long getLosers() {
+            return totalStocks - gainers;
         }
-        
-        // Getters
-        public int getTotalStocks() { return totalStocks; }
-        public double getAveragePrice() { return averagePrice; }
-        public double getAverageChange() { return averageChange; }
-        public double getTotalVolume() { return totalVolume; }
-        public double getTotalMarketCap() { return totalMarketCap; }
-        public long getGainers() { return gainers; }
-        public long getLosers() { return totalStocks - gainers; }
-        public double getMarketSentiment() { return marketSentiment; }
-        
+
         @Override
-        public String toString() {
-            return String.format("MarketStats{stocks: %d, avgChange: %.2f%%, sentiment: %.2f}", 
-                totalStocks, averageChange * 100, marketSentiment);
+            public String toString() {
+                return String.format("MarketStats{stocks: %d, avgChange: %.2f%%, sentiment: %.2f}",
+                        totalStocks, averageChange * 100, marketSentiment);
+            }
         }
-    }
     
     /**
      * Gets the price threshold controller.

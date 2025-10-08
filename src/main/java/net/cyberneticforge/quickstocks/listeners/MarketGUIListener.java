@@ -28,20 +28,17 @@ public class MarketGUIListener implements Listener {
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
-        
-        Player player = (Player) event.getWhoClicked();
-        
+
         // Check if this is a MarketGUI
-        if (!(event.getInventory().getHolder() instanceof MarketGUI)) {
+        if (!(event.getInventory().getHolder() instanceof MarketGUI marketGUI)) {
             return;
         }
         
         event.setCancelled(true); // Prevent item pickup/movement
-        
-        MarketGUI marketGUI = (MarketGUI) event.getInventory().getHolder();
+
         ItemStack clickedItem = event.getCurrentItem();
         
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
@@ -305,10 +302,10 @@ public class MarketGUIListener implements Listener {
             String pnlArrow = holding.getUnrealizedPnL() >= 0 ? "▲" : "▼";
             
             Translation.Market_Portfolio_HoldingItem.sendMessage(player,
-                new Replaceable("%symbol%", holding.getSymbol()),
-                new Replaceable("%qty%", String.format("%.2f", holding.getQty())),
-                new Replaceable("%avgcost%", String.format("%.2f", holding.getAvgCost())),
-                new Replaceable("%current%", String.format("%.2f", holding.getCurrentPrice())),
+                new Replaceable("%symbol%", holding.symbol()),
+                new Replaceable("%qty%", String.format("%.2f", holding.qty())),
+                new Replaceable("%avgcost%", String.format("%.2f", holding.avgCost())),
+                new Replaceable("%current%", String.format("%.2f", holding.currentPrice())),
                 new Replaceable("%arrow%", pnlArrow),
                 new Replaceable("%pnlcolor%", pnlColor),
                 new Replaceable("%pnl%", String.format("%.2f", Math.abs(holding.getUnrealizedPnL()))),

@@ -3,57 +3,42 @@ package net.cyberneticforge.quickstocks.core.model;
 /**
  * Represents a cryptocurrency instrument with its current market state.
  */
-public class Crypto {
-    private final Instrument instrument;
-    private final InstrumentState state;
-
-    public Crypto(Instrument instrument, InstrumentState state) {
-        this.instrument = instrument;
-        this.state = state;
-    }
-
-    public Instrument getInstrument() {
-        return instrument;
-    }
-
-    public InstrumentState getState() {
-        return state;
-    }
+public record Crypto(Instrument instrument, InstrumentState state) {
 
     // Convenience methods
     public String getId() {
-        return instrument.getId();
+        return instrument.id();
     }
 
     public String getSymbol() {
-        return instrument.getSymbol();
+        return instrument.symbol();
     }
 
     public String getDisplayName() {
-        return instrument.getDisplayName();
+        return instrument.displayName();
     }
 
     public String getCreatedBy() {
-        return instrument.getCreatedBy();
+        return instrument.createdBy();
     }
 
     public long getCreatedAt() {
-        return instrument.getCreatedAt();
+        return instrument.createdAt();
     }
 
     public double getCurrentPrice() {
-        return state.getLastPrice();
+        return state.lastPrice();
     }
 
     public double getChange24h() {
-        return state.getChange24h();
+        return state.change24h();
     }
 
     public double getVolatility24h() {
-        return state.getVolatility24h();
+        return state.volatility24h();
     }
 
     public double getMarketCap() {
-        return state.getMarketCap();
+        return state.marketCap();
     }
 }

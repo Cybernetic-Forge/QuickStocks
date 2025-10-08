@@ -26,20 +26,16 @@ public class PortfolioGUIListener implements Listener {
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
-        
-        Player player = (Player) event.getWhoClicked();
-        
+
         // Check if this is a PortfolioGUI
-        if (!(event.getInventory().getHolder() instanceof PortfolioGUI)) {
+        if (!(event.getInventory().getHolder() instanceof PortfolioGUI portfolioGUI)) {
             return;
         }
         
         event.setCancelled(true); // Prevent item pickup/movement
-        
-        PortfolioGUI portfolioGUI = (PortfolioGUI) event.getInventory().getHolder();
         ItemStack clickedItem = event.getCurrentItem();
         
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
@@ -124,13 +120,13 @@ public class PortfolioGUIListener implements Listener {
      * Handles selling all shares of a holding
      */
     private void handleSellAllShares(Player player, String playerUuid, String instrumentId, String symbol, HoldingsService.Holding holding) throws Exception {
-        double qty = holding.getQty();
+        double qty = holding.qty();
         
         // Execute the trade
         TradingService.TradeResult result = QuickStocksPlugin.getTradingService().executeSellOrder(playerUuid, instrumentId, qty);
         
-        if (result.isSuccess()) {
-            double totalValue = qty * holding.getCurrentPrice();
+        if (result.success()) {
+            double totalValue = qty * holding.currentPrice();
             Translation.GUI_Portfolio_SoldAll.sendMessage(player,
                 new Replaceable("%qty%", String.format("%.2f", qty)),
                 new Replaceable("%symbol%", symbol));
@@ -142,7 +138,7 @@ public class PortfolioGUIListener implements Listener {
             // Note: GUI will be refreshed on next view
         } else {
             Translation.GUI_Portfolio_SaleFailed.sendMessage(player,
-                new Replaceable("%message%", result.getMessage()));
+                new Replaceable("%message%", result.message()));
         }
     }
     
@@ -151,15 +147,15 @@ public class PortfolioGUIListener implements Listener {
      */
     private void showHoldingDetails(Player player, HoldingsService.Holding holding) {
         Translation.GUI_Portfolio_HoldingDetails_Header.sendMessage(player,
-            new Replaceable("%symbol%", holding.getSymbol()));
+            new Replaceable("%symbol%", holding.symbol()));
         Translation.GUI_Portfolio_HoldingDetails_Shares.sendMessage(player,
-            new Replaceable("%qty%", String.format("%.2f", holding.getQty())));
+            new Replaceable("%qty%", String.format("%.2f", holding.qty())));
         Translation.GUI_Portfolio_HoldingDetails_AvgCost.sendMessage(player,
-            new Replaceable("%cost%", String.format("%.2f", holding.getAvgCost())));
+            new Replaceable("%cost%", String.format("%.2f", holding.avgCost())));
         Translation.GUI_Portfolio_HoldingDetails_CurrentPrice.sendMessage(player,
-            new Replaceable("%price%", String.format("%.2f", holding.getCurrentPrice())));
+            new Replaceable("%price%", String.format("%.2f", holding.currentPrice())));
         Translation.GUI_Portfolio_HoldingDetails_TotalValue.sendMessage(player,
-            new Replaceable("%value%", String.format("%.2f", holding.getQty() * holding.getCurrentPrice())));
+            new Replaceable("%value%", String.format("%.2f", holding.qty() * holding.currentPrice())));
         
         double pnl = holding.getUnrealizedPnL();
         String pnlColor = pnl >= 0 ? "&a" : "&c";

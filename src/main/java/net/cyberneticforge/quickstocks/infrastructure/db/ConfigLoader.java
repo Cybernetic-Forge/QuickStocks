@@ -1,5 +1,7 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -47,7 +49,7 @@ public class ConfigLoader {
         }
     }
     
-    private static void loadFromStream(DatabaseConfig config, InputStream stream) throws Exception {
+    private static void loadFromStream(DatabaseConfig config, InputStream stream) {
         // Simple YAML-like parsing for basic configuration
         // This is a minimal implementation - in a real project you'd use a proper YAML library
         Properties props = new Properties();
@@ -71,19 +73,8 @@ public class ConfigLoader {
                 String[] parts = line.split(":", 2);
                 if (parts.length == 2) {
                     String key = parts[0].trim();
-                    String value = parts[1].trim();
-                    
-                    // Remove inline comments
-                    int commentIndex = value.indexOf('#');
-                    if (commentIndex != -1) {
-                        value = value.substring(0, commentIndex).trim();
-                    }
-                    
-                    // Handle quoted strings
-                    if (value.startsWith("\"") && value.endsWith("\"")) {
-                        value = value.substring(1, value.length() - 1);
-                    }
-                    
+                    String value = getValue(parts);
+
                     props.setProperty(currentSection + key, value);
                 }
             }
@@ -94,7 +85,23 @@ public class ConfigLoader {
         
         logger.info("Configuration loaded successfully");
     }
-    
+
+    private static @NotNull String getValue(String[] parts) {
+        String value = parts[1].trim();
+
+        // Remove inline comments
+        int commentIndex = value.indexOf('#');
+        if (commentIndex != -1) {
+            value = value.substring(0, commentIndex).trim();
+        }
+
+        // Handle quoted strings
+        if (value.startsWith("\"") && value.endsWith("\"")) {
+            value = value.substring(1, value.length() - 1);
+        }
+        return value;
+    }
+
     private static void applyConfig(DatabaseConfig config, Properties props) {
         // Database configuration
         String provider = props.getProperty("database.provider", "sqlite");

@@ -53,16 +53,14 @@ public class SlippageService {
      */
     private double calculatePriceImpact(double qty, String mode) {
         double k = slippageConfig.getK();
-        
-        switch (mode) {
-            case "linear":
-                return k * qty;
-            case "sqrtimpact":
-                return k * Math.sqrt(qty);
-            default:
+
+        return switch (mode) {
+            case "linear" -> k * qty;
+            case "sqrtimpact" -> k * Math.sqrt(qty);
+            default ->
                 // Default to linear if mode is unknown
-                return k * qty;
-        }
+                    k * qty;
+        };
     }
     
     /**

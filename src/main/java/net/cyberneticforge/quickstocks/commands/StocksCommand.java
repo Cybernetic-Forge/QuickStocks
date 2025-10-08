@@ -243,7 +243,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         
         // Show most recent price point details
         if (!history.isEmpty()) {
-            Map<String, Object> latest = history.get(0);
+            Map<String, Object> latest = history.getFirst();
             long timestamp = ((Number) latest.get("ts")).longValue();
             double price = ((Number) latest.get("price")).doubleValue();
             String reason = (String) latest.get("reason");

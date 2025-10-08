@@ -87,17 +87,17 @@ public class InvitationService {
         CompanyInvitation invitation = invitationOpt.get();
         
         // Verify it's for this player
-        if (!invitation.getInviteeUuid().equals(playerUuid)) {
+        if (!invitation.inviteeUuid().equals(playerUuid)) {
             throw new IllegalArgumentException("This invitation is not for you");
         }
         
         // Check status
-        if (invitation.getStatus() != CompanyInvitation.InvitationStatus.PENDING) {
+        if (invitation.status() != CompanyInvitation.InvitationStatus.PENDING) {
             throw new IllegalArgumentException("Invitation is no longer active");
         }
         
         // Check expiry
-        if (System.currentTimeMillis() > invitation.getExpiresAt()) {
+        if (System.currentTimeMillis() > invitation.expiresAt()) {
             updateInvitationStatus(invitationId, CompanyInvitation.InvitationStatus.EXPIRED);
             throw new IllegalArgumentException("Invitation has expired");
         }
@@ -106,13 +106,13 @@ public class InvitationService {
         long now = System.currentTimeMillis();
         database.execute(
             "INSERT INTO company_employees (company_id, player_uuid, job_id, joined_at) VALUES (?, ?, ?, ?)",
-            invitation.getCompanyId(), playerUuid, invitation.getJobId(), now
+            invitation.companyId(), playerUuid, invitation.jobId(), now
         );
         
         // Update invitation status
         updateInvitationStatus(invitationId, CompanyInvitation.InvitationStatus.ACCEPTED);
         
-        logger.info("Player " + playerUuid + " accepted invitation to company " + invitation.getCompanyId());
+        logger.info("Player " + playerUuid + " accepted invitation to company " + invitation.companyId());
     }
     
     /**
@@ -128,14 +128,14 @@ public class InvitationService {
         CompanyInvitation invitation = invitationOpt.get();
         
         // Verify it's for this player
-        if (!invitation.getInviteeUuid().equals(playerUuid)) {
+        if (!invitation.inviteeUuid().equals(playerUuid)) {
             throw new IllegalArgumentException("This invitation is not for you");
         }
         
         // Update invitation status
         updateInvitationStatus(invitationId, CompanyInvitation.InvitationStatus.DECLINED);
         
-        logger.info("Player " + playerUuid + " declined invitation to company " + invitation.getCompanyId());
+        logger.info("Player " + playerUuid + " declined invitation to company " + invitation.companyId());
     }
     
     /**
@@ -151,8 +151,8 @@ public class InvitationService {
         CompanyInvitation invitation = invitationOpt.get();
         
         // Check if canceller has permission (must be inviter or have manage permission)
-        Optional<CompanyJob> job = QuickStocksPlugin.getCompanyService().getPlayerJob(invitation.getCompanyId(), cancellerUuid);
-        boolean isInviter = invitation.getInviterUuid().equals(cancellerUuid);
+        Optional<CompanyJob> job = QuickStocksPlugin.getCompanyService().getPlayerJob(invitation.companyId(), cancellerUuid);
+        boolean isInviter = invitation.inviterUuid().equals(cancellerUuid);
         boolean canManage = job.isPresent() && job.get().canManageCompany();
         
         if (!isInviter && !canManage) {
@@ -206,7 +206,7 @@ public class InvitationService {
             return Optional.empty();
         }
         
-        Map<String, Object> row = results.get(0);
+        Map<String, Object> row = results.getFirst();
         return Optional.of(new CompanyInvitation(
             (String) row.get("id"),
             (String) row.get("company_id"),

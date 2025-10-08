@@ -9,7 +9,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -57,7 +59,7 @@ public class SalaryService {
             return config.getDefaultJobSalary();
         }
         
-        return ((Number) results.get(0).get("salary_amount")).doubleValue();
+        return ((Number) results.getFirst().get("salary_amount")).doubleValue();
     }
     
     /**
@@ -92,7 +94,7 @@ public class SalaryService {
             return null;
         }
         
-        return ((Number) results.get(0).get("salary_amount")).doubleValue();
+        return ((Number) results.getFirst().get("salary_amount")).doubleValue();
     }
     
     /**
@@ -127,7 +129,7 @@ public class SalaryService {
             return 0.0;
         }
         
-        String jobId = (String) employeeResults.get(0).get("job_id");
+        String jobId = (String) employeeResults.getFirst().get("job_id");
         return getJobSalary(jobId);
     }
     
@@ -160,7 +162,7 @@ public class SalaryService {
             return "24h"; // Default cycle
         }
         
-        return (String) results.get(0).get("payment_cycle");
+        return (String) results.getFirst().get("payment_cycle");
     }
     
     /**
@@ -175,7 +177,7 @@ public class SalaryService {
             return 0;
         }
         
-        return ((Number) results.get(0).get("last_payment")).longValue();
+        return ((Number) results.getFirst().get("last_payment")).longValue();
     }
     
     /**
@@ -204,8 +206,8 @@ public class SalaryService {
             return 0;
         }
         
-        double companyBalance = ((Number) companyResults.get(0).get("balance")).doubleValue();
-        String companyName = (String) companyResults.get(0).get("name");
+        double companyBalance = ((Number) companyResults.getFirst().get("balance")).doubleValue();
+        String companyName = (String) companyResults.getFirst().get("name");
         
         // Get all employees of the company
         List<Map<String, Object>> employees = database.query(

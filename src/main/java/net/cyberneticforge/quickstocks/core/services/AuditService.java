@@ -218,7 +218,7 @@ public class AuditService {
         public int playersWithIssues = 0;
         public int totalDiscrepancies = 0;
         public int totalRepairs = 0;
-        public Map<String, AuditPlayerResult> playerResults = new HashMap<>();
+        public final Map<String, AuditPlayerResult> playerResults = new HashMap<>();
 
         public String toJson() {
             return String.format(
@@ -233,7 +233,7 @@ public class AuditService {
      */
     public static class AuditPlayerResult {
         public final String playerUuid;
-        public List<Discrepancy> discrepancies = new ArrayList<>();
+        public final List<Discrepancy> discrepancies = new ArrayList<>();
         public int repairsApplied = 0;
 
         public AuditPlayerResult(String playerUuid) {

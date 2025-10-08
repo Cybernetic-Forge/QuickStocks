@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
@@ -148,12 +149,12 @@ public class CircuitBreakerService {
         
         Map<String, Object> halt = database.queryRow(
             """
-            SELECT level, start_ts, end_ts, session_open, trigger_price 
-            FROM trading_halts 
-            WHERE instrument_id = ? AND (end_ts IS NULL OR end_ts > ?) 
-            ORDER BY start_ts DESC 
+            SELECT level, start_ts, end_ts, session_open, trigger_price\s
+            FROM trading_halts\s
+            WHERE instrument_id = ? AND (end_ts IS NULL OR end_ts > ?)\s
+            ORDER BY start_ts DESC\s
             LIMIT 1
-            """,
+           \s""",
             instrumentId, currentTime
         );
         
@@ -169,36 +170,19 @@ public class CircuitBreakerService {
         
         return new HaltInfo(level, startTs, endTs, sessionOpen, triggerPrice);
     }
-    
+
     /**
-     * Information about a trading halt.
-     */
-    public static class HaltInfo {
-        private final int level;
-        private final long startTs;
-        private final Long endTs;
-        private final double sessionOpen;
-        private final double triggerPrice;
-        
-        public HaltInfo(int level, long startTs, Long endTs, double sessionOpen, double triggerPrice) {
-            this.level = level;
-            this.startTs = startTs;
-            this.endTs = endTs;
-            this.sessionOpen = sessionOpen;
-            this.triggerPrice = triggerPrice;
+         * Information about a trading halt.
+         */
+        public record HaltInfo(int level, long startTs, Long endTs, double sessionOpen, double triggerPrice) {
+
+        public boolean isIndefinite() {
+            return endTs == null;
         }
-        
-        public int getLevel() { return level; }
-        public long getStartTs() { return startTs; }
-        public Long getEndTs() { return endTs; }
-        public double getSessionOpen() { return sessionOpen; }
-        public double getTriggerPrice() { return triggerPrice; }
-        
-        public boolean isIndefinite() { return endTs == null; }
-        
+
         public long getRemainingTimeMs() {
-            if (endTs == null) return -1;
-            return Math.max(0, endTs - System.currentTimeMillis());
+                if (endTs == null) return -1;
+                return Math.max(0, endTs - System.currentTimeMillis());
+            }
         }
-    }
 }

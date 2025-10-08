@@ -23,9 +23,8 @@ public class PortfolioManager {
      * @param playerUuid UUID of the player
      * @param instrumentId ID of the instrument
      * @return Holding data or null if not found
-     * @throws SQLException if database error occurs
      */
-    public HoldingsService.Holding getHolding(String playerUuid, String instrumentId) throws SQLException {
+    public HoldingsService.Holding getHolding(String playerUuid, String instrumentId) {
         return holdingsService.getHolding(playerUuid, instrumentId);
     }
     
@@ -46,10 +45,9 @@ public class PortfolioManager {
      * @param playerUuid UUID of the player
      * @param instrumentId ID of the instrument
      * @return Quantity held
-     * @throws SQLException if database error occurs
      */
-    public double getHoldingQuantity(String playerUuid, String instrumentId) throws SQLException {
-        return holdingsService.getHolding(playerUuid, instrumentId).getQty();
+    public double getHoldingQuantity(String playerUuid, String instrumentId) {
+        return holdingsService.getHolding(playerUuid, instrumentId).qty();
     }
     
     /**
@@ -69,15 +67,14 @@ public class PortfolioManager {
      * @param playerUuid UUID of the player
      * @param instrumentId ID of the instrument
      * @return Profit/loss amount
-     * @throws SQLException if database error occurs
      */
-    public double getHoldingProfitLoss(String playerUuid, String instrumentId) throws SQLException {
+    public double getHoldingProfitLoss(String playerUuid, String instrumentId) {
         HoldingsService.Holding holding = holdingsService.getHolding(playerUuid, instrumentId);
         if (holding == null) {
             return 0.0;
         }
         
-        double currentValue = holding.getCurrentPrice();
+        double currentValue = holding.currentPrice();
         double cost = holding.getTotalCost();
         return currentValue - cost;
     }

@@ -26,7 +26,7 @@ public class QueryService {
      */
     public List<Map<String, Object>> getTopCompaniesOnMarket(int limit) throws SQLException {
         return database.query("""
-            SELECT 
+            SELECT\s
                 c.id,
                 c.name,
                 c.symbol,
@@ -38,7 +38,7 @@ public class QueryService {
             WHERE c.on_market = 1
             ORDER BY c.balance DESC
             LIMIT ?
-            """, limit);
+           \s""", limit);
     }
     
     /**
@@ -47,7 +47,7 @@ public class QueryService {
      */
     public Optional<Map<String, Object>> findCompanyBySymbol(String symbol) throws SQLException {
         Map<String, Object> result = database.queryOne("""
-            SELECT 
+            SELECT\s
                 c.id,
                 c.name,
                 c.symbol,
@@ -59,7 +59,7 @@ public class QueryService {
                 c.created_at
             FROM companies c
             WHERE UPPER(c.symbol) = UPPER(?) AND c.on_market = 1
-            """, symbol);
+           \s""", symbol);
         
         return Optional.ofNullable(result);
     }
@@ -81,10 +81,10 @@ public class QueryService {
         String upperPrefix = prefix.toUpperCase() + "%";
         
         return database.query("""
-            SELECT symbol FROM companies 
+            SELECT symbol FROM companies\s
             WHERE on_market = 1 AND symbol IS NOT NULL AND UPPER(symbol) LIKE ?
             ORDER BY symbol
-            """, upperPrefix)
+           \s""", upperPrefix)
                 .stream()
                 .map(row -> (String) row.get("symbol"))
                 .toList();
@@ -122,7 +122,7 @@ public class QueryService {
     public List<Map<String, Object>> getRecentShareTransactions(String companyId, int limit) throws SQLException {
         String instrumentId = "COMPANY_" + companyId;
         return database.query("""
-            SELECT 
+            SELECT\s
                 o.side as type,
                 o.qty as shares,
                 o.price,
@@ -131,7 +131,7 @@ public class QueryService {
             WHERE o.instrument_id = ?
             ORDER BY o.ts DESC
             LIMIT ?
-            """, instrumentId, limit);
+           \s""", instrumentId, limit);
     }
     
     // ========================================================================
@@ -153,7 +153,7 @@ public class QueryService {
      */
     public List<Map<String, Object>> getTopGainersByChange24h(int limit) throws SQLException {
         return database.query("""
-            SELECT 
+            SELECT\s
                 i.symbol,
                 i.display_name,
                 i.type,
@@ -166,7 +166,7 @@ public class QueryService {
             JOIN instrument_state s ON i.id = s.instrument_id
             ORDER BY s.change_24h DESC
             LIMIT ?
-            """, limit);
+           \s""", limit);
     }
     
     /**
@@ -174,7 +174,7 @@ public class QueryService {
      */
     public Optional<Map<String, Object>> findBySymbol(String symbol) throws SQLException {
         Map<String, Object> result = database.queryOne("""
-            SELECT 
+            SELECT\s
                 i.id,
                 i.symbol,
                 i.display_name,
@@ -188,7 +188,7 @@ public class QueryService {
             FROM instruments i
             JOIN instrument_state s ON i.id = s.instrument_id
             WHERE UPPER(i.symbol) = UPPER(?)
-            """, symbol);
+           \s""", symbol);
         
         return Optional.ofNullable(result);
     }
@@ -198,7 +198,7 @@ public class QueryService {
      */
     public Optional<Map<String, Object>> findByMcMaterial(String mcMaterial) throws SQLException {
         Map<String, Object> result = database.queryOne("""
-            SELECT 
+            SELECT\s
                 i.id,
                 i.symbol,
                 i.display_name,
@@ -212,7 +212,7 @@ public class QueryService {
             FROM instruments i
             JOIN instrument_state s ON i.id = s.instrument_id
             WHERE UPPER(i.mc_material) = UPPER(?)
-            """, mcMaterial);
+           \s""", mcMaterial);
         
         return Optional.ofNullable(result);
     }
@@ -222,7 +222,7 @@ public class QueryService {
      */
     public List<Map<String, Object>> getRecentPriceHistory(String instrumentId, int limit) throws SQLException {
         return database.query("""
-            SELECT 
+            SELECT\s
                 ts,
                 price,
                 volume,
@@ -231,7 +231,7 @@ public class QueryService {
             WHERE instrument_id = ?
             ORDER BY ts DESC
             LIMIT ?
-            """, instrumentId, limit);
+           \s""", instrumentId, limit);
     }
     
     /**
@@ -261,19 +261,19 @@ public class QueryService {
         String upperPrefix = prefix.toUpperCase() + "%";
         
         List<String> symbols = database.query("""
-            SELECT symbol FROM instruments 
+            SELECT symbol FROM instruments\s
             WHERE UPPER(symbol) LIKE ?
             ORDER BY symbol
-            """, upperPrefix)
+           \s""", upperPrefix)
                 .stream()
                 .map(row -> (String) row.get("symbol"))
                 .toList();
         
         List<String> materials = database.query("""
-            SELECT DISTINCT mc_material FROM instruments 
+            SELECT DISTINCT mc_material FROM instruments\s
             WHERE mc_material IS NOT NULL AND UPPER(mc_material) LIKE ?
             ORDER BY mc_material
-            """, upperPrefix)
+           \s""", upperPrefix)
                 .stream()
                 .map(row -> (String) row.get("mc_material"))
                 .toList();

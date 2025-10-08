@@ -77,7 +77,7 @@ public class MarketManager {
      */
     public double getCurrentPrice(String instrumentId) throws SQLException {
         Optional<InstrumentState> state = instrumentService.getInstrumentState(instrumentId);
-        return state.map(InstrumentState::getLastPrice).orElse(0.0);
+        return state.map(InstrumentState::lastPrice).orElse(0.0);
     }
     
     /**

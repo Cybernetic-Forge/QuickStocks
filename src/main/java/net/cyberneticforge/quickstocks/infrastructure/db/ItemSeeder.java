@@ -23,10 +23,9 @@ public class ItemSeeder {
     /**
      * Seeds all Minecraft items as instruments.
      * This operation is idempotent - if a symbol already exists, it will be skipped.
-     * 
-     * @throws SQLException if database operations fail
+     *
      */
-    public void seedItems() throws SQLException {
+    public void seedItems() {
         logger.info("Starting to seed Minecraft items as instruments...");
         
         int totalItems = 0;

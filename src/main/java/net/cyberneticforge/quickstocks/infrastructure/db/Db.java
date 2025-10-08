@@ -104,7 +104,7 @@ public class Db {
      */
     public Map<String, Object> queryOne(String sql, Object... params) throws SQLException {
         List<Map<String, Object>> results = query(sql, params);
-        return results.isEmpty() ? null : results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
     
     /**

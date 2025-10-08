@@ -4,7 +4,6 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
 

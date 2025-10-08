@@ -198,7 +198,7 @@ public class PortfolioGUI implements InventoryHolder {
         ItemMeta meta = item.getItemMeta();
 
         // Set display name
-        meta.displayName(ChatUT.hexComp(colorCode + holding.getSymbol()));
+        meta.displayName(ChatUT.hexComp(colorCode + holding.symbol()));
 
         // P&L information with color coding
         double pnl = holding.getUnrealizedPnL();
@@ -208,10 +208,10 @@ public class PortfolioGUI implements InventoryHolder {
                 QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.holding_item.loss_color", "&c");
         String pnlArrow = pnl >= 0 ? "▲" : "▼";
         List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("portfolio.holding_item",
-                new Replaceable("{qty}", String.format("%.2f", holding.getQty())),
-                new Replaceable("{avg_cost}", String.format("%.2f", holding.getAvgCost())),
-                new Replaceable("{current_price}", String.format("%.2f", holding.getCurrentPrice())),
-                new Replaceable("{total_value}", String.format("%.2f", holding.getQty() * holding.getCurrentPrice())),
+                new Replaceable("{qty}", String.format("%.2f", holding.qty())),
+                new Replaceable("{avg_cost}", String.format("%.2f", holding.avgCost())),
+                new Replaceable("{current_price}", String.format("%.2f", holding.currentPrice())),
+                new Replaceable("{total_value}", String.format("%.2f", holding.qty() * holding.currentPrice())),
                 new Replaceable("{pnl_color}", pnlColor),
                 new Replaceable("{pnl_arrow}", pnlArrow),
                 new Replaceable("{pnl_abs}", String.format("%.2f", Math.abs(pnl))),

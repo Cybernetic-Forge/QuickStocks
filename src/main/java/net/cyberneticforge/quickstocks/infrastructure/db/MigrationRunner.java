@@ -1,5 +1,7 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
+import lombok.Getter;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +52,7 @@ public class MigrationRunner {
         
         for (Migration migration : pendingMigrations) {
             executeMigration(migration);
-            appliedVersions.add(migration.getVersion());
+            appliedVersions.add(migration.version());
         }
         
         logger.info("Database migrations completed successfully");
@@ -124,7 +126,7 @@ public class MigrationRunner {
         }
         
         // Sort by version
-        migrations.sort(Comparator.comparingInt(Migration::getVersion));
+        migrations.sort(Comparator.comparingInt(Migration::version));
         
         return migrations;
     }
@@ -195,22 +197,22 @@ public class MigrationRunner {
     }
     
     private void executeMigration(Migration migration) throws SQLException {
-        logger.info("Executing migration V" + migration.getVersion() + "__" + migration.getName());
+        logger.info("Executing migration V" + migration.version() + "__" + migration.name());
         
         long startTime = System.currentTimeMillis();
         
         try {
             // Parse SQL more carefully with improved comment handling
-            String sql = migration.getSql();
+            String sql = migration.sql();
             
             // Clean SQL by removing all types of comments
             String cleanedSql = cleanSqlComments(sql);
             
             // Split by semicolon and execute each statement
             String[] statements = cleanedSql.split(";");
-            
-            for (int i = 0; i < statements.length; i++) {
-                String statement = statements[i].trim();
+
+            for (String s : statements) {
+                String statement = s.trim();
                 if (!statement.isEmpty()) {
                     logger.fine("Executing SQL statement: " + statement.substring(0, Math.min(50, statement.length())) + "...");
                     db.execute(statement);
@@ -220,14 +222,14 @@ public class MigrationRunner {
             // Only record success after ALL statements have executed successfully
             db.execute(
                 "INSERT OR REPLACE INTO schema_version (version, name, executed_at, success) VALUES (?, ?, ?, ?)",
-                migration.getVersion(),
-                migration.getName(),
+                migration.version(),
+                migration.name(),
                 System.currentTimeMillis(),
                 true
             );
             
             long duration = System.currentTimeMillis() - startTime;
-            logger.info("Migration V" + migration.getVersion() + "__" + migration.getName() + 
+            logger.info("Migration V" + migration.version() + "__" + migration.name() +
                        " completed successfully in " + duration + "ms");
             
         } catch (SQLException e) {
@@ -235,8 +237,8 @@ public class MigrationRunner {
             try {
                 db.execute(
                     "INSERT OR REPLACE INTO schema_version (version, name, executed_at, success) VALUES (?, ?, ?, ?)",
-                    migration.getVersion(),
-                    migration.getName(),
+                    migration.version(),
+                    migration.name(),
                     System.currentTimeMillis(),
                     false
                 );
@@ -244,7 +246,7 @@ public class MigrationRunner {
                 logger.warning("Failed to record migration failure: " + recordError.getMessage());
             }
             
-            throw new SQLException("Migration V" + migration.getVersion() + "__" + migration.getName() + " failed", e);
+            throw new SQLException("Migration V" + migration.version() + "__" + migration.name() + " failed", e);
         }
     }
     
@@ -255,37 +257,11 @@ public class MigrationRunner {
         Integer version = db.queryValue("SELECT MAX(version) FROM schema_version WHERE success = true");
         return version != null ? version : 0;
     }
-    
+
     /**
-     * Represents a database migration.
-     */
-    private static class Migration {
-        private final int version;
-        private final String name;
-        private final String filename;
-        private final String sql;
-        
-        public Migration(int version, String name, String filename, String sql) {
-            this.version = version;
-            this.name = name;
-            this.filename = filename;
-            this.sql = sql;
-        }
-        
-        public int getVersion() {
-            return version;
-        }
-        
-        public String getName() {
-            return name;
-        }
-        
-        public String getFilename() {
-            return filename;
-        }
-        
-        public String getSql() {
-            return sql;
-        }
+         * Represents a database migration.
+         */
+        private record Migration(int version, String name, String filename, String sql) {
+
     }
 }

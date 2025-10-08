@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import org.bukkit.Bukkit;
 
@@ -93,7 +94,7 @@ public class HoldingsService {
     public void addHolding(String playerUuid, String instrumentId, double qty, double price) throws SQLException {
         Holding existing = getHolding(playerUuid, instrumentId);
         
-        if (existing == null || existing.getQty() == 0) {
+        if (existing == null || existing.qty() == 0) {
             // New holding
             database.execute(
                 "INSERT OR REPLACE INTO user_holdings (player_uuid, instrument_id, qty, avg_cost) VALUES (?, ?, ?, ?)",
@@ -101,8 +102,8 @@ public class HoldingsService {
             );
         } else {
             // Update existing holding with new average cost
-            double totalValue = (existing.getQty() * existing.getAvgCost()) + (qty * price);
-            double newQty = existing.getQty() + qty;
+            double totalValue = (existing.qty() * existing.avgCost()) + (qty * price);
+            double newQty = existing.qty() + qty;
             double newAvgCost = totalValue / newQty;
             
             database.execute(
@@ -121,11 +122,11 @@ public class HoldingsService {
     public boolean removeHolding(String playerUuid, String instrumentId, double qty) throws SQLException {
         Holding existing = getHolding(playerUuid, instrumentId);
         
-        if (existing == null || existing.getQty() < qty) {
+        if (existing == null || existing.qty() < qty) {
             return false; // Insufficient shares
         }
         
-        double newQty = existing.getQty() - qty;
+        double newQty = existing.qty() - qty;
         
         if (newQty <= 0) {
             // Remove holding entirely
@@ -151,45 +152,32 @@ public class HoldingsService {
     public double getPortfolioValue(String playerUuid) throws SQLException {
         List<Holding> holdings = getHoldings(playerUuid);
         return holdings.stream()
-            .mapToDouble(h -> h.getQty() * h.getCurrentPrice())
+            .mapToDouble(h -> h.qty() * h.currentPrice())
             .sum();
     }
-    
+
     /**
-     * Represents a player's holding in an instrument.
-     */
-    public static class Holding {
-        private final String instrumentId;
-        private final String symbol;
-        private final String displayName;
-        private final double qty;
-        private final double avgCost;
-        private final double currentPrice;
-        
-        public Holding(String instrumentId, String symbol, String displayName, 
-                      double qty, double avgCost, double currentPrice) {
-            this.instrumentId = instrumentId;
-            this.symbol = symbol;
-            this.displayName = displayName;
-            this.qty = qty;
-            this.avgCost = avgCost;
-            this.currentPrice = currentPrice;
+         * Represents a player's holding in an instrument.
+         */
+        public record Holding(String instrumentId, String symbol, String displayName, double qty, double avgCost,
+                              double currentPrice) {
+
+        public double getTotalValue() {
+            return qty * currentPrice;
         }
-        
-        public String getInstrumentId() { return instrumentId; }
-        public String getSymbol() { return symbol; }
-        public String getDisplayName() { return displayName; }
-        public double getQty() { return qty; }
-        public double getAvgCost() { return avgCost; }
-        public double getCurrentPrice() { return currentPrice; }
-        
-        public double getTotalValue() { return qty * currentPrice; }
-        public double getTotalCost() { return qty * avgCost; }
-        public double getUnrealizedPnL() { return getTotalValue() - getTotalCost(); }
-        public double getUnrealizedPnLPercent() { 
-            return getTotalCost() > 0 ? (getUnrealizedPnL() / getTotalCost()) * 100 : 0; 
+
+        public double getTotalCost() {
+            return qty * avgCost;
         }
-    }
+
+        public double getUnrealizedPnL() {
+            return getTotalValue() - getTotalCost();
+        }
+
+        public double getUnrealizedPnLPercent() {
+            return getTotalCost() > 0 ? (getUnrealizedPnL() / getTotalCost()) * 100 : 0;
+        }
+        }
     
     /**
      * Gets the count of unique players with holdings (for metrics).

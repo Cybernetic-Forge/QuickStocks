@@ -97,9 +97,10 @@ public class SimulationEngine {
             
             logger.fine("Simulation tick completed successfully");
             
-        } catch (Exception e) {
-            logger.severe("Error during simulation tick: " + e.getMessage());
-            e.printStackTrace();
+        } catch (Exception ex) {
+            logger.severe("Error during simulation tick: " + ex.getMessage());
+            QuickStocksPlugin.getInstance().getLogger().severe("StackTrace: " + Arrays.toString(ex.getStackTrace()));
+
             // Continue running even if one tick fails
         }
     }
@@ -133,7 +134,7 @@ public class SimulationEngine {
             Map<Stock, String> stockToInstrumentMap = new HashMap<>();
             for (Stock stock : QuickStocksPlugin.getStockMarketService().getAllStocks()) {
                 try {
-                    String instrumentId = QuickStocksPlugin.getInstrumentPersistenceService().ensureInstrument(stock).getId();
+                    String instrumentId = QuickStocksPlugin.getInstrumentPersistenceService().ensureInstrument(stock).id();
                     stockToInstrumentMap.put(stock, instrumentId);
                 } catch (Exception e) {
                     logger.severe("Failed to ensure instrument for " + stock.getSymbol() + ": " + e.getMessage());
@@ -181,10 +182,9 @@ public class SimulationEngine {
             
             logger.fine("Persisted market state for " + QuickStocksPlugin.getStockMarketService().getAllStocks().size() + " instruments");
             
-        } catch (Exception e) {
-            logger.severe("Failed to persist market state: " + e.getMessage());
-            e.printStackTrace();
-            // Don't re-throw - allow the simulation to continue
+        } catch (Exception ex) {
+            logger.severe("Failed to persist market state: " + ex.getMessage());
+            QuickStocksPlugin.getInstance().getLogger().severe("StackTrace: " + Arrays.toString(ex.getStackTrace()));
         }
     }
     
@@ -196,10 +196,10 @@ public class SimulationEngine {
         
         // Use INSERT OR REPLACE for SQLite, or ON DUPLICATE KEY UPDATE for MySQL
         db.execute("""
-            INSERT OR REPLACE INTO instrument_state 
+            INSERT OR REPLACE INTO instrument_state\s
             (instrument_id, last_price, last_volume, change_1h, change_24h, volatility_24h, market_cap, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, 
+           \s""",
             instrumentId,
             stock.getCurrentPrice(),
             stock.getDailyVolume(),
@@ -216,10 +216,10 @@ public class SimulationEngine {
      */
     private void insertPriceHistory(Db.TransactionDb db, String instrumentId, Stock stock, String reason, long timestamp) throws Exception {
         db.execute("""
-            INSERT INTO instrument_price_history 
+            INSERT INTO instrument_price_history\s
             (id, instrument_id, ts, price, volume, reason)
             VALUES (?, ?, ?, ?, ?, ?)
-            """,
+           \s""",
             UUID.randomUUID().toString(),
             instrumentId,
             timestamp,
@@ -261,17 +261,17 @@ public class SimulationEngine {
             long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
             
             var results = database.query("""
-                SELECT price, ts FROM instrument_price_history 
+                SELECT price, ts FROM instrument_price_history\s
                 WHERE instrument_id = ? AND ts >= ?
                 ORDER BY ts ASC
                 LIMIT 1
-                """, instrumentId, windowStart);
+               \s""", instrumentId, windowStart);
             
             if (results.isEmpty()) {
                 return 0.0;
             }
             
-            double oldPrice = ((Number) results.get(0).get("price")).doubleValue();
+            double oldPrice = ((Number) results.getFirst().get("price")).doubleValue();
             
             // Get current price by looking up the stock by symbol
             String symbol = getSymbolForInstrumentId(instrumentId);
@@ -305,10 +305,10 @@ public class SimulationEngine {
             long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
             
             var results = database.query("""
-                SELECT price FROM instrument_price_history 
+                SELECT price FROM instrument_price_history\s
                 WHERE instrument_id = ? AND ts >= ?
                 ORDER BY ts ASC
-                """, instrumentId, windowStart);
+               \s""", instrumentId, windowStart);
             
             if (results.size() < 2) {
                 return 0.0;
@@ -355,7 +355,7 @@ public class SimulationEngine {
      */
     private String getSymbolForInstrumentId(String instrumentId) {
         return QuickStocksPlugin.getInstrumentPersistenceService().getAllInstruments().entrySet().stream()
-            .filter(entry -> entry.getValue().getId().equals(instrumentId))
+            .filter(entry -> entry.getValue().id().equals(instrumentId))
             .map(Map.Entry::getKey)
             .findFirst()
             .orElse(null);

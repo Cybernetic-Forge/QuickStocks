@@ -34,12 +34,11 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
-        
-        Player player = (Player) sender;
+
         String playerUuid = player.getUniqueId().toString();
         
         try {
@@ -343,7 +342,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         CompanyInvitation targetInvitation = null;
         
         for (CompanyInvitation inv : invitations) {
-            if (inv.getCompanyId().equals(companyOpt.get().getId())) {
+            if (inv.companyId().equals(companyOpt.get().getId())) {
                 targetInvitation = inv;
                 break;
             }
@@ -354,7 +353,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         
-        QuickStocksPlugin.getInvitationService().acceptInvitation(targetInvitation.getId(), playerUuid);
+        QuickStocksPlugin.getInvitationService().acceptInvitation(targetInvitation.id(), playerUuid);
         
         // Show job details
         Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(companyOpt.get().getId(), playerUuid);
@@ -396,7 +395,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         CompanyInvitation targetInvitation = null;
         
         for (CompanyInvitation inv : invitations) {
-            if (inv.getCompanyId().equals(companyOpt.get().getId())) {
+            if (inv.companyId().equals(companyOpt.get().getId())) {
                 targetInvitation = inv;
                 break;
             }
@@ -407,7 +406,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         
-        QuickStocksPlugin.getInvitationService().declineInvitation(targetInvitation.getId(), playerUuid);
+        QuickStocksPlugin.getInvitationService().declineInvitation(targetInvitation.id(), playerUuid);
         Translation.Company_InviteDeclined.sendMessage(player, new Replaceable("%company%", companyName));
     }
     
@@ -421,15 +420,15 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         Translation.Company_InvitationsHeader.sendMessage(player);
         for (CompanyInvitation invitation : invitations) {
-            Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(invitation.getCompanyId());
-            Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getJobById(invitation.getJobId());
+            Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(invitation.companyId());
+            Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getJobById(invitation.jobId());
             if (companyOpt.isPresent() && jobOpt.isPresent()) {
                 Company company = companyOpt.get();
                 CompanyJob job = jobOpt.get();
                 Translation.Company_InvitationDetails.sendMessage(player,
                     new Replaceable("%company%", company.getName()),
                     new Replaceable("%job%", job.getTitle()),
-                    new Replaceable("%date%", dateFormat.format(new Date(invitation.getExpiresAt()))));
+                    new Replaceable("%date%", dateFormat.format(new Date(invitation.expiresAt()))));
             }
         }
     }
@@ -661,7 +660,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             }
             
             // Use first company
-            companyName = companies.get(0).getName();
+            companyName = companies.getFirst().getName();
         } else {
             companyName = args[1];
         }
@@ -689,11 +688,10 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             return null;
         }
-        
-        Player player = (Player) sender;
+
         String playerUuid = player.getUniqueId().toString();
         
         try {

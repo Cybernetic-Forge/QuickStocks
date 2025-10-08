@@ -29,10 +29,10 @@ public class CompanyService {
      * Helper method to get integer value from result map with default.
      * Used for backward compatibility with columns that might not exist in older schemas.
      */
-    private int getIntOrDefault(Map<String, Object> row, String key, int defaultValue) {
+    private int getIntOrDefault(Map<String, Object> row, String key) {
         Object value = row.get(key);
         if (value == null) {
-            return defaultValue;
+            return 0;
         }
         return ((Number) value).intValue();
     }
@@ -125,7 +125,7 @@ public class CompanyService {
             return Optional.empty();
         }
         
-        Map<String, Object> row = results.get(0);
+        Map<String, Object> row = results.getFirst();
         return Optional.of(new Company(
             (String) row.get("id"),
             (String) row.get("name"),
@@ -151,7 +151,7 @@ public class CompanyService {
             return Optional.empty();
         }
         
-        Map<String, Object> row = results.get(0);
+        Map<String, Object> row = results.getFirst();
         return Optional.of(new Company(
             (String) row.get("id"),
             (String) row.get("name"),
@@ -182,7 +182,7 @@ public class CompanyService {
             return Optional.empty();
         }
         
-        Map<String, Object> row = results.get(0);
+        Map<String, Object> row = results.getFirst();
         return Optional.of(new Company(
             (String) row.get("id"),
             (String) row.get("name"),
@@ -447,7 +447,7 @@ public class CompanyService {
             return false;
         }
         
-        int canWithdraw = ((Number) results.get(0).get("can_withdraw")).intValue();
+        int canWithdraw = ((Number) results.getFirst().get("can_withdraw")).intValue();
         return canWithdraw != 0;
     }
     
@@ -467,7 +467,7 @@ public class CompanyService {
             return Optional.empty();
         }
         
-        Map<String, Object> row = results.get(0);
+        Map<String, Object> row = results.getFirst();
         return Optional.of(new CompanyJob(
             (String) row.get("id"),
             (String) row.get("company_id"),
@@ -542,7 +542,7 @@ public class CompanyService {
                 ((Number) row.get("can_withdraw")).intValue() != 0,
                 ((Number) row.get("can_manage_company")).intValue() != 0,
                 ((Number) row.get("can_manage_chestshop")).intValue() != 0,
-                getIntOrDefault(row, "can_manage_salaries", 0) != 0
+                getIntOrDefault(row, "can_manage_salaries") != 0
             ));
         }
         
@@ -563,7 +563,7 @@ public class CompanyService {
             return Optional.empty();
         }
         
-        Map<String, Object> row = results.get(0);
+        Map<String, Object> row = results.getFirst();
         return Optional.of(new CompanyJob(
             (String) row.get("id"),
             (String) row.get("company_id"),
@@ -573,7 +573,7 @@ public class CompanyService {
             ((Number) row.get("can_withdraw")).intValue() != 0,
             ((Number) row.get("can_manage_company")).intValue() != 0,
             ((Number) row.get("can_manage_chestshop")).intValue() != 0,
-            getIntOrDefault(row, "can_manage_salaries", 0) != 0
+            getIntOrDefault(row, "can_manage_salaries") != 0
         ));
     }
     
@@ -591,7 +591,7 @@ public class CompanyService {
             return Optional.empty();
         }
         
-        Map<String, Object> row = results.get(0);
+        Map<String, Object> row = results.getFirst();
         return Optional.of(new CompanyJob(
             (String) row.get("id"),
             (String) row.get("company_id"),
@@ -601,17 +601,17 @@ public class CompanyService {
             ((Number) row.get("can_withdraw")).intValue() != 0,
             ((Number) row.get("can_manage_company")).intValue() != 0,
             ((Number) row.get("can_manage_chestshop")).intValue() != 0,
-            getIntOrDefault(row, "can_manage_salaries", 0) != 0
+            getIntOrDefault(row, "can_manage_salaries") != 0
         ));
     }
     
     /**
      * Updates an existing job title's permissions.
      */
-    public CompanyJob updateJobTitle(String companyId, String actorUuid, String title,
-                                     boolean canInvite, boolean canCreateTitles,
-                                     boolean canWithdraw, boolean canManageCompany, 
-                                     boolean canManageChestShop, boolean canManageSalaries) throws SQLException {
+    public void updateJobTitle(String companyId, String actorUuid, String title,
+                               boolean canInvite, boolean canCreateTitles,
+                               boolean canWithdraw, boolean canManageCompany,
+                               boolean canManageChestShop, boolean canManageSalaries) throws SQLException {
         // Check if actor has permission
         Optional<CompanyJob> actorJob = getPlayerJob(companyId, actorUuid);
         if (actorJob.isEmpty() || !actorJob.get().canCreateTitles()) {
@@ -640,8 +640,7 @@ public class CompanyService {
         );
         
         logger.info("Updated job title '" + title + "' in company " + companyId);
-        
-        return new CompanyJob(job.getId(), companyId, title, canInvite, canCreateTitles, canWithdraw, canManageCompany, canManageChestShop, canManageSalaries);
+
     }
     
     /**

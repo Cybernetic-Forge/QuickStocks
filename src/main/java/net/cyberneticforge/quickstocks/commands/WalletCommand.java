@@ -23,12 +23,11 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
-        
-        Player player = (Player) sender;
+
         String playerUuid = player.getUniqueId().toString();
         
         try {

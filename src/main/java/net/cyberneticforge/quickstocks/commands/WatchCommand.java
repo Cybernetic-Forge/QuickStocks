@@ -26,12 +26,11 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
-        
-        Player player = (Player) sender;
+
         String playerUuid = player.getUniqueId().toString();
         
         try {
@@ -152,18 +151,18 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
         
         for (WatchlistService.WatchlistItem item : watchlist) {
             // Format price change colors and arrows
-            String changeColor = item.getChange24h() >= 0 ? "&a" : "&c";
-            String changeArrow = item.getChange24h() >= 0 ? "▲" : "▼";
+            String changeColor = item.change24h() >= 0 ? "&a" : "&c";
+            String changeArrow = item.change24h() >= 0 ? "▲" : "▼";
             
             // Format the display line
             Translation.Watch_ListItem.sendMessage(player,
-                new Replaceable("%symbol%", item.getSymbol()),
-                new Replaceable("%displayname%", item.getDisplayName()),
-                new Replaceable("%price%", String.format("%.2f", item.getLastPrice())),
+                new Replaceable("%symbol%", item.symbol()),
+                new Replaceable("%displayname%", item.displayName()),
+                new Replaceable("%price%", String.format("%.2f", item.lastPrice())),
                 new Replaceable("%color%", changeColor),
                 new Replaceable("%arrow%", changeArrow),
-                new Replaceable("%change%", String.format("%.2f", Math.abs(item.getChange24h()))),
-                new Replaceable("%change1h%", String.format("%+.2f", item.getChange1h())));
+                new Replaceable("%change%", String.format("%.2f", Math.abs(item.change24h()))),
+                new Replaceable("%change1h%", String.format("%+.2f", item.change1h())));
         }
         
         player.sendMessage(""); // Empty line
@@ -191,7 +190,7 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
         // Get detailed information
         List<WatchlistService.WatchlistItem> watchlist = QuickStocksPlugin.getWatchlistService().getWatchlist(playerUuid);
         WatchlistService.WatchlistItem item = watchlist.stream()
-            .filter(i -> i.getSymbol().equalsIgnoreCase(symbol))
+            .filter(i -> i.symbol().equalsIgnoreCase(symbol))
             .findFirst()
             .orElse(null);
             
@@ -202,33 +201,33 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
         
         // Format the detailed display
         Translation.Watch_DetailsHeader.sendMessage(player,
-            new Replaceable("%symbol%", item.getSymbol()));
+            new Replaceable("%symbol%", item.symbol()));
         Translation.Watch_DetailsName.sendMessage(player,
-            new Replaceable("%displayname%", item.getDisplayName()));
+            new Replaceable("%displayname%", item.displayName()));
         Translation.Watch_DetailsType.sendMessage(player,
-            new Replaceable("%type%", item.getType()));
+            new Replaceable("%type%", item.type()));
         Translation.Watch_DetailsCurrentPrice.sendMessage(player,
-            new Replaceable("%price%", String.format("%.2f", item.getLastPrice())));
+            new Replaceable("%price%", String.format("%.2f", item.lastPrice())));
         
         // Change indicators with colors
-        String change24hColor = item.getChange24h() >= 0 ? "&a" : "&c";
-        String change1hColor = item.getChange1h() >= 0 ? "&a" : "&c";
-        String arrow24h = item.getChange24h() >= 0 ? "▲" : "▼";
-        String arrow1h = item.getChange1h() >= 0 ? "▲" : "▼";
+        String change24hColor = item.change24h() >= 0 ? "&a" : "&c";
+        String change1hColor = item.change1h() >= 0 ? "&a" : "&c";
+        String arrow24h = item.change24h() >= 0 ? "▲" : "▼";
+        String arrow1h = item.change1h() >= 0 ? "▲" : "▼";
         
         Translation.Watch_Details24hChange.sendMessage(player,
             new Replaceable("%color%", change24hColor),
             new Replaceable("%arrow%", arrow24h),
-            new Replaceable("%change%", String.format("%.2f%%", item.getChange24h())));
+            new Replaceable("%change%", String.format("%.2f%%", item.change24h())));
         Translation.Watch_Details1hChange.sendMessage(player,
             new Replaceable("%color%", change1hColor),
             new Replaceable("%arrow%", arrow1h),
-            new Replaceable("%change%", String.format("%.2f%%", item.getChange1h())));
+            new Replaceable("%change%", String.format("%.2f%%", item.change1h())));
         Translation.Watch_DetailsVolatility.sendMessage(player,
-            new Replaceable("%volatility%", String.format("%.2f", item.getVolatility24h())));
+            new Replaceable("%volatility%", String.format("%.2f", item.volatility24h())));
         
         // Show when added
-        Date addedDate = new Date(item.getAddedAt());
+        Date addedDate = new Date(item.addedAt());
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm");
         Translation.Watch_DetailsAddedAt.sendMessage(player,
             new Replaceable("%date%", sdf.format(addedDate)));

@@ -62,18 +62,18 @@ public class InstrumentPersistenceService {
             long now = System.currentTimeMillis();
             Instrument instrument = new Instrument(instrumentId, type, symbol, displayName, material, decimals, createdBy, now);
             database.execute("""
-                INSERT INTO instruments 
+                INSERT INTO instruments\s
                 (id, type, symbol, display_name, mc_material, decimals, created_by, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    instrument.getId(),
-                    instrument.getType(),
-                    instrument.getSymbol(),
-                    instrument.getDisplayName(),
-                    instrument.getMcMaterial(),
-                    instrument.getDecimals(),
-                    instrument.getCreatedBy(),
-                    instrument.getCreatedAt()
+               \s""",
+                    instrument.id(),
+                    instrument.type(),
+                    instrument.symbol(),
+                    instrument.displayName(),
+                    instrument.mcMaterial(),
+                    instrument.decimals(),
+                    instrument.createdBy(),
+                    instrument.createdAt()
             );
             
             idToInstrumentMap.put(instrumentId, instrument);
@@ -93,16 +93,16 @@ public class InstrumentPersistenceService {
         try {
             // For now, we only update the display name if it has changed
             database.execute("""
-                UPDATE instruments 
+                UPDATE instruments\s
                 SET display_name = ?
                 WHERE id = ?
-                """,
+               \s""",
                 stock.getName(),
-                instrument.getId()
+                instrument.id()
             );
             
         } catch (Exception e) {
-            logger.warning("Failed to update instrument " + instrument.getId() + ": " + e.getMessage());
+            logger.warning("Failed to update instrument " + instrument.id() + ": " + e.getMessage());
             // Non-critical error, continue
         }
     }
@@ -178,7 +178,7 @@ public class InstrumentPersistenceService {
         
         Instrument instrument = mapToInstrument(result);
         idToInstrumentMap.put(instrumentId, instrument);
-        symbolToInstrumentMap.put(instrument.getSymbol(), instrument);
+        symbolToInstrumentMap.put(instrument.symbol(), instrument);
         return Optional.of(instrument);
     }
     
@@ -208,8 +208,8 @@ public class InstrumentPersistenceService {
         }
         
         Instrument instrument = mapToInstrument(result);
-        idToInstrumentMap.put(instrument.getId(), instrument);
-        symbolToInstrumentMap.put(instrument.getSymbol(), instrument);
+        idToInstrumentMap.put(instrument.id(), instrument);
+        symbolToInstrumentMap.put(instrument.symbol(), instrument);
         return Optional.of(instrument);
     }
     
@@ -241,11 +241,11 @@ public class InstrumentPersistenceService {
      */
     public Optional<InstrumentState> getInstrumentState(String instrumentId) throws SQLException {
         var result = database.queryOne("""
-            SELECT instrument_id, last_price, last_volume, change_1h, change_24h, 
+            SELECT instrument_id, last_price, last_volume, change_1h, change_24h,\s
                    volatility_24h, market_cap, updated_at
             FROM instrument_state
             WHERE instrument_id = ?
-            """, instrumentId);
+           \s""", instrumentId);
         
         if (result == null) {
             return Optional.empty();

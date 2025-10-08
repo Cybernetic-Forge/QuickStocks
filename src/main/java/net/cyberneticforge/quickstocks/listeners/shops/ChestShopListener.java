@@ -6,9 +6,9 @@ import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.HookType;
+import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -51,7 +51,7 @@ public class ChestShopListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onSignChange(SignChangeEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         
         // Get the first line which should be the owner name
@@ -106,12 +106,12 @@ public class ChestShopListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onShopCreated(ShopCreatedEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         
         // Check if this is a company shop
         String ownerName = event.getSign().getLine(0);
-        if (ownerName == null || ownerName.trim().isEmpty()) return;
+        if (ownerName.trim().isEmpty()) return;
         
         try {
             Optional<Company> companyOpt = companyService.getCompanyByName(ownerName.trim());

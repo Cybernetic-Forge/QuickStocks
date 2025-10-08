@@ -30,9 +30,6 @@ import java.util.UUID;
 public class MarketDeviceCommand implements CommandExecutor, TabCompleter {
 
     private static final String PERMISSION_GIVE = "maksy.stocks.marketdevice.give";
-    private static final String DEVICE_KEY = "maksy:market_device";
-    private static final String OWNER_KEY = "owner_uuid";
-    private static final String VERSION_KEY = "version";
 
     public static final NamespacedKey deviceKey = new NamespacedKey(QuickStocksPlugin.getInstance(), "market_device");
     public static final NamespacedKey ownerKey = new NamespacedKey(QuickStocksPlugin.getInstance(), "owner_uuid");
@@ -43,12 +40,6 @@ public class MarketDeviceCommand implements CommandExecutor, TabCompleter {
         // Check permission
         if (!sender.hasPermission(PERMISSION_GIVE)) {
             Translation.NoPermission.sendMessage(sender);
-            return true;
-        }
-
-        // Handle subcommands
-        if (args.length == 0 || !args[0].equalsIgnoreCase("give")) {
-            showUsage(sender);
             return true;
         }
 

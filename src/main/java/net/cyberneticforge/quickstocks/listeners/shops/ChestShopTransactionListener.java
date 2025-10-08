@@ -7,9 +7,9 @@ import com.Acrobot.ChestShop.Events.TransactionEvent;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.services.WalletService;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookType;
+import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,13 +31,11 @@ public class ChestShopTransactionListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(ChestShopTransactionListener.class.getName());
 
-    private final QuickStocksPlugin plugin;
     private final ChestShopHook chestShopHook;
     private final CompanyConfig companyConfig;
     private final WalletService walletService;
     
-    public ChestShopTransactionListener(QuickStocksPlugin plugin, ChestShopHook chestShopHook, CompanyConfig companyConfig, WalletService walletService) {
-        this.plugin = plugin;
+    public ChestShopTransactionListener(ChestShopHook chestShopHook, CompanyConfig companyConfig, WalletService walletService) {
         this.chestShopHook = chestShopHook;
         this.companyConfig = companyConfig;
         this.walletService = walletService;
@@ -57,7 +55,6 @@ public class ChestShopTransactionListener implements Listener {
             Company company = chestShopHook.getCompanyByAccountId(event.getAccount());
             if (company != null) {
                 event.hasAccount(true);
-                Bukkit.getConsoleSender().sendMessage(ChatUT.serialize(ChatUT.hexComp("&aReestablished account for company '" + company.getName() + "'")));
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error handling ChestShop account query", e);
@@ -80,11 +77,9 @@ public class ChestShopTransactionListener implements Listener {
                 double balance = company.getBalance();
                 if( balance < companyConfig.getChestShopCompanyMinBalance() || balance < event.getAmount().doubleValue()) {
                     event.hasEnough(false);
-                    Bukkit.getConsoleSender().sendMessage(ChatUT.serialize(ChatUT.hexComp("&cCompany shop '" + company.getName() + "' has insufficient balance: $" + balance)));
                     return;
                 }
                 event.hasEnough(true);
-                Bukkit.getConsoleSender().sendMessage(ChatUT.serialize(ChatUT.hexComp("&aValidated currency for company shop '" + company.getName() + "'")));
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error handling ChestShop currency check", e);
@@ -104,7 +99,7 @@ public class ChestShopTransactionListener implements Listener {
         try {
             UUID receiverUUID = event.getReceiver();
             UUID senderUUID = event.getSender();
-            BigDecimal amount = event.getAmount();
+            BigDecimal amount = event.getAmountReceived();
             
             // Check if receiver is a company (shop owner receiving money from customer)
             Company receiverCompany = chestShopHook.getCompanyByAccountId(receiverUUID);

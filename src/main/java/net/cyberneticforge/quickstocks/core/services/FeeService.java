@@ -23,18 +23,15 @@ public class FeeService {
         if (notionalValue <= 0) {
             return 0.0;
         }
-        
-        switch (feeConfig.getMode().toLowerCase()) {
-            case "percent":
-                return notionalValue * (feeConfig.getPercent() / 100.0);
-            case "flat":
-                return feeConfig.getFlat();
-            case "mixed":
-                return notionalValue * (feeConfig.getPercent() / 100.0) + feeConfig.getFlat();
-            default:
+
+        return switch (feeConfig.getMode().toLowerCase()) {
+            case "percent" -> notionalValue * (feeConfig.getPercent() / 100.0);
+            case "flat" -> feeConfig.getFlat();
+            case "mixed" -> notionalValue * (feeConfig.getPercent() / 100.0) + feeConfig.getFlat();
+            default ->
                 // Default to percentage if mode is unknown
-                return notionalValue * (feeConfig.getPercent() / 100.0);
-        }
+                    notionalValue * (feeConfig.getPercent() / 100.0);
+        };
     }
     
     /**

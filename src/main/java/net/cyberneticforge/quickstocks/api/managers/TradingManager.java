@@ -30,7 +30,7 @@ public class TradingManager {
      * @throws SQLException if database error occurs
      */
     public boolean buy(String playerUuid, String instrumentId, int quantity) throws SQLException {
-        return tradingService.executeBuyOrder(playerUuid, instrumentId, quantity).isSuccess();
+        return tradingService.executeBuyOrder(playerUuid, instrumentId, quantity).success();
     }
     
     /**
@@ -43,7 +43,7 @@ public class TradingManager {
      * @throws SQLException if database error occurs
      */
     public boolean sell(String playerUuid, String instrumentId, int quantity) throws SQLException {
-        return tradingService.executeSellOrder(playerUuid, instrumentId, quantity).isSuccess();
+        return tradingService.executeSellOrder(playerUuid, instrumentId, quantity).success();
     }
     
     /**

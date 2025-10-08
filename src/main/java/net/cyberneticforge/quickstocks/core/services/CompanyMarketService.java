@@ -280,8 +280,8 @@ public class CompanyMarketService {
         // Use TradingService to execute the buy order
         TradingService.TradeResult result = QuickStocksPlugin.getTradingService().executeBuyOrder(playerUuid, instrumentId, quantity);
         
-        if (!result.isSuccess()) {
-            throw new IllegalArgumentException("Failed to execute buy order: " + result.getMessage());
+        if (!result.success()) {
+            throw new IllegalArgumentException("Failed to execute buy order: " + result.message());
         }
         
         // Add funds to company balance (company receives the money from share sale)
@@ -381,8 +381,8 @@ public class CompanyMarketService {
         // Use TradingService to execute the sell order
         TradingService.TradeResult result = QuickStocksPlugin.getTradingService().executeSellOrder(playerUuid, instrumentId, quantity);
         
-        if (!result.isSuccess()) {
-            throw new IllegalArgumentException("Failed to execute sell order: " + result.getMessage());
+        if (!result.success()) {
+            throw new IllegalArgumentException("Failed to execute sell order: " + result.message());
         }
         
         // Deduct from company balance (company pays for the buyback)
@@ -407,7 +407,7 @@ public class CompanyMarketService {
      * Calculates total shares based on market percentage.
      */
     private double calculateTotalShares(Company company) {
-        // If market percentage is 70%, and company has $10,000, then total value is $10,000 / 0.7 = $14,285.71
+        // TODO: If market percentage is 70%, and company has $10,000, then total value is $10,000 / 0.7 = $14,285.71
         // We'll use a fixed share count of 10,000 for simplicity and adjust valuation
         return 10000.0;
     }
@@ -440,11 +440,11 @@ public class CompanyMarketService {
         List<Map<String, Object>> results = database.query(
             "SELECT SUM(qty) as total FROM user_holdings WHERE instrument_id = ?", instrumentId);
         
-        if (results.isEmpty() || results.get(0).get("total") == null) {
+        if (results.isEmpty() || results.getFirst().get("total") == null) {
             return 0.0;
         }
         
-        return ((Number) results.get(0).get("total")).doubleValue();
+        return ((Number) results.getFirst().get("total")).doubleValue();
     }
     
     /**
@@ -459,7 +459,7 @@ public class CompanyMarketService {
             return 0.0;
         }
         
-        return ((Number) results.get(0).get("qty")).doubleValue();
+        return ((Number) results.getFirst().get("qty")).doubleValue();
     }
     
     /**

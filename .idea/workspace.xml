@@ -1,13 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="ANALYZE_INJECTED_CODE" value="false" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="improvements">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" afterDir="false" />
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="restructuring">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/QuickStocksPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/QuickStocksPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/MarketManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/MarketManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/PortfolioManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/PortfolioManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/TradingManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/TradingManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CryptoCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CryptoCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/MarketCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/MarketCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/MarketDeviceCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/MarketDeviceCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/StocksCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/StocksCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/WalletCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/WalletCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/WatchCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/WatchCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/algorithms/StockPriceCalculator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/algorithms/StockPriceCalculator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/CompanyEmployee.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/CompanyInvitation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/CompanyInvitation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/Crypto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/Crypto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/Instrument.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/Instrument.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/InstrumentState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/InstrumentState.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/OrderRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/OrderRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/PriceHistory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/PriceHistory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/Stock.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/Stock.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/AnalyticsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/AnalyticsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/AuditService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/AuditService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CircuitBreakerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CircuitBreakerService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyMarketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyMarketService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CryptoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CryptoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/EnhancedTradingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/EnhancedTradingService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/FeeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/FeeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/HoldingsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/HoldingsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/InstrumentPersistenceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/InstrumentPersistenceService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/InvitationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/InvitationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/MetricsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/MetricsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/QueryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/QueryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/RateLimitService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/RateLimitService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/SalaryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/SalaryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/SimulationEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/SimulationEngine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/SlippageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/SlippageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/StockMarketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/StockMarketService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/TradingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/TradingService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/WatchlistService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/WatchlistService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/CompanySettingsGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/CompanySettingsGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/PortfolioGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/PortfolioGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/ConfigLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/ConfigLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/DatabaseManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/DatabaseManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/Db.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/Db.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/ItemSeeder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/ItemSeeder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/MigrationRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/MigrationRunner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanySettingsGUIListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanySettingsGUIListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/MarketGUIListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/MarketGUIListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/PortfolioGUIListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/PortfolioGUIListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopProtectionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopProtectionListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopTransactionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopTransactionListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +95,9 @@
     &quot;accountId&quot;: &quot;09879eb9-a1bc-4c5f-8b16-3707fd3922d4&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
@@ -71,6 +128,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "project.kotlinCompiler",
     "vue.rearranger.settings.migration": "true"
   },
@@ -406,7 +464,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759681074732</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="restructuring">
+      <option name="closed" value="true" />
+      <created>1759955705127</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1759955705127</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -441,6 +507,7 @@
     <MESSAGE value="some fixes" />
     <MESSAGE value="removed unused content" />
     <MESSAGE value="improvements" />
-    <option name="LAST_COMMIT_MESSAGE" value="improvements" />
+    <MESSAGE value="restructuring" />
+    <option name="LAST_COMMIT_MESSAGE" value="restructuring" />
   </component>
 </project>

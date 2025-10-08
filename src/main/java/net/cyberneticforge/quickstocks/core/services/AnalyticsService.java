@@ -37,31 +37,31 @@ public class AnalyticsService {
             long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
             
             var results = database.query("""
-                SELECT price, ts FROM instrument_price_history 
+                SELECT price, ts FROM instrument_price_history\s
                 WHERE instrument_id = ? AND ts >= ?
                 ORDER BY ts ASC
                 LIMIT 1
-                """, instrumentId, windowStart);
+               \s""", instrumentId, windowStart);
             
             if (results.isEmpty()) {
                 return 0.0;
             }
             
-            double oldPrice = ((Number) results.get(0).get("price")).doubleValue();
+            double oldPrice = ((Number) results.getFirst().get("price")).doubleValue();
             
             // Get the most recent price
             var currentResults = database.query("""
-                SELECT price FROM instrument_price_history 
+                SELECT price FROM instrument_price_history\s
                 WHERE instrument_id = ?
                 ORDER BY ts DESC
                 LIMIT 1
-                """, instrumentId);
+               \s""", instrumentId);
             
             if (currentResults.isEmpty()) {
                 return 0.0;
             }
             
-            double currentPrice = ((Number) currentResults.get(0).get("price")).doubleValue();
+            double currentPrice = ((Number) currentResults.getFirst().get("price")).doubleValue();
             
             return oldPrice > 0 ? (currentPrice - oldPrice) / oldPrice : 0.0;
             
@@ -84,10 +84,10 @@ public class AnalyticsService {
             long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
             
             var results = database.query("""
-                SELECT price, ts FROM instrument_price_history 
+                SELECT price, ts FROM instrument_price_history\s
                 WHERE instrument_id = ? AND ts >= ?
                 ORDER BY ts ASC
-                """, instrumentId, windowStart);
+               \s""", instrumentId, windowStart);
             
             if (results.size() < 2) {
                 return 0.0;
@@ -116,7 +116,7 @@ public class AnalyticsService {
                 double mean = (returns.get(0) + returns.get(1)) / 2.0;
                 ewmaVariance = (Math.pow(returns.get(0) - mean, 2) + Math.pow(returns.get(1) - mean, 2)) / 2.0;
             } else {
-                ewmaVariance = Math.pow(returns.get(0), 2); // Single return case
+                ewmaVariance = Math.pow(returns.getFirst(), 2); // Single return case
             }
             
             // Apply EWMA to remaining returns
@@ -153,16 +153,16 @@ public class AnalyticsService {
             
             // Get price history for both instruments
             var resultsA = database.query("""
-                SELECT price, ts FROM instrument_price_history 
+                SELECT price, ts FROM instrument_price_history\s
                 WHERE instrument_id = ? AND ts >= ?
                 ORDER BY ts ASC
-                """, instrumentA, windowStart);
+               \s""", instrumentA, windowStart);
                 
             var resultsB = database.query("""
-                SELECT price, ts FROM instrument_price_history 
+                SELECT price, ts FROM instrument_price_history\s
                 WHERE instrument_id = ? AND ts >= ?
                 ORDER BY ts ASC
-                """, instrumentB, windowStart);
+               \s""", instrumentB, windowStart);
             
             if (resultsA.size() < 2 || resultsB.size() < 2) {
                 return 0.0;
@@ -202,21 +202,21 @@ public class AnalyticsService {
         try {
             // Query portfolio performance data for the player within the window
             var results = database.query("""
-                SELECT 
+                SELECT\s
                     avg_return,
                     return_std_dev,
                     return_count,
                     total_return
-                FROM sharpe_ratio_data 
+                FROM sharpe_ratio_data\s
                 WHERE player_uuid = ?
-                """, playerUuid);
+               \s""", playerUuid);
             
             if (results.isEmpty()) {
                 logger.info("No portfolio data found for player " + playerUuid + " - Sharpe ratio cannot be calculated");
                 return 0.0;
             }
             
-            var result = results.get(0);
+            var result = results.getFirst();
             double avgReturn = ((Number) result.get("avg_return")).doubleValue();
             double stdDev = ((Number) result.get("return_std_dev")).doubleValue();
             int returnCount = ((Number) result.get("return_count")).intValue();
@@ -307,10 +307,10 @@ public class AnalyticsService {
             long currentTime = System.currentTimeMillis();
             
             database.execute("""
-                INSERT INTO portfolio_history 
+                INSERT INTO portfolio_history\s
                 (id, player_uuid, ts, total_value, cash_balance, holdings_value, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, id, playerUuid, currentTime, totalValue, cashBalance, holdingsValue, currentTime);
+               \s""", id, playerUuid, currentTime, totalValue, cashBalance, holdingsValue, currentTime);
                 
             logger.fine(String.format("Recorded portfolio value for %s: total=%.2f, cash=%.2f, holdings=%.2f", 
                 playerUuid, totalValue, cashBalance, holdingsValue));
@@ -328,20 +328,20 @@ public class AnalyticsService {
     public Map<String, Object> getPortfolioPerformance(String playerUuid) {
         try {
             var results = database.query("""
-                SELECT 
+                SELECT\s
                     avg_return,
                     return_std_dev,
                     return_count,
                     total_return
-                FROM sharpe_ratio_data 
+                FROM sharpe_ratio_data\s
                 WHERE player_uuid = ?
-                """, playerUuid);
+               \s""", playerUuid);
             
             if (results.isEmpty()) {
                 return new HashMap<>();
             }
             
-            return results.get(0);
+            return results.getFirst();
             
         } catch (Exception e) {
             logger.warning("Failed to get portfolio performance for player " + playerUuid + ": " + e.getMessage());
@@ -358,21 +358,21 @@ public class AnalyticsService {
     public List<Map<String, Object>> getSharpeLeaderboard(int limit, double riskFreeRate) {
         try {
             var results = database.query("""
-                SELECT 
+                SELECT\s
                     player_uuid,
                     avg_return,
                     return_std_dev,
                     return_count,
                     total_return,
-                    CASE 
+                    CASE\s
                         WHEN return_std_dev > 0 THEN (avg_return - ?) / return_std_dev
                         ELSE 0.0
                     END as sharpe_ratio
-                FROM sharpe_ratio_data 
+                FROM sharpe_ratio_data\s
                 WHERE return_count >= 5 AND return_std_dev > 0
                 ORDER BY sharpe_ratio DESC
                 LIMIT ?
-                """, riskFreeRate / 365.0, limit); // Convert annual rate to daily
+               \s""", riskFreeRate / 365.0, limit); // Convert annual rate to daily
             
             logger.fine("Retrieved " + results.size() + " players for Sharpe leaderboard");
             return results;

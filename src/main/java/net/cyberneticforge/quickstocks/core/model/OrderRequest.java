@@ -1,50 +1,31 @@
 package net.cyberneticforge.quickstocks.core.model;
 
+import lombok.Getter;
+
 /**
  * Represents a trading order request with all necessary parameters.
+ *
+ * @param playerUuid Getters
+ * @param side       BUY | SELL
+ * @param limitPrice nullable, required for LIMIT orders
+ * @param stopPrice  nullable, required for STOP orders
  */
-public class OrderRequest {
-    private final String playerUuid;
-    private final String instrumentId;
-    private final String side; // BUY | SELL
-    private final OrderType type;
-    private final double qty;
-    private final Double limitPrice;  // nullable, required for LIMIT orders
-    private final Double stopPrice;   // nullable, required for STOP orders
-    
-    public OrderRequest(String playerUuid, String instrumentId, String side, 
-                       OrderType type, double qty, Double limitPrice, Double stopPrice) {
-        this.playerUuid = playerUuid;
-        this.instrumentId = instrumentId;
-        this.side = side;
-        this.type = type;
-        this.qty = qty;
-        this.limitPrice = limitPrice;
-        this.stopPrice = stopPrice;
-    }
-    
+public record OrderRequest(String playerUuid, String instrumentId, String side, OrderType type, double qty,
+                           Double limitPrice, Double stopPrice) {
+
     // Static factory methods for common order types
     public static OrderRequest marketOrder(String playerUuid, String instrumentId, String side, double qty) {
         return new OrderRequest(playerUuid, instrumentId, side, OrderType.MARKET, qty, null, null);
     }
-    
+
     public static OrderRequest limitOrder(String playerUuid, String instrumentId, String side, double qty, double limitPrice) {
         return new OrderRequest(playerUuid, instrumentId, side, OrderType.LIMIT, qty, limitPrice, null);
     }
-    
+
     public static OrderRequest stopOrder(String playerUuid, String instrumentId, String side, double qty, double stopPrice) {
         return new OrderRequest(playerUuid, instrumentId, side, OrderType.STOP, qty, null, stopPrice);
     }
-    
-    // Getters
-    public String getPlayerUuid() { return playerUuid; }
-    public String getInstrumentId() { return instrumentId; }
-    public String getSide() { return side; }
-    public OrderType getType() { return type; }
-    public double getQty() { return qty; }
-    public Double getLimitPrice() { return limitPrice; }
-    public Double getStopPrice() { return stopPrice; }
-    
+
     /**
      * Validates the order request based on order type requirements.
      */
@@ -61,7 +42,7 @@ public class OrderRequest {
         if (qty <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");
         }
-        
+
         switch (type) {
             case LIMIT:
                 if (limitPrice == null || limitPrice <= 0) {
