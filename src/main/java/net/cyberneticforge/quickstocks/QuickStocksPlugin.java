@@ -1,7 +1,7 @@
 package net.cyberneticforge.quickstocks;
 
 import lombok.Getter;
-import net.cyberneticforge.quickstocks.application.queries.QueryService;
+import net.cyberneticforge.quickstocks.core.services.QueryService;
 import net.cyberneticforge.quickstocks.commands.*;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
 import net.cyberneticforge.quickstocks.core.services.*;
@@ -10,9 +10,9 @@ import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
-import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopAccountProvider;
-import net.cyberneticforge.quickstocks.infrastructure.hooks.ChestShopHook;
-import net.cyberneticforge.quickstocks.infrastructure.hooks.HookManager;
+import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
+import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
+import net.cyberneticforge.quickstocks.hooks.HookManager;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
@@ -278,7 +278,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(companySettingsGUIListener, this);
         
         // Register ChestShop integration listeners if ChestShop is hooked
-        if (hookManager.isHooked(net.cyberneticforge.quickstocks.infrastructure.hooks.HookType.ChestShop)) {
+        if (hookManager.isHooked(net.cyberneticforge.quickstocks.hooks.HookType.ChestShop)) {
             CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
             ChestShopHook chestShopHook = new ChestShopHook(companyService);
             

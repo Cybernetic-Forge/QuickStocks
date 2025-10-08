@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.application.queries;
+package net.cyberneticforge.quickstocks.core.services;
 
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 

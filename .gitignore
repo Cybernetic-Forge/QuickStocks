@@ -25,3 +25,4 @@ Thumbs.db
 # Database files
 *.db
 plugins/
+/.idea/

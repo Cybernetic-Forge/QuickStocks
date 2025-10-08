@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.infrastructure.hooks;
+package net.cyberneticforge.quickstocks.hooks;
 
 import com.Acrobot.ChestShop.Database.Account;
 import com.Acrobot.ChestShop.UUIDs.NameManager;

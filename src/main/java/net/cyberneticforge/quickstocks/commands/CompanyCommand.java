@@ -7,7 +7,7 @@ import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
-import net.cyberneticforge.quickstocks.infrastructure.hooks.HookType;
+import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

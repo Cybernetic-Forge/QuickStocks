@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.infrastructure.hooks;
+package net.cyberneticforge.quickstocks.hooks;
 
 public enum HookType {
     ChestShop("ChestShop");

@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.application.boot;
+package net.cyberneticforge.quickstocks.utils;
 
 /**
  * Utility class for word manipulation operations.

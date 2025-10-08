@@ -1,6 +1,6 @@
-package net.cyberneticforge.quickstocks.application.boot;
+package net.cyberneticforge.quickstocks.infrastructure.db;
 
-import net.cyberneticforge.quickstocks.infrastructure.db.Db;
+import net.cyberneticforge.quickstocks.utils.WordUtils;
 
 import java.sql.SQLException;
 import java.util.UUID;
