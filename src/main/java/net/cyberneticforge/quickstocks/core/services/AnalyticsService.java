@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.util.*;
@@ -14,9 +15,14 @@ public class AnalyticsService {
     private static final Logger logger = Logger.getLogger(AnalyticsService.class.getName());
     
     private final Db database;
+    // Getters for default values
+    @Getter
     private final double defaultLambda;
+    @Getter
     private final int defaultChangeWindow;
+    @Getter
     private final int defaultVolatilityWindow;
+    @Getter
     private final int defaultCorrelationWindow;
     
     public AnalyticsService(Db database, double lambda, int changeWindow, int volatilityWindow, int correlationWindow) {
@@ -33,7 +39,6 @@ public class AnalyticsService {
      * @param windowMinutes Time window in minutes
      * @return Change percentage (-1.0 to +1.0)
      */
-    @SuppressWarnings("unused")
     public double getChangePct(String instrumentId, int windowMinutes) {
         try {
             long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
@@ -143,7 +148,6 @@ public class AnalyticsService {
     /**
      * Overloaded method using default lambda.
      */
-    @SuppressWarnings("unused")
     public double getVolatilityEWMA(String instrumentId, int windowMinutes) {
         return getVolatilityEWMA(instrumentId, windowMinutes, defaultLambda);
     }
@@ -155,7 +159,6 @@ public class AnalyticsService {
      * @param windowMinutes Time window in minutes
      * @return Correlation coefficient (-1.0 to +1.0)
      */
-    @SuppressWarnings("unused")
     public double getCorrelation(String instrumentA, String instrumentB, int windowMinutes) {
         try {
             long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
@@ -207,7 +210,6 @@ public class AnalyticsService {
      * @param riskFree Risk-free rate (default 0)
      * @return Sharpe ratio
      */
-    @SuppressWarnings("unused")
     public double getSharpe(String playerUuid, int windowDays, double riskFree) {
         try {
             // Query portfolio performance data for the player within the window
@@ -296,17 +298,7 @@ public class AnalyticsService {
         
         return denominator != 0 ? numerator / denominator : 0.0;
     }
-    
-    // Getters for default values
-    @SuppressWarnings("unused")
-    public double getDefaultLambda() { return defaultLambda; }
-    @SuppressWarnings("unused")
-    public int getDefaultChangeWindow() { return defaultChangeWindow; }
-    @SuppressWarnings("unused")
-    public int getDefaultVolatilityWindow() { return defaultVolatilityWindow; }
-    @SuppressWarnings("unused")
-    public int getDefaultCorrelationWindow() { return defaultCorrelationWindow; }
-    
+
     /**
      * Records a portfolio value snapshot for Sharpe ratio calculations.
      * This should be called periodically to build portfolio history.
@@ -315,7 +307,6 @@ public class AnalyticsService {
      * @param cashBalance Cash balance
      * @param holdingsValue Value of all holdings
      */
-    @SuppressWarnings("unused")
     public void recordPortfolioValue(String playerUuid, double totalValue, double cashBalance, double holdingsValue) {
         try {
             String id = java.util.UUID.randomUUID().toString();
@@ -340,7 +331,6 @@ public class AnalyticsService {
      * @param playerUuid Player UUID
      * @return Map containing performance metrics, or empty map if no data
      */
-    @SuppressWarnings("unused")
     public Map<String, Object> getPortfolioPerformance(String playerUuid) {
         try {
             var results = database.query("""
@@ -371,7 +361,6 @@ public class AnalyticsService {
      * @param riskFreeRate Risk-free rate for Sharpe calculation
      * @return List of player performance data ordered by Sharpe ratio (descending)
      */
-    @SuppressWarnings("unused")
     public List<Map<String, Object>> getSharpeLeaderboard(int limit, double riskFreeRate) {
         try {
             var results = database.query("""
