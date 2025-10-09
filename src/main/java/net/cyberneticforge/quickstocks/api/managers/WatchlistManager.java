@@ -9,6 +9,7 @@ import java.util.List;
  * API Manager for watchlist operations.
  * Provides a high-level interface for external plugins to interact with the watchlist system.
  */
+@SuppressWarnings("ALL")
 public class WatchlistManager {
     
     private final WatchlistService watchlistService;

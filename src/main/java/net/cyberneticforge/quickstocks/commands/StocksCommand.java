@@ -27,11 +27,11 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         if (args.length == 0) {
             // No args → show top 10 gainers
             showTopGainers(sender);
-        } else if (args.length >= 1 && "audit".equalsIgnoreCase(args[0])) {
+        } else if ("audit".equalsIgnoreCase(args[0])) {
             // /stocks audit [repair] - integrity check and optional repair
             boolean repair = args.length > 1 && "repair".equalsIgnoreCase(args[1]);
             handleAuditCommand(sender, repair);
@@ -198,7 +198,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
         }
         
         // Analytics section
-        displayAnalytics(sender, id, symbol);
+        displayAnalytics(sender, id);
         
         // Recent price history
         displayPriceHistory(sender, id);
@@ -391,7 +391,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
      * Displays analytics information for the stock.
      * This provides analytics insights including mini charts.
      */
-    private void displayAnalytics(CommandSender sender, String instrumentId, String symbol) {
+    private void displayAnalytics(CommandSender sender, String instrumentId) {
         try {
             // Analytics header
             sender.sendMessage(Component.text(""));
@@ -490,7 +490,7 @@ public class StocksCommand implements CommandExecutor, TabCompleter {
     }
     
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String @NotNull [] args) {
         if (args.length == 1) {
             String prefix = args[0].toLowerCase();
             List<String> suggestions = new ArrayList<>();

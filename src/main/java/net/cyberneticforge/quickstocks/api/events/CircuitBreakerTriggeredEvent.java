@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
  * Circuit breakers halt trading when price changes exceed configured thresholds.
  * This event is not cancellable - the circuit breaker has already been triggered.
  */
+@SuppressWarnings("unused")
 @Getter
 public class CircuitBreakerTriggeredEvent extends Event {
     

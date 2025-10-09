@@ -126,7 +126,6 @@ public class CompanySettingsGUIListener implements Listener {
             player.closeInventory();
             Translation.GUI_CompanySettings_EditJobHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
-            return;
         }
     }
 }

@@ -1,7 +1,5 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
-import lombok.Getter;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

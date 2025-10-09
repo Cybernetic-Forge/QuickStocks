@@ -16,6 +16,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -33,7 +34,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player player)) {
             Translation.NoConsoleSender.sendMessage(sender);
             return true;
@@ -687,7 +688,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     }
     
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
         if (!(sender instanceof Player player)) {
             return null;
         }
@@ -697,35 +698,31 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         try {
             // Main subcommands
             if (args.length == 1) {
-                return Arrays.asList("create", "info", "list", "invite", "accept", "decline", 
-                                   "invitations", "deposit", "withdraw", "employees", "jobs", 
+                return Stream.of("create", "info", "list", "invite", "accept", "decline",
+                                   "invitations", "deposit", "withdraw", "employees", "jobs",
                                    "createjob", "editjob", "assignjob", "settings",
                                    "setsymbol", "market", "notifications", "leave", "transferownership", "fire", "salary")
-                    .stream()
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
             }
             
             // Salary subcommands
             if (args.length == 2 && args[0].equalsIgnoreCase("salary")) {
-                return Arrays.asList("set", "setplayer", "removeplayer", "cycle", "reset", "info")
-                    .stream()
+                return Stream.of("set", "setplayer", "removeplayer", "cycle", "reset", "info")
                     .filter(option -> option.toLowerCase().startsWith(args[1].toLowerCase()))
                     .collect(Collectors.toList());
             }
             
             // Market subcommands
             if (args.length == 2 && args[0].equalsIgnoreCase("market")) {
-                return Arrays.asList("enable", "disable", "settings")
-                    .stream()
+                return Stream.of("enable", "disable", "settings")
                     .filter(option -> option.toLowerCase().startsWith(args[1].toLowerCase()))
                     .collect(Collectors.toList());
             }
             
             // Company types for create command
             if (args.length == 3 && args[0].equalsIgnoreCase("create")) {
-                return Arrays.asList("PRIVATE", "PUBLIC", "DAO")
-                    .stream()
+                return Stream.of("PRIVATE", "PUBLIC", "DAO")
                     .filter(option -> option.toLowerCase().startsWith(args[2].toLowerCase()))
                     .collect(Collectors.toList());
             }
@@ -766,8 +763,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             
             // Market settings subcommands (4th arg)
             if (args.length == 4 && args[0].equalsIgnoreCase("market") && args[1].equalsIgnoreCase("settings")) {
-                return Arrays.asList("percentage", "buyout")
-                    .stream()
+                return Stream.of("percentage", "buyout")
                     .filter(option -> option.toLowerCase().startsWith(args[3].toLowerCase()))
                     .collect(Collectors.toList());
             }

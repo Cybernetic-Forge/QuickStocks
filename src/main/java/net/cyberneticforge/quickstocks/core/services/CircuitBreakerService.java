@@ -1,6 +1,5 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import lombok.Getter;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
@@ -106,7 +105,6 @@ public class CircuitBreakerService {
      * Checks if trading has already been halted at a specific level today.
      */
     private boolean hasHaltedAtLevel(String instrumentId, int level) throws SQLException {
-        String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         long todayStart = java.time.LocalDate.now().atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
         long todayEnd = todayStart + (24 * 60 * 60 * 1000) - 1;
         

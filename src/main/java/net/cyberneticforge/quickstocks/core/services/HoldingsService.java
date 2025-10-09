@@ -1,6 +1,5 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import lombok.Getter;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import org.bukkit.Bukkit;
 

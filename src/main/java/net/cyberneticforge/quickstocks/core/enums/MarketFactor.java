@@ -52,23 +52,8 @@ public enum MarketFactor {
     FLASH_CRASHES(0.02, 1.5, "Sudden, severe market drops"),
     SOCIAL_MEDIA_BUZZ(0.10, 0.8, "Viral social media trends affecting stocks");
 
-    /**
-     * -- GETTER --
-     *
-     * @return The base weight/importance of this factor (0.0 to 1.0+)
-     */
     private final double baseWeight;
-    /**
-     * -- GETTER --
-     *
-     * @return How volatile/unpredictable this factor is (0.0 to 2.0)
-     */
     private final double volatility;
-    /**
-     * -- GETTER --
-     *
-     * @return Description of what this factor represents
-     */
     private final String description;
     
     MarketFactor(double baseWeight, double volatility, String description) {

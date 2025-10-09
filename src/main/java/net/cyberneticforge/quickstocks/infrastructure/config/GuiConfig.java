@@ -14,10 +14,10 @@ import java.util.List;
  * Manages GUI configurations loaded from guis.yml
  * Provides methods to retrieve GUI elements with Adventure API support
  */
+@Getter
 public class GuiConfig {
 
-    @Getter
-    private YamlParser config;
+    private final YamlParser config;
     
     public GuiConfig() {
         config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "guis.yml");

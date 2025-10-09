@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * Handles the mapping and persistence of Stock objects to database instruments.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "ConstantValue"})
 public class InstrumentPersistenceService {
     
     private static final Logger logger = Logger.getLogger(InstrumentPersistenceService.class.getName());

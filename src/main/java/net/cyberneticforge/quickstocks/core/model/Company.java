@@ -1,8 +1,11 @@
 package net.cyberneticforge.quickstocks.core.model;
 
+import lombok.Getter;
+
 /**
  * Represents a company/corporation entity.
  */
+@Getter
 public class Company {
     private final String id;
     private final String name;
@@ -32,44 +35,5 @@ public class Company {
         this.marketPercentage = marketPercentage;
         this.allowBuyout = allowBuyout;
     }
-    
-    public String getId() {
-        return id;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public String getType() {
-        return type;
-    }
-    
-    public String getOwnerUuid() {
-        return ownerUuid;
-    }
-    
-    public double getBalance() {
-        return balance;
-    }
-    
-    public long getCreatedAt() {
-        return createdAt;
-    }
-    
-    public String getSymbol() {
-        return symbol;
-    }
-    
-    public boolean isOnMarket() {
-        return onMarket;
-    }
-    
-    public double getMarketPercentage() {
-        return marketPercentage;
-    }
-    
-    public boolean isAllowBuyout() {
-        return allowBuyout;
-    }
+
 }

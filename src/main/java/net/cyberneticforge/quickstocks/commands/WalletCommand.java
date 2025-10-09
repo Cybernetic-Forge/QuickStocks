@@ -8,11 +8,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Command handler for wallet operations (/wallet).
@@ -22,7 +24,7 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
     private static final Logger logger = Logger.getLogger(WalletCommand.class.getName());
     
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player player)) {
             Translation.NoConsoleSender.sendMessage(sender);
             return true;
@@ -124,10 +126,9 @@ public class WalletCommand implements CommandExecutor, TabCompleter {
     }
     
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("balance", "add", "set")
-                .stream()
+            return Stream.of("balance", "add", "set")
                 .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                 .collect(Collectors.toList());
         }

@@ -1,13 +1,17 @@
 package net.cyberneticforge.quickstocks.api.events;
 
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event fired when a player's wallet balance changes.
  * This event is not cancellable - the balance change has already occurred.
  */
+@Getter
+@SuppressWarnings("unused")
 public class WalletBalanceChangeEvent extends Event {
     
     private static final HandlerList HANDLERS = new HandlerList();
@@ -32,33 +36,13 @@ public class WalletBalanceChangeEvent extends Event {
         this.newBalance = newBalance;
         this.reason = reason;
     }
-    
-    public Player getPlayer() {
-        return player;
-    }
-    
-    public double getOldBalance() {
-        return oldBalance;
-    }
-    
-    public double getNewBalance() {
-        return newBalance;
-    }
-    
+
     public double getChange() {
         return newBalance - oldBalance;
     }
-    
-    public ChangeReason getReason() {
-        return reason;
-    }
-    
+
     @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-    
-    public static HandlerList getHandlerList() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 }

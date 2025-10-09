@@ -1,7 +1,5 @@
 package net.cyberneticforge.quickstocks.core.model;
 
-import lombok.Getter;
-
 /**
  * Represents a cryptocurrency instrument with its current market state.
  */

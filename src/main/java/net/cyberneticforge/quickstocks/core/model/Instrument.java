@@ -1,7 +1,5 @@
 package net.cyberneticforge.quickstocks.core.model;
 
-import lombok.Getter;
-
 /**
  * Represents an instrument in the market system.
  * Can be a stock, cryptocurrency, Minecraft item, or other tradeable asset.

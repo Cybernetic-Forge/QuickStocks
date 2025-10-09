@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 public class TranslationService {
 
     private final YamlParser config;

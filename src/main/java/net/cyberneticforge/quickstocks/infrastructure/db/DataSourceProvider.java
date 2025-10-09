@@ -53,6 +53,7 @@ public class DataSourceProvider {
         logger.info("Database connection pool initialized for " + config.getProvider());
     }
     
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void configureSQLite(HikariConfig config) {
         String filePath = this.config.getSqliteFile();
         

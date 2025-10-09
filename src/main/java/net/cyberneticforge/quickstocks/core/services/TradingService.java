@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import lombok.Setter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
@@ -20,12 +21,19 @@ import java.util.logging.Logger;
  * NOTE: This service is for traditional instruments (items, crypto, etc.).
  * For market stocks (company shares), use CompanyMarketService instead.
  */
+@SuppressWarnings("ALL")
 public class TradingService {
 
     private static final Logger logger = Logger.getLogger(TradingService.class.getName());
 
     private final Db database;
     private final EnhancedTradingService enhancedTradingService;
+    /**
+     * -- SETTER --
+     *  Sets the stock market service for recording trading activity.
+     *  This is called after both services are initialized.
+     */
+    @Setter
     private StockMarketService stockMarketService; // For recording trading activity
 
 
@@ -39,14 +47,6 @@ public class TradingService {
     public TradingService(Db database) {
         this.database = database;
         this.enhancedTradingService = null; // No enhanced features
-    }
-
-    /**
-     * Sets the stock market service for recording trading activity.
-     * This is called after both services are initialized.
-     */
-    public void setStockMarketService(StockMarketService stockMarketService) {
-        this.stockMarketService = stockMarketService;
     }
 
     /**

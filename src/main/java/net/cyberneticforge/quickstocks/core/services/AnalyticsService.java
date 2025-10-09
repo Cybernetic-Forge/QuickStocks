@@ -123,7 +123,7 @@ public class AnalyticsService {
     }
 
     private static double getEwmaVariance(double lambda, List<Double> returns) {
-        double ewmaVariance = 0.0;
+        double ewmaVariance;
         if (returns.size() >= 2) {
             // Initialize with sample variance of first two returns for stability
             double mean = (returns.get(0) + returns.get(1)) / 2.0;

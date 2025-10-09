@@ -217,8 +217,7 @@ public class CompanyService {
      */
     public List<Company> getAllCompanies() throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout FROM companies ORDER BY created_at DESC",
-            new Object[0]
+            "SELECT id, name, type, owner_uuid, balance, created_at, symbol, on_market, market_percentage, allow_buyout FROM companies ORDER BY created_at DESC"
         );
 
         List<Company> companies = new ArrayList<>();

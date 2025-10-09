@@ -1,5 +1,7 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
 import net.cyberneticforge.quickstocks.core.algorithms.StockPriceCalculator;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
@@ -19,7 +21,18 @@ public class StockMarketService {
     private final Map<String, Stock> stocks;
     private final List<MarketInfluence> marketInfluences;
     private final StockPriceCalculator priceCalculator;
+    /**
+     * -- GETTER --
+     *  Gets the price threshold controller.
+     */
+    @Getter
     private final PriceThresholdController thresholdController;
+    /**
+     * -- SETTER --
+     *  Opens or closes the market.
+     */
+    @Setter
+    @Getter
     private volatile boolean marketOpen;
     
     @SuppressWarnings("unused")
@@ -89,7 +102,6 @@ public class StockMarketService {
             case "crypto" -> 1.0;
             case "energy" -> 0.7;
             case "finance" -> 0.6;
-            case "healthcare" -> 0.5;
             case "utilities" -> 0.3;
             case "consumer" -> 0.4;
             default -> 0.5;
@@ -236,17 +248,6 @@ public class StockMarketService {
         return new MarketStats(stocks.size(), avgPrice, avgChange, totalVolume, 
                               totalMarketCap, gainers, getMarketSentiment());
     }
-    
-    /**
-     * Opens or closes the market.
-     */
-    public void setMarketOpen(boolean open) {
-        this.marketOpen = open;
-    }
-    
-    public boolean isMarketOpen() {
-        return marketOpen;
-    }
 
     /**
          * Market statistics data class.
@@ -265,11 +266,5 @@ public class StockMarketService {
                         totalStocks, averageChange * 100, marketSentiment);
             }
         }
-    
-    /**
-     * Gets the price threshold controller.
-     */
-    public PriceThresholdController getThresholdController() {
-        return thresholdController;
-    }
+
 }

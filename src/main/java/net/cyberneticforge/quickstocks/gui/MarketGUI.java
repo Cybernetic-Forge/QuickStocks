@@ -22,6 +22,7 @@ import java.util.logging.Logger;
  * Professional Market GUI for QuickStocks
  * Displays market data in an interactive inventory interface
  */
+@SuppressWarnings("deprecation")
 public class MarketGUI implements InventoryHolder {
 
     private static final Logger logger = Logger.getLogger(MarketGUI.class.getName());

@@ -10,6 +10,7 @@ import java.util.logging.Logger;
  * Manages player wallet balances with Vault economy integration fallback.
  * If Vault is available, uses it; otherwise uses internal wallet system.
  */
+@SuppressWarnings({"JavaReflectionInvocation", "unused"})
 public class WalletService {
     
     private static final Logger logger = Logger.getLogger(WalletService.class.getName());

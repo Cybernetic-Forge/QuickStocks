@@ -36,7 +36,7 @@ public class MarketDeviceCommand implements CommandExecutor, TabCompleter {
     public static final NamespacedKey versionKey = new NamespacedKey(QuickStocksPlugin.getInstance(), "version");
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         // Check permission
         if (!sender.hasPermission(PERMISSION_GIVE)) {
             Translation.NoPermission.sendMessage(sender);
@@ -155,7 +155,7 @@ public class MarketDeviceCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String @NotNull [] args) {
         List<String> completions = new ArrayList<>();
 
         if (!sender.hasPermission(PERMISSION_GIVE)) {

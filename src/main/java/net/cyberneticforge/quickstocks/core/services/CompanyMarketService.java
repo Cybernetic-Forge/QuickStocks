@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 /**
  * Service for managing company market operations (shares, IPO, trading).
  */
+@SuppressWarnings("unused")
 public class CompanyMarketService {
     
     private static final Logger logger = Logger.getLogger(CompanyMarketService.class.getName());

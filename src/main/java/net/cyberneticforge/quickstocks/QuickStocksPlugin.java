@@ -19,6 +19,7 @@ import net.cyberneticforge.quickstocks.listeners.PortfolioGUIListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopProtectionListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopTransactionListener;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -26,6 +27,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public final class QuickStocksPlugin extends JavaPlugin {
 
@@ -202,6 +204,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
     /**
      * Initializes the database system.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void initializeDatabase() throws SQLException {
         // Load configuration from config.yml (with fallback to defaults)
         DatabaseConfig config = ConfigLoader.loadDatabaseConfig();
@@ -228,34 +231,13 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Registers commands with the server.
      */
     private void registerCommands() {
-        StocksCommand stocksCommand = new StocksCommand();
-        CryptoCommand cryptoCommand = new CryptoCommand(cryptoService);
-        WalletCommand walletCommand = new WalletCommand();
-        MarketCommand marketCommand = new MarketCommand(databaseManager.getDb());
-        MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand();
-        WatchCommand watchCommand = new WatchCommand();
-        CompanyCommand companyCommand = new CompanyCommand();
-        
-        // Register the /stocks command
-        getCommand("stocks").setExecutor(stocksCommand);
-        
-        // Register the /crypto command
-        getCommand("crypto").setExecutor(cryptoCommand);
-        
-        // Register the /wallet command
-        getCommand("wallet").setExecutor(walletCommand);
-        
-        // Register the /market command
-        getCommand("market").setExecutor(marketCommand);
-        
-        // Register the /marketdevice command
-        getCommand("marketdevice").setExecutor(marketDeviceCommand);
-        
-        // Register the /watch command
-        getCommand("watch").setExecutor(watchCommand);
-        
-        // Register the /company command
-        getCommand("company").setExecutor(companyCommand);
+        registerCommand("crypto", new CryptoCommand(cryptoService));
+        registerCommand("wallet", new WalletCommand());
+        registerCommand("market", new MarketCommand(databaseManager.getDb()));
+        registerCommand("marketdevice", new MarketDeviceCommand());
+        registerCommand("watch", new WatchCommand());
+        registerCommand("company", new CompanyCommand());
+        registerCommand("stocks", new StocksCommand());
     }
     
     /**
@@ -348,6 +330,10 @@ public final class QuickStocksPlugin extends JavaPlugin {
                 }
             }
         }.runTaskTimerAsynchronously(this, 20L * 60 * 5, 20L * 60 * 5); // Run every 5 minutes
+    }
+
+    public static void registerCommand(String command, CommandExecutor executor) {
+        Objects.requireNonNull(instance.getCommand(command)).setExecutor(executor);
     }
 }
 

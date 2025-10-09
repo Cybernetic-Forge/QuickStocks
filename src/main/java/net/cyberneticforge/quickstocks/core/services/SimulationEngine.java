@@ -160,12 +160,11 @@ public class SimulationEngine {
                         double volatility24h = 0.0;
                         
                         try {
-                            // change1h = analyticsService.getChangePct(instrumentId, 60);
-                            // change24h = analyticsService.getChangePct(instrumentId, 1440);
-                            // volatility24h = analyticsService.getVolatilityEWMA(instrumentId, 1440);
+                            change1h = getChangePercent(instrumentId, 60);
+                            change24h = getChangePercent(instrumentId, 1440);
+                            volatility24h = getVolatility(instrumentId, 1440);
                         } catch (Exception e) {
                             logger.warning("Failed to calculate rolling window metrics for " + stock.getSymbol() + ": " + e.getMessage());
-                            // Continue with zero values
                         }
                         
                         // UPSERT instrument_state

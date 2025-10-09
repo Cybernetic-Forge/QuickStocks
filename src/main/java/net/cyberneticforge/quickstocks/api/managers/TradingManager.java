@@ -10,6 +10,7 @@ import java.util.List;
  * API Manager for trading operations.
  * Provides a high-level interface for external plugins to interact with the trading system.
  */
+@SuppressWarnings("unused")
 public class TradingManager {
     
     private final TradingService tradingService;
@@ -52,7 +53,6 @@ public class TradingManager {
      * @param playerUuid UUID of the player
      * @param instrumentId ID of the instrument
      * @return Holdings data or null if not found
-     * @throws SQLException if database error occurs
      */
     public HoldingsService.Holding getHolding(String playerUuid, String instrumentId) {
         return holdingsService.getHolding(playerUuid, instrumentId);

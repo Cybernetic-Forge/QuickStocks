@@ -15,8 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-import java.util.logging.Logger;
-
 /**
  * Listener for ChestShop protection events to allow company employees to manage shops.
  * Employees with chestshop permission can access and modify company-owned chest shops.

@@ -151,8 +151,4 @@ public class ChestShopHook {
         if(account == null) return null;
         return getCompany(account.getName()).orElse(null);
     }
-
-    /**
-     * Gets the account of an uuid
-     */
 }

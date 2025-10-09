@@ -231,6 +231,7 @@ public class AuditService {
     /**
      * Result of auditing a specific player.
      */
+    @SuppressWarnings("unused")
     public static class AuditPlayerResult {
         public final String playerUuid;
         public final List<Discrepancy> discrepancies = new ArrayList<>();

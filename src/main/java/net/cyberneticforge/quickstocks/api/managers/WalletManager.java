@@ -8,6 +8,7 @@ import java.sql.SQLException;
  * API Manager for wallet and balance operations.
  * Provides a high-level interface for external plugins to interact with the wallet system.
  */
+@SuppressWarnings("unused")
 public class WalletManager {
     
     private final WalletService walletService;

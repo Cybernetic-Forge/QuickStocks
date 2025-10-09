@@ -12,6 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
 /**
  * Portfolio GUI showing player's holdings and assets
  */
+@SuppressWarnings("deprecation")
 public class PortfolioGUI implements InventoryHolder {
 
     private static final Logger logger = Logger.getLogger(PortfolioGUI.class.getName());
@@ -40,7 +42,7 @@ public class PortfolioGUI implements InventoryHolder {
     }
 
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
 
@@ -265,6 +267,7 @@ public class PortfolioGUI implements InventoryHolder {
     /**
      * Gets the holding symbol from an inventory slot
      */
+    @SuppressWarnings("deprecation")
     public String getHoldingSymbolFromSlot(int slot) {
         ItemStack item = inventory.getItem(slot);
         if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {

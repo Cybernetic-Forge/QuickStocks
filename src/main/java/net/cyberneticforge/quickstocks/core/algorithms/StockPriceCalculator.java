@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.algorithms;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
 import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
 import net.cyberneticforge.quickstocks.core.model.Stock;
@@ -12,6 +13,8 @@ import java.util.logging.Logger;
  * Advanced stock price calculation algorithm that simulates realistic market behavior
  * by considering multiple market factors, technical indicators, and random events.
  */
+@Getter
+@SuppressWarnings("unused")
 public class StockPriceCalculator {
     
     private static final Logger logger = Logger.getLogger(StockPriceCalculator.class.getName());
@@ -316,12 +319,5 @@ public class StockPriceCalculator {
         if (thresholdController != null) {
             thresholdController.recordTradingActivity(symbol, volume);
         }
-    }
-    
-    /**
-     * Gets the threshold controller for direct access.
-     */
-    public PriceThresholdController getThresholdController() {
-        return thresholdController;
     }
 }
