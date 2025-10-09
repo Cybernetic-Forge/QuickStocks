@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
 import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
@@ -24,6 +25,11 @@ public class SimulationEngine {
     private static final int TICK_INTERVAL_SECONDS = 5;
 
     private final Db database;
+    /**
+     * -- GETTER --
+     *  Get the analytics service for direct access to advanced analytics.
+     */
+    @Getter
     private final AnalyticsService analyticsService;
     private final ScheduledExecutorService scheduler;
     private volatile boolean running = false;
@@ -291,14 +297,7 @@ public class SimulationEngine {
             .findFirst()
             .orElse(null);
     }
-    
-    /**
-     * Get the analytics service for direct access to advanced analytics.
-     */
-    public AnalyticsService getAnalyticsService() {
-        return analyticsService;
-    }
-    
+
     /**
      * Records portfolio values for all players (for Sharpe ratio calculations).
      * This should be called periodically, e.g., once per hour or day.

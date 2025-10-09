@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.util.*;
@@ -14,9 +15,14 @@ public class AnalyticsService {
     private static final Logger logger = Logger.getLogger(AnalyticsService.class.getName());
     
     private final Db database;
+    // Getters for default values
+    @Getter
     private final double defaultLambda;
+    @Getter
     private final int defaultChangeWindow;
+    @Getter
     private final int defaultVolatilityWindow;
+    @Getter
     private final int defaultCorrelationWindow;
     
     public AnalyticsService(Db database, double lambda, int changeWindow, int volatilityWindow, int correlationWindow) {
@@ -292,13 +298,7 @@ public class AnalyticsService {
         
         return denominator != 0 ? numerator / denominator : 0.0;
     }
-    
-    // Getters for default values
-    public double getDefaultLambda() { return defaultLambda; }
-    public int getDefaultChangeWindow() { return defaultChangeWindow; }
-    public int getDefaultVolatilityWindow() { return defaultVolatilityWindow; }
-    public int getDefaultCorrelationWindow() { return defaultCorrelationWindow; }
-    
+
     /**
      * Records a portfolio value snapshot for Sharpe ratio calculations.
      * This should be called periodically to build portfolio history.
