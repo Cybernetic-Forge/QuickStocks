@@ -103,8 +103,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Initialize the stock market service with threshold controller
             stockMarketService = new StockMarketService(thresholdController);
             
+            // Initialize analytics service
+            analyticsService = new AnalyticsService(databaseManager.getDb(), 0.94, 60, 1440, 1440);
+            
             // Initialize simulation engine
-            simulationEngine = new SimulationEngine(databaseManager.getDb());
+            simulationEngine = new SimulationEngine(databaseManager.getDb(), analyticsService);
             
             // Initialize query service
             queryService = new QueryService(databaseManager.getDb());

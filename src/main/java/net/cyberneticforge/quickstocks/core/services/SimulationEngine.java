@@ -24,11 +24,13 @@ public class SimulationEngine {
     private static final int TICK_INTERVAL_SECONDS = 5;
 
     private final Db database;
+    private final AnalyticsService analyticsService;
     private final ScheduledExecutorService scheduler;
     private volatile boolean running = false;
     
-    public SimulationEngine(Db database) {
+    public SimulationEngine(Db database, AnalyticsService analyticsService) {
         this.database = Objects.requireNonNull(database, "Database cannot be null");
+        this.analyticsService = Objects.requireNonNull(analyticsService, "AnalyticsService cannot be null");
         this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "SimulationEngine-Ticker");
             t.setDaemon(true);
@@ -252,95 +254,24 @@ public class SimulationEngine {
     
     /**
      * Calculates price change percentage over a given time window.
+     * Delegates to AnalyticsService.
      * @param instrumentId The instrument identifier
      * @param windowMinutes Time window in minutes
      * @return Change percentage (-1.0 to +1.0)
      */
     public double getChangePercent(String instrumentId, int windowMinutes) {
-        try {
-            long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
-            
-            var results = database.query("""
-                SELECT price, ts FROM instrument_price_history\s
-                WHERE instrument_id = ? AND ts >= ?
-                ORDER BY ts ASC
-                LIMIT 1
-               \s""", instrumentId, windowStart);
-            
-            if (results.isEmpty()) {
-                return 0.0;
-            }
-            
-            double oldPrice = ((Number) results.getFirst().get("price")).doubleValue();
-            
-            // Get current price by looking up the stock by symbol
-            String symbol = getSymbolForInstrumentId(instrumentId);
-            if (symbol == null) {
-                return 0.0;
-            }
-            
-            Optional<Stock> stock = QuickStocksPlugin.getStockMarketService().getStock(symbol);
-            if (stock.isEmpty()) {
-                return 0.0;
-            }
-            
-            double currentPrice = stock.get().getCurrentPrice();
-            
-            return oldPrice > 0 ? (currentPrice - oldPrice) / oldPrice : 0.0;
-            
-        } catch (Exception e) {
-            logger.warning("Failed to calculate change percent for " + instrumentId + ": " + e.getMessage());
-            return 0.0;
-        }
+        return analyticsService.getChangePct(instrumentId, windowMinutes);
     }
     
     /**
      * Calculates volatility over a given time window.
+     * Delegates to AnalyticsService.
      * @param instrumentId The instrument identifier
      * @param windowMinutes Time window in minutes
      * @return Volatility as standard deviation of price changes
      */
     public double getVolatility(String instrumentId, int windowMinutes) {
-        try {
-            long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
-            
-            var results = database.query("""
-                SELECT price FROM instrument_price_history\s
-                WHERE instrument_id = ? AND ts >= ?
-                ORDER BY ts ASC
-               \s""", instrumentId, windowStart);
-            
-            if (results.size() < 2) {
-                return 0.0;
-            }
-            
-            // Calculate price changes
-            List<Double> changes = new ArrayList<>();
-            for (int i = 1; i < results.size(); i++) {
-                double prevPrice = ((Number) results.get(i-1).get("price")).doubleValue();
-                double currPrice = ((Number) results.get(i).get("price")).doubleValue();
-                
-                if (prevPrice > 0) {
-                    changes.add((currPrice - prevPrice) / prevPrice);
-                }
-            }
-            
-            if (changes.isEmpty()) {
-                return 0.0;
-            }
-            
-            // Calculate standard deviation
-            double mean = changes.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-            double variance = changes.stream()
-                .mapToDouble(change -> Math.pow(change - mean, 2))
-                .average().orElse(0.0);
-            
-            return Math.sqrt(variance);
-            
-        } catch (Exception e) {
-            logger.warning("Failed to calculate volatility for " + instrumentId + ": " + e.getMessage());
-            return 0.0;
-        }
+        return analyticsService.getVolatilityEWMA(instrumentId, windowMinutes);
     }
 
     /**
@@ -361,69 +292,11 @@ public class SimulationEngine {
             .orElse(null);
     }
     
-    // Analytics methods delegation
-    
     /**
-     * Gets price change percentage over the default time window.
-     */
-    public double getChangePct(String instrumentId) {
-        return 0.0; //analyticsService.getChangePct(instrumentId, analyticsService.getDefaultChangeWindow());
-    }
-    
-    /**
-     * Gets price change percentage over a given time window.
-     */
-    public double getChangePct(String instrumentId, int windowMinutes) {
-        return 0.0; //analyticsService.getChangePct(instrumentId, windowMinutes);
-    }
-    
-    /**
-     * Gets EWMA volatility using default parameters.
-     */
-    public double getVolatilityEWMA(String instrumentId) {
-        return 0.0; //analyticsService.getVolatilityEWMA(instrumentId, analyticsService.getDefaultVolatilityWindow());
-    }
-    
-    /**
-     * Gets EWMA volatility over a given time window.
-     */
-    public double getVolatilityEWMA(String instrumentId, int windowMinutes) {
-        return 0.0; //analyticsService.getVolatilityEWMA(instrumentId, windowMinutes);
-    }
-    
-    /**
-     * Gets EWMA volatility with custom lambda.
-     */
-    public double getVolatilityEWMA(String instrumentId, int windowMinutes, double lambda) {
-        return 0.0; //analyticsService.getVolatilityEWMA(instrumentId, windowMinutes, lambda);
-    }
-    
-    /**
-     * Gets correlation between two instruments.
-     */
-    public double getCorrelation(String instrumentA, String instrumentB, int windowMinutes) {
-        return 0.0; //analyticsService.getCorrelation(instrumentA, instrumentB, windowMinutes);
-    }
-    
-    /**
-     * Gets Sharpe ratio for a player's portfolio.
-     */
-    public double getSharpe(String playerUuid, int windowDays, double riskFree) {
-        return 0.0; //analyticsService.getSharpe(playerUuid, windowDays, riskFree);
-    }
-    
-    /**
-     * Gets Sharpe ratio with default risk-free rate (0).
-     */
-    public double getSharpe(String playerUuid, int windowDays) {
-        return getSharpe(playerUuid, windowDays, 0.0);
-    }
-    
-    /**
-     * Get the analytics service for direct access.
+     * Get the analytics service for direct access to advanced analytics.
      */
     public AnalyticsService getAnalyticsService() {
-        return null; //analyticsService;
+        return analyticsService;
     }
     
     /**

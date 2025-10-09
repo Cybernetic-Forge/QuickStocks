@@ -349,6 +349,7 @@ public class YourCommand implements CommandExecutor, TabCompleter {
 - Break IoC patterns with static dependencies
 - Ignore thread safety in multi-player environment
 - Modify existing working functionality unnecessarily
+- Duplicate code across services - use delegation or extraction instead
 
 ### When Working on This Project:
 1. **Always update these instructions** when making significant changes
@@ -366,6 +367,8 @@ public class YourCommand implements CommandExecutor, TabCompleter {
 - Follow existing error handling patterns
 - Maintain thread safety for concurrent operations
 - Use appropriate data structures for performance
+- Follow DRY (Don't Repeat Yourself) principle - avoid code duplication
+- Delegate to existing services rather than duplicating logic
 
 ### 🧪 Testing Strategy
 
