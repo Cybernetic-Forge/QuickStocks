@@ -1,14 +1,18 @@
 package net.cyberneticforge.quickstocks.api.events;
 
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event fired when a company goes public (IPO - Initial Public Offering).
  * This event is cancellable - cancel to prevent the IPO.
  */
+@Getter
+@SuppressWarnings("unused")
 public class CompanyIPOEvent extends Event implements Cancellable {
     
     private static final HandlerList HANDLERS = new HandlerList();
@@ -24,18 +28,6 @@ public class CompanyIPOEvent extends Event implements Cancellable {
         this.initiator = initiator;
     }
     
-    public String getCompanyId() {
-        return companyId;
-    }
-    
-    public String getCompanyName() {
-        return companyName;
-    }
-    
-    public Player getInitiator() {
-        return initiator;
-    }
-    
     @Override
     public boolean isCancelled() {
         return cancelled;
@@ -47,11 +39,7 @@ public class CompanyIPOEvent extends Event implements Cancellable {
     }
     
     @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-    
-    public static HandlerList getHandlerList() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 }

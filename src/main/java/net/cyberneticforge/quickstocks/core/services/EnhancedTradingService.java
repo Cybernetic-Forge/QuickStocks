@@ -263,12 +263,12 @@ public class EnhancedTradingService {
     }
 
     // Legacy methods for backward compatibility
-    public TradeResult executeBuyOrder(String playerUuid, String instrumentId, double qty) throws SQLException {
+    public TradeResult executeBuyOrder(String playerUuid, String instrumentId, double qty) {
         OrderRequest orderRequest = OrderRequest.marketOrder(playerUuid, instrumentId, "BUY", qty);
         return executeOrder(orderRequest);
     }
 
-    public TradeResult executeSellOrder(String playerUuid, String instrumentId, double qty) throws SQLException {
+    public TradeResult executeSellOrder(String playerUuid, String instrumentId, double qty) {
         OrderRequest orderRequest = OrderRequest.marketOrder(playerUuid, instrumentId, "SELL", qty);
         return executeOrder(orderRequest);
     }
@@ -318,6 +318,7 @@ public class EnhancedTradingService {
      * @param id Getters
      */
 
+    @SuppressWarnings("unused")
     public record Order(String id, String instrumentId, String symbol, String displayName, String side, double qty,
                         double price, long timestamp, String orderType, Double limitPrice, Double stopPrice,
                         double feePaid, double executionPrice) {
@@ -326,6 +327,7 @@ public class EnhancedTradingService {
             return qty * executionPrice;
         }
 
+        @SuppressWarnings("unused")
         public double getNetValue() {
             return getTotalValue() - feePaid;
         }

@@ -1,7 +1,5 @@
 package net.cyberneticforge.quickstocks.core.model;
 
-import lombok.Getter;
-
 /**
  * Represents a trading order request with all necessary parameters.
  *
@@ -10,6 +8,7 @@ import lombok.Getter;
  * @param limitPrice nullable, required for LIMIT orders
  * @param stopPrice  nullable, required for STOP orders
  */
+@SuppressWarnings("unused")
 public record OrderRequest(String playerUuid, String instrumentId, String side, OrderType type, double qty,
                            Double limitPrice, Double stopPrice) {
 

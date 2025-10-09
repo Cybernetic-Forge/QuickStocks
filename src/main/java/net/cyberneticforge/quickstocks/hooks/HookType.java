@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.hooks;
 
+@SuppressWarnings("SameParameterValue")
 public enum HookType {
     ChestShop("ChestShop");
 

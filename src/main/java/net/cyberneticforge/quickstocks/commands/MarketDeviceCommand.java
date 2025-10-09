@@ -118,6 +118,7 @@ public class MarketDeviceCommand implements CommandExecutor, TabCompleter {
     /**
      * Checks if an item is a Market Device
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isMarketDevice(ItemStack item) {
         if (item == null || item.getItemMeta() == null) {
             return false;

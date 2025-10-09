@@ -118,6 +118,7 @@ public class ChatUT {
         return colorCode;
     }
 
+    @SuppressWarnings("unused")
     public static List<String> getPlayerNames() {
         List<String> entries = new ArrayList<>();
         Bukkit.getOnlinePlayers().forEach(player -> entries.add(player.getName()));
@@ -129,11 +130,13 @@ public class ChatUT {
         return serializer.serialize(component);
     }
 
+    @SuppressWarnings("unused")
     public static String serializePlain(Component component) {
         if(component == null) return "ITEM";
         return plainSerializer.serialize(component);
     }
 
+    @SuppressWarnings("unused")
     public static Component deserialize(String component) {
         return ChatUT.hexComp(component);
     }

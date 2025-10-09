@@ -1,7 +1,5 @@
 package net.cyberneticforge.quickstocks.core.model;
 
-import lombok.Getter;
-
 /**
  * Represents the current market state of an instrument.
  */

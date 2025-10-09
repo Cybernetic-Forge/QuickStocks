@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.model;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
 
 import java.time.LocalDateTime;
@@ -9,7 +10,10 @@ import java.util.Objects;
  * Represents the current influence of a market factor on stock prices.
  * Each influence has a strength and direction that affects price calculations.
  */
+@Getter
+@SuppressWarnings({"SameParameterValue", "unused"})
 public class MarketInfluence {
+    // Getters
     private final MarketFactor factor;
     private double currentValue; // -1.0 (very negative) to +1.0 (very positive)
     private double intensity; // 0.0 to 1.0, how strong the influence currently is
@@ -101,14 +105,7 @@ public class MarketInfluence {
     private double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
-    
-    // Getters
-    public MarketFactor getFactor() { return factor; }
-    public double getCurrentValue() { return currentValue; }
-    public double getIntensity() { return intensity; }
-    public LocalDateTime getLastUpdated() { return lastUpdated; }
-    public double getTrendDirection() { return trendDirection; }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

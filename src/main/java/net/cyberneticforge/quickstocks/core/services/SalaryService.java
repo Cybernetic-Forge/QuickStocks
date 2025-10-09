@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 /**
  * Service for managing employee salaries and payments.
  */
+@SuppressWarnings("unused")
 public class SalaryService {
     
     private static final Logger logger = Logger.getLogger(SalaryService.class.getName());
@@ -329,7 +330,7 @@ public class SalaryService {
      */
     public List<Map<String, Object>> getCompanySalaryInfo(String companyId) throws SQLException {
         // Get all employees with their job info
-        List<Map<String, Object>> results = database.query(
+        return database.query(
             "SELECT ce.player_uuid, cj.id as job_id, cj.title as job_title, " +
             "cjs.salary_amount as job_salary, ces.salary_amount as player_salary " +
             "FROM company_employees ce " +
@@ -339,7 +340,5 @@ public class SalaryService {
             "WHERE ce.company_id = ?",
             companyId
         );
-        
-        return results;
     }
 }

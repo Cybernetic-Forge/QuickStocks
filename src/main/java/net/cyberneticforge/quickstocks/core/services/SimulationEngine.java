@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * Manages the simulation engine that runs market updates every 5 seconds
  * and persists the results to the database.
  */
+@SuppressWarnings("unused")
 public class SimulationEngine {
     
     private static final Logger logger = Logger.getLogger(SimulationEngine.class.getName());

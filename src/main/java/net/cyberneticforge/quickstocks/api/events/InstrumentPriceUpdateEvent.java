@@ -1,12 +1,16 @@
 package net.cyberneticforge.quickstocks.api.events;
 
+import lombok.Getter;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event fired when an instrument's price is updated.
  * This event is not cancellable - the price update has already occurred.
  */
+@Getter
+@SuppressWarnings("unused")
 public class InstrumentPriceUpdateEvent extends Event {
     
     private static final HandlerList HANDLERS = new HandlerList();
@@ -27,41 +31,13 @@ public class InstrumentPriceUpdateEvent extends Event {
         this.changePercent = oldPrice > 0 ? ((newPrice - oldPrice) / oldPrice) * 100.0 : 0.0;
         this.timestamp = timestamp;
     }
-    
-    public String getInstrumentId() {
-        return instrumentId;
-    }
-    
-    public String getInstrumentSymbol() {
-        return instrumentSymbol;
-    }
-    
-    public double getOldPrice() {
-        return oldPrice;
-    }
-    
-    public double getNewPrice() {
-        return newPrice;
-    }
-    
-    public double getChangePercent() {
-        return changePercent;
-    }
-    
+
     public double getPriceChange() {
         return newPrice - oldPrice;
     }
-    
-    public long getTimestamp() {
-        return timestamp;
-    }
-    
+
     @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-    
-    public static HandlerList getHandlerList() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 }

@@ -255,7 +255,7 @@ public class MarketGUI implements InventoryHolder {
         if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
             return null;
         }
-
+        // TODO Proper gui handling
         String displayName = item.getItemMeta().getDisplayName();
         String plainText = ChatUT.extractText(displayName);
 

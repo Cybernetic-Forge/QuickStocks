@@ -42,7 +42,7 @@ SELECT
     -- Get initial and final values using subqueries for better SQLite compatibility
     (SELECT pdr2.total_value FROM portfolio_daily_returns pdr2
      WHERE pdr2.player_uuid = pdr.player_uuid
-     ORDER BY pdr2.ts ASC LIMIT 1) as initial_value,
+     ORDER BY pdr2.ts LIMIT 1) as initial_value,
     (SELECT pdr2.total_value FROM portfolio_daily_returns pdr2
      WHERE pdr2.player_uuid = pdr.player_uuid
      ORDER BY pdr2.ts DESC LIMIT 1) as final_value,

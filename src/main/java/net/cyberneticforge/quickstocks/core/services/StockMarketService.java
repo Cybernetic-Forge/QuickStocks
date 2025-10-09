@@ -22,6 +22,7 @@ public class StockMarketService {
     private final PriceThresholdController thresholdController;
     private volatile boolean marketOpen;
     
+    @SuppressWarnings("unused")
     public StockMarketService() {
         this.stocks = new ConcurrentHashMap<>();
         this.marketInfluences = initializeMarketInfluences();
@@ -55,6 +56,7 @@ public class StockMarketService {
     /**
      * Registers a new stock in the market.
      */
+    @SuppressWarnings("unused")
     public void addStock(String symbol, String name, String sector, double initialPrice) {
         if (symbol == null || symbol.trim().isEmpty()) {
             throw new IllegalArgumentException("Stock symbol cannot be null or empty");
@@ -132,6 +134,7 @@ public class StockMarketService {
     /**
      * Gets stocks in a specific sector.
      */
+    @SuppressWarnings("unused")
     public List<Stock> getStocksBySector(String sector) {
         return stocks.values().stream()
             .filter(stock -> stock.getSector().equalsIgnoreCase(sector))
@@ -161,6 +164,7 @@ public class StockMarketService {
     /**
      * Applies a major market event that affects specific influences.
      */
+    @SuppressWarnings("unused")
     public void applyMarketEvent(MarketFactor factor, double impact, double intensity) {
         marketInfluences.stream()
             .filter(influence -> influence.getFactor() == factor)
@@ -178,6 +182,7 @@ public class StockMarketService {
     /**
      * Gets the most impactful current market influences.
      */
+    @SuppressWarnings("unused")
     public List<MarketInfluence> getTopInfluences(int count) {
         return marketInfluences.stream()
             .sorted((a, b) -> Double.compare(
@@ -202,6 +207,7 @@ public class StockMarketService {
     /**
      * Gets market statistics.
      */
+    @SuppressWarnings("unused")
     public MarketStats getMarketStats() {
         if (stocks.isEmpty()) {
             return new MarketStats(0, 0.0, 0.0, 0.0, 0.0, 0, 0.0);
@@ -245,8 +251,10 @@ public class StockMarketService {
     /**
          * Market statistics data class.
          */
+        @SuppressWarnings("unused")
         public record MarketStats(int totalStocks, double averagePrice, double averageChange, double totalVolume,
                                   double totalMarketCap, long gainers, double marketSentiment) {
+        @SuppressWarnings("unused")
         public long getLosers() {
             return totalStocks - gainers;
         }

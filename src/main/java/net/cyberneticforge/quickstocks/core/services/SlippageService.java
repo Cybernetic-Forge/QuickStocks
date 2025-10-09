@@ -7,6 +7,7 @@ import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
  * Slippage represents the difference between expected and actual execution price
  * due to market impact and liquidity constraints.
  */
+@SuppressWarnings("unused")
 public class SlippageService {
     
     private final TradingConfig.SlippageConfig slippageConfig;

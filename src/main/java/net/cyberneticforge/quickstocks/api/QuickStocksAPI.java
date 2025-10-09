@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.api;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.api.managers.*;
 import net.cyberneticforge.quickstocks.core.services.*;
 import org.bukkit.plugin.Plugin;
@@ -7,7 +8,6 @@ import org.bukkit.plugin.Plugin;
 /**
  * Main API class for QuickStocks.
  * Provides centralized access to all manager classes for external plugins.
- * 
  * Usage example:
  * <pre>
  * {@code
@@ -21,16 +21,46 @@ import org.bukkit.plugin.Plugin;
  * }
  * </pre>
  */
+@SuppressWarnings("unused")
+@Getter
 public class QuickStocksAPI {
     
     private static QuickStocksAPI instance;
-    
+
+    /**
+     * -- GETTER --
+     *  Gets the Company Manager for company operations.
+     */
     private final CompanyManager companyManager;
+    /**
+     * -- GETTER --
+     *  Gets the Trading Manager for trading operations.
+     */
     private final TradingManager tradingManager;
+    /**
+     * -- GETTER --
+     *  Gets the Market Manager for market and instrument operations.
+     */
     private final MarketManager marketManager;
+    /**
+     * -- GETTER --
+     *  Gets the Wallet Manager for wallet and balance operations.
+     */
     private final WalletManager walletManager;
+    /**
+     * -- GETTER --
+     *  Gets the Watchlist Manager for watchlist operations.
+     */
     private final WatchlistManager watchlistManager;
+    /**
+     * -- GETTER --
+     *  Gets the Crypto Manager for cryptocurrency operations.
+     */
     private final CryptoManager cryptoManager;
+    /**
+     * -- GETTER --
+     *  Gets the Portfolio Manager for portfolio and holdings operations.
+     */
     private final PortfolioManager portfolioManager;
     
     /**
@@ -135,67 +165,5 @@ public class QuickStocksAPI {
     }
     
     // Manager getters
-    
-    /**
-     * Gets the Company Manager for company operations.
-     * 
-     * @return CompanyManager instance
-     */
-    public CompanyManager getCompanyManager() {
-        return companyManager;
-    }
-    
-    /**
-     * Gets the Trading Manager for trading operations.
-     * 
-     * @return TradingManager instance
-     */
-    public TradingManager getTradingManager() {
-        return tradingManager;
-    }
-    
-    /**
-     * Gets the Market Manager for market and instrument operations.
-     * 
-     * @return MarketManager instance
-     */
-    public MarketManager getMarketManager() {
-        return marketManager;
-    }
-    
-    /**
-     * Gets the Wallet Manager for wallet and balance operations.
-     * 
-     * @return WalletManager instance
-     */
-    public WalletManager getWalletManager() {
-        return walletManager;
-    }
-    
-    /**
-     * Gets the Watchlist Manager for watchlist operations.
-     * 
-     * @return WatchlistManager instance
-     */
-    public WatchlistManager getWatchlistManager() {
-        return watchlistManager;
-    }
-    
-    /**
-     * Gets the Crypto Manager for cryptocurrency operations.
-     * 
-     * @return CryptoManager instance
-     */
-    public CryptoManager getCryptoManager() {
-        return cryptoManager;
-    }
-    
-    /**
-     * Gets the Portfolio Manager for portfolio and holdings operations.
-     * 
-     * @return PortfolioManager instance
-     */
-    public PortfolioManager getPortfolioManager() {
-        return portfolioManager;
-    }
+
 }

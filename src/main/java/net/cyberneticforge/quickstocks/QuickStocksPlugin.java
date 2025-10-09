@@ -143,10 +143,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Register commands
             registerCommands();
-            
-            // Initialize recipe manager
-            MarketDeviceCommand marketDeviceCommand = new MarketDeviceCommand();
-            
+
             // Register listeners
             registerListeners();
             
@@ -286,11 +283,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
             ChestShopAccountProvider accountProvider = new ChestShopAccountProvider(companyService);
             accountProvider.registerWithChestShop();
             
-            ChestShopListener chestShopListener = new ChestShopListener(this, companyService, companyConfig, accountProvider);
+            ChestShopListener chestShopListener = new ChestShopListener(companyService, companyConfig, accountProvider);
             ChestShopTransactionListener chestShopTransactionListener = 
-                new ChestShopTransactionListener(this, chestShopHook, companyConfig, walletService);
+                new ChestShopTransactionListener(chestShopHook, companyConfig, walletService);
             ChestShopProtectionListener chestShopProtectionListener =
-                new ChestShopProtectionListener(this, chestShopHook, companyConfig);
+                new ChestShopProtectionListener(chestShopHook, companyConfig);
             
             getServer().getPluginManager().registerEvents(chestShopListener, this);
             getServer().getPluginManager().registerEvents(chestShopTransactionListener, this);

@@ -1,10 +1,14 @@
 package net.cyberneticforge.quickstocks.core.enums;
 
+import lombok.Getter;
+
 /**
  * Represents various market factors that influence stock prices in the simulation.
  * Each factor has a weight indicating its impact strength and volatility representing
  * how much it can fluctuate.
  */
+@SuppressWarnings("unused")
+@Getter
 public enum MarketFactor {
     // Economic Indicators
     INFLATION_RATE(0.15, 0.3, "Changes in inflation affect currency value and purchasing power"),
@@ -47,9 +51,24 @@ public enum MarketFactor {
     MARKET_MANIPULATION(0.05, 1.0, "Artificial price movements"),
     FLASH_CRASHES(0.02, 1.5, "Sudden, severe market drops"),
     SOCIAL_MEDIA_BUZZ(0.10, 0.8, "Viral social media trends affecting stocks");
-    
+
+    /**
+     * -- GETTER --
+     *
+     * @return The base weight/importance of this factor (0.0 to 1.0+)
+     */
     private final double baseWeight;
+    /**
+     * -- GETTER --
+     *
+     * @return How volatile/unpredictable this factor is (0.0 to 2.0)
+     */
     private final double volatility;
+    /**
+     * -- GETTER --
+     *
+     * @return Description of what this factor represents
+     */
     private final String description;
     
     MarketFactor(double baseWeight, double volatility, String description) {
@@ -57,28 +76,7 @@ public enum MarketFactor {
         this.volatility = volatility;
         this.description = description;
     }
-    
-    /**
-     * @return The base weight/importance of this factor (0.0 to 1.0+)
-     */
-    public double getBaseWeight() {
-        return baseWeight;
-    }
-    
-    /**
-     * @return How volatile/unpredictable this factor is (0.0 to 2.0)
-     */
-    public double getVolatility() {
-        return volatility;
-    }
-    
-    /**
-     * @return Description of what this factor represents
-     */
-    public String getDescription() {
-        return description;
-    }
-    
+
     /**
      * @return True if this is a high-impact factor (weight > 0.2)
      */

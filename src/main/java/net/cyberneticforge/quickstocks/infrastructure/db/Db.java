@@ -12,6 +12,7 @@ import java.util.logging.Logger;
  * Database utility class providing simplified access to database operations.
  * Handles connections, queries, and updates with proper resource management.
  */
+@SuppressWarnings({"ALL", "UnusedReturnValue"})
 public class Db {
     
     private static final Logger logger = Logger.getLogger(Db.class.getName());
@@ -183,7 +184,7 @@ public class Db {
      */
     @FunctionalInterface
     public interface TransactionBlock {
-        void execute(TransactionDb db) throws SQLException;
+        void execute(TransactionDb db);
     }
     
     /**

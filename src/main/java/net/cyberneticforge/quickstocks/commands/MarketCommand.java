@@ -260,8 +260,6 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
         for (Map<String, Object> tx : transactions) {
             String type = (String) tx.get("type");
             String name = (String) tx.get("name");
-            String symbol = (String) tx.get("symbol");
-            double shares = ((Number) tx.get("shares")).doubleValue();
             double price = ((Number) tx.get("price")).doubleValue();
             long timestamp = ((Number) tx.get("ts")).longValue();
             

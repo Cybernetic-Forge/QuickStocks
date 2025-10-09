@@ -241,8 +241,3 @@ Developed with ❤️ by the Cybernetic Forge team
 - **Testing:** Comprehensive test coverage
 
 ---
-
-<p align="center">
-  <strong>Ready to transform your Minecraft economy?</strong><br>
-  <a href="Documentation/Installation.md">Install QuickStocks Today →</a>
-</p>

@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 /**
  * Service for managing company invitations.
  */
+@SuppressWarnings("unused")
 public class InvitationService {
     
     private static final Logger logger = Logger.getLogger(InvitationService.class.getName());
@@ -26,8 +27,9 @@ public class InvitationService {
     /**
      * Creates an invitation to join a company.
      */
-    public CompanyInvitation createInvitation(String companyId, String inviterUuid, 
-                                             String inviteeUuid, String jobTitle) throws SQLException {
+    @SuppressWarnings("UnusedReturnValue")
+    public CompanyInvitation createInvitation(String companyId, String inviterUuid,
+                                              String inviteeUuid, String jobTitle) throws SQLException {
         // Check if inviter has permission
         Optional<CompanyJob> inviterJob = QuickStocksPlugin.getCompanyService().getPlayerJob(companyId, inviterUuid);
         if (inviterJob.isEmpty() || !inviterJob.get().canInvite()) {

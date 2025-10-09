@@ -22,15 +22,11 @@ import java.util.logging.Logger;
  * Employees with chestshop permission can access and modify company-owned chest shops.
  */
 public class ChestShopProtectionListener implements Listener {
-    
-    private static final Logger logger = Logger.getLogger(ChestShopProtectionListener.class.getName());
 
-    private final QuickStocksPlugin plugin;
     private final ChestShopHook chestShopHook;
     private final CompanyConfig companyConfig;
     
-    public ChestShopProtectionListener(QuickStocksPlugin plugin, ChestShopHook chestShopHook, CompanyConfig companyConfig) {
-        this.plugin = plugin;
+    public ChestShopProtectionListener(ChestShopHook chestShopHook, CompanyConfig companyConfig) {
         this.chestShopHook = chestShopHook;
         this.companyConfig = companyConfig;
     }
@@ -40,9 +36,10 @@ public class ChestShopProtectionListener implements Listener {
      * Allows employees with chestshop permission to manage the shop.
      */
     @EventHandler(priority = EventPriority.LOWEST)
+    @SuppressWarnings("deprecation")
     public void onProtectionCheck(ProtectionCheckEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         Sign sign = uBlock.getConnectedSign(event.getBlock());
         if (sign == null) return;
@@ -57,7 +54,7 @@ public class ChestShopProtectionListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onProtectionCheck(AccountAccessEvent event) {
         // Only process if ChestShop is hooked and enabled
-        if (!plugin.getHookManager().isHooked(HookType.ChestShop)) return;
+        if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
         if (!companyConfig.isChestShopEnabled()) return;
         Account account = event.getAccount();
         // Check if this is a company shop and if the player has permission

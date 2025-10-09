@@ -11,6 +11,7 @@ import java.util.logging.Logger;
  * This seeder iterates through all Material values and creates ITEM instruments
  * for each valid item (excluding AIR, legacy, and non-items).
  */
+@SuppressWarnings("unused")
 public class ItemSeeder {
     
     private static final Logger logger = Logger.getLogger(ItemSeeder.class.getName());
@@ -75,8 +76,7 @@ public class ItemSeeder {
     private boolean seedSingleItem(String materialName) throws SQLException {
         String symbol = "MC_" + materialName; // UPPERCASE, unique
         String displayName = WordUtils.capitalizeFully(materialName.replace('_', ' '));
-        String mcMaterial = materialName;
-        
+
         // Check if symbol already exists (upsert behavior)
         if (instrumentExists(symbol)) {
             logger.fine("Skipping existing instrument: " + symbol);
@@ -94,8 +94,8 @@ public class ItemSeeder {
             instrumentId, 
             "ITEM", 
             symbol, 
-            displayName, 
-            mcMaterial, 
+            displayName,
+                materialName,
             0, // decimals = 0 for items
             currentTime
         );

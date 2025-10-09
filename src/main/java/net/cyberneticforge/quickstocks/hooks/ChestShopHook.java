@@ -17,6 +17,7 @@ import java.util.logging.Logger;
  * Integration hook for ChestShop plugin to handle company-owned shops.
  * This class provides utility methods for ChestShop integration.
  */
+@SuppressWarnings("unused")
 public class ChestShopHook {
     
     private static final Logger logger = Logger.getLogger(ChestShopHook.class.getName());

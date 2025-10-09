@@ -1,14 +1,20 @@
 package net.cyberneticforge.quickstocks.api.events;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event fired when a custom cryptocurrency is created.
  * This event is cancellable - cancel to prevent crypto creation.
  */
+@Getter
+@Setter
+@SuppressWarnings("unused")
 public class CryptoCreateEvent extends Event implements Cancellable {
     
     private static final HandlerList HANDLERS = new HandlerList();
@@ -24,26 +30,7 @@ public class CryptoCreateEvent extends Event implements Cancellable {
         this.symbol = symbol;
         this.name = name;
     }
-    
-    public Player getCreator() {
-        return creator;
-    }
-    
-    public String getSymbol() {
-        return symbol;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public String getCryptoId() {
-        return cryptoId;
-    }
-    
-    public void setCryptoId(String cryptoId) {
-        this.cryptoId = cryptoId;
-    }
+
     
     @Override
     public boolean isCancelled() {
@@ -56,11 +43,7 @@ public class CryptoCreateEvent extends Event implements Cancellable {
     }
     
     @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-    
-    public static HandlerList getHandlerList() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 }

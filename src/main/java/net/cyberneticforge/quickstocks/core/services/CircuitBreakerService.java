@@ -174,6 +174,7 @@ public class CircuitBreakerService {
     /**
          * Information about a trading halt.
          */
+        @SuppressWarnings("unused")
         public record HaltInfo(int level, long startTs, Long endTs, double sessionOpen, double triggerPrice) {
 
         public boolean isIndefinite() {

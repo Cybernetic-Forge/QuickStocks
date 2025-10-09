@@ -12,6 +12,7 @@ import java.util.logging.Logger;
  * when there is low trading activity. Provides configurable dampening based on
  * volume and price thresholds.
  */
+@SuppressWarnings("unused")
 public class PriceThresholdController {
     
     private static final Logger logger = Logger.getLogger(PriceThresholdController.class.getName());

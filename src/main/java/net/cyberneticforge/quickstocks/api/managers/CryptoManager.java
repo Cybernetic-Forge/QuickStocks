@@ -11,6 +11,7 @@ import java.util.Optional;
  * API Manager for cryptocurrency operations.
  * Provides a high-level interface for external plugins to interact with the crypto system.
  */
+@SuppressWarnings("unused")
 public class CryptoManager {
     
     private final CryptoService cryptoService;

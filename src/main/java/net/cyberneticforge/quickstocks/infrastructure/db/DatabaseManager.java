@@ -7,6 +7,7 @@ import java.util.logging.Logger;
  * Central database manager that coordinates database initialization,
  * connection pooling, and migration management.
  */
+@SuppressWarnings("unused")
 public class DatabaseManager {
     
     private static final Logger logger = Logger.getLogger(DatabaseManager.class.getName());
@@ -130,7 +131,7 @@ public class DatabaseManager {
     /**
      * Runs the item seeder to populate Minecraft items as instruments.
      */
-    private void runItemSeeder() throws SQLException {
+    private void runItemSeeder() {
         logger.info("Running item seeder...");
         ItemSeeder itemSeeder = new ItemSeeder(db);
         itemSeeder.seedItems();

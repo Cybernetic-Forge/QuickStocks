@@ -10,6 +10,8 @@ import java.util.Objects;
 /**
  * Represents a stock in the market with price history and characteristics.
  */
+@SuppressWarnings("unused")
+@Getter
 public class Stock {
     private final String symbol;
     private final String name;
@@ -102,49 +104,8 @@ public class Stock {
         this.dailyVolume = Math.max(0, volume);
     }
 
-    // Getters
-    public String getSymbol() {
-        return symbol;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getSector() {
-        return sector;
-    }
-
-    public double getCurrentPrice() {
-        return currentPrice;
-    }
-
-    public double getPreviousPrice() {
-        return previousPrice;
-    }
-
     public List<PriceHistory> getPriceHistory() {
         return new ArrayList<>(priceHistory);
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public double getDailyVolume() {
-        return dailyVolume;
-    }
-
-    public double getMarketCap() {
-        return marketCap;
-    }
-
-    public double getVolatilityRating() {
-        return volatilityRating;
     }
 
     public void setVolatilityRating(double rating) {

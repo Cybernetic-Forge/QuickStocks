@@ -192,9 +192,9 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         String name = args[1];
         String type = args[2].toUpperCase();
-        
-        Company company = QuickStocksPlugin.getCompanyService().createCompany(playerUuid, name, type);
-        
+
+        QuickStocksPlugin.getCompanyService().createCompany(playerUuid, name, type);
+
         Translation.Company_Created.sendMessage(player, new Replaceable("%company%", name));
         Translation.Company_InfoType.sendMessage(player, new Replaceable("%type%", type));
     }
@@ -309,9 +309,9 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         String targetUuid = targetPlayer.getUniqueId().toString();
         String companyId = companyOpt.get().getId();
-        
-        CompanyInvitation invitation = QuickStocksPlugin.getInvitationService().createInvitation(companyId, playerUuid, targetUuid, jobTitle);
-        
+
+        QuickStocksPlugin.getInvitationService().createInvitation(companyId, playerUuid, targetUuid, jobTitle);
+
         Translation.Company_InviteSent.sendMessage(player,
             new Replaceable("%player%", targetPlayerName),
             new Replaceable("%job%", jobTitle));

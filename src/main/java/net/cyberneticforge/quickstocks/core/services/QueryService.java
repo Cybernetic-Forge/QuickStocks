@@ -12,6 +12,7 @@ import java.util.Optional;
  * Handles data access for commands and other query operations.
  * Now supports both traditional instruments and company shares (market stocks).
  */
+@SuppressWarnings("unused")
 public class QueryService {
     
     private final Db database;

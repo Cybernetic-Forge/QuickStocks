@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 /**
  * Service for calculating analytics metrics like EWMA volatility, correlations, and Sharpe ratios.
  */
+@SuppressWarnings("unused")
 public class AnalyticsService {
     
     private static final Logger logger = Logger.getLogger(AnalyticsService.class.getName());
@@ -32,6 +33,7 @@ public class AnalyticsService {
      * @param windowMinutes Time window in minutes
      * @return Change percentage (-1.0 to +1.0)
      */
+    @SuppressWarnings("unused")
     public double getChangePct(String instrumentId, int windowMinutes) {
         try {
             long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
@@ -110,21 +112,8 @@ public class AnalyticsService {
             
             // Calculate EWMA variance
             // σ²(t) = λ × σ²(t-1) + (1-λ) × r²(t)
-            double ewmaVariance = 0.0;
-            if (returns.size() >= 2) {
-                // Initialize with sample variance of first two returns for stability
-                double mean = (returns.get(0) + returns.get(1)) / 2.0;
-                ewmaVariance = (Math.pow(returns.get(0) - mean, 2) + Math.pow(returns.get(1) - mean, 2)) / 2.0;
-            } else {
-                ewmaVariance = Math.pow(returns.getFirst(), 2); // Single return case
-            }
-            
-            // Apply EWMA to remaining returns
-            for (int i = Math.max(2, 1); i < returns.size(); i++) {
-                double returnSquared = Math.pow(returns.get(i), 2);
-                ewmaVariance = lambda * ewmaVariance + (1.0 - lambda) * returnSquared;
-            }
-            
+            double ewmaVariance = getEwmaVariance(lambda, returns);
+
             return Math.sqrt(ewmaVariance);
             
         } catch (Exception e) {
@@ -132,10 +121,29 @@ public class AnalyticsService {
             return 0.0;
         }
     }
-    
+
+    private static double getEwmaVariance(double lambda, List<Double> returns) {
+        double ewmaVariance = 0.0;
+        if (returns.size() >= 2) {
+            // Initialize with sample variance of first two returns for stability
+            double mean = (returns.get(0) + returns.get(1)) / 2.0;
+            ewmaVariance = (Math.pow(returns.get(0) - mean, 2) + Math.pow(returns.get(1) - mean, 2)) / 2.0;
+        } else {
+            ewmaVariance = Math.pow(returns.getFirst(), 2); // Single return case
+        }
+
+        // Apply EWMA to remaining returns
+        for (int i = Math.max(2, 1); i < returns.size(); i++) {
+            double returnSquared = Math.pow(returns.get(i), 2);
+            ewmaVariance = lambda * ewmaVariance + (1.0 - lambda) * returnSquared;
+        }
+        return ewmaVariance;
+    }
+
     /**
      * Overloaded method using default lambda.
      */
+    @SuppressWarnings("unused")
     public double getVolatilityEWMA(String instrumentId, int windowMinutes) {
         return getVolatilityEWMA(instrumentId, windowMinutes, defaultLambda);
     }
@@ -147,6 +155,7 @@ public class AnalyticsService {
      * @param windowMinutes Time window in minutes
      * @return Correlation coefficient (-1.0 to +1.0)
      */
+    @SuppressWarnings("unused")
     public double getCorrelation(String instrumentA, String instrumentB, int windowMinutes) {
         try {
             long windowStart = System.currentTimeMillis() - (windowMinutes * 60 * 1000L);
@@ -198,6 +207,7 @@ public class AnalyticsService {
      * @param riskFree Risk-free rate (default 0)
      * @return Sharpe ratio
      */
+    @SuppressWarnings("unused")
     public double getSharpe(String playerUuid, int windowDays, double riskFree) {
         try {
             // Query portfolio performance data for the player within the window
@@ -288,9 +298,13 @@ public class AnalyticsService {
     }
     
     // Getters for default values
+    @SuppressWarnings("unused")
     public double getDefaultLambda() { return defaultLambda; }
+    @SuppressWarnings("unused")
     public int getDefaultChangeWindow() { return defaultChangeWindow; }
+    @SuppressWarnings("unused")
     public int getDefaultVolatilityWindow() { return defaultVolatilityWindow; }
+    @SuppressWarnings("unused")
     public int getDefaultCorrelationWindow() { return defaultCorrelationWindow; }
     
     /**
@@ -301,6 +315,7 @@ public class AnalyticsService {
      * @param cashBalance Cash balance
      * @param holdingsValue Value of all holdings
      */
+    @SuppressWarnings("unused")
     public void recordPortfolioValue(String playerUuid, double totalValue, double cashBalance, double holdingsValue) {
         try {
             String id = java.util.UUID.randomUUID().toString();
@@ -325,6 +340,7 @@ public class AnalyticsService {
      * @param playerUuid Player UUID
      * @return Map containing performance metrics, or empty map if no data
      */
+    @SuppressWarnings("unused")
     public Map<String, Object> getPortfolioPerformance(String playerUuid) {
         try {
             var results = database.query("""
@@ -355,6 +371,7 @@ public class AnalyticsService {
      * @param riskFreeRate Risk-free rate for Sharpe calculation
      * @return List of player performance data ordered by Sharpe ratio (descending)
      */
+    @SuppressWarnings("unused")
     public List<Map<String, Object>> getSharpeLeaderboard(int limit, double riskFreeRate) {
         try {
             var results = database.query("""

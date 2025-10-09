@@ -1,13 +1,17 @@
 package net.cyberneticforge.quickstocks.api.events;
 
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event fired when a player leaves a company (voluntarily or kicked).
  * This event is not cancellable - the action has already been processed.
  */
+@Getter
+@SuppressWarnings("unused")
 public class CompanyEmployeeLeaveEvent extends Event {
     
     private static final HandlerList HANDLERS = new HandlerList();
@@ -24,28 +28,8 @@ public class CompanyEmployeeLeaveEvent extends Event {
         this.wasKicked = wasKicked;
     }
     
-    public String getCompanyId() {
-        return companyId;
-    }
-    
-    public String getCompanyName() {
-        return companyName;
-    }
-    
-    public Player getEmployee() {
-        return employee;
-    }
-    
-    public boolean wasKicked() {
-        return wasKicked;
-    }
-    
     @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-    
-    public static HandlerList getHandlerList() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 }

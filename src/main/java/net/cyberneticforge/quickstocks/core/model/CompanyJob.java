@@ -1,8 +1,11 @@
 package net.cyberneticforge.quickstocks.core.model;
 
+import lombok.Getter;
+
 /**
  * Represents a job title/role within a company.
  */
+@Getter
 public class CompanyJob {
     private final String id;
     private final String companyId;
@@ -34,18 +37,6 @@ public class CompanyJob {
                      boolean canManageChestShop) {
         this(id, companyId, title, canInvite, canCreateTitles, canWithdraw, 
              canManageCompany, canManageChestShop, false);
-    }
-    
-    public String getId() {
-        return id;
-    }
-    
-    public String getCompanyId() {
-        return companyId;
-    }
-    
-    public String getTitle() {
-        return title;
     }
     
     public boolean canInvite() {

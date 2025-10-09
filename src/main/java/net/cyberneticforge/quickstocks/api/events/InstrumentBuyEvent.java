@@ -1,14 +1,18 @@
 package net.cyberneticforge.quickstocks.api.events;
 
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event fired when a player buys an instrument (stock, crypto, item).
  * This event is cancellable - cancel to prevent the purchase.
  */
+@Getter
+@SuppressWarnings("unused")
 public class InstrumentBuyEvent extends Event implements Cancellable {
     
     private static final HandlerList HANDLERS = new HandlerList();
@@ -31,30 +35,6 @@ public class InstrumentBuyEvent extends Event implements Cancellable {
         this.totalCost = totalCost;
     }
     
-    public Player getBuyer() {
-        return buyer;
-    }
-    
-    public String getInstrumentId() {
-        return instrumentId;
-    }
-    
-    public String getInstrumentSymbol() {
-        return instrumentSymbol;
-    }
-    
-    public int getQuantity() {
-        return quantity;
-    }
-    
-    public double getPricePerUnit() {
-        return pricePerUnit;
-    }
-    
-    public double getTotalCost() {
-        return totalCost;
-    }
-    
     @Override
     public boolean isCancelled() {
         return cancelled;
@@ -66,11 +46,7 @@ public class InstrumentBuyEvent extends Event implements Cancellable {
     }
     
     @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-    
-    public static HandlerList getHandlerList() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 }

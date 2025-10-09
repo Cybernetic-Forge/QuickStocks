@@ -1,8 +1,11 @@
 package net.cyberneticforge.quickstocks.core.model;
 
+import lombok.Getter;
+
 /**
  * Represents a cryptocurrency instrument with its current market state.
  */
+@SuppressWarnings("unused")
 public record Crypto(Instrument instrument, InstrumentState state) {
 
     // Convenience methods

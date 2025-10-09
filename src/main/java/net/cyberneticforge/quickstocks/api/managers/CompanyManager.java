@@ -14,6 +14,7 @@ import java.util.Optional;
  * API Manager for company operations.
  * Provides a high-level interface for external plugins to interact with the company system.
  */
+@SuppressWarnings("unused")
 public class CompanyManager {
     
     private final CompanyService companyService;

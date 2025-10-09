@@ -5,6 +5,7 @@ import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 /**
  * Service for calculating trading fees based on configuration.
  */
+@SuppressWarnings("unused")
 public class FeeService {
     
     private final TradingConfig.FeeConfig feeConfig;

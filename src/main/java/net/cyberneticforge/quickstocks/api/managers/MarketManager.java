@@ -15,6 +15,7 @@ import java.util.Optional;
  * API Manager for market and instrument operations.
  * Provides a high-level interface for external plugins to interact with the market system.
  */
+@SuppressWarnings("unused")
 public class MarketManager {
     
     private final StockMarketService stockMarketService;
@@ -62,7 +63,6 @@ public class MarketManager {
      * Gets all instruments.
      * 
      * @return List of all instruments
-     * @throws SQLException if database error occurs
      */
     public List<Instrument> getAllInstruments() {
         return instrumentService.getAllInstruments().values().stream().toList();

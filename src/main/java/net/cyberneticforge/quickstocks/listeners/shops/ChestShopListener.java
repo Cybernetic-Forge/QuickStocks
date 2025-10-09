@@ -27,13 +27,11 @@ public class ChestShopListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(ChestShopListener.class.getName());
 
-    private final QuickStocksPlugin plugin;
     private final CompanyService companyService;
     private final CompanyConfig companyConfig;
     private final ChestShopAccountProvider accountProvider;
     
-    public ChestShopListener(QuickStocksPlugin plugin, CompanyService companyService, CompanyConfig companyConfig, ChestShopAccountProvider accountProvider) {
-        this.plugin = plugin;
+    public ChestShopListener(CompanyService companyService, CompanyConfig companyConfig, ChestShopAccountProvider accountProvider) {
         this.companyService = companyService;
         this.companyConfig = companyConfig;
         this.accountProvider = accountProvider;
@@ -48,7 +46,9 @@ public class ChestShopListener implements Listener {
      * Line 2: Price (B price:S price)
      * Line 3: Item name
      */
+
     @EventHandler(priority = EventPriority.LOWEST)
+    @SuppressWarnings("deprecation")
     public void onSignChange(SignChangeEvent event) {
         // Only process if ChestShop is hooked and enabled
         if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
@@ -104,6 +104,7 @@ public class ChestShopListener implements Listener {
      * This event fires after ChestShop has validated and created the shop.
      */
     @EventHandler(priority = EventPriority.MONITOR)
+    @SuppressWarnings("deprecation")
     public void onShopCreated(ShopCreatedEvent event) {
         // Only process if ChestShop is hooked and enabled
         if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;

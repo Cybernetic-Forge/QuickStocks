@@ -4,6 +4,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -200,7 +201,7 @@ public class TradingService {
      * Executes an enhanced order with full economy features.
      * Only available if TradingConfig was provided during construction.
      */
-    public TradeResult executeOrder(OrderRequest orderRequest) throws SQLException {
+    public TradeResult executeOrder(OrderRequest orderRequest) {
         if (enhancedTradingService == null) {
             throw new UnsupportedOperationException("Enhanced trading features not available. Provide TradingConfig during construction.");
         }
@@ -215,22 +216,7 @@ public class TradingService {
         // Use enhanced service if available for richer order data
         if (enhancedTradingService != null) {
             List<EnhancedTradingService.Order> enhancedOrders = enhancedTradingService.getOrderHistory(playerUuid, limit);
-            List<Order> orders = new ArrayList<>();
-
-            // Convert enhanced orders to legacy format
-            for (EnhancedTradingService.Order enhancedOrder : enhancedOrders) {
-                orders.add(new Order(
-                        enhancedOrder.id(),
-                        enhancedOrder.instrumentId(),
-                        enhancedOrder.symbol(),
-                        enhancedOrder.displayName(),
-                        enhancedOrder.side(),
-                        enhancedOrder.qty(),
-                        enhancedOrder.executionPrice(), // Use execution price instead of original price
-                        enhancedOrder.timestamp()
-                ));
-            }
-            return orders;
+            return getOrders(enhancedOrders);
         }
 
         // Legacy implementation with enhanced field support
@@ -266,6 +252,25 @@ public class TradingService {
             ));
         }
 
+        return orders;
+    }
+
+    private static @NotNull List<Order> getOrders(List<EnhancedTradingService.Order> enhancedOrders) {
+        List<Order> orders = new ArrayList<>();
+
+        // Convert enhanced orders to legacy format
+        for (EnhancedTradingService.Order enhancedOrder : enhancedOrders) {
+            orders.add(new Order(
+                    enhancedOrder.id(),
+                    enhancedOrder.instrumentId(),
+                    enhancedOrder.symbol(),
+                    enhancedOrder.displayName(),
+                    enhancedOrder.side(),
+                    enhancedOrder.qty(),
+                    enhancedOrder.executionPrice(), // Use execution price instead of original price
+                    enhancedOrder.timestamp()
+            ));
+        }
         return orders;
     }
 

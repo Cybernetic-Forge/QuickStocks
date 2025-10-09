@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 /**
  * Service for managing companies and their operations.
  */
+@SuppressWarnings("SameParameterValue")
 public class CompanyService {
     
     private static final Logger logger = Logger.getLogger(CompanyService.class.getName());

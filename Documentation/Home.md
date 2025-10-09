@@ -185,11 +185,6 @@ Server setup and maintenance:
 
 ---
 
-<p align="center">
-  <strong>Ready to transform your Minecraft economy?</strong><br>
-  <a href="Installation">Install QuickStocks →</a> | <a href="Getting-Started">Getting Started →</a>
-</p>
-
 ---
 
 *Last updated: 2024 | QuickStocks v1.0.0-SNAPSHOT*

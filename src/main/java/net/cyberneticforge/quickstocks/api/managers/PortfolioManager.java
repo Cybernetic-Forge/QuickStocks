@@ -9,6 +9,7 @@ import java.util.List;
  * API Manager for portfolio and holdings operations.
  * Provides a high-level interface for external plugins to interact with player portfolios.
  */
+@SuppressWarnings("unused")
 public class PortfolioManager {
     
     private final HoldingsService holdingsService;

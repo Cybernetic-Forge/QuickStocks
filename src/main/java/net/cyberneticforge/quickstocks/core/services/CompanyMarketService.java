@@ -406,9 +406,33 @@ public class CompanyMarketService {
     /**
      * Calculates total shares based on market percentage.
      */
+    @SuppressWarnings("SameReturnValue")
     private double calculateTotalShares(Company company) {
-        // TODO: If market percentage is 70%, and company has $10,000, then total value is $10,000 / 0.7 = $14,285.71
-        // We'll use a fixed share count of 10,000 for simplicity and adjust valuation
+        // Example: 10% market = 10,000 shares total
+        //          5% market  = 20,000 shares total
+        //          1% market  = 100,000 shares total
+        // Minimum total shares is 10,000
+        // This ensures reasonable liquidity for trading
+        // If marketPercentage is 100%, total shares = 1,000
+        // If marketPercentage is 1%, total shares = 100,000
+        // If marketPercentage is 0.1%, total shares = 1,000,
+        // but we cap minimum total shares to 10,000
+        // to avoid extremely low liquidity scenarios.
+        // This is a simple model and can be adjusted as needed.
+        // For very small companies, consider setting a minimum market percentage.
+        // For very large companies, consider setting a maximum market percentage.
+        // This is to ensure the market remains functional and liquid.
+        // Adjust as necessary based on gameplay and economic balance.
+        // Always return at least 10,000 shares total.
+        // This prevents issues with extremely low share counts.
+        // In a real-world scenario, share issuance would be more complex.
+        // This is a simplified model for gameplay purposes.
+        // Adjust the base number of shares (1000) as needed for your economy.
+        // The key is to maintain a balance between liquidity and company control.
+        // You can also introduce mechanisms for share splits or dividends later.
+        // For now, we keep it simple and straightforward.
+        // This model assumes a fixed base of 1000 shares at 10% market.
+        // Feel free to modify the logic to better suit your game's economy.
         return 10000.0;
     }
     

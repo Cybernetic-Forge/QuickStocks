@@ -14,6 +14,7 @@ import java.util.logging.Logger;
  * Provides ChestShop with company account information.
  * This allows ChestShop to recognize company names as valid shop owners.
  */
+@SuppressWarnings("unused")
 public class ChestShopAccountProvider {
     
     private static final Logger logger = Logger.getLogger(ChestShopAccountProvider.class.getName());

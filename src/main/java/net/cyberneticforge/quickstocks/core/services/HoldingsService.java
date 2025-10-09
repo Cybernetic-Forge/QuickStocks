@@ -119,6 +119,7 @@ public class HoldingsService {
      * Removes shares from a holding (for SELL orders).
      * @return true if successful, false if insufficient shares
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean removeHolding(String playerUuid, String instrumentId, double qty) throws SQLException {
         Holding existing = getHolding(playerUuid, instrumentId);
         

@@ -49,20 +49,14 @@ public class PortfolioGUI implements InventoryHolder {
      */
     private void setupGUI() {
         try {
-            String playerUuid = player.getUniqueId().toString();
-
             // Add wallet info (top left)
             addWalletInfo();
-
             // Add portfolio summary (top right)
             addPortfolioSummary();
-
             // Add holdings
             addHoldings();
-
             // Add navigation buttons
             addNavigationButtons();
-
         } catch (Exception e) {
             logger.warning("Error setting up Portfolio GUI for " + player.getName() + ": " + e.getMessage());
             String errorMsg = QuickStocksPlugin.getGuiConfig().getConfig().getString("portfolio.error_message", "&cFailed to load portfolio data.");
@@ -276,7 +270,7 @@ public class PortfolioGUI implements InventoryHolder {
         if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
             return null;
         }
-
+        // TODO Proper gui handling
         String displayName = item.getItemMeta().getDisplayName();
         return ChatUT.extractText(displayName);
     }
