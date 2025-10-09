@@ -350,16 +350,18 @@ public class YourCommand implements CommandExecutor, TabCompleter {
 - Ignore thread safety in multi-player environment
 - Modify existing working functionality unnecessarily
 - Duplicate code across services - use delegation or extraction instead
+- Add redundant @SuppressWarnings at method level when class already has it
 
 ### When Working on This Project:
 1. **Always update these instructions** when making significant changes
 2. **Maintain the IoC architecture** - new features should follow the established patterns
 3. **Use the database layer** - all persistence should go through the infrastructure.db package
 4. **Follow migration patterns** - schema changes require new migration files (V2__*.sql, etc.)
-5. **Document breaking changes** in the section below
-6. **Test thoroughly** using the simulation test before deploying changes
-7. **Consider performance impact** - this runs in a game server environment
-8. **Preserve realism** - market behavior should remain realistic
+5. **Avoid code duplication** - delegate to existing services, extract common code to utilities
+6. **Document breaking changes** in the section below
+7. **Test thoroughly** using the simulation test before deploying changes
+8. **Consider performance impact** - this runs in a game server environment
+9. **Preserve realism** - market behavior should remain realistic
 
 ### Code Standards:
 - Use clear, descriptive variable and method names
