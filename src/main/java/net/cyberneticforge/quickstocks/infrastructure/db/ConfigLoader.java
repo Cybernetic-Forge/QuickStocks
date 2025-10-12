@@ -17,13 +17,13 @@ public class ConfigLoader {
     private static final Logger logger = Logger.getLogger(ConfigLoader.class.getName());
     
     /**
-     * Loads database configuration from config.yml or falls back to defaults.
+     * Loads database configuration from config.yml and market.yml or falls back to defaults.
      */
     public static DatabaseConfig loadDatabaseConfig() {
         DatabaseConfig config = new DatabaseConfig();
         
         try {
-            // Try to load from file system first (plugin directory)
+            // Load from config.yml (database and features settings)
             File configFile = new File("plugins/QuickStocks/config.yml");
             if (configFile.exists()) {
                 loadFromFile(config, configFile);
@@ -34,6 +34,18 @@ public class ConfigLoader {
                     loadFromStream(config, stream);
                 } else {
                     logger.warning("No config.yml found, using defaults");
+                }
+            }
+            
+            // Load from market.yml (price threshold settings)
+            File marketFile = new File("plugins/QuickStocks/market.yml");
+            if (marketFile.exists()) {
+                loadFromFile(config, marketFile);
+            } else {
+                // Try to load from classpath
+                InputStream stream = ConfigLoader.class.getResourceAsStream("/market.yml");
+                if (stream != null) {
+                    loadFromStream(config, stream);
                 }
             }
         } catch (Exception e) {

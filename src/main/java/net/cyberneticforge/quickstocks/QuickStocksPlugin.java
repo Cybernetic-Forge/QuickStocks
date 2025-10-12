@@ -7,8 +7,7 @@ import net.cyberneticforge.quickstocks.core.services.*;
 import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookManager;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
-import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.*;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
@@ -75,6 +74,12 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static HookManager hookManager;
     @Getter
     private static MetricsService metricsService;
+    @Getter
+    private static MarketCfg marketCfg;
+    @Getter
+    private static TradingCfg tradingCfg;
+    @Getter
+    private static CompanyCfg companyCfg;
 
     @Override
     public void onEnable() {
@@ -93,8 +98,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Initialize database
             initializeDatabase();
             
-            // Initialize GUI configuration manager
+            // Initialize configuration managers
             guiConfig = new GuiConfig();
+            marketCfg = new MarketCfg();
+            tradingCfg = new TradingCfg();
+            companyCfg = new CompanyCfg();
             
             // Load configuration for threshold controller
             DatabaseConfig config = ConfigLoader.loadDatabaseConfig();
@@ -103,8 +111,14 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Initialize the stock market service with threshold controller
             stockMarketService = new StockMarketService(thresholdController);
             
-            // Initialize analytics service
-            analyticsService = new AnalyticsService(databaseManager.getDb(), 0.94, 60, 1440, 1440);
+            // Initialize analytics service using values from market config
+            analyticsService = new AnalyticsService(
+                databaseManager.getDb(), 
+                marketCfg.getAnalyticsLambda(), 
+                60, 
+                marketCfg.getAnalyticsChangeWindow(), 
+                marketCfg.getAnalyticsVolatilityWindow()
+            );
             
             // Initialize simulation engine
             simulationEngine = new SimulationEngine(databaseManager.getDb(), analyticsService);
@@ -118,12 +132,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Initialize wallet service
             walletService = new WalletService(databaseManager.getDb());
 
-            // Initialize company services
-            CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
-            companyService = new CompanyService(databaseManager.getDb(), companyConfig);
+            // Initialize company services using company config
+            companyService = new CompanyService(databaseManager.getDb(), companyCfg.getCompanyConfig());
             invitationService = new InvitationService(databaseManager.getDb());
-            companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyConfig);
-            salaryService = new SalaryService(databaseManager.getDb(), companyConfig, companyService);
+            companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyCfg.getCompanyConfig());
+            salaryService = new SalaryService(databaseManager.getDb(), companyCfg.getCompanyConfig(), companyService);
 
             // Initialize holdings service
             holdingsService = new HoldingsService(databaseManager.getDb());
