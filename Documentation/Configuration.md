@@ -8,11 +8,25 @@ QuickStocks uses these configuration files:
 
 ```
 plugins/QuickStocks/
-├── config.yml          # Main configuration
+├── config.yml          # Database and features configuration
+├── market.yml          # Market, market device, and analytics settings
+├── trading.yml         # Trading economy configuration
+├── companies.yml       # Companies/corporations configuration
+├── guis.yml            # GUI customization
 └── Translations.yml    # Language translations
 ```
 
 **After changes:** Restart server or use `/quickstocks reload`
+
+### 🔄 Migration from Single config.yml
+
+**Note:** Starting with this version, configuration has been split into multiple files for better organization:
+- **config.yml** - Core settings (database, features, metrics)
+- **market.yml** - Market behavior, market device, and analytics
+- **trading.yml** - Trading fees, limits, circuit breakers, and order types
+- **companies.yml** - Company system, salaries, and permissions
+
+**For existing installations:** The plugin will automatically create the new config files (market.yml, trading.yml, companies.yml) with default values on first run. Your existing config.yml will be automatically updated to remove the migrated sections. You may want to copy your custom settings from the old config.yml to the appropriate new files.
 
 ---
 
@@ -137,6 +151,8 @@ features:
 
 ## 📈 Market Configuration
 
+**Configuration File:** `market.yml`
+
 Controls market simulation and price behavior.
 
 ### Basic Market Settings
@@ -227,6 +243,8 @@ market:
 
 ## 📱 Market Device Configuration
 
+**Configuration File:** `market.yml`
+
 Configure the Market Link Device item.
 
 ```yaml
@@ -260,6 +278,8 @@ marketDevice:
 ---
 
 ## 📊 Analytics Configuration
+
+**Configuration File:** `market.yml`
 
 Configure market analytics and calculations.
 
@@ -334,6 +354,8 @@ Set `enabled: false` to opt-out of data collection. You can also disable bStats 
 ---
 
 ## 💰 Trading Configuration
+
+**Configuration File:** `trading.yml`
 
 Configure trading fees, limits, and safeguards.
 
@@ -487,6 +509,8 @@ trading:
 ---
 
 ## 🏢 Companies Configuration
+
+**Configuration File:** `companies.yml`
 
 Configure company/corporation system.
 
@@ -716,7 +740,7 @@ trading:
 
 ## 🔄 Reloading Configuration
 
-After editing config.yml:
+After editing any configuration file (config.yml, market.yml, trading.yml, companies.yml):
 
 **Option 1: Restart Server**
 ```bash
