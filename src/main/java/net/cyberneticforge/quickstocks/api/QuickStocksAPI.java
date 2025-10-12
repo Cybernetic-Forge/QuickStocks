@@ -44,22 +44,13 @@ public class QuickStocksAPI {
     private final MarketManager marketManager;
     /**
      * -- GETTER --
-     *  Gets the Wallet Manager for wallet and balance operations.
-     */
-    private final WalletManager walletManager;
-    /**
-     * -- GETTER --
-     *  Gets the Watchlist Manager for watchlist operations.
-     */
-    private final WatchlistManager watchlistManager;
-    /**
-     * -- GETTER --
      *  Gets the Crypto Manager for cryptocurrency operations.
      */
     private final CryptoManager cryptoManager;
     /**
      * -- GETTER --
      *  Gets the Portfolio Manager for portfolio and holdings operations.
+     *  Also includes the watch lists and the wallets.
      */
     private final PortfolioManager portfolioManager;
     
@@ -79,10 +70,8 @@ public class QuickStocksAPI {
         this.companyManager = new CompanyManager(companyService, companyMarketService);
         this.tradingManager = new TradingManager(tradingService, holdingsService);
         this.marketManager = new MarketManager(stockMarketService, instrumentService);
-        this.walletManager = new WalletManager(walletService);
-        this.watchlistManager = new WatchlistManager(watchlistService);
         this.cryptoManager = new CryptoManager(cryptoService);
-        this.portfolioManager = new PortfolioManager(holdingsService);
+        this.portfolioManager = new PortfolioManager(walletService, holdingsService, watchlistService);
     }
     
     /**

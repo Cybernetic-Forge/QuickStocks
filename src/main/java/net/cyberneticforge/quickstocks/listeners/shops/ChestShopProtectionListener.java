@@ -7,7 +7,7 @@ import com.Acrobot.ChestShop.Utils.uBlock;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookType;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Sign;
 import org.bukkit.event.Event;
@@ -22,11 +22,10 @@ import org.bukkit.event.Listener;
 public class ChestShopProtectionListener implements Listener {
 
     private final ChestShopHook chestShopHook;
-    private final CompanyConfig companyConfig;
-    
-    public ChestShopProtectionListener(ChestShopHook chestShopHook, CompanyConfig companyConfig) {
+    private final CompanyCfg companyConfig = QuickStocksPlugin.getCompanyCfg();
+
+    public ChestShopProtectionListener(ChestShopHook chestShopHook) {
         this.chestShopHook = chestShopHook;
-        this.companyConfig = companyConfig;
     }
     
     /**

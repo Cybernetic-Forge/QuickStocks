@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Instrument;
 import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.core.model.PriceHistory;
@@ -19,12 +20,11 @@ public class InstrumentPersistenceService {
     
     private static final Logger logger = Logger.getLogger(InstrumentPersistenceService.class.getName());
     
-    private final Db database;
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     private final Map<String, Instrument> symbolToInstrumentMap = new HashMap<>(); // symbol -> Instrument
     private final Map<String, Instrument> idToInstrumentMap = new HashMap<>(); // id -> Instrument
     
-    public InstrumentPersistenceService(Db database) {
-        this.database = database;
+    public InstrumentPersistenceService() {
         loadExistingMappings();
     }
     

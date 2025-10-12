@@ -1,14 +1,14 @@
 package net.cyberneticforge.quickstocks;
 
 import lombok.Getter;
+import net.cyberneticforge.quickstocks.api.QuickStocksAPI;
 import net.cyberneticforge.quickstocks.commands.*;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
 import net.cyberneticforge.quickstocks.core.services.*;
 import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookManager;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
-import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.*;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
@@ -33,6 +33,16 @@ public final class QuickStocksPlugin extends JavaPlugin {
 
     @Getter
     private static JavaPlugin instance;
+
+    /* Configurations */
+    @Getter
+    private static MarketCfg marketCfg;
+    @Getter
+    private static TradingCfg tradingCfg;
+    @Getter
+    private static CompanyCfg companyCfg;
+
+    /* Services */
     @Getter
     private static TranslationService translationService;
     @Getter
@@ -92,76 +102,45 @@ public final class QuickStocksPlugin extends JavaPlugin {
 
             // Initialize database
             initializeDatabase();
-            
-            // Initialize GUI configuration manager
+
             guiConfig = new GuiConfig();
-            
-            // Load configuration for threshold controller
+            marketCfg = new MarketCfg();
+            tradingCfg = new TradingCfg();
+            companyCfg = new CompanyCfg();
+
             DatabaseConfig config = ConfigLoader.loadDatabaseConfig();
             PriceThresholdController thresholdController = new PriceThresholdController(config);
-            
-            // Initialize the stock market service with threshold controller
+
             stockMarketService = new StockMarketService(thresholdController);
-            
-            // Initialize analytics service
-            analyticsService = new AnalyticsService(databaseManager.getDb(), 0.94, 60, 1440, 1440);
-            
-            // Initialize simulation engine
-            simulationEngine = new SimulationEngine(databaseManager.getDb(), analyticsService);
-            
-            // Initialize query service
-            queryService = new QueryService(databaseManager.getDb());
-            
-            // Initialize crypto service
-            cryptoService = new CryptoService(databaseManager.getDb());
-            
-            // Initialize wallet service
-            walletService = new WalletService(databaseManager.getDb());
+            analyticsService = new AnalyticsService();
+            simulationEngine = new SimulationEngine();
+            queryService = new QueryService();
+            cryptoService = new CryptoService();
+            walletService = new WalletService();
+            companyService = new CompanyService();
+            invitationService = new InvitationService();
+            companyMarketService = new CompanyMarketService();
+            salaryService = new SalaryService();
+            holdingsService = new HoldingsService();
+            tradingService = new TradingService();
+            watchlistService = new WatchlistService();
+            auditService = new AuditService();
+            instrumentPersistenceService = new InstrumentPersistenceService();
+            tradingService.setStockMarketService(new StockMarketService());
 
-            // Initialize company services
-            CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
-            companyService = new CompanyService(databaseManager.getDb(), companyConfig);
-            invitationService = new InvitationService(databaseManager.getDb());
-            companyMarketService = new CompanyMarketService(databaseManager.getDb(), companyConfig);
-            salaryService = new SalaryService(databaseManager.getDb(), companyConfig, companyService);
-
-            // Initialize holdings service
-            holdingsService = new HoldingsService(databaseManager.getDb());
-            
-            // Initialize trading service
-            tradingService = new TradingService(databaseManager.getDb());
-            
-            // Initialize watchlist service
-            watchlistService = new WatchlistService(databaseManager);
-
-            // Initialize audit service
-            auditService = new AuditService(databaseManager.getDb());
-
-            // Initialize instrument persistence service
-            instrumentPersistenceService = new InstrumentPersistenceService(databaseManager.getDb());
-
-            // Connect trading service to market service for threshold tracking
-            tradingService.setStockMarketService(stockMarketService);
-            
-            // Add some default stocks for demonstration
             initializeDefaultStocks();
-            
-            // Register commands
             registerCommands();
-
-            // Register listeners
             registerListeners();
-            
-            // Start the simulation engine
             simulationEngine.start();
-            
-            // Start salary payment scheduler (check every 5 minutes)
+
             startSalaryPaymentScheduler();
-            // Initialize bStats metrics if enabled
+
             if (getConfig().getBoolean("metrics.enabled", true)) {
                 metricsService = new MetricsService();
                 metricsService.initialize();
             }
+
+            QuickStocksAPI.initialize(companyService, companyMarketService, tradingService, holdingsService, stockMarketService, instrumentPersistenceService, walletService, watchlistService, cryptoService);
             
             getLogger().info("QuickStocks enabled successfully! Market is now running.");
             
@@ -247,36 +226,20 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Registers event listeners with the server.
      */
     private void registerListeners() {
-        MarketDeviceListener deviceListener = new MarketDeviceListener();
-
-        // Register GUI listeners for the new market interface
-        MarketGUIListener marketGUIListener = new MarketGUIListener();
-        PortfolioGUIListener portfolioGUIListener = new PortfolioGUIListener();
-        CompanySettingsGUIListener companySettingsGUIListener = new CompanySettingsGUIListener();
-        
-        getServer().getPluginManager().registerEvents(deviceListener, this);
-        getServer().getPluginManager().registerEvents(marketGUIListener, this);
-        getServer().getPluginManager().registerEvents(portfolioGUIListener, this);
-        getServer().getPluginManager().registerEvents(companySettingsGUIListener, this);
+        getServer().getPluginManager().registerEvents(new MarketDeviceListener(), this);
+        getServer().getPluginManager().registerEvents(new MarketGUIListener(), this);
+        getServer().getPluginManager().registerEvents(new PortfolioGUIListener(), this);
+        getServer().getPluginManager().registerEvents(new CompanySettingsGUIListener(), this);
         
         // Register ChestShop integration listeners if ChestShop is hooked
         if (hookManager.isHooked(net.cyberneticforge.quickstocks.hooks.HookType.ChestShop)) {
-            CompanyConfig companyConfig = new CompanyConfig(); // TODO: Load from config
             ChestShopHook chestShopHook = new ChestShopHook(companyService);
-            
             // Register company names as valid ChestShop accounts
             ChestShopAccountProvider accountProvider = new ChestShopAccountProvider(companyService);
             accountProvider.registerWithChestShop();
-            
-            ChestShopListener chestShopListener = new ChestShopListener(companyService, companyConfig, accountProvider);
-            ChestShopTransactionListener chestShopTransactionListener = 
-                new ChestShopTransactionListener(chestShopHook, companyConfig, walletService);
-            ChestShopProtectionListener chestShopProtectionListener =
-                new ChestShopProtectionListener(chestShopHook, companyConfig);
-            
-            getServer().getPluginManager().registerEvents(chestShopListener, this);
-            getServer().getPluginManager().registerEvents(chestShopTransactionListener, this);
-            getServer().getPluginManager().registerEvents(chestShopProtectionListener, this);
+            getServer().getPluginManager().registerEvents(new ChestShopListener(accountProvider), this);
+            getServer().getPluginManager().registerEvents(new ChestShopTransactionListener(chestShopHook), this);
+            getServer().getPluginManager().registerEvents(new ChestShopProtectionListener(chestShopHook), this);
             getLogger().info("Registered ChestShop integration listeners and account provider");
         }
         

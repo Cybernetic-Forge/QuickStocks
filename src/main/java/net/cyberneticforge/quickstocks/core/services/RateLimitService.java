@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
@@ -11,13 +12,8 @@ import java.util.Map;
  */
 public class RateLimitService {
 
-    private final Db database;
-    private final TradingConfig.LimitsConfig limitsConfig;
-
-    public RateLimitService(Db database, TradingConfig.LimitsConfig limitsConfig) {
-        this.database = database;
-        this.limitsConfig = limitsConfig;
-    }
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
+    private final TradingCfg.LimitsConfig limitsConfig = QuickStocksPlugin.getTradingCfg().getLimitsConfig();
 
     /**
      * Checks if a trade is allowed based on quantity, notional limits, and cooldown.

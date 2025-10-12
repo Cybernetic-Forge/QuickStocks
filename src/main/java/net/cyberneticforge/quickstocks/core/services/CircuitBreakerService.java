@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
@@ -16,13 +17,8 @@ import java.util.UUID;
  */
 public class CircuitBreakerService {
     
-    private final Db database;
-    private final TradingConfig.CircuitBreakerConfig circuitBreakerConfig;
-    
-    public CircuitBreakerService(Db database, TradingConfig.CircuitBreakerConfig circuitBreakerConfig) {
-        this.database = database;
-        this.circuitBreakerConfig = circuitBreakerConfig;
-    }
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
+    private final TradingCfg.CircuitBreakerConfig circuitBreakerConfig = QuickStocksPlugin.getTradingCfg().getCircuitBreakersConfig();
     
     /**
      * Checks if trading is currently halted for an instrument.

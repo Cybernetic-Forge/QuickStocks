@@ -6,10 +6,8 @@ import com.Acrobot.ChestShop.Events.Economy.CurrencyTransferEvent;
 import com.Acrobot.ChestShop.Events.TransactionEvent;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
-import net.cyberneticforge.quickstocks.core.services.WalletService;
 import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookType;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,13 +29,9 @@ public class ChestShopTransactionListener implements Listener {
     private static final Logger logger = Logger.getLogger(ChestShopTransactionListener.class.getName());
 
     private final ChestShopHook chestShopHook;
-    private final CompanyConfig companyConfig;
-    private final WalletService walletService;
     
-    public ChestShopTransactionListener(ChestShopHook chestShopHook, CompanyConfig companyConfig, WalletService walletService) {
+    public ChestShopTransactionListener(ChestShopHook chestShopHook) {
         this.chestShopHook = chestShopHook;
-        this.companyConfig = companyConfig;
-        this.walletService = walletService;
     }
 
     /**
@@ -48,7 +42,7 @@ public class ChestShopTransactionListener implements Listener {
     public void onAccountCheck(AccountCheckEvent event) {
         // Only process if ChestShop is hooked and enabled
         if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
-        if (!companyConfig.isChestShopEnabled()) return;
+        if (!QuickStocksPlugin.getCompanyService().getConfig().isChestShopEnabled()) return;
 
         try {
             Company company = chestShopHook.getCompanyByAccountId(event.getAccount());
@@ -68,13 +62,13 @@ public class ChestShopTransactionListener implements Listener {
     public void onCurrencyCheck(CurrencyCheckEvent event) {
         // Only process if ChestShop is hooked and enabled
         if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
-        if (!companyConfig.isChestShopEnabled()) return;
+        if (!QuickStocksPlugin.getCompanyService().getConfig().isChestShopEnabled()) return;
 
         try {
             Company company = chestShopHook.getCompanyByAccountId(event.getAccount());
             if (company != null) {
                 double balance = company.getBalance();
-                if( balance < companyConfig.getChestShopCompanyMinBalance() || balance < event.getAmount().doubleValue()) {
+                if( balance < QuickStocksPlugin.getCompanyService().getConfig().getChestShopCompanyMinBalance() || balance < event.getAmount().doubleValue()) {
                     event.hasEnough(false);
                     return;
                 }
@@ -93,7 +87,7 @@ public class ChestShopTransactionListener implements Listener {
     public void onCurrencyTransfer(CurrencyTransferEvent event) {
         // Only process if ChestShop is hooked and enabled
         if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
-        if (!companyConfig.isChestShopEnabled()) return;
+        if (!QuickStocksPlugin.getCompanyService().getConfig().isChestShopEnabled()) return;
         
         try {
             UUID receiverUUID = event.getReceiver();
@@ -142,7 +136,7 @@ public class ChestShopTransactionListener implements Listener {
             if (receiverPlayer != null && senderCompany != null) {
                 try {
                     String playerUuid = receiverPlayer.getUniqueId().toString();
-                    walletService.addBalance(playerUuid, amount.doubleValue());
+                    QuickStocksPlugin.getWalletService().addBalance(playerUuid, amount.doubleValue());
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Error adding balance to player", e);
                     event.setHandled(true);
@@ -154,7 +148,7 @@ public class ChestShopTransactionListener implements Listener {
             if (senderPlayer != null && receiverCompany != null) {
                 try {
                     String playerUuid = senderPlayer.getUniqueId().toString();
-                    if (walletService.removeBalance(playerUuid, amount.doubleValue())) {
+                    if (QuickStocksPlugin.getWalletService().removeBalance(playerUuid, amount.doubleValue())) {
                         logger.info("Removed $" + amount + " from player " + senderPlayer.getName());
                     } else {
                         event.setHandled(true);
@@ -179,7 +173,7 @@ public class ChestShopTransactionListener implements Listener {
     public void onTransaction(TransactionEvent event) {
         // Only process if ChestShop is hooked and enabled
         if (!QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) return;
-        if (!companyConfig.isChestShopEnabled()) return;
+        if (!QuickStocksPlugin.getCompanyService().getConfig().isChestShopEnabled()) return;
         
         try {
             String ownerName = event.getOwnerAccount().getName();

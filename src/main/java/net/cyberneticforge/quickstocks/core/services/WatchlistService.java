@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 
 import java.sql.Connection;
@@ -18,11 +19,7 @@ public class WatchlistService {
     
     private static final Logger logger = Logger.getLogger(WatchlistService.class.getName());
     
-    private final DatabaseManager databaseManager;
-    
-    public WatchlistService(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
-    }
+    private final DatabaseManager databaseManager = QuickStocksPlugin.getDatabaseManager();
     
     /**
      * Adds an instrument to a player's watchlist.

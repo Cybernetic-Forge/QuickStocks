@@ -66,26 +66,22 @@ src/main/java/net/cyberneticforge/quickstocks/
 
 ```java
 // Models scattered across two packages
-import net.cyberneticforge.quickstocks.core.model.Company;
+
 import net.cyberneticforge.quickstocks.core.models.Stock;         // Different package!
 import net.cyberneticforge.quickstocks.core.models.MarketInfluence; // Different package!
 
 // Configs scattered across two packages
 import net.cyberneticforge.quickstocks.core.config.TradingConfig;  // Different package!
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
+
 ```
 
 ### After: Clean and Consistent
 
 ```java
 // All models in ONE package
-import net.cyberneticforge.quickstocks.core.model.Company;
-import net.cyberneticforge.quickstocks.core.model.Stock;
-import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
 
 // All configs in ONE package
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
+
 ```
 
 ## Real-World Example

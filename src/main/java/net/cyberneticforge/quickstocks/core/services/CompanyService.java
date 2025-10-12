@@ -1,9 +1,11 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
+import net.cyberneticforge.quickstocks.core.model.JobPermissions;
+import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
@@ -18,13 +20,9 @@ public class CompanyService {
     
     private static final Logger logger = Logger.getLogger(CompanyService.class.getName());
     
-    private final Db database;
-    private final CompanyConfig config;
-    
-    public CompanyService(Db database, CompanyConfig config) {
-        this.database = database;
-        this.config = config;
-    }
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
+    @Getter
+    private final CompanyCfg config = QuickStocksPlugin.getCompanyCfg();
     
     /**
      * Helper method to get integer value from result map with default.
@@ -80,9 +78,9 @@ public class CompanyService {
         // Create default job titles
         Map<String, String> jobIdMap = new HashMap<>();
         for (String title : config.getDefaultJobTitles()) {
-            CompanyConfig.JobPermissions perms = config.getPermissionsByTitle().get(title);
+            JobPermissions perms = config.getPermissionsByTitle().get(title);
             if (perms == null) {
-                perms = new CompanyConfig.JobPermissions();
+                perms = new JobPermissions();
             }
             
             String jobId = UUID.randomUUID().toString();

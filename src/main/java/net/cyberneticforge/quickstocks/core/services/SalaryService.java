@@ -3,7 +3,7 @@ package net.cyberneticforge.quickstocks.core.services;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -22,15 +22,9 @@ public class SalaryService {
     
     private static final Logger logger = Logger.getLogger(SalaryService.class.getName());
     
-    private final Db database;
-    private final CompanyConfig config;
-    private final CompanyService companyService;
-    
-    public SalaryService(Db database, CompanyConfig config, CompanyService companyService) {
-        this.database = database;
-        this.config = config;
-        this.companyService = companyService;
-    }
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
+    private final CompanyService companyService = QuickStocksPlugin.getCompanyService();
+    private final CompanyCfg config = QuickStocksPlugin.getCompanyCfg();
     
     /**
      * Set salary for a job title.

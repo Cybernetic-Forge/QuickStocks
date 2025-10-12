@@ -21,112 +21,22 @@ database:
 
 # Features Configuration
 features:
+  companies:
+    enabled: true
+    display: "Companies"
+  market:
+    enabled: true
+    display: "Market"
+    withDevice: true
   historyEnabled: true
   topListWindowHours: 24
-
-# Market Configuration
-market:
-  updateInterval: 5 # seconds
-  startOpen: true
-  defaultStocks: true
-  
-  # Price growth threshold configuration
-  priceThreshold:
-    enabled: true
-    # Maximum price change per update before dampening kicks in (as percentage, e.g., 0.15 = 15%)
-    maxChangePercent: 0.15
-    # Price threshold above which dampening starts (multiplier of initial price, e.g., 5.0 = 500% of initial)
-    priceMultiplierThreshold: 5.0
-    # Dampening factor when threshold is exceeded (0.1 = reduce impact to 10%)
-    dampeningFactor: 0.3
-    # Minimum trading volume required to ignore threshold (trades per update cycle)
-    minVolumeThreshold: 100
-    # How quickly dampening decreases when volume increases (higher = more sensitive to volume)
-    volumeSensitivity: 0.5
-
-# Market Device Configuration
-marketDevice:
-  recipe:
-    enabled: false # Enable crafting recipe for Market Device
-    shapedRecipe: true # Use shaped recipe (3x3 grid)
-
-# Analytics Configuration
-analytics:
-  lambda: 0.94
-  defaultWindowsMinutes:
-    change: 1440  # 24 hours
-    volatility: 1440  # 24 hours  
-    correlation: 1440  # 24 hours
 
 # bStats Metrics Configuration
 metrics:
   enabled: true  # Enable anonymous usage statistics (bStats)
 
-# Trading Economy Configuration
-trading:
-  fee:
-    mode: percent   # percent | flat | mixed
-    percent: 0.25   # % of notional
-    flat: 0.0
-  limits:
-    maxOrderQty: 10000
-    maxNotionalPerMinute: 250000
-    perPlayerCooldownMs: 750
-  circuitBreakers:
-    enable: true
-    levels: [7, 13, 20]     # halt thresholds in % move from daily open
-    haltMinutes: [15, 15, -1] # -1 = rest of session
-  orders:
-    allowMarket: true
-    allowLimit: true
-    allowStop: true
-  slippage:
-    mode: linear            # none | linear | sqrtImpact
-    k: 0.0005               # impact coefficient (tune)
-
-# Companies / Corporations Configuration
-companies:
-  enabled: true
-  creationCost: 1000.0         # cost to create a new company (0 = free)
-  defaultTypes:
-    - PRIVATE
-    - PUBLIC
-    - DAO
-  defaultJobTitles:
-    - CEO
-    - CFO
-    - EMPLOYEE
-  # which job titles are allowed to withdraw / deposit / manage
-  permissionsByTitle:
-    CEO:
-      canManageCompany: true
-      canInvite: true
-      canCreateJobTitles: true
-      canWithdraw: true
-      canManageSalaries: true
-    CFO:
-      canWithdraw: true
-      canInvite: false
-      canCreateJobTitles: false
-      canManageSalaries: true
-    EMPLOYEE:
-      canInvite: false
-      canWithdraw: false
-      canCreateJobTitles: false
-      canManageSalaries: false
-  # Salary settings
-  salaries:
-    paymentCycles:  # Available payment cycle options
-      - 1h      # Every hour
-      - 24h     # Daily
-      - 1w      # Weekly
-      - 2w      # Bi-weekly
-      - 1m      # Monthly (30 days)
-    defaultJobSalary: 0.0     # Default salary if not configured
-    offlinePayment: true      # Whether offline employees receive salary payments
-  # ChestShop Integration (soft-depends on ChestShop plugin)
-  chestshop:
-    enabled: true                # Enable company-owned chest shops
-    companyMinBalance: 1000.0    # Minimum company balance for shop purchases
-    # Permission added dynamically to job titles when ChestShop is detected
-    # Employees with 'chestshop' permission can manage company chest shops
+# NOTE: Market, Market Device, Analytics, Trading, and Companies configurations
+# have been moved to separate files:
+# - market.yml - Market, Market Device, and Analytics settings
+# - trading.yml - Trading economy settings
+# - companies.yml - Companies/Corporations settings

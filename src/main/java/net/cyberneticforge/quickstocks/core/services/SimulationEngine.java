@@ -24,19 +24,17 @@ public class SimulationEngine {
     private static final Logger logger = Logger.getLogger(SimulationEngine.class.getName());
     private static final int TICK_INTERVAL_SECONDS = 5;
 
-    private final Db database;
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     /**
      * -- GETTER --
      *  Get the analytics service for direct access to advanced analytics.
      */
     @Getter
-    private final AnalyticsService analyticsService;
+    private final AnalyticsService analyticsService = QuickStocksPlugin.getAnalyticsService();
     private final ScheduledExecutorService scheduler;
     private volatile boolean running = false;
     
-    public SimulationEngine(Db database, AnalyticsService analyticsService) {
-        this.database = Objects.requireNonNull(database, "Database cannot be null");
-        this.analyticsService = Objects.requireNonNull(analyticsService, "AnalyticsService cannot be null");
+    public SimulationEngine() {
         this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "SimulationEngine-Ticker");
             t.setDaemon(true);

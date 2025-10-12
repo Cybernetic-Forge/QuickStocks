@@ -8,7 +8,7 @@ import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.HookType;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -27,13 +27,11 @@ public class ChestShopListener implements Listener {
     
     private static final Logger logger = Logger.getLogger(ChestShopListener.class.getName());
 
-    private final CompanyService companyService;
-    private final CompanyConfig companyConfig;
+    private final CompanyService companyService = QuickStocksPlugin.getCompanyService();
+    private final CompanyCfg companyConfig = QuickStocksPlugin.getCompanyService().getConfig();
     private final ChestShopAccountProvider accountProvider;
     
-    public ChestShopListener(CompanyService companyService, CompanyConfig companyConfig, ChestShopAccountProvider accountProvider) {
-        this.companyService = companyService;
-        this.companyConfig = companyConfig;
+    public ChestShopListener(ChestShopAccountProvider accountProvider) {
         this.accountProvider = accountProvider;
     }
     
