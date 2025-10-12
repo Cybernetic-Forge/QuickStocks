@@ -31,6 +31,12 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
             Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
+        
+        // Check if watchlist feature is enabled
+        if (!QuickStocksPlugin.getMarketCfg().isWatchlistEnabled()) {
+            Translation.FeatureDisabled.sendMessage(player);
+            return true;
+        }
 
         String playerUuid = player.getUniqueId().toString();
         

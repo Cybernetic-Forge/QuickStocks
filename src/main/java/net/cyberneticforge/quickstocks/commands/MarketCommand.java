@@ -40,6 +40,12 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
+        
+        // Check if market feature is enabled
+        if (!QuickStocksPlugin.getMarketCfg().isEnabled()) {
+            Translation.MarketDisabled.sendMessage(player);
+            return true;
+        }
 
         String playerUuid = player.getUniqueId().toString();
         
@@ -60,6 +66,10 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                     
                 case "buy":
                     // Unified buy command - now buys company shares
+                    if (!QuickStocksPlugin.getMarketCfg().isTradingEnabled()) {
+                        Translation.FeatureDisabled.sendMessage(player);
+                        return true;
+                    }
                     if (args.length < 3) {
                         Translation.Market_Buy_Usage.sendMessage(player);
                         return true;
@@ -69,6 +79,10 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                     
                 case "sell":
                     // Unified sell command - now sells company shares
+                    if (!QuickStocksPlugin.getMarketCfg().isTradingEnabled()) {
+                        Translation.FeatureDisabled.sendMessage(player);
+                        return true;
+                    }
                     if (args.length < 3) {
                         Translation.Market_Sell_Usage.sendMessage(player);
                         return true;
@@ -86,15 +100,27 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
                     
                 case "portfolio":
                 case "holdings":
+                    if (!QuickStocksPlugin.getMarketCfg().isPortfolioEnabled()) {
+                        Translation.FeatureDisabled.sendMessage(player);
+                        return true;
+                    }
                     showPortfolio(player, playerUuid);
                     break;
                     
                 case "history":
+                    if (!QuickStocksPlugin.getMarketCfg().isPortfolioEnabled()) {
+                        Translation.FeatureDisabled.sendMessage(player);
+                        return true;
+                    }
                     showOrderHistory(player, playerUuid);
                     break;
                     
                 case "watchlist":
                 case "watch":
+                    if (!QuickStocksPlugin.getMarketCfg().isWatchlistEnabled()) {
+                        Translation.FeatureDisabled.sendMessage(player);
+                        return true;
+                    }
                     showWatchlistSummary(player, playerUuid);
                     break;
                     

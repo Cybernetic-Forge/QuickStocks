@@ -14,6 +14,9 @@ General:
   UnknownException: '&cAn unknown error occurred. Please contact an administrator.'
   Reload: '&bReloading configuration...'
   ReloadFinished: '&bConfiguration reloaded successfully.'
+  FeatureDisabled: '&cThis feature is currently disabled.'
+  CompaniesDisabled: '&cThe companies system is currently disabled.'
+  MarketDisabled: '&cThe market system is currently disabled.'
 
 Market:
   Device:

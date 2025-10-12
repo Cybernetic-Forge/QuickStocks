@@ -37,13 +37,19 @@ public class MarketDeviceCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
+        // Check if market device feature is enabled
+        if (!QuickStocksPlugin.getMarketCfg().isMarketDeviceEnabled()) {
+            Translation.FeatureDisabled.sendMessage(sender);
+            return true;
+        }
+        
         // Check permission
         if (!sender.hasPermission(PERMISSION_GIVE)) {
             Translation.NoPermission.sendMessage(sender);
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("give")) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("give")) {
             handleGiveCommand(sender, args);
             return true;
         }

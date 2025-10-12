@@ -39,6 +39,12 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             Translation.NoConsoleSender.sendMessage(sender);
             return true;
         }
+        
+        // Check if companies feature is enabled
+        if (!QuickStocksPlugin.getCompanyCfg().isEnabled()) {
+            Translation.CompaniesDisabled.sendMessage(player);
+            return true;
+        }
 
         String playerUuid = player.getUniqueId().toString();
         

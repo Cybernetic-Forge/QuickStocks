@@ -1,8 +1,17 @@
 # Market Configuration
 market:
+  enabled: true # Enable/disable entire market system (commands, listeners, features)
   updateInterval: 5 # seconds
   startOpen: true
   defaultStocks: true
+  
+  # Sub-feature toggles for fine-grained control
+  features:
+    watchlist: true # Enable/disable watchlist functionality
+    portfolio: true # Enable/disable portfolio viewing
+    trading: true # Enable/disable buying/selling shares
+    marketDevice: true # Enable/disable market device item
+    stocksCommand: true # Enable/disable /stocks command
   
   # Price growth threshold configuration
   priceThreshold:

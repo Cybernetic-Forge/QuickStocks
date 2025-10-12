@@ -215,35 +215,61 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private void registerCommands() {
         registerCommand("crypto", new CryptoCommand(cryptoService));
         registerCommand("wallet", new WalletCommand());
-        registerCommand("market", new MarketCommand(databaseManager.getDb()));
-        registerCommand("marketdevice", new MarketDeviceCommand());
-        registerCommand("watch", new WatchCommand());
-        registerCommand("company", new CompanyCommand());
-        registerCommand("stocks", new StocksCommand());
+        
+        // Only register market-related commands if market system is enabled
+        if (marketCfg.isEnabled()) {
+            registerCommand("market", new MarketCommand(databaseManager.getDb()));
+            if (marketCfg.isMarketDeviceEnabled()) {
+                registerCommand("marketdevice", new MarketDeviceCommand());
+            }
+            if (marketCfg.isWatchlistEnabled()) {
+                registerCommand("watch", new WatchCommand());
+            }
+            if (marketCfg.isStocksCommandEnabled()) {
+                registerCommand("stocks", new StocksCommand());
+            }
+        }
+        
+        // Only register company command if companies system is enabled
+        if (companyCfg.isEnabled()) {
+            registerCommand("company", new CompanyCommand());
+        }
     }
     
     /**
      * Registers event listeners with the server.
      */
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new MarketDeviceListener(), this);
-        getServer().getPluginManager().registerEvents(new MarketGUIListener(), this);
-        getServer().getPluginManager().registerEvents(new PortfolioGUIListener(), this);
-        getServer().getPluginManager().registerEvents(new CompanySettingsGUIListener(), this);
-        
-        // Register ChestShop integration listeners if ChestShop is hooked
-        if (hookManager.isHooked(net.cyberneticforge.quickstocks.hooks.HookType.ChestShop)) {
-            ChestShopHook chestShopHook = new ChestShopHook(companyService);
-            // Register company names as valid ChestShop accounts
-            ChestShopAccountProvider accountProvider = new ChestShopAccountProvider(companyService);
-            accountProvider.registerWithChestShop();
-            getServer().getPluginManager().registerEvents(new ChestShopListener(accountProvider), this);
-            getServer().getPluginManager().registerEvents(new ChestShopTransactionListener(chestShopHook), this);
-            getServer().getPluginManager().registerEvents(new ChestShopProtectionListener(chestShopHook), this);
-            getLogger().info("Registered ChestShop integration listeners and account provider");
+        // Only register market-related listeners if market system is enabled
+        if (marketCfg.isEnabled()) {
+            if (marketCfg.isMarketDeviceEnabled()) {
+                getServer().getPluginManager().registerEvents(new MarketDeviceListener(), this);
+            }
+            if (marketCfg.isPortfolioEnabled() || marketCfg.isTradingEnabled()) {
+                getServer().getPluginManager().registerEvents(new MarketGUIListener(), this);
+                getServer().getPluginManager().registerEvents(new PortfolioGUIListener(), this);
+            }
+            getLogger().info("Registered market-related event listeners");
         }
         
-        getLogger().info("Registered Market Device, Crafting, and GUI event listeners");
+        // Only register company-related listeners if companies system is enabled
+        if (companyCfg.isEnabled()) {
+            getServer().getPluginManager().registerEvents(new CompanySettingsGUIListener(), this);
+            
+            // Register ChestShop integration listeners if ChestShop is hooked and chestshop is enabled
+            if (companyCfg.isChestShopEnabled() && hookManager.isHooked(net.cyberneticforge.quickstocks.hooks.HookType.ChestShop)) {
+                ChestShopHook chestShopHook = new ChestShopHook(companyService);
+                // Register company names as valid ChestShop accounts
+                ChestShopAccountProvider accountProvider = new ChestShopAccountProvider(companyService);
+                accountProvider.registerWithChestShop();
+                getServer().getPluginManager().registerEvents(new ChestShopListener(accountProvider), this);
+                getServer().getPluginManager().registerEvents(new ChestShopTransactionListener(chestShopHook), this);
+                getServer().getPluginManager().registerEvents(new ChestShopProtectionListener(chestShopHook), this);
+                getLogger().info("Registered ChestShop integration listeners and account provider");
+            }
+            
+            getLogger().info("Registered company-related event listeners");
+        }
     }
     
     /**

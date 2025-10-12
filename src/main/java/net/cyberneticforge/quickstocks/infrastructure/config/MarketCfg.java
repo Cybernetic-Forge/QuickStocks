@@ -13,9 +13,17 @@ public class MarketCfg {
     private final YamlParser config;
     
     // Market settings
+    private boolean enabled;
     private int updateInterval;
     private boolean startOpen;
     private boolean defaultStocks;
+    
+    // Sub-feature toggles
+    private boolean watchlistEnabled;
+    private boolean portfolioEnabled;
+    private boolean tradingEnabled;
+    private boolean marketDeviceEnabled;
+    private boolean stocksCommandEnabled;
     
     // Price threshold settings
     private boolean priceThresholdEnabled;
@@ -41,9 +49,17 @@ public class MarketCfg {
      */
     private void loadValues() {
         // Market settings
+        enabled = config.getBoolean("market.enabled", true);
         updateInterval = config.getInt("market.updateInterval", 5);
         startOpen = config.getBoolean("market.startOpen", true);
         defaultStocks = config.getBoolean("market.defaultStocks", true);
+        
+        // Sub-feature toggles
+        watchlistEnabled = config.getBoolean("market.features.watchlist", true);
+        portfolioEnabled = config.getBoolean("market.features.portfolio", true);
+        tradingEnabled = config.getBoolean("market.features.trading", true);
+        marketDeviceEnabled = config.getBoolean("market.features.marketDevice", true);
+        stocksCommandEnabled = config.getBoolean("market.features.stocksCommand", true);
         
         // Price threshold settings
         priceThresholdEnabled = config.getBoolean("market.priceThreshold.enabled", true);
