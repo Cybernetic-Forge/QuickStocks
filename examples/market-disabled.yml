@@ -1,0 +1,39 @@
+# Example: Completely Disabled Market
+# This configuration turns off the entire market system
+# Use case: Servers that only want to use the companies feature
+
+market:
+  enabled: false # Disable entire market system
+  updateInterval: 5
+  startOpen: true
+  defaultStocks: true
+  
+  # Sub-features are also disabled when market.enabled is false
+  # But you can still configure them for future use
+  features:
+    watchlist: true
+    portfolio: true
+    trading: true
+    marketDevice: true
+    stocksCommand: true
+    cryptoCommand: true
+  
+  priceThreshold:
+    enabled: true
+    maxChangePercent: 0.15
+    priceMultiplierThreshold: 5.0
+    dampeningFactor: 0.3
+    minVolumeThreshold: 100
+    volumeSensitivity: 0.5
+
+marketDevice:
+  recipe:
+    enabled: false
+    shapedRecipe: true
+
+analytics:
+  lambda: 0.94
+  defaultWindowsMinutes:
+    change: 1440
+    volatility: 1440
+    correlation: 1440
