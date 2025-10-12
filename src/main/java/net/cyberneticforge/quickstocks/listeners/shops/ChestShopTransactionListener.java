@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Listener for ChestShop transaction events to handle company-owned shop transactions.
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  */
 public class ChestShopTransactionListener implements Listener {
     
-    private static final Logger logger = Logger.getLogger(ChestShopTransactionListener.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final ChestShopHook chestShopHook;
     

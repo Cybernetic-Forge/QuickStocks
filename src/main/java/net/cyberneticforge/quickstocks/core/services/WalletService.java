@@ -2,10 +2,10 @@ package net.cyberneticforge.quickstocks.core.services;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 import java.sql.SQLException;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 /**
  * Manages player wallet balances with Vault economy integration fallback.
@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 @SuppressWarnings({"JavaReflectionInvocation", "unused"})
 public class WalletService {
     
-    private static final Logger logger = Logger.getLogger(WalletService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     private final boolean useVault;
@@ -64,7 +64,7 @@ public class WalletService {
             
         } catch (Exception e) {
             // Bukkit/Vault not available - this is normal in non-Bukkit environments like tests
-            logger.fine("Bukkit/Vault not available: " + e.getMessage() + ". Using internal wallet system.");
+            logger.debug("Bukkit/Vault not available: " + e.getMessage() + ". Using internal wallet system.");
             return false;
         }
     }
@@ -140,7 +140,7 @@ public class WalletService {
             "INSERT OR REPLACE INTO wallets (player_uuid, balance) VALUES (?, ?)",
             playerUuid, amount
         );
-        logger.fine("Set balance for " + playerUuid + " to $" + String.format("%.2f", amount));
+        logger.debug("Set balance for " + playerUuid + " to $" + String.format("%.2f", amount));
     }
     
     // Vault integration methods using reflection to avoid compile-time dependencies
@@ -154,7 +154,7 @@ public class WalletService {
                     Class.forName("org.bukkit.OfflinePlayer"))
                     .invoke(vaultEconomy, offlinePlayer);
             
-            logger.fine("Retrieved Vault balance for " + playerUuid + ": $" + String.format("%.2f", balance));
+            logger.debug("Retrieved Vault balance for " + playerUuid + ": $" + String.format("%.2f", balance));
             return balance;
         } catch (Exception e) {
             logger.warning("Failed to get Vault balance for " + playerUuid + ": " + e.getMessage());
@@ -185,7 +185,7 @@ public class WalletService {
                         .invoke(vaultEconomy, offlinePlayer, currentBalance - amount);
             }
             
-            logger.fine("Set Vault balance for " + playerUuid + " to $" + String.format("%.2f", amount));
+            logger.debug("Set Vault balance for " + playerUuid + " to $" + String.format("%.2f", amount));
         } catch (Exception e) {
             logger.warning("Failed to set Vault balance for " + playerUuid + ": " + e.getMessage());
         }
@@ -201,7 +201,7 @@ public class WalletService {
                     Class.forName("org.bukkit.OfflinePlayer"), double.class)
                     .invoke(vaultEconomy, offlinePlayer, amount);
             
-            logger.fine("Added $" + String.format("%.2f", amount) + " to Vault balance for " + playerUuid);
+            logger.debug("Added $" + String.format("%.2f", amount) + " to Vault balance for " + playerUuid);
         } catch (Exception e) {
             logger.warning("Failed to add Vault balance for " + playerUuid + ": " + e.getMessage());
         }
@@ -223,11 +223,11 @@ public class WalletService {
                         Class.forName("org.bukkit.OfflinePlayer"), double.class)
                         .invoke(vaultEconomy, offlinePlayer, amount);
                 
-                logger.fine("Removed $" + String.format("%.2f", amount) + " from Vault balance for " + playerUuid);
+                logger.debug("Removed $" + String.format("%.2f", amount) + " from Vault balance for " + playerUuid);
                 return true;
             }
             
-            logger.fine("Insufficient Vault balance for " + playerUuid + " to remove $" + String.format("%.2f", amount));
+            logger.debug("Insufficient Vault balance for " + playerUuid + " to remove $" + String.format("%.2f", amount));
             return false;
         } catch (Exception e) {
             logger.warning("Failed to remove Vault balance for " + playerUuid + ": " + e.getMessage());

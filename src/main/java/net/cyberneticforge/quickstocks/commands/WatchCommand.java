@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  */
 public class WatchCommand implements CommandExecutor, TabCompleter {
     
-    private static final Logger logger = Logger.getLogger(WatchCommand.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {

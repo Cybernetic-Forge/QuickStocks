@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class MigrationRunner {
     
-    private static final Logger logger = Logger.getLogger(MigrationRunner.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     private static final String MIGRATIONS_PATH = "/migrations/";
     private static final Pattern MIGRATION_PATTERN = Pattern.compile("V(\\d+)__(.+)\\.sql");
     
@@ -67,7 +67,7 @@ public class MigrationRunner {
             """;
         
         db.execute(createTableSQL);
-        logger.fine("Schema version table ensured");
+        logger.debug("Schema version table ensured");
     }
     
     private Set<Integer> getAppliedVersions() throws SQLException {
@@ -83,7 +83,7 @@ public class MigrationRunner {
             }
         }
         
-        logger.fine("Found " + versions.size() + " applied migrations");
+        logger.debug("Found " + versions.size() + " applied migrations");
         return versions;
     }
     
@@ -212,7 +212,7 @@ public class MigrationRunner {
             for (String s : statements) {
                 String statement = s.trim();
                 if (!statement.isEmpty()) {
-                    logger.fine("Executing SQL statement: " + statement.substring(0, Math.min(50, statement.length())) + "...");
+                    logger.debug("Executing SQL statement: " + statement.substring(0, Math.min(50, statement.length())) + "...");
                     db.execute(statement);
                 }
             }

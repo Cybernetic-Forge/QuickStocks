@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Provides database connection through HikariCP connection pool.
@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  */
 public class DataSourceProvider {
     
-    private static final Logger logger = Logger.getLogger(DataSourceProvider.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final DatabaseConfig config;
     private HikariDataSource dataSource;

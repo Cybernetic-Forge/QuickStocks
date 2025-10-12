@@ -12,6 +12,7 @@ import net.cyberneticforge.quickstocks.infrastructure.config.*;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
@@ -33,6 +34,10 @@ public final class QuickStocksPlugin extends JavaPlugin {
 
     @Getter
     private static JavaPlugin instance;
+
+    /* Logging */
+    @Getter
+    private static PluginLogger pluginLogger;
 
     /* Configurations */
     @Getter
@@ -93,6 +98,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
         try {
             // Save default config if it doesn't exist
             saveDefaultConfig();
+            
+            // Initialize centralized logger
+            int debugLevel = getConfig().getInt("logging.debugLevel", 1);
+            pluginLogger = new PluginLogger(this, debugLevel);
+            pluginLogger.info("PluginLogger initialized with debug level: " + debugLevel);
             
             // Initialize hook manager to detect external plugins
             hookManager = new HookManager();

@@ -10,7 +10,7 @@ import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Service for managing companies and their operations.
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("SameParameterValue")
 public class CompanyService {
     
-    private static final Logger logger = Logger.getLogger(CompanyService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     @Getter
@@ -323,7 +323,7 @@ public class CompanyService {
             txId, companyId, playerUuid, "DEPOSIT", amount, System.currentTimeMillis()
         );
         
-        logger.fine("Player " + playerUuid + " deposited $" + amount + " to company " + companyId);
+        logger.debug("Player " + playerUuid + " deposited $" + amount + " to company " + companyId);
     }
     
     /**
@@ -366,7 +366,7 @@ public class CompanyService {
             txId, companyId, playerUuid, "WITHDRAW", amount, System.currentTimeMillis()
         );
         
-        logger.fine("Player " + playerUuid + " withdrew $" + amount + " from company " + companyId);
+        logger.debug("Player " + playerUuid + " withdrew $" + amount + " from company " + companyId);
     }
     
     /**
@@ -391,7 +391,7 @@ public class CompanyService {
             txId, companyId, "00000000-0000-0000-0000-000000000000", "DEPOSIT", amount, System.currentTimeMillis()
         );
         
-        logger.fine("Added $" + amount + " directly to company " + companyId + " - Reason: " + reason);
+        logger.debug("Added $" + amount + " directly to company " + companyId + " - Reason: " + reason);
     }
     
     /**
@@ -427,7 +427,7 @@ public class CompanyService {
             txId, companyId, "00000000-0000-0000-0000-000000000000", "WITHDRAW", amount, System.currentTimeMillis()
         );
         
-        logger.fine("Removed $" + amount + " directly from company " + companyId + " - Reason: " + reason);
+        logger.debug("Removed $" + amount + " directly from company " + companyId + " - Reason: " + reason);
     }
     
     /**

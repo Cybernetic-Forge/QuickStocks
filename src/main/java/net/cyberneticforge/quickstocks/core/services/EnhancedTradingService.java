@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Enhanced trading service with economy features: fees, limits, circuit breakers,
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  */
 public class EnhancedTradingService {
 
-    private static final Logger logger = Logger.getLogger(EnhancedTradingService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final Db database;
     private final FeeService feeService;

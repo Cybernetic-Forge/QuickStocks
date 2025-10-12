@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Service for managing player watchlists.
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public class WatchlistService {
     
-    private static final Logger logger = Logger.getLogger(WatchlistService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final DatabaseManager databaseManager = QuickStocksPlugin.getDatabaseManager();
     

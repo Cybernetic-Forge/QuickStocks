@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Portfolio GUI showing player's holdings and assets
@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("deprecation")
 public class PortfolioGUI implements InventoryHolder {
 
-    private static final Logger logger = Logger.getLogger(PortfolioGUI.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final Player player;
     private final Inventory inventory;

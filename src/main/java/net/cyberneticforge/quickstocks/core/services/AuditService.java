@@ -5,7 +5,7 @@ import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Handles integrity auditing and repair operations for the trading system.
@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  */
 public class AuditService {
 
-    private static final Logger logger = Logger.getLogger(AuditService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
 

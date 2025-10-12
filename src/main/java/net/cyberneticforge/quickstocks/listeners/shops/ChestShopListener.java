@@ -17,7 +17,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Listener for ChestShop integration to allow companies to own chest shops.
@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  */
 public class ChestShopListener implements Listener {
     
-    private static final Logger logger = Logger.getLogger(ChestShopListener.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final CompanyService companyService = QuickStocksPlugin.getCompanyService();
     private final CompanyCfg companyConfig = QuickStocksPlugin.getCompanyService().getConfig();

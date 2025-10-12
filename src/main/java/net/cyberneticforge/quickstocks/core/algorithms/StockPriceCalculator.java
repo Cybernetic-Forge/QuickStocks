@@ -7,7 +7,7 @@ import net.cyberneticforge.quickstocks.core.model.Stock;
 
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Advanced stock price calculation algorithm that simulates realistic market behavior
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class StockPriceCalculator {
     
-    private static final Logger logger = Logger.getLogger(StockPriceCalculator.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Random random;
     private final PriceThresholdController thresholdController;
@@ -81,7 +81,7 @@ public class StockPriceCalculator {
             double dampeningFactor = thresholdController.calculateDampeningFactor(stock, totalImpact);
             if (dampeningFactor < 1.0) {
                 totalImpact *= dampeningFactor;
-                logger.fine(String.format("Applied threshold dampening to %s: factor=%.2f, original impact=%.4f, dampened impact=%.4f", 
+                logger.debug(String.format("Applied threshold dampening to %s: factor=%.2f, original impact=%.4f, dampened impact=%.4f", 
                     stock.getSymbol(), dampeningFactor, totalImpact / dampeningFactor, totalImpact));
             }
         }

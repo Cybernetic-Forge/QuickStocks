@@ -1,5 +1,14 @@
 # QuickStocks Configuration
 
+# Logging Configuration
+logging:
+  # Debug level controls what messages are logged
+  # 0 = OFF - Only errors and warnings
+  # 1 = INFO - Basic operational messages (default)
+  # 2 = DEBUG - Detailed debug information
+  # 3 = TRACE - Very verbose tracing
+  debugLevel: 1
+
 # Database Configuration
 database:
   provider: sqlite # sqlite | mysql | postgres
