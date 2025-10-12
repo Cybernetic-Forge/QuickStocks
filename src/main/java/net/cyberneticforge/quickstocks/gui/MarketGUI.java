@@ -46,16 +46,9 @@ public class MarketGUI implements InventoryHolder {
      */
     private void setupGUI() {
         try {
-            // Add portfolio info button (top left)
             addPortfolioInfoButton();
-
-            // Add wallet info button (top right)
             addWalletInfoButton();
-
-            // Add stocks to the inventory
             addStocksToGUI();
-
-            // Add navigation/action buttons at the bottom
             addNavigationButtons();
 
         } catch (Exception e) {

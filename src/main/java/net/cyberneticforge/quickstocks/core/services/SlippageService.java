@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
 
 /**
  * Service for calculating slippage impact on order execution prices.
@@ -10,11 +11,7 @@ import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 @SuppressWarnings("unused")
 public class SlippageService {
     
-    private final TradingConfig.SlippageConfig slippageConfig;
-    
-    public SlippageService(TradingConfig.SlippageConfig slippageConfig) {
-        this.slippageConfig = slippageConfig;
-    }
+    private final TradingCfg.SlippageConfig slippageConfig = QuickStocksPlugin.getTradingCfg().getSlippageConfig();
     
     /**
      * Calculates the execution price with slippage applied.

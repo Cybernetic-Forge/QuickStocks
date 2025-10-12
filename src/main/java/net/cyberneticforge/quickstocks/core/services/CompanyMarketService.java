@@ -3,7 +3,7 @@ package net.cyberneticforge.quickstocks.core.services;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -23,13 +23,8 @@ public class CompanyMarketService {
     
     private static final Logger logger = Logger.getLogger(CompanyMarketService.class.getName());
     
-    private final Db database;
-    private final CompanyConfig config;
-    
-    public CompanyMarketService(Db database, CompanyConfig config) {
-        this.database = database;
-        this.config = config;
-    }
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
+    private final CompanyCfg config = QuickStocksPlugin.getCompanyService().getConfig();
     
     /**
      * Sets the trading symbol for a company.

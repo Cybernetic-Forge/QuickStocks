@@ -21,6 +21,13 @@ database:
 
 # Features Configuration
 features:
+  companies:
+    enabled: true
+    display: "Companies"
+  market:
+    enabled: true
+    display: "Market"
+    withDevice: true
   historyEnabled: true
   topListWindowHours: 24
 

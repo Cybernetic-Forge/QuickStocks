@@ -25,10 +25,6 @@ public class MarketCfg {
     private int minVolumeThreshold;
     private double volumeSensitivity;
     
-    // Market device settings
-    private boolean marketDeviceRecipeEnabled;
-    private boolean marketDeviceShapedRecipe;
-    
     // Analytics settings
     private double analyticsLambda;
     private int analyticsChangeWindow;
@@ -56,10 +52,6 @@ public class MarketCfg {
         dampeningFactor = config.getDouble("market.priceThreshold.dampeningFactor", 0.3);
         minVolumeThreshold = config.getInt("market.priceThreshold.minVolumeThreshold", 100);
         volumeSensitivity = config.getDouble("market.priceThreshold.volumeSensitivity", 0.5);
-        
-        // Market device settings
-        marketDeviceRecipeEnabled = config.getBoolean("marketDevice.recipe.enabled", false);
-        marketDeviceShapedRecipe = config.getBoolean("marketDevice.recipe.shapedRecipe", true);
         
         // Analytics settings
         analyticsLambda = config.getDouble("analytics.lambda", 0.94);

@@ -4,7 +4,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
 import net.cyberneticforge.quickstocks.core.model.OrderType;
 import net.cyberneticforge.quickstocks.core.services.TradingService.TradeResult;
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
@@ -27,17 +27,17 @@ public class EnhancedTradingService {
     private final SlippageService slippageService;
     private final RateLimitService rateLimitService;
     private final CircuitBreakerService circuitBreakerService;
-    private final TradingConfig tradingConfig;
+    private final TradingCfg tradingConfig;
 
-    public EnhancedTradingService(Db database, TradingConfig tradingConfig) {
+    public EnhancedTradingService(Db database, TradingCfg tradingConfig) {
         this.database = database;
         this.tradingConfig = tradingConfig;
 
         // Initialize component services
-        this.feeService = new FeeService(tradingConfig.getFee());
-        this.slippageService = new SlippageService(tradingConfig.getSlippage());
-        this.rateLimitService = new RateLimitService(database, tradingConfig.getLimits());
-        this.circuitBreakerService = new CircuitBreakerService(database, tradingConfig.getCircuitBreakers());
+        this.feeService = new FeeService();
+        this.slippageService = new SlippageService();
+        this.rateLimitService = new RateLimitService();
+        this.circuitBreakerService = new CircuitBreakerService();
     }
 
     /**
@@ -256,9 +256,9 @@ public class EnhancedTradingService {
      */
     private boolean isOrderTypeAllowed(OrderType orderType) {
         return switch (orderType) {
-            case MARKET -> tradingConfig.getOrders().isAllowMarket();
-            case LIMIT -> tradingConfig.getOrders().isAllowLimit();
-            case STOP -> tradingConfig.getOrders().isAllowStop();
+            case MARKET -> tradingConfig.getOrdersConfig().isAllowMarket();
+            case LIMIT -> tradingConfig.getOrdersConfig().isAllowLimit();
+            case STOP -> tradingConfig.getOrdersConfig().isAllowStop();
         };
     }
 

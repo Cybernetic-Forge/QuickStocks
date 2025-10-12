@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import org.bukkit.Bukkit;
 
@@ -16,11 +17,7 @@ public class HoldingsService {
     
     private static final Logger logger = Logger.getLogger(HoldingsService.class.getName());
     
-    private final Db database;
-    
-    public HoldingsService(Db database) {
-        this.database = database;
-    }
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     
     /**
      * Gets all holdings for a player.

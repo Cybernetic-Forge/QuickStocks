@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
@@ -15,12 +16,11 @@ public class WalletService {
     
     private static final Logger logger = Logger.getLogger(WalletService.class.getName());
     
-    private final Db database;
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     private final boolean useVault;
     private Object vaultEconomy; // Using Object to avoid compile-time dependency on Vault
     
-    public WalletService(Db database) {
-        this.database = database;
+    public WalletService() {
         this.useVault = setupVaultEconomy();
         
         if (useVault) {

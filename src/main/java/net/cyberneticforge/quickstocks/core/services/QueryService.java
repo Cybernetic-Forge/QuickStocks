@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
@@ -15,11 +16,7 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class QueryService {
     
-    private final Db database;
-    
-    public QueryService(Db database) {
-        this.database = database;
-    }
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     
     /**
      * Gets top N market performers (companies on market) based on balance growth.

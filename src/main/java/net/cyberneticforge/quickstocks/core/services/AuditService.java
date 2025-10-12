@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
@@ -14,11 +15,7 @@ public class AuditService {
 
     private static final Logger logger = Logger.getLogger(AuditService.class.getName());
 
-    private final Db database;
-
-    public AuditService(Db database) {
-        this.database = database;
-    }
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
 
     /**
      * Performs a comprehensive audit of all player holdings against order history.

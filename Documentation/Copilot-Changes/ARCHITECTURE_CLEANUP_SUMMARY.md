@@ -99,14 +99,13 @@ If you have external code that imports from the old packages, update as follows:
 
 ```java
 // OLD (no longer valid)
+
 import net.cyberneticforge.quickstocks.core.models.Stock;
 import net.cyberneticforge.quickstocks.core.models.MarketInfluence;
 import net.cyberneticforge.quickstocks.core.config.TradingConfig;
 
 // NEW (correct)
-import net.cyberneticforge.quickstocks.core.model.Stock;
-import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
+
 ```
 
 ## Validation

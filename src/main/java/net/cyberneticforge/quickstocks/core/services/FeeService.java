@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.core.services;
 
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
 
 /**
  * Service for calculating trading fees based on configuration.
@@ -8,11 +9,7 @@ import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
 @SuppressWarnings("unused")
 public class FeeService {
     
-    private final TradingConfig.FeeConfig feeConfig;
-    
-    public FeeService(TradingConfig.FeeConfig feeConfig) {
-        this.feeConfig = feeConfig;
-    }
+    private final TradingCfg.FeeConfig feeConfig = QuickStocksPlugin.getTradingCfg().getFeeConfig();
     
     /**
      * Calculates the trading fee for a given notional value.

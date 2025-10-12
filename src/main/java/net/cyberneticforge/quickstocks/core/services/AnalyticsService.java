@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.core.services;
 
 import lombok.Getter;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.util.*;
@@ -25,12 +26,12 @@ public class AnalyticsService {
     @Getter
     private final int defaultCorrelationWindow;
     
-    public AnalyticsService(Db database, double lambda, int changeWindow, int volatilityWindow, int correlationWindow) {
-        this.database = Objects.requireNonNull(database, "Database cannot be null");
-        this.defaultLambda = lambda;
-        this.defaultChangeWindow = changeWindow;
-        this.defaultVolatilityWindow = volatilityWindow;
-        this.defaultCorrelationWindow = correlationWindow;
+    public AnalyticsService() {
+        this.database = QuickStocksPlugin.getDatabaseManager().getDb();
+        this.defaultLambda = QuickStocksPlugin.getMarketCfg().getAnalyticsLambda();
+        this.defaultChangeWindow = QuickStocksPlugin.getMarketCfg().getAnalyticsChangeWindow();
+        this.defaultVolatilityWindow = QuickStocksPlugin.getMarketCfg().getAnalyticsVolatilityWindow();
+        this.defaultCorrelationWindow = QuickStocksPlugin.getMarketCfg().getAnalyticsCorrelationWindow();
     }
     
     /**

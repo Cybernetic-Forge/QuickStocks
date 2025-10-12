@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.services;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Crypto;
 import net.cyberneticforge.quickstocks.core.model.Instrument;
 import net.cyberneticforge.quickstocks.core.model.InstrumentState;
@@ -20,11 +21,7 @@ public class CryptoService {
     
     private static final Logger logger = Logger.getLogger(CryptoService.class.getName());
     
-    private final Db database;
-    
-    public CryptoService(Db database) {
-        this.database = database;
-    }
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     
     /**
      * Creates a new custom cryptocurrency instrument.

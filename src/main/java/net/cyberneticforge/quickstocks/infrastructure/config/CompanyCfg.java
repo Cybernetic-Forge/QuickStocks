@@ -1,7 +1,9 @@
 package net.cyberneticforge.quickstocks.infrastructure.config;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.model.JobPermissions;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.*;
@@ -11,10 +13,30 @@ import java.util.*;
  * Loads configuration from companies.yml using YamlParser.
  */
 @Getter
+@Setter
 public class CompanyCfg {
 
     private final YamlParser config;
-    private CompanyConfig companyConfig;
+
+    private boolean enabled = true;
+    private double creationCost = 1000.0;
+    private List<String> defaultTypes = Arrays.asList("PRIVATE", "PUBLIC", "DAO");
+    private List<String> defaultJobTitles = Arrays.asList("CEO", "CFO", "EMPLOYEE");
+    private Map<String, JobPermissions> permissionsByTitle = new HashMap<>();
+
+    // Market-related settings
+    private List<String> marketableTypes = Arrays.asList("PUBLIC", "DAO");
+    private Map<String, Double> marketBalanceThresholds = new HashMap<>();
+    private double defaultMarketPercentage = 70.0;
+
+    // ChestShop integration settings
+    private boolean chestShopEnabled = true;
+    private double chestShopCompanyMinBalance = 1000.0;
+
+    // Salary settings
+    private List<String> paymentCycles = Arrays.asList("1h", "24h", "1w", "2w", "1m");
+    private double defaultJobSalary = 0.0;
+    private boolean offlinePayment = true;
     
     public CompanyCfg() {
         config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "companies.yml");
@@ -25,32 +47,31 @@ public class CompanyCfg {
      * Loads all configuration values from the YAML file and populates CompanyConfig
      */
     private void loadValues() {
-        companyConfig = new CompanyConfig();
         
         // Basic settings
-        companyConfig.setEnabled(config.getBoolean("companies.enabled", true));
-        companyConfig.setCreationCost(config.getDouble("companies.creationCost", 1000.0));
+        setEnabled(config.getBoolean("companies.enabled", true));
+        setCreationCost(config.getDouble("companies.creationCost", 1000.0));
         
         // Default types
         List<String> defaultTypes = config.getStringList("companies.defaultTypes");
         if (defaultTypes.isEmpty()) {
             defaultTypes = Arrays.asList("PRIVATE", "PUBLIC", "DAO");
         }
-        companyConfig.setDefaultTypes(defaultTypes);
+        setDefaultTypes(defaultTypes);
         
         // Default job titles
         List<String> defaultJobTitles = config.getStringList("companies.defaultJobTitles");
         if (defaultJobTitles.isEmpty()) {
             defaultJobTitles = Arrays.asList("CEO", "CFO", "EMPLOYEE");
         }
-        companyConfig.setDefaultJobTitles(defaultJobTitles);
+        setDefaultJobTitles(defaultJobTitles);
         
         // Permissions by title
-        Map<String, CompanyConfig.JobPermissions> permissionsByTitle = new HashMap<>();
+        Map<String, JobPermissions> permissionsByTitle = new HashMap<>();
         ConfigurationSection permsSection = config.getConfigurationSection("companies.permissionsByTitle");
         if (permsSection != null) {
             for (String title : permsSection.getKeys(false)) {
-                CompanyConfig.JobPermissions perms = new CompanyConfig.JobPermissions();
+                JobPermissions perms = new JobPermissions();
                 String basePath = "companies.permissionsByTitle." + title;
                 
                 perms.setCanManageCompany(config.getBoolean(basePath + ".canManageCompany", false));
@@ -65,7 +86,7 @@ public class CompanyCfg {
         
         // Apply defaults if no permissions configured
         if (permissionsByTitle.isEmpty()) {
-            CompanyConfig.JobPermissions ceoPerms = new CompanyConfig.JobPermissions();
+            JobPermissions ceoPerms = new JobPermissions();
             ceoPerms.setCanManageCompany(true);
             ceoPerms.setCanInvite(true);
             ceoPerms.setCanCreateJobTitles(true);
@@ -73,28 +94,28 @@ public class CompanyCfg {
             ceoPerms.setCanManageSalaries(true);
             permissionsByTitle.put("CEO", ceoPerms);
             
-            CompanyConfig.JobPermissions cfoPerms = new CompanyConfig.JobPermissions();
+            JobPermissions cfoPerms = new JobPermissions();
             cfoPerms.setCanWithdraw(true);
             cfoPerms.setCanManageSalaries(true);
             permissionsByTitle.put("CFO", cfoPerms);
             
-            CompanyConfig.JobPermissions employeePerms = new CompanyConfig.JobPermissions();
+            JobPermissions employeePerms = new JobPermissions();
             permissionsByTitle.put("EMPLOYEE", employeePerms);
         }
-        companyConfig.setPermissionsByTitle(permissionsByTitle);
+        setPermissionsByTitle(permissionsByTitle);
         
         // Salary settings
         List<String> paymentCycles = config.getStringList("companies.salaries.paymentCycles");
         if (paymentCycles.isEmpty()) {
             paymentCycles = Arrays.asList("1h", "24h", "1w", "2w", "1m");
         }
-        companyConfig.setPaymentCycles(paymentCycles);
-        companyConfig.setDefaultJobSalary(config.getDouble("companies.salaries.defaultJobSalary", 0.0));
-        companyConfig.setOfflinePayment(config.getBoolean("companies.salaries.offlinePayment", true));
+        setPaymentCycles(paymentCycles);
+        setDefaultJobSalary(config.getDouble("companies.salaries.defaultJobSalary", 0.0));
+        setOfflinePayment(config.getBoolean("companies.salaries.offlinePayment", true));
         
         // ChestShop settings
-        companyConfig.setChestShopEnabled(config.getBoolean("companies.chestshop.enabled", true));
-        companyConfig.setChestShopCompanyMinBalance(config.getDouble("companies.chestshop.companyMinBalance", 1000.0));
+        setChestShopEnabled(config.getBoolean("companies.chestshop.enabled", true));
+        setChestShopCompanyMinBalance(config.getDouble("companies.chestshop.companyMinBalance", 1000.0));
     }
     
     /**

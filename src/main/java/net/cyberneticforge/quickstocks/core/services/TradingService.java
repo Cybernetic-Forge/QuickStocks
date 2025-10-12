@@ -3,7 +3,7 @@ package net.cyberneticforge.quickstocks.core.services;
 import lombok.Setter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingConfig;
+import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +26,7 @@ public class TradingService {
 
     private static final Logger logger = Logger.getLogger(TradingService.class.getName());
 
-    private final Db database;
+    private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     private final EnhancedTradingService enhancedTradingService;
     /**
      * -- SETTER --
@@ -38,14 +38,12 @@ public class TradingService {
 
 
     // Constructor with enhanced features
-    public TradingService(Db database, TradingConfig tradingConfig) {
-        this.database = database;
+    public TradingService(TradingCfg tradingConfig) {
         this.enhancedTradingService = new EnhancedTradingService(database, tradingConfig);
     }
 
     // Legacy constructor for backward compatibility
-    public TradingService(Db database) {
-        this.database = database;
+    public TradingService() {
         this.enhancedTradingService = null; // No enhanced features
     }
 
