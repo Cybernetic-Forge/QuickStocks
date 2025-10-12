@@ -213,7 +213,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Registers commands with the server.
      */
     private void registerCommands() {
-        registerCommand("crypto", new CryptoCommand(cryptoService));
         registerCommand("wallet", new WalletCommand());
         
         // Only register market-related commands if market system is enabled
@@ -227,6 +226,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             }
             if (marketCfg.isStocksCommandEnabled()) {
                 registerCommand("stocks", new StocksCommand());
+            }
+            if (marketCfg.isCryptoCommandEnabled()) {
+                registerCommand("crypto", new CryptoCommand(cryptoService));
             }
         }
         

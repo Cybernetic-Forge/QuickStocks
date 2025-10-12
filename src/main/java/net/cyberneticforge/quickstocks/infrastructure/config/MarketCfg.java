@@ -24,6 +24,7 @@ public class MarketCfg {
     private boolean tradingEnabled;
     private boolean marketDeviceEnabled;
     private boolean stocksCommandEnabled;
+    private boolean cryptoCommandEnabled;
     
     // Price threshold settings
     private boolean priceThresholdEnabled;
@@ -60,6 +61,7 @@ public class MarketCfg {
         tradingEnabled = config.getBoolean("market.features.trading", true);
         marketDeviceEnabled = config.getBoolean("market.features.marketDevice", true);
         stocksCommandEnabled = config.getBoolean("market.features.stocksCommand", true);
+        cryptoCommandEnabled = config.getBoolean("market.features.cryptoCommand", true);
         
         // Price threshold settings
         priceThresholdEnabled = config.getBoolean("market.priceThreshold.enabled", true);
