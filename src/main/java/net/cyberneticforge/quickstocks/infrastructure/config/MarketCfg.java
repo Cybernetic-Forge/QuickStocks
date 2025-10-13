@@ -33,7 +33,34 @@ public class MarketCfg {
     
     public MarketCfg() {
         config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "market.yml");
+        addMissingDefaults();
         loadValues();
+    }
+    
+    /**
+     * Adds missing configuration entries with default values
+     */
+    private void addMissingDefaults() {
+        // Market settings
+        config.addMissing("market.updateInterval", 5);
+        config.addMissing("market.startOpen", true);
+        config.addMissing("market.defaultStocks", true);
+        
+        // Price threshold settings
+        config.addMissing("market.priceThreshold.enabled", true);
+        config.addMissing("market.priceThreshold.maxChangePercent", 0.15);
+        config.addMissing("market.priceThreshold.priceMultiplierThreshold", 5.0);
+        config.addMissing("market.priceThreshold.dampeningFactor", 0.3);
+        config.addMissing("market.priceThreshold.minVolumeThreshold", 100);
+        config.addMissing("market.priceThreshold.volumeSensitivity", 0.5);
+        
+        // Analytics settings
+        config.addMissing("analytics.lambda", 0.94);
+        config.addMissing("analytics.defaultWindowsMinutes.change", 1440);
+        config.addMissing("analytics.defaultWindowsMinutes.volatility", 1440);
+        config.addMissing("analytics.defaultWindowsMinutes.correlation", 1440);
+        
+        config.saveChanges();
     }
     
     /**

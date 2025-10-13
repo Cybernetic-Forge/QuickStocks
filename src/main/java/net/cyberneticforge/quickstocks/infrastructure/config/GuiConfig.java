@@ -21,6 +21,32 @@ public class GuiConfig {
     
     public GuiConfig() {
         config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "guis.yml");
+        addMissingDefaults();
+    }
+    
+    /**
+     * Adds missing configuration entries from the default guis.yml
+     */
+    private void addMissingDefaults() {
+        org.bukkit.configuration.file.FileConfiguration def = YamlParser.getDefaultConfig("guis.yml");
+        if (def != null) {
+            copyMissingKeys(def, "", config);
+            config.saveChanges();
+        }
+    }
+    
+    /**
+     * Recursively copies missing keys from default config to current config
+     */
+    private void copyMissingKeys(org.bukkit.configuration.file.FileConfiguration source, String prefix, YamlParser target) {
+        for (String key : source.getKeys(false)) {
+            String fullPath = prefix.isEmpty() ? key : prefix + "." + key;
+            if (source.isConfigurationSection(fullPath)) {
+                copyMissingKeys(source, fullPath, target);
+            } else {
+                target.addMissing(fullPath, source.get(fullPath));
+            }
+        }
     }
     
     /**
