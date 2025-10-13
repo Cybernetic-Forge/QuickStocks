@@ -50,7 +50,7 @@ public class ChestShopTransactionListener implements Listener {
                 event.hasAccount(true);
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error handling ChestShop account query", e);
+            logger.severe("Error handling ChestShop account query", e);
         }
     }
 
@@ -75,7 +75,7 @@ public class ChestShopTransactionListener implements Listener {
                 event.hasEnough(true);
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error handling ChestShop currency check", e);
+            logger.severe("Error handling ChestShop currency check", e);
         }
     }
 
@@ -138,7 +138,7 @@ public class ChestShopTransactionListener implements Listener {
                     String playerUuid = receiverPlayer.getUniqueId().toString();
                     QuickStocksPlugin.getWalletService().addBalance(playerUuid, amount.doubleValue());
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error adding balance to player", e);
+                    logger.severe("Error adding balance to player", e);
                     event.setHandled(true);
                 }
             }
@@ -155,12 +155,12 @@ public class ChestShopTransactionListener implements Listener {
                         logger.warning("Player " + senderPlayer.getName() + " has insufficient funds");
                     }
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error removing balance from player", e);
+                    logger.severe("Error removing balance from player", e);
                     event.setHandled(true);
                 }
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error handling ChestShop currency transfer", e);
+            logger.severe("Error handling ChestShop currency transfer", e);
             event.setHandled(true);
         }
     }
@@ -201,7 +201,7 @@ public class ChestShopTransactionListener implements Listener {
             }
             
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error handling ChestShop transaction message", e);
+            logger.severe("Error handling ChestShop transaction message", e);
         }
     }
 }

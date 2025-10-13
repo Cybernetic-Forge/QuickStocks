@@ -51,10 +51,19 @@ public class MarketCfg {
      */
     private void addMissingDefaults() {
         // Market settings
+        config.addMissing("market.enabled", true);
         config.addMissing("market.updateInterval", 5);
         config.addMissing("market.startOpen", true);
         config.addMissing("market.defaultStocks", true);
-        
+
+        // Sub-feature toggles
+        config.addMissing("market.features.watchlist", true);
+        config.addMissing("market.features.portfolio", true);
+        config.addMissing("market.features.trading", true);
+        config.addMissing("market.features.marketDevice", true);
+        config.addMissing("market.features.stocksCommand", true);
+        config.addMissing("market.features.cryptoCommand", true);
+
         // Price threshold settings
         config.addMissing("market.priceThreshold.enabled", true);
         config.addMissing("market.priceThreshold.maxChangePercent", 0.15);

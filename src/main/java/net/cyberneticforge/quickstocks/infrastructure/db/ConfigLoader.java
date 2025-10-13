@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

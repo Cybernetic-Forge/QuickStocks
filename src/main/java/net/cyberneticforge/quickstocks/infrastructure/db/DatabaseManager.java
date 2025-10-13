@@ -1,6 +1,8 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
 import java.sql.SQLException;
+
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**

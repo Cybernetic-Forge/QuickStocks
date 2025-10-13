@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.hooks;
 
 import com.Acrobot.ChestShop.UUIDs.NameManager;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
 
@@ -40,7 +41,7 @@ public class ChestShopAccountProvider {
             }
             logger.info("Registered " + companyService.getAllCompanies().size() + " companies with ChestShop");
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Could not register companies with ChestShop", e);
+            logger.warning("Could not register companies with ChestShop", e);
         }
     }
     
@@ -54,7 +55,7 @@ public class ChestShopAccountProvider {
             NameManager.getOrCreateAccount(companyUuid, company.getName());
             logger.debug("Registered company '" + company.getName() + "' (UUID: " + companyUuid + ") with ChestShop");
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Failed to register company '" + company.getName() + "' with ChestShop", e);
+            logger.warning("Failed to register company '" + company.getName() + "' with ChestShop", e);
         }
     }
     
@@ -70,7 +71,7 @@ public class ChestShopAccountProvider {
                 return true;
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "Error registering company by name: " + companyName, e);
+            logger.warning("Error registering company by name: " + companyName, e);
         }
         return false;
     }
@@ -92,7 +93,7 @@ public class ChestShopAccountProvider {
         try {
             return companyService.getCompanyByName(name).isPresent();
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "Error checking if name is company: " + name, e);
+            logger.warning("Error checking if name is company: " + name, e);
             return false;
         }
     }
@@ -108,7 +109,7 @@ public class ChestShopAccountProvider {
                 return getCompanyUUID(companyOpt.get().getId());
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "Error getting company UUID: " + name, e);
+            logger.warning("Error getting company UUID: " + name, e);
         }
         return null;
     }

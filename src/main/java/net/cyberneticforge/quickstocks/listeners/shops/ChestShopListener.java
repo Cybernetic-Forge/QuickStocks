@@ -91,7 +91,7 @@ public class ChestShopListener implements Listener {
             }
             
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error validating company for ChestShop sign", e);
+            logger.warning("Error validating company for ChestShop sign", e);
             Translation.ChestShop_Error.sendMessage(event.getPlayer());
             event.setCancelled(true);
         }
@@ -124,7 +124,7 @@ public class ChestShopListener implements Listener {
                     "' by player " + event.getPlayer().getName());
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "Error checking company on shop creation", e);
+            logger.warning("Error checking company on shop creation", e);
         }
     }
 }

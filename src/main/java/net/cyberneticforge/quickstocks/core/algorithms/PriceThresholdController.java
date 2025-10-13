@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.core.algorithms;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Stock;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 

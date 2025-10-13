@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.core.algorithms;
 
 import lombok.Getter;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
 import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
 import net.cyberneticforge.quickstocks.core.model.Stock;
