@@ -24,6 +24,9 @@ public enum Translation {
     UnknownException("General.UnknownException"),
     Reload("General.Reload"),
     ReloadFinished("General.ReloadFinished"),
+    FeatureDisabled("General.FeatureDisabled"),
+    CompaniesDisabled("General.CompaniesDisabled"),
+    MarketDisabled("General.MarketDisabled"),
 
     Market_Device_Name("Market.Device.Name"),
     Market_Device_Given("Market.Device.Given"),

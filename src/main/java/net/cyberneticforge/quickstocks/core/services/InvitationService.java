@@ -4,10 +4,10 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 import java.sql.SQLException;
 import java.util.*;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Service for managing company invitations.

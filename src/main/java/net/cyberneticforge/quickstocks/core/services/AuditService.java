@@ -2,10 +2,10 @@ package net.cyberneticforge.quickstocks.core.services;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 import java.sql.SQLException;
 import java.util.*;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Handles integrity auditing and repair operations for the trading system.

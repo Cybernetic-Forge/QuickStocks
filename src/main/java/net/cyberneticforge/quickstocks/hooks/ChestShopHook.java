@@ -2,16 +2,16 @@ package net.cyberneticforge.quickstocks.hooks;
 
 import com.Acrobot.ChestShop.Database.Account;
 import com.Acrobot.ChestShop.UUIDs.NameManager;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Integration hook for ChestShop plugin to handle company-owned shops.
@@ -46,7 +46,7 @@ public class ChestShopHook {
             Optional<CompanyJob> jobOpt = companyService.getPlayerJob(company.getId(), playerUuid);
             return jobOpt.isPresent() && jobOpt.get().canManageChestShop();
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error checking ChestShop management permission", e);
+            logger.warning("Error checking ChestShop management permission", e);
             return false;
         }
     }
@@ -61,7 +61,7 @@ public class ChestShopHook {
         try {
             return companyService.getCompanyByName(companyName);
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error getting company", e);
+            logger.warning("Error getting company", e);
             return Optional.empty();
         }
     }
@@ -87,7 +87,7 @@ public class ChestShopHook {
             return true;
             
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error adding funds to company", e);
+            logger.warning("Error adding funds to company", e);
             return false;
         }
     }
@@ -119,7 +119,7 @@ public class ChestShopHook {
             return true;
             
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error removing funds from company", e);
+            logger.warning("Error removing funds from company", e);
             return false;
         }
     }
@@ -135,7 +135,7 @@ public class ChestShopHook {
             Optional<Company> companyOpt = companyService.getCompanyByName(companyName);
             return companyOpt.map(Company::getBalance).orElse(0.0);
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error getting company balance", e);
+            logger.warning("Error getting company balance", e);
             return 0.0;
         }
     }

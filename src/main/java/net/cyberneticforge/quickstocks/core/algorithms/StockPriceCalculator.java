@@ -1,13 +1,14 @@
 package net.cyberneticforge.quickstocks.core.algorithms;
 
 import lombok.Getter;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
 import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
 import net.cyberneticforge.quickstocks.core.model.Stock;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 import java.util.List;
 import java.util.Random;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Advanced stock price calculation algorithm that simulates realistic market behavior

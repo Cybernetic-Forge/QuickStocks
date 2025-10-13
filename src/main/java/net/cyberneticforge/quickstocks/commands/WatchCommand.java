@@ -4,6 +4,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.WatchlistService;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,6 +29,12 @@ public class WatchCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player player)) {
             Translation.NoConsoleSender.sendMessage(sender);
+            return true;
+        }
+        
+        // Check if watchlist feature is enabled
+        if (!QuickStocksPlugin.getMarketCfg().isWatchlistEnabled()) {
+            Translation.FeatureDisabled.sendMessage(player);
             return true;
         }
 

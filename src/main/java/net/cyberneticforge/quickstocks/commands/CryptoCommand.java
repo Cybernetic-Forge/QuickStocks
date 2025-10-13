@@ -33,6 +33,16 @@ public class CryptoCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
+        // Check if crypto command is enabled
+        if (!net.cyberneticforge.quickstocks.QuickStocksPlugin.getMarketCfg().isCryptoCommandEnabled()) {
+            if (sender instanceof Player player) {
+                net.cyberneticforge.quickstocks.core.enums.Translation.FeatureDisabled.sendMessage(player);
+            } else {
+                sender.sendMessage("§cThis feature is currently disabled.");
+            }
+            return true;
+        }
+        
         if (args.length == 0) {
             // Show usage
             showUsage(sender);

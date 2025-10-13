@@ -1,0 +1,44 @@
+# Example: Disabled Companies System
+# This configuration turns off the entire companies/corporations feature
+# Use case: Servers that only want market trading without company management
+
+companies:
+  enabled: false # Disable entire companies system
+  creationCost: 1000.0
+  defaultTypes:
+    - PRIVATE
+    - PUBLIC
+    - DAO
+  defaultJobTitles:
+    - CEO
+    - CFO
+    - EMPLOYEE
+  permissionsByTitle:
+    CEO:
+      canManageCompany: true
+      canInvite: true
+      canCreateJobTitles: true
+      canWithdraw: true
+      canManageSalaries: true
+    CFO:
+      canWithdraw: true
+      canInvite: false
+      canCreateJobTitles: false
+      canManageSalaries: true
+    EMPLOYEE:
+      canInvite: false
+      canWithdraw: false
+      canCreateJobTitles: false
+      canManageSalaries: false
+  salaries:
+    paymentCycles:
+      - 1h
+      - 24h
+      - 1w
+      - 2w
+      - 1m
+    defaultJobSalary: 0.0
+    offlinePayment: true
+  chestshop:
+    enabled: true
+    companyMinBalance: 1000.0

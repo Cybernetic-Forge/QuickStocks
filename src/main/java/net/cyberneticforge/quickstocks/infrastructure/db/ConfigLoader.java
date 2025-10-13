@@ -1,12 +1,13 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Simple configuration loader that reads from config.yml or properties.

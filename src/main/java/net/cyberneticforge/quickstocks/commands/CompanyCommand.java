@@ -8,6 +8,7 @@ import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
 import net.cyberneticforge.quickstocks.hooks.HookType;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -20,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +37,12 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player player)) {
             Translation.NoConsoleSender.sendMessage(sender);
+            return true;
+        }
+        
+        // Check if companies feature is enabled
+        if (!QuickStocksPlugin.getCompanyCfg().isEnabled()) {
+            Translation.CompaniesDisabled.sendMessage(player);
             return true;
         }
 

@@ -8,6 +8,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookType;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,8 +18,6 @@ import org.bukkit.event.Listener;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Listener for ChestShop transaction events to handle company-owned shop transactions.
@@ -50,7 +49,7 @@ public class ChestShopTransactionListener implements Listener {
                 event.hasAccount(true);
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error handling ChestShop account query", e);
+            logger.severe("Error handling ChestShop account query", e);
         }
     }
 
@@ -75,7 +74,7 @@ public class ChestShopTransactionListener implements Listener {
                 event.hasEnough(true);
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error handling ChestShop currency check", e);
+            logger.severe("Error handling ChestShop currency check", e);
         }
     }
 
@@ -138,7 +137,7 @@ public class ChestShopTransactionListener implements Listener {
                     String playerUuid = receiverPlayer.getUniqueId().toString();
                     QuickStocksPlugin.getWalletService().addBalance(playerUuid, amount.doubleValue());
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error adding balance to player", e);
+                    logger.severe("Error adding balance to player", e);
                     event.setHandled(true);
                 }
             }
@@ -155,12 +154,12 @@ public class ChestShopTransactionListener implements Listener {
                         logger.warning("Player " + senderPlayer.getName() + " has insufficient funds");
                     }
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error removing balance from player", e);
+                    logger.severe("Error removing balance from player", e);
                     event.setHandled(true);
                 }
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error handling ChestShop currency transfer", e);
+            logger.severe("Error handling ChestShop currency transfer", e);
             event.setHandled(true);
         }
     }
@@ -201,7 +200,7 @@ public class ChestShopTransactionListener implements Listener {
             }
             
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error handling ChestShop transaction message", e);
+            logger.severe("Error handling ChestShop transaction message", e);
         }
     }
 }

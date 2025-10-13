@@ -2,10 +2,11 @@ package net.cyberneticforge.quickstocks.infrastructure.db;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 import javax.sql.DataSource;
 import java.io.File;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Provides database connection through HikariCP connection pool.

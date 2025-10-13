@@ -1,11 +1,12 @@
 package net.cyberneticforge.quickstocks.core.algorithms;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Stock;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Controls price growth thresholds to prevent excessive stock price increases
