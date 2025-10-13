@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,7 +29,7 @@ import java.util.stream.Stream;
  */
 public class CompanyCommand implements CommandExecutor, TabCompleter {
     
-    private static final Logger logger = Logger.getLogger(CompanyCommand.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     
@@ -819,7 +819,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             }
         } catch (Exception e) {
             // Silently fail for tab completion
-            logger.fine("Error in tab completion: " + e.getMessage());
+            logger.debug("Error in tab completion: " + e.getMessage());
         }
         
         return null;

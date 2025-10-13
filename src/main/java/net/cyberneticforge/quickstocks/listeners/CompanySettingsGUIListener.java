@@ -11,14 +11,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Handles interactions with the Company Settings GUI
  */
 public class CompanySettingsGUIListener implements Listener {
     
-    private static final Logger logger = Logger.getLogger(CompanySettingsGUIListener.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {

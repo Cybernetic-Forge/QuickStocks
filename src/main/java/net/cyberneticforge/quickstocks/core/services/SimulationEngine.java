@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class SimulationEngine {
     
-    private static final Logger logger = Logger.getLogger(SimulationEngine.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     private static final int TICK_INTERVAL_SECONDS = 5;
 
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
@@ -91,7 +91,7 @@ public class SimulationEngine {
      */
     private void tick() {
         try {
-            logger.fine("Executing simulation tick");
+            logger.debug("Executing simulation tick");
             
             // Update market prices (this applies all market factors)
             QuickStocksPlugin.getStockMarketService().updateAllStockPrices();
@@ -102,7 +102,7 @@ public class SimulationEngine {
             // Persist all updated stocks to database in a single transaction
             persistMarketState(contributingFactors);
             
-            logger.fine("Simulation tick completed successfully");
+            logger.debug("Simulation tick completed successfully");
             
         } catch (Exception ex) {
             logger.severe("Error during simulation tick: " + ex.getMessage());
@@ -186,7 +186,7 @@ public class SimulationEngine {
                 }
             });
             
-            logger.fine("Persisted market state for " + QuickStocksPlugin.getStockMarketService().getAllStocks().size() + " instruments");
+            logger.debug("Persisted market state for " + QuickStocksPlugin.getStockMarketService().getAllStocks().size() + " instruments");
             
         } catch (Exception ex) {
             logger.severe("Failed to persist market state: " + ex.getMessage());
@@ -303,7 +303,7 @@ public class SimulationEngine {
      */
     public void recordPortfolioSnapshots() {
         try {
-            logger.fine("Recording portfolio snapshots for Sharpe ratio calculations");
+            logger.debug("Recording portfolio snapshots for Sharpe ratio calculations");
             
             // TODO: In real implementation, query actual player portfolios from holdings/wallet data
             // For now, this is a placeholder that shows the integration pattern
@@ -313,7 +313,7 @@ public class SimulationEngine {
             // 2. Calculate their current portfolio value (cash + holdings)
             // 3. Record the snapshot using analyticsService.recordPortfolioValue()
             
-            logger.fine("Portfolio snapshot recording placeholder - integrate with actual portfolio service");
+            logger.debug("Portfolio snapshot recording placeholder - integrate with actual portfolio service");
             
         } catch (Exception e) {
             logger.warning("Failed to record portfolio snapshots: " + e.getMessage());
@@ -328,7 +328,7 @@ public class SimulationEngine {
         try {
             if (QuickStocksPlugin.getStockMarketService().getThresholdController() != null) {
                 QuickStocksPlugin.getStockMarketService().getThresholdController().resetTradingActivity();
-                logger.fine("Reset trading activity counters");
+                logger.debug("Reset trading activity counters");
             }
         } catch (Exception e) {
             logger.warning("Error resetting trading activity: " + e.getMessage());

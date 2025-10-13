@@ -40,7 +40,51 @@ public class CompanyCfg {
     
     public CompanyCfg() {
         config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "companies.yml");
+        addMissingDefaults();
         loadValues();
+    }
+    
+    /**
+     * Adds missing configuration entries with default values
+     */
+    private void addMissingDefaults() {
+        // Basic settings
+        config.addMissing("companies.enabled", true);
+        config.addMissing("companies.creationCost", 1000.0);
+        
+        // Default types
+        config.addMissing("companies.defaultTypes", Arrays.asList("PRIVATE", "PUBLIC", "DAO"));
+        
+        // Default job titles
+        config.addMissing("companies.defaultJobTitles", Arrays.asList("CEO", "CFO", "EMPLOYEE"));
+        
+        // Permissions by title
+        config.addMissing("companies.permissionsByTitle.CEO.canManageCompany", true);
+        config.addMissing("companies.permissionsByTitle.CEO.canInvite", true);
+        config.addMissing("companies.permissionsByTitle.CEO.canCreateJobTitles", true);
+        config.addMissing("companies.permissionsByTitle.CEO.canWithdraw", true);
+        config.addMissing("companies.permissionsByTitle.CEO.canManageSalaries", true);
+        
+        config.addMissing("companies.permissionsByTitle.CFO.canWithdraw", true);
+        config.addMissing("companies.permissionsByTitle.CFO.canInvite", false);
+        config.addMissing("companies.permissionsByTitle.CFO.canCreateJobTitles", false);
+        config.addMissing("companies.permissionsByTitle.CFO.canManageSalaries", true);
+        
+        config.addMissing("companies.permissionsByTitle.EMPLOYEE.canInvite", false);
+        config.addMissing("companies.permissionsByTitle.EMPLOYEE.canWithdraw", false);
+        config.addMissing("companies.permissionsByTitle.EMPLOYEE.canCreateJobTitles", false);
+        config.addMissing("companies.permissionsByTitle.EMPLOYEE.canManageSalaries", false);
+        
+        // Salary settings
+        config.addMissing("companies.salaries.paymentCycles", Arrays.asList("1h", "24h", "1w", "2w", "1m"));
+        config.addMissing("companies.salaries.defaultJobSalary", 0.0);
+        config.addMissing("companies.salaries.offlinePayment", true);
+        
+        // ChestShop settings
+        config.addMissing("companies.chestshop.enabled", true);
+        config.addMissing("companies.chestshop.companyMinBalance", 1000.0);
+        
+        config.saveChanges();
     }
     
     /**

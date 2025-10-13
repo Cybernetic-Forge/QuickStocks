@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  */
 public class MarketCommand implements CommandExecutor, TabCompleter {
     
-    private static final Logger logger = Logger.getLogger(MarketCommand.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Db database;
     

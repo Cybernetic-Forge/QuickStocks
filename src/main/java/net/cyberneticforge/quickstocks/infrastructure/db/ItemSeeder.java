@@ -4,7 +4,7 @@ import net.cyberneticforge.quickstocks.utils.WordUtils;
 
 import java.sql.SQLException;
 import java.util.UUID;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Seeds all Minecraft "normal" items as instruments in the database.
@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class ItemSeeder {
     
-    private static final Logger logger = Logger.getLogger(ItemSeeder.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     private final Db db;
     
     public ItemSeeder(Db db) {
@@ -79,7 +79,7 @@ public class ItemSeeder {
 
         // Check if symbol already exists (upsert behavior)
         if (instrumentExists(symbol)) {
-            logger.fine("Skipping existing instrument: " + symbol);
+            logger.debug("Skipping existing instrument: " + symbol);
             return false;
         }
         
@@ -115,7 +115,7 @@ public class ItemSeeder {
             currentTime
         );
         
-        logger.fine("Created instrument: " + symbol + " (" + displayName + ")");
+        logger.debug("Created instrument: " + symbol + " (" + displayName + ")");
         return true;
     }
     

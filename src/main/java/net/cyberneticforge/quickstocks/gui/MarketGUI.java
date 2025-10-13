@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Professional Market GUI for QuickStocks
@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("deprecation")
 public class MarketGUI implements InventoryHolder {
 
-    private static final Logger logger = Logger.getLogger(MarketGUI.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final Inventory inventory;
     private final Player player;

@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Integration hook for ChestShop plugin to handle company-owned shops.
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class ChestShopHook {
     
-    private static final Logger logger = Logger.getLogger(ChestShopHook.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final CompanyService companyService;
     

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Service for managing company market operations (shares, IPO, trading).
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class CompanyMarketService {
     
-    private static final Logger logger = Logger.getLogger(CompanyMarketService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     private final CompanyCfg config = QuickStocksPlugin.getCompanyService().getConfig();

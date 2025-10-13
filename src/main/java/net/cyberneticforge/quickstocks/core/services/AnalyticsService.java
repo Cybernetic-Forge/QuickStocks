@@ -5,7 +5,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.util.*;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Service for calculating analytics metrics like EWMA volatility, correlations, and Sharpe ratios.
@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class AnalyticsService {
     
-    private static final Logger logger = Logger.getLogger(AnalyticsService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Db database;
     // Getters for default values
@@ -236,7 +236,7 @@ public class AnalyticsService {
             
             // Need sufficient data points and non-zero standard deviation
             if (returnCount < 5 || stdDev <= 0.0) {
-                logger.fine("Insufficient data or zero volatility for Sharpe calculation for player " + playerUuid);
+                logger.debug("Insufficient data or zero volatility for Sharpe calculation for player " + playerUuid);
                 return 0.0;
             }
             
@@ -244,7 +244,7 @@ public class AnalyticsService {
             double excessReturn = avgReturn - (riskFree / 365.0); // Convert annual risk-free rate to daily
             double sharpeRatio = excessReturn / stdDev;
             
-            logger.fine(String.format("Calculated Sharpe ratio for %s: %.4f (avg_return=%.6f, std_dev=%.6f, excess=%.6f)", 
+            logger.debug(String.format("Calculated Sharpe ratio for %s: %.4f (avg_return=%.6f, std_dev=%.6f, excess=%.6f)", 
                 playerUuid, sharpeRatio, avgReturn, stdDev, excessReturn));
             
             return sharpeRatio;
@@ -319,7 +319,7 @@ public class AnalyticsService {
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                \s""", id, playerUuid, currentTime, totalValue, cashBalance, holdingsValue, currentTime);
                 
-            logger.fine(String.format("Recorded portfolio value for %s: total=%.2f, cash=%.2f, holdings=%.2f", 
+            logger.debug(String.format("Recorded portfolio value for %s: total=%.2f, cash=%.2f, holdings=%.2f", 
                 playerUuid, totalValue, cashBalance, holdingsValue));
                 
         } catch (Exception e) {
@@ -381,7 +381,7 @@ public class AnalyticsService {
                 LIMIT ?
                \s""", riskFreeRate / 365.0, limit); // Convert annual rate to daily
             
-            logger.fine("Retrieved " + results.size() + " players for Sharpe leaderboard");
+            logger.debug("Retrieved " + results.size() + " players for Sharpe leaderboard");
             return results;
             
         } catch (Exception e) {

@@ -7,7 +7,7 @@ import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Service for managing company invitations.
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class InvitationService {
     
-    private static final Logger logger = Logger.getLogger(InvitationService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     private static final long INVITATION_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000L; // 7 days
     
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();

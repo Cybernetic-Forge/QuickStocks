@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Database utility class providing simplified access to database operations.
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 @SuppressWarnings({"ALL", "UnusedReturnValue"})
 public class Db {
     
-    private static final Logger logger = Logger.getLogger(Db.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final DataSource dataSource;
     
@@ -40,7 +40,7 @@ public class Db {
             setParameters(stmt, params);
             int result = stmt.executeUpdate();
             
-            logger.fine("Executed SQL: " + sql + " (affected rows: " + result + ")");
+            logger.debug("Executed SQL: " + sql + " (affected rows: " + result + ")");
             return result;
         }
     }
@@ -65,7 +65,7 @@ public class Db {
                 }
             }
             
-            logger.fine("Executed batch SQL: " + sql + " (total affected rows: " + totalAffected + ")");
+            logger.debug("Executed batch SQL: " + sql + " (total affected rows: " + totalAffected + ")");
             return totalAffected;
         }
     }
@@ -94,7 +94,7 @@ public class Db {
                     results.add(row);
                 }
                 
-                logger.fine("Executed query: " + sql + " (returned " + results.size() + " rows)");
+                logger.debug("Executed query: " + sql + " (returned " + results.size() + " rows)");
                 return results;
             }
         }
@@ -140,7 +140,7 @@ public class Db {
             execute(createTableSQL);
             logger.info("Created table: " + tableName);
         } else {
-            logger.fine("Table already exists: " + tableName);
+            logger.debug("Table already exists: " + tableName);
         }
     }
     
@@ -154,7 +154,7 @@ public class Db {
                 conn.setAutoCommit(false);
                 block.execute(new TransactionDb(conn));
                 conn.commit();
-                logger.fine("Transaction committed successfully");
+                logger.debug("Transaction committed successfully");
             } catch (Exception e) {
                 conn.rollback();
                 logger.warning("Transaction rolled back due to error: " + e.getMessage());

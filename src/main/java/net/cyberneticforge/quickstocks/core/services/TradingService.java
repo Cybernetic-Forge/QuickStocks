@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Handles trading operations including buy/sell orders and execution.
@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("ALL")
 public class TradingService {
 
-    private static final Logger logger = Logger.getLogger(TradingService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     private final EnhancedTradingService enhancedTradingService;
@@ -287,7 +287,7 @@ public class TradingService {
                     stockMarketService.getThresholdController().recordTradingActivity(symbol, volume);
                 }
             } catch (SQLException e) {
-                logger.fine("Could not record trading activity for " + instrumentId + ": " + e.getMessage());
+                logger.debug("Could not record trading activity for " + instrumentId + ": " + e.getMessage());
             }
         }
     }

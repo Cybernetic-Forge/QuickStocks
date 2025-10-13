@@ -23,7 +23,39 @@ public class TradingCfg {
     
     public TradingCfg() {
         config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "trading.yml");
+        addMissingDefaults();
         loadValues();
+    }
+    
+    /**
+     * Adds missing configuration entries with default values
+     */
+    private void addMissingDefaults() {
+        // Fee settings
+        config.addMissing("trading.fee.mode", "percent");
+        config.addMissing("trading.fee.percent", 0.25);
+        config.addMissing("trading.fee.flat", 0.0);
+        
+        // Limits settings
+        config.addMissing("trading.limits.maxOrderQty", 10000);
+        config.addMissing("trading.limits.maxNotionalPerMinute", 250000);
+        config.addMissing("trading.limits.perPlayerCooldownMs", 750);
+        
+        // Circuit breakers settings
+        config.addMissing("trading.circuitBreakers.enable", true);
+        config.addMissing("trading.circuitBreakers.levels", List.of(7.0, 13.0, 20.0));
+        config.addMissing("trading.circuitBreakers.haltMinutes", List.of(15, 15, -1));
+        
+        // Orders settings
+        config.addMissing("trading.orders.allowMarket", true);
+        config.addMissing("trading.orders.allowLimit", true);
+        config.addMissing("trading.orders.allowStop", true);
+        
+        // Slippage settings
+        config.addMissing("trading.slippage.mode", "linear");
+        config.addMissing("trading.slippage.k", 0.0005);
+        
+        config.saveChanges();
     }
     
     /**
