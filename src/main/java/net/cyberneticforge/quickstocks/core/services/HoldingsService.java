@@ -8,14 +8,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Manages player holdings (portfolios) including position tracking.
  */
 public class HoldingsService {
     
-    private static final Logger logger = Logger.getLogger(HoldingsService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     
@@ -108,7 +108,7 @@ public class HoldingsService {
             );
         }
         
-        logger.fine("Added " + qty + " shares of " + instrumentId + " for " + playerUuid + " at $" + price);
+        logger.debug("Added " + qty + " shares of " + instrumentId + " for " + playerUuid + " at $" + price);
     }
     
     /**
@@ -139,7 +139,7 @@ public class HoldingsService {
             );
         }
         
-        logger.fine("Removed " + qty + " shares of " + instrumentId + " for " + playerUuid);
+        logger.debug("Removed " + qty + " shares of " + instrumentId + " for " + playerUuid);
         return true;
     }
     

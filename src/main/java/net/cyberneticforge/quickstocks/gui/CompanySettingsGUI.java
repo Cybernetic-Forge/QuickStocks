@@ -22,14 +22,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Company Settings GUI for managing company settings and viewing information
  */
 public class CompanySettingsGUI implements InventoryHolder {
 
-    private static final Logger logger = Logger.getLogger(CompanySettingsGUI.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final Player player;
 

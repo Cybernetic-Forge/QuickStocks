@@ -17,14 +17,14 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Handles interactions with the Market GUI (company shares)
  */
 public class MarketGUIListener implements Listener {
     
-    private static final Logger logger = Logger.getLogger(MarketGUIListener.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {

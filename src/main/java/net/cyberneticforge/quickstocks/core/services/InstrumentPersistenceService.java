@@ -9,7 +9,7 @@ import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.stream.Collectors;
 
 /**
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"unused", "ConstantValue"})
 public class InstrumentPersistenceService {
     
-    private static final Logger logger = Logger.getLogger(InstrumentPersistenceService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     private final Map<String, Instrument> symbolToInstrumentMap = new HashMap<>(); // symbol -> Instrument

@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Provides ChestShop with company account information.
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class ChestShopAccountProvider {
     
-    private static final Logger logger = Logger.getLogger(ChestShopAccountProvider.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     // Special UUID namespace for companies to avoid conflicts with player UUIDs
     private static final UUID COMPANY_NAMESPACE = UUID.fromString("12345678-1234-5678-1234-567812345678");
@@ -52,7 +52,7 @@ public class ChestShopAccountProvider {
         try {
             UUID companyUuid = getCompanyUUID(company.getId());
             NameManager.getOrCreateAccount(companyUuid, company.getName());
-            logger.fine("Registered company '" + company.getName() + "' (UUID: " + companyUuid + ") with ChestShop");
+            logger.debug("Registered company '" + company.getName() + "' (UUID: " + companyUuid + ") with ChestShop");
         } catch (Exception e) {
             logger.log(Level.WARNING, "Failed to register company '" + company.getName() + "' with ChestShop", e);
         }

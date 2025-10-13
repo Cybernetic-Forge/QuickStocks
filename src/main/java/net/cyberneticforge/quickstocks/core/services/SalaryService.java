@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Service for managing employee salaries and payments.
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class SalaryService {
     
-    private static final Logger logger = Logger.getLogger(SalaryService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     private final CompanyService companyService = QuickStocksPlugin.getCompanyService();
@@ -39,7 +39,7 @@ public class SalaryService {
             jobId, amount
         );
         
-        logger.fine("Set job salary for job " + jobId + " to $" + amount);
+        logger.debug("Set job salary for job " + jobId + " to $" + amount);
     }
     
     /**
@@ -73,7 +73,7 @@ public class SalaryService {
             companyId, playerUuid, amount, now, setByUuid
         );
         
-        logger.fine("Set player salary for " + playerUuid + " in company " + companyId + " to $" + amount);
+        logger.debug("Set player salary for " + playerUuid + " in company " + companyId + " to $" + amount);
     }
     
     /**
@@ -101,7 +101,7 @@ public class SalaryService {
             companyId, playerUuid
         );
         
-        logger.fine("Removed player salary override for " + playerUuid + " in company " + companyId);
+        logger.debug("Removed player salary override for " + playerUuid + " in company " + companyId);
     }
     
     /**
@@ -142,7 +142,7 @@ public class SalaryService {
             companyId, cycle, System.currentTimeMillis()
         );
         
-        logger.fine("Set payment cycle for company " + companyId + " to " + cycle);
+        logger.debug("Set payment cycle for company " + companyId + " to " + cycle);
     }
     
     /**
@@ -224,7 +224,7 @@ public class SalaryService {
             if (!config.isOfflinePayment()) {
                 org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(java.util.UUID.fromString(playerUuid));
                 if (!offlinePlayer.isOnline()) {
-                    logger.fine("Skipping salary payment for offline player " + playerUuid + " (offline_payment disabled)");
+                    logger.debug("Skipping salary payment for offline player " + playerUuid + " (offline_payment disabled)");
                     continue;
                 }
             }
@@ -256,7 +256,7 @@ public class SalaryService {
                 paymentsSuccessful++;
                 totalPaid += salary;
                 
-                logger.fine("Paid salary of $" + salary + " to " + playerUuid + " from company " + companyId);
+                logger.debug("Paid salary of $" + salary + " to " + playerUuid + " from company " + companyId);
                 
                 // Notify player if they are online
                 Player onlinePlayer = Bukkit.getPlayer(UUID.fromString(playerUuid));

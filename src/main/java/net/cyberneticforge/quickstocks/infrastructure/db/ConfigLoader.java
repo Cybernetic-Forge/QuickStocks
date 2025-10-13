@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Simple configuration loader that reads from config.yml or properties.
@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  */
 public class ConfigLoader {
     
-    private static final Logger logger = Logger.getLogger(ConfigLoader.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     /**
      * Loads database configuration from config.yml and market.yml or falls back to defaults.

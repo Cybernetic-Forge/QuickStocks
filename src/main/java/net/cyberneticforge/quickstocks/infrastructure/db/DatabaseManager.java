@@ -1,7 +1,7 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
 import java.sql.SQLException;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Central database manager that coordinates database initialization,
@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class DatabaseManager {
     
-    private static final Logger logger = Logger.getLogger(DatabaseManager.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final DatabaseConfig config;
     private final boolean enableSeeding;

@@ -5,7 +5,7 @@ import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Controls price growth thresholds to prevent excessive stock price increases
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class PriceThresholdController {
     
-    private static final Logger logger = Logger.getLogger(PriceThresholdController.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final DatabaseConfig config;
     
@@ -38,7 +38,7 @@ public class PriceThresholdController {
         if (!initialPrices.containsKey(symbol)) {
             initialPrices.put(symbol, stock.getCurrentPrice());
             recentTradingActivity.put(symbol, 0);
-            logger.fine("Recorded initial price for " + symbol + ": $" + stock.getCurrentPrice());
+            logger.debug("Recorded initial price for " + symbol + ": $" + stock.getCurrentPrice());
         }
     }
     
@@ -104,14 +104,14 @@ public class PriceThresholdController {
             double baseDampening = config.getDampeningFactor();
             double adjustedDampening = baseDampening + (1.0 - baseDampening) * volumeReduction;
             
-            logger.fine(String.format("Stock %s: Volume dampening applied. Volume: %d, Base: %.2f, Adjusted: %.2f", 
+            logger.debug(String.format("Stock %s: Volume dampening applied. Volume: %d, Base: %.2f, Adjusted: %.2f", 
                 symbol, tradingVolume, baseDampening, adjustedDampening));
             
             return adjustedDampening;
         }
         
         // Apply full dampening due to low trading activity and high price growth
-        logger.fine(String.format("Stock %s: Full dampening applied. Price multiplier: %.2f, Trading volume: %d", 
+        logger.debug(String.format("Stock %s: Full dampening applied. Price multiplier: %.2f, Trading volume: %d", 
             symbol, priceMultiplier, tradingVolume));
         
         return config.getDampeningFactor();

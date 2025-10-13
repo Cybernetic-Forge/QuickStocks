@@ -46,13 +46,15 @@ src/main/java/com/example/quickstocks/
 │   ├── interfaces/                # Contracts (future)
 │   └── events/                    # Event system (future)
 └── infrastructure/                # Infrastructure layer
-    └── db/                        # Database layer
-        ├── ConfigLoader.java      # Configuration file loader
-        ├── DatabaseConfig.java    # Database configuration holder
-        ├── DatabaseManager.java   # Central DB coordinator
-        ├── DataSourceProvider.java # Connection pooling
-        ├── Db.java               # Database utility wrapper
-        └── MigrationRunner.java   # Schema migration management
+    ├── db/                        # Database layer
+    │   ├── ConfigLoader.java      # Configuration file loader
+    │   ├── DatabaseConfig.java    # Database configuration holder
+    │   ├── DatabaseManager.java   # Central DB coordinator
+    │   ├── DataSourceProvider.java # Connection pooling
+    │   ├── Db.java               # Database utility wrapper
+    │   └── MigrationRunner.java   # Schema migration management
+    └── logging/                   # Logging infrastructure
+        └── PluginLogger.java      # Centralized logger with debug levels
 ```
 
 ## Development Environment Setup
@@ -128,8 +130,24 @@ mvn clean package
   - Tracks reasons for price movements (market factors)
   - Indexed by instrument and timestamp for efficient queries
 
-### 3. Configuration System
+### 3. Centralized Logging System
+- **Location**: `infrastructure.logging.PluginLogger`
+- **Features**:
+  - Configurable debug levels (0-3) via `config.yml`
+  - Level 0: OFF - Only errors/warnings
+  - Level 1: INFO - Basic operational messages (default)
+  - Level 2: DEBUG - Detailed debug information
+  - Level 3: TRACE - Very verbose tracing
+  - Thread-safe for concurrent access
+  - Replaces all `java.util.logging.Logger` instances
+- **Usage**: `private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();`
+- **Configuration Key**: `logging.debugLevel` (0-3, default: 1)
+- **Documentation**: See `Documentation/Copilot-Changes/LOGGING_SYSTEM.md`
+
+### 4. Configuration System
 - **Location**: `src/main/resources/config.yml`
+- **Logging Configuration Keys**:
+  - `logging.debugLevel`: Debug verbosity level (0-3, default: 1)
 - **Database Configuration Keys**:
   - `database.provider`: sqlite | mysql | postgres
   - `database.sqlite.file`: SQLite database file path
@@ -140,7 +158,7 @@ mvn clean package
   - `market.startOpen`: Whether market starts open on plugin load
   - `market.defaultStocks`: Whether to seed default stock instruments
 
-### 4. Realistic Stock Price Algorithm
+### 5. Realistic Stock Price Algorithm
 - **Location**: `core.algorithms.StockPriceCalculator`
 - **Features**:
   - Multi-factor price calculation considering 25+ real-world market factors
@@ -150,7 +168,7 @@ mvn clean package
   - Mean reversion to prevent unrealistic prices
   - Sector-specific factor weighting
 
-### 5. Comprehensive Market Factors
+### 6. Comprehensive Market Factors
 - **Location**: `core.enums.MarketFactor`
 - **Categories**:
   - Economic Indicators (inflation, interest rates, GDP, unemployment)
@@ -162,7 +180,7 @@ mvn clean package
   - Seasonal/Cyclical patterns
   - Random Events (market manipulation, flash crashes, social media buzz)
 
-### 6. Stock Market Service
+### 7. Stock Market Service
 - **Location**: `core.services.StockMarketService`
 - **Capabilities**:
   - Stock registration and management
@@ -173,7 +191,7 @@ mvn clean package
   - Market sentiment calculation
   - Event simulation
 
-### 7. Item Seeding System  
+### 8. Item Seeding System  
 - **Location**: `application.boot.ItemSeeder`
 - **Features**:
   - Automatically seeds Minecraft items as tradeable instruments
@@ -181,7 +199,7 @@ mvn clean package
   - Handles mock materials for testing environments
   - Configurable seeding via `market.defaultStocks` config
 
-### 8. Testing Infrastructure
+### 9. Testing Infrastructure
 - **Location**: `src/test/java/com/example/quickstocks/StockMarketSimulationTest.java`
 - **Features**:
   - Comprehensive simulation with 10 diverse stocks
@@ -190,7 +208,7 @@ mvn clean package
   - Random market event simulation
   - Performance analytics
 
-### 9. Command System (Planned)
+### 10. Command System (Planned)
 - **Command Prefix**: `/stocks`
 - **Planned Commands**:
   - `/stocks list` - Display available instruments/stocks
@@ -205,7 +223,7 @@ mvn clean package
 - **Status**: Commands are planned but not yet implemented
 - **Implementation Notes**: Command handlers should be added to plugin.yml and command executor classes
 
-### 10. Company/Corporation System
+### 11. Company/Corporation System
 - **Location**: `core.services.CompanyService`, `core.services.InvitationService`
 - **Database Tables**: 
   - `companies` - Company registry with name, type, owner, balance
@@ -327,9 +345,27 @@ mvn clean package
 ```java
 // Pattern for new commands
 public class YourCommand implements CommandExecutor, TabCompleter {
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     // Use Adventure Components for rich text
     // Inject services via constructor
     // Handle permissions properly
+}
+```
+
+**LOGGING - Use centralized PluginLogger:**
+```java
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+
+public class YourService {
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
+    
+    public void doWork() {
+        logger.info("Basic operational message");      // Level 1+
+        logger.debug("Detailed debug information");    // Level 2+
+        logger.trace("Very verbose tracing");          // Level 3+
+        logger.warning("Warning message");             // Always logged
+        logger.severe("Critical error");               // Always logged
+    }
 }
 ```
 
@@ -342,6 +378,8 @@ public class YourCommand implements CommandExecutor, TabCompleter {
 - Maintain thread safety for concurrent operations
 - Use `infrastructure.db` package for all persistence
 - Create migrations for schema changes (V2__*.sql, etc.)
+- Use PluginLogger instead of java.util.logging.Logger
+- Use appropriate log levels (info/debug/trace for different verbosity)
 
 **❌ DON'T:**
 - Access database directly - use service layer
@@ -351,6 +389,7 @@ public class YourCommand implements CommandExecutor, TabCompleter {
 - Modify existing working functionality unnecessarily
 - Duplicate code across services - use delegation or extraction instead
 - Add redundant @SuppressWarnings at method level when class already has it
+- Use java.util.logging.Logger directly - use PluginLogger instead
 
 ### When Working on This Project:
 1. **Always update these instructions** when making significant changes
@@ -424,7 +463,20 @@ mvn -f pom-test.xml test
   - Realistic price calculation algorithm developed
   - Test infrastructure created
 
-### Future Breaking Changes
+### Version 1.2.0-SNAPSHOT (Centralized Logging System)
+- **Date**: 2024-10-12
+- **Changes**:
+  - **BREAKING**: Replaced all `java.util.logging.Logger` with `PluginLogger`
+  - **BREAKING**: New config section `logging:` with `debugLevel` setting
+  - **CHANGE**: Info messages now require `debugLevel >= 1` to be logged
+  - **CHANGE**: Replaced `logger.fine()` with `logger.debug()`
+  - **NEW**: Centralized logging with configurable debug levels (0-3)
+  - **NEW**: Thread-safe logging for concurrent operations
+  - **NEW**: `infrastructure.logging.PluginLogger` class
+- **Migration Impact**: None - backward compatible
+- **Config Impact**: New optional `logging.debugLevel` setting (default: 1)
+- **Code Impact**: All 38 files with Logger updated to use PluginLogger
+- **Documentation**: See `Documentation/Copilot-Changes/LOGGING_SYSTEM.md`
 
 ### Version 1.2.0-SNAPSHOT (Company/Corporation Feature)
 - **Date**: 2024-12-XX

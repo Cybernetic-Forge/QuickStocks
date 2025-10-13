@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  */
 public class WalletCommand implements CommandExecutor, TabCompleter {
     
-    private static final Logger logger = Logger.getLogger(WalletCommand.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {

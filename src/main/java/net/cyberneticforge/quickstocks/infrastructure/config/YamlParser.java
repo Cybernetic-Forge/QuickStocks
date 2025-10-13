@@ -25,7 +25,11 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class YamlParser extends YamlConfiguration implements IValuesReloadable {
 
-    private static final Logger logger = QuickStocksPlugin.getInstance().getLogger();
+    private static Logger getLogger() {
+        return QuickStocksPlugin.getInstance().getLogger();
+    }
+    
+    private static final Logger logger = getLogger();
     private final File file;
     private boolean isChanged;
 

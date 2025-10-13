@@ -5,7 +5,7 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
 
-import java.util.logging.Logger;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Service for managing bStats metrics and custom charts.
@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  */
 public class MetricsService {
     
-    private static final Logger logger = Logger.getLogger(MetricsService.class.getName());
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     private static final int BSTATS_PLUGIN_ID = 27476; // bStats plugin ID for QuickStocks
     private Metrics metrics;
     
