@@ -1,11 +1,11 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.WordUtils;
 
 import java.sql.SQLException;
 import java.util.UUID;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Seeds all Minecraft "normal" items as instruments in the database.

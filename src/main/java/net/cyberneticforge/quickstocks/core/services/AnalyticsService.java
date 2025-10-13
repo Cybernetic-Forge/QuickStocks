@@ -3,9 +3,12 @@ package net.cyberneticforge.quickstocks.core.services;
 import lombok.Getter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
-
-import java.util.*;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service for calculating analytics metrics like EWMA volatility, correlations, and Sharpe ratios.

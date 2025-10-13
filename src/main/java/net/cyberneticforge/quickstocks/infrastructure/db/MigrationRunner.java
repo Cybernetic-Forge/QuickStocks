@@ -1,14 +1,14 @@
 package net.cyberneticforge.quickstocks.infrastructure.db;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.*;
-
-import net.cyberneticforge.quickstocks.QuickStocksPlugin;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

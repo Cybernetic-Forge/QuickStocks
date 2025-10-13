@@ -6,13 +6,12 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.services.CompanyService;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Integration hook for ChestShop plugin to handle company-owned shops.

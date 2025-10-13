@@ -9,6 +9,7 @@ import net.cyberneticforge.quickstocks.core.services.CompanyService;
 import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -16,8 +17,6 @@ import org.bukkit.event.block.SignChangeEvent;
 
 import java.sql.SQLException;
 import java.util.Optional;
-import java.util.logging.Level;
-import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
 /**
  * Listener for ChestShop integration to allow companies to own chest shops.
