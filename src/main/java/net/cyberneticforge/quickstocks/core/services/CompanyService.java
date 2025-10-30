@@ -431,6 +431,60 @@ public class CompanyService {
     }
     
     /**
+     * Removes funds from a company balance with debt allowance.
+     * This is used for operations that can cause debt (plots, salaries, chestshops).
+     * 
+     * @param companyId The company ID
+     * @param amount The amount to deduct
+     * @param reason The reason for deduction (for transaction log)
+     * @param debtCategory The debt category (chestshops, companyPlots, salaries)
+     * @return true if successful, false if would exceed debt limit
+     */
+    public boolean removeWithDebtAllowance(String companyId, double amount, String reason, String debtCategory) throws SQLException {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        
+        // Check company balance
+        Optional<Company> companyOpt = getCompanyById(companyId);
+        if (companyOpt.isEmpty()) {
+            throw new IllegalArgumentException("Company not found");
+        }
+        
+        Company company = companyOpt.get();
+        
+        // Determine debt allowance based on category
+        double debtAllowance = switch (debtCategory.toLowerCase()) {
+            case "chestshops" -> config.getAllowedDebtChestShops();
+            case "companyplots" -> config.getAllowedDebtPlots();
+            case "salaries" -> config.getAllowedDebtSalaries();
+            default -> 0.0;
+        };
+        
+        // Check if deduction would exceed debt limit
+        if (company.getBalance() - amount < debtAllowance) {
+            return false; // Would exceed debt limit
+        }
+        
+        // Deduct from company balance
+        database.execute(
+            "UPDATE companies SET balance = balance - ? WHERE id = ?",
+            amount, companyId
+        );
+        
+        // Record transaction with system UUID
+        String txId = UUID.randomUUID().toString();
+        database.execute(
+            "INSERT INTO company_tx (id, company_id, player_uuid, type, amount, ts) VALUES (?, ?, ?, ?, ?, ?)",
+            txId, companyId, "00000000-0000-0000-0000-000000000000", 
+            reason.toUpperCase(), amount, System.currentTimeMillis()
+        );
+        
+        logger.debug("Removed $" + amount + " from company " + companyId + " with debt allowance - Reason: " + reason);
+        return true;
+    }
+    
+    /**
      * Checks if a player can withdraw from a company.
      */
     public boolean canPlayerWithdraw(String companyId, String playerUuid) throws SQLException {

@@ -145,6 +145,18 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handleSalary(player, playerUuid, args);
                     break;
                     
+                case "buyplot":
+                    handleBuyPlot(player, playerUuid, args);
+                    break;
+                    
+                case "sellplot":
+                    handleSellPlot(player, playerUuid, args);
+                    break;
+                    
+                case "plots":
+                    handlePlots(player, args);
+                    break;
+                    
                 default:
                     showHelp(player);
                     break;
@@ -184,6 +196,9 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         Translation.Company_Help_Settings.sendMessage(player);
         Translation.Company_Help_Notifications.sendMessage(player);
         Translation.Company_Salary_Help_Main.sendMessage(player);
+        Translation.Company_Help_BuyPlot.sendMessage(player);
+        Translation.Company_Help_SellPlot.sendMessage(player);
+        Translation.Company_Help_Plots.sendMessage(player);
     }
     
     private void handleCreate(Player player, String playerUuid, String[] args) throws Exception {
@@ -707,7 +722,8 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 return Stream.of("create", "info", "list", "invite", "accept", "decline",
                                    "invitations", "deposit", "withdraw", "employees", "jobs",
                                    "createjob", "editjob", "assignjob", "settings",
-                                   "setsymbol", "market", "notifications", "leave", "transferownership", "fire", "salary")
+                                   "setsymbol", "market", "notifications", "leave", "transferownership", "fire", "salary",
+                                   "buyplot", "sellplot", "plots")
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
             }
@@ -738,7 +754,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 String subcommand = args[0].toLowerCase();
                 if (subcommand.equals("info") || subcommand.equals("employees") || subcommand.equals("jobs") ||
                     subcommand.equals("deposit") || subcommand.equals("withdraw") || subcommand.equals("settings") ||
-                    subcommand.equals("setsymbol")) {
+                    subcommand.equals("setsymbol") || subcommand.equals("plots")) {
                     return getCompanyNames(args[1]);
                 }
                 
@@ -748,6 +764,25 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     subcommand.equals("transferownership")) {
                     return getPlayerCompanyNames(playerUuid, args[1]);
                 }
+                
+                // For buyplot/sellplot - suggest on/off or company names
+                if (subcommand.equals("buyplot")) {
+                    List<String> options = new ArrayList<>();
+                    options.addAll(Stream.of("on", "off")
+                        .filter(option -> option.toLowerCase().startsWith(args[1].toLowerCase()))
+                        .collect(Collectors.toList()));
+                    options.addAll(getPlayerCompanyNames(playerUuid, args[1]));
+                    return options;
+                }
+                
+                if (subcommand.equals("sellplot")) {
+                    return getPlayerCompanyNames(playerUuid, args[1]);
+                }
+            }
+            
+            // For buyplot on <company> - suggest company names
+            if (args.length == 3 && args[0].equalsIgnoreCase("buyplot") && args[1].equalsIgnoreCase("on")) {
+                return getPlayerCompanyNames(playerUuid, args[2]);
             }
             
             // Company names for salary commands (3rd arg)
@@ -1464,6 +1499,173 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     new Replaceable("%job%", jobTitle),
                     new Replaceable("%amount%", String.format("%.2f", jobSalary)));
             }
+        }
+    }
+    
+    /**
+     * Handles buying a plot for a company.
+     */
+    private void handleBuyPlot(Player player, String playerUuid, String[] args) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        // Check if this is a mode toggle command
+        if (args.length >= 2 && (args[1].equalsIgnoreCase("on") || args[1].equalsIgnoreCase("off"))) {
+            handleBuyPlotMode(player, playerUuid, args);
+            return;
+        }
+        
+        // Regular buy plot command
+        if (args.length < 2) {
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company buyplot <company>"));
+            return;
+        }
+        
+        String companyName = args[1];
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        try {
+            CompanyPlot plot = QuickStocksPlugin.getCompanyPlotService().buyPlot(
+                company.getId(), playerUuid, player.getLocation()
+            );
+            
+            Translation.Company_Plot_Purchased.sendMessage(player,
+                new Replaceable("%company%", companyName),
+                new Replaceable("%world%", plot.getWorldName()),
+                new Replaceable("%x%", String.valueOf(plot.getChunkX())),
+                new Replaceable("%z%", String.valueOf(plot.getChunkZ())),
+                new Replaceable("%price%", String.format("%.2f", plot.getBuyPrice())));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            Translation.Errors_Internal.sendMessage(player, new Replaceable("%error%", e.getMessage()));
+        }
+    }
+    
+    /**
+     * Handles toggling auto-buy mode.
+     */
+    private void handleBuyPlotMode(Player player, String playerUuid, String[] args) throws Exception {
+        boolean enable = args[1].equalsIgnoreCase("on");
+        
+        if (enable) {
+            // Need company name to enable
+            if (args.length < 3) {
+                Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company buyplot on <company>"));
+                return;
+            }
+            
+            String companyName = args[2];
+            Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
+            
+            if (companyOpt.isEmpty()) {
+                Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
+                return;
+            }
+            
+            Company company = companyOpt.get();
+            
+            // Check if player has permission
+            Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
+            if (playerJob.isEmpty() || !playerJob.get().canManageCompany()) {
+                Translation.NoPermission.sendMessage(player);
+                return;
+            }
+            
+            QuickStocksPlugin.getCompanyPlotService().setAutoBuyMode(playerUuid, company.getId(), true);
+            Translation.Company_Plot_AutoBuyEnabled.sendMessage(player, new Replaceable("%company%", companyName));
+        } else {
+            QuickStocksPlugin.getCompanyPlotService().setAutoBuyMode(playerUuid, null, false);
+            Translation.Company_Plot_AutoBuyDisabled.sendMessage(player);
+        }
+    }
+    
+    /**
+     * Handles selling a plot owned by a company.
+     */
+    private void handleSellPlot(Player player, String playerUuid, String[] args) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        if (args.length < 2) {
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company sellplot <company>"));
+            return;
+        }
+        
+        String companyName = args[1];
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        try {
+            QuickStocksPlugin.getCompanyPlotService().sellPlot(
+                company.getId(), playerUuid, player.getLocation()
+            );
+            
+            double refund = QuickStocksPlugin.getCompanyCfg().getSellPlotPrice();
+            Translation.Company_Plot_Sold.sendMessage(player,
+                new Replaceable("%company%", companyName),
+                new Replaceable("%refund%", String.format("%.2f", refund)));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            Translation.Errors_Internal.sendMessage(player, new Replaceable("%error%", e.getMessage()));
+        }
+    }
+    
+    /**
+     * Handles listing plots for a company.
+     */
+    private void handlePlots(Player player, String[] args) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        if (args.length < 2) {
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company plots <company>"));
+            return;
+        }
+        
+        String companyName = args[1];
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        List<CompanyPlot> plots = QuickStocksPlugin.getCompanyPlotService().getCompanyPlots(company.getId());
+        
+        if (plots.isEmpty()) {
+            Translation.Company_Plot_NoPlots.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Translation.Company_Plot_ListHeader.sendMessage(player, new Replaceable("%company%", companyName));
+        for (CompanyPlot plot : plots) {
+            String rentInfo = plot.hasRent() ? 
+                " (Rent: $" + String.format("%.2f", plot.getRentAmount()) + "/" + plot.getRentInterval() + ")" : 
+                " (No rent)";
+            
+            Translation.Company_Plot_ListItem.sendMessage(player,
+                new Replaceable("%world%", plot.getWorldName()),
+                new Replaceable("%x%", String.valueOf(plot.getChunkX())),
+                new Replaceable("%z%", String.valueOf(plot.getChunkZ())),
+                new Replaceable("%rent%", rentInfo));
         }
     }
 }

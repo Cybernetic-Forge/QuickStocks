@@ -41,6 +41,18 @@ public class CompanyCfg {
     private double defaultJobSalary = 0.0;
     private boolean offlinePayment = true;
     
+    // Plot/land ownership settings
+    private boolean plotsEnabled = true;
+    private double buyPlotPrice = 10000.0;
+    private double sellPlotPrice = 8000.0;
+    private double plotRent = -1.0;
+    private String plotRentInterval = "monthly";
+    
+    // Debt management settings
+    private double allowedDebtChestShops = -5000.0;
+    private double allowedDebtPlots = -10000.0;
+    private double allowedDebtSalaries = -3000.0;
+    
     public CompanyCfg() {
         config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "companies.yml");
         addMissingDefaults();
@@ -86,6 +98,18 @@ public class CompanyCfg {
         // ChestShop settings
         config.addMissing("companies.chestshop.enabled", true);
         config.addMissing("companies.chestshop.companyMinBalance", 1000.0);
+        
+        // Plot settings
+        config.addMissing("companies.plots.enabled", true);
+        config.addMissing("companies.plots.buyPlotPrice", 10000.0);
+        config.addMissing("companies.plots.sellPlotPrice", 8000.0);
+        config.addMissing("companies.plots.plotRent", -1.0);
+        config.addMissing("companies.plots.plotRentInterval", "monthly");
+        
+        // Debt management settings
+        config.addMissing("companies.allowedDebts.chestshops", -5000.0);
+        config.addMissing("companies.allowedDebts.companyPlots", -10000.0);
+        config.addMissing("companies.allowedDebts.salaries", -3000.0);
         
         config.saveChanges();
     }
@@ -163,6 +187,18 @@ public class CompanyCfg {
         // ChestShop settings
         setChestShopEnabled(config.getBoolean("companies.chestshop.enabled", true));
         setChestShopCompanyMinBalance(config.getDouble("companies.chestshop.companyMinBalance", 1000.0));
+        
+        // Plot settings
+        setPlotsEnabled(config.getBoolean("companies.plots.enabled", true));
+        setBuyPlotPrice(config.getDouble("companies.plots.buyPlotPrice", 10000.0));
+        setSellPlotPrice(config.getDouble("companies.plots.sellPlotPrice", 8000.0));
+        setPlotRent(config.getDouble("companies.plots.plotRent", -1.0));
+        setPlotRentInterval(config.getString("companies.plots.plotRentInterval", "monthly"));
+        
+        // Debt management settings
+        setAllowedDebtChestShops(config.getDouble("companies.allowedDebts.chestshops", -5000.0));
+        setAllowedDebtPlots(config.getDouble("companies.allowedDebts.companyPlots", -10000.0));
+        setAllowedDebtSalaries(config.getDouble("companies.allowedDebts.salaries", -3000.0));
     }
     
     /**

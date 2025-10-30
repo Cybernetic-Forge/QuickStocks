@@ -44,3 +44,15 @@ companies:
     companyMinBalance: 1000.0    # Minimum company balance for shop purchases
     # Permission added dynamically to job titles when ChestShop is detected
     # Employees with 'chestshop' permission can manage company chest shops
+  # Company plots / land ownership settings
+  plots:
+    enabled: true                # Enable plot/land ownership system
+    buyPlotPrice: 10000.0        # Cost to purchase a chunk/plot
+    sellPlotPrice: 8000.0        # Refund amount when selling a plot (80% of buy price)
+    plotRent: -1.0               # Default rent amount per interval (-1 = free, no rent)
+    plotRentInterval: 'monthly'  # Rent payment frequency: hourly, daily, weekly, monthly
+  # Debt management settings
+  allowedDebts:
+    chestshops: -5000.0          # Maximum negative balance allowed for ChestShop purchases
+    companyPlots: -10000.0       # Maximum negative balance allowed for plot rent payments
+    salaries: -3000.0            # Maximum negative balance allowed for salary payments
