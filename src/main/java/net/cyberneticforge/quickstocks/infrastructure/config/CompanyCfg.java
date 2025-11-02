@@ -48,6 +48,13 @@ public class CompanyCfg {
     private double plotRent = -1.0;
     private String plotRentInterval = "monthly";
     
+    // Terrain message settings
+    private boolean terrainMessagesEnabled = true;
+    private String terrainDisplayMode = "ACTIONBAR";
+    private String terrainEnterMessage = "&aEntering &e%company%&a territory";
+    private String terrainLeaveMessage = "&7Leaving &e%company%&7 territory";
+    private String terrainWildernessMessage = "&7Entering wilderness";
+    
     // Debt management settings
     private double allowedDebtChestShops = -5000.0;
     private double allowedDebtPlots = -10000.0;
@@ -105,6 +112,13 @@ public class CompanyCfg {
         config.addMissing("companies.plots.sellPlotPrice", 8000.0);
         config.addMissing("companies.plots.plotRent", -1.0);
         config.addMissing("companies.plots.plotRentInterval", "monthly");
+        
+        // Terrain message settings
+        config.addMissing("companies.plots.terrainMessages.enabled", true);
+        config.addMissing("companies.plots.terrainMessages.displayMode", "ACTIONBAR");
+        config.addMissing("companies.plots.terrainMessages.enterMessage", "&aEntering &e%company%&a territory");
+        config.addMissing("companies.plots.terrainMessages.leaveMessage", "&7Leaving &e%company%&7 territory");
+        config.addMissing("companies.plots.terrainMessages.wildernessMessage", "&7Entering wilderness");
         
         // Debt management settings
         config.addMissing("companies.allowedDebts.chestshops", -5000.0);
@@ -194,6 +208,13 @@ public class CompanyCfg {
         setSellPlotPrice(config.getDouble("companies.plots.sellPlotPrice", 8000.0));
         setPlotRent(config.getDouble("companies.plots.plotRent", -1.0));
         setPlotRentInterval(config.getString("companies.plots.plotRentInterval", "monthly"));
+        
+        // Terrain message settings
+        setTerrainMessagesEnabled(config.getBoolean("companies.plots.terrainMessages.enabled", true));
+        setTerrainDisplayMode(config.getString("companies.plots.terrainMessages.displayMode", "ACTIONBAR"));
+        setTerrainEnterMessage(config.getString("companies.plots.terrainMessages.enterMessage", "&aEntering &e%company%&a territory"));
+        setTerrainLeaveMessage(config.getString("companies.plots.terrainMessages.leaveMessage", "&7Leaving &e%company%&7 territory"));
+        setTerrainWildernessMessage(config.getString("companies.plots.terrainMessages.wildernessMessage", "&7Entering wilderness"));
         
         // Debt management settings
         setAllowedDebtChestShops(config.getDouble("companies.allowedDebts.chestshops", -5000.0));

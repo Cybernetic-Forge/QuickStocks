@@ -762,24 +762,17 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     return getPlayerCompanyNames(playerUuid, args[1]);
                 }
                 
-                // For buyplot/sellplot - suggest on/off or company names
-                if (subcommand.equals("buyplot")) {
-                    List<String> options = new ArrayList<>();
-                    options.addAll(Stream.of("on", "off")
-                        .filter(option -> option.toLowerCase().startsWith(args[1].toLowerCase()))
-                        .collect(Collectors.toList()));
-                    options.addAll(getPlayerCompanyNames(playerUuid, args[1]));
-                    return options;
-                }
-                
-                if (subcommand.equals("sellplot")) {
+                // For buyplot/sellplot - suggest company names
+                if (subcommand.equals("buyplot") || subcommand.equals("sellplot")) {
                     return getPlayerCompanyNames(playerUuid, args[1]);
                 }
             }
             
-            // For buyplot on <company> - suggest company names
-            if (args.length == 3 && args[0].equalsIgnoreCase("buyplot") && args[1].equalsIgnoreCase("on")) {
-                return getPlayerCompanyNames(playerUuid, args[2]);
+            // For buyplot <company> - suggest on/off as third argument
+            if (args.length == 3 && args[0].equalsIgnoreCase("buyplot")) {
+                return Stream.of("on", "off")
+                    .filter(option -> option.toLowerCase().startsWith(args[2].toLowerCase()))
+                    .collect(Collectors.toList());
             }
             
             // Company names for salary commands (3rd arg)
@@ -1508,19 +1501,21 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         
-        // Check if this is a mode toggle command
-        if (args.length >= 2 && (args[1].equalsIgnoreCase("on") || args[1].equalsIgnoreCase("off"))) {
-            handleBuyPlotMode(player, playerUuid, args);
-            return;
-        }
-        
-        // Regular buy plot command
+        // Need at least company name
         if (args.length < 2) {
-            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company buyplot <company>"));
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company buyplot <company> [on|off]"));
             return;
         }
         
         String companyName = args[1];
+        
+        // Check if this is a mode toggle command
+        if (args.length >= 3 && (args[2].equalsIgnoreCase("on") || args[2].equalsIgnoreCase("off"))) {
+            handleBuyPlotMode(player, playerUuid, companyName, args[2].equalsIgnoreCase("on"));
+            return;
+        }
+        
+        // Regular buy plot command
         Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
         
         if (companyOpt.isEmpty()) {
@@ -1549,30 +1544,31 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     /**
      * Handles toggling auto-buy mode.
      */
-    private void handleBuyPlotMode(Player player, String playerUuid, String[] args) throws Exception {
-        boolean enable = args[1].equalsIgnoreCase("on");
+    private void handleBuyPlotMode(Player player, String playerUuid, String companyName, boolean enable) throws Exception {
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        // Check if player has permission
+        Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
+        if (playerJob.isEmpty() || !playerJob.get().canManageCompany()) {
+            Translation.NoPermission.sendMessage(player);
+            return;
+        }
         
         if (enable) {
-            // Need company name to enable
-            if (args.length < 3) {
-                Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company buyplot on <company>"));
-                return;
-            }
-            
-            String companyName = args[2];
-            Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
-            
-            if (companyOpt.isEmpty()) {
-                Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
-                return;
-            }
-            
-            Company company = companyOpt.get();
-            
-            // Check if player has permission
-            Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
-            if (playerJob.isEmpty() || !playerJob.get().canManageCompany()) {
-                Translation.NoPermission.sendMessage(player);
+            // Check if player already has auto-buy enabled for another company
+            Optional<String> currentCompanyId = QuickStocksPlugin.getCompanyPlotService().getAutoBuyMode(playerUuid);
+            if (currentCompanyId.isPresent() && !currentCompanyId.get().equals(company.getId())) {
+                Optional<Company> currentCompany = QuickStocksPlugin.getCompanyService().getCompanyById(currentCompanyId.get());
+                String currentCompanyName = currentCompany.map(Company::getName).orElse("Unknown");
+                Translation.Company_Plot_AutoBuyAlreadyEnabled.sendMessage(player, 
+                    new Replaceable("%company%", currentCompanyName));
                 return;
             }
             

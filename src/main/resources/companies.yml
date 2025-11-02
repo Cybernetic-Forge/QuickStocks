@@ -51,6 +51,13 @@ companies:
     sellPlotPrice: 8000.0        # Refund amount when selling a plot (80% of buy price)
     plotRent: -1.0               # Default rent amount per interval (-1 = free, no rent)
     plotRentInterval: 'monthly'  # Rent payment frequency: hourly, daily, weekly, monthly
+    # Terrain messages - shown when entering/leaving company plots
+    terrainMessages:
+      enabled: true              # Enable terrain enter/leave messages
+      displayMode: 'ACTIONBAR'   # Display mode: CHAT, ACTIONBAR, or TITLE
+      enterMessage: '&aEntering &e%company%&a territory'  # Message when entering (empty to disable)
+      leaveMessage: '&7Leaving &e%company%&7 territory'   # Message when leaving (empty to disable)
+      wildernessMessage: '&7Entering wilderness'          # Message when entering unowned area (empty to disable)
   # Debt management settings
   allowedDebts:
     chestshops: -5000.0          # Maximum negative balance allowed for ChestShop purchases

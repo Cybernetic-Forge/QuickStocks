@@ -368,6 +368,7 @@ Company:
     NoPlots: '&7No plots owned by &e%company%&7.'
     AutoBuyEnabled: '&aAuto-buy mode enabled for &e%company%&a! Walk into unowned chunks to purchase them automatically.'
     AutoBuyDisabled: '&cAuto-buy mode disabled.'
+    AutoBuyAlreadyEnabled: '&cYou already have auto-buy mode enabled for &e%company%&c. Disable it first before enabling for another company.'
     AlreadyOwned: '&cThis plot is already owned by another company.'
     NotOwned: '&cThis plot is not owned by your company.'
     InsufficientFunds: '&cInsufficient company funds to purchase this plot.'

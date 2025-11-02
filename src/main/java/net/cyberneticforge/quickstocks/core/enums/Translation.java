@@ -268,6 +268,7 @@ public enum Translation {
     Company_Plot_NoPlots("Company.Plot.NoPlots"),
     Company_Plot_AutoBuyEnabled("Company.Plot.AutoBuyEnabled"),
     Company_Plot_AutoBuyDisabled("Company.Plot.AutoBuyDisabled"),
+    Company_Plot_AutoBuyAlreadyEnabled("Company.Plot.AutoBuyAlreadyEnabled"),
     Company_Plot_AlreadyOwned("Company.Plot.AlreadyOwned"),
     Company_Plot_NotOwned("Company.Plot.NotOwned"),
     Company_Plot_InsufficientFunds("Company.Plot.InsufficientFunds"),
