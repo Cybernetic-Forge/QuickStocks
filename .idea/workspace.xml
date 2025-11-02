@@ -4,22 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="improvements">
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="optimized imports">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/algorithms/PriceThresholdController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/algorithms/PriceThresholdController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/algorithms/StockPriceCalculator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/algorithms/StockPriceCalculator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/hooks/ChestShopAccountProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/hooks/ChestShopAccountProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/hooks/ChestShopHook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/hooks/ChestShopHook.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/config/MarketCfg.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/config/MarketCfg.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/ConfigLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/ConfigLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/DataSourceProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/DataSourceProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/DatabaseManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/DatabaseManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/Db.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/Db.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/ItemSeeder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/ItemSeeder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/MigrationRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/MigrationRunner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanySettingsGUIListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanySettingsGUIListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopTransactionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopTransactionListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/plugin.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +61,10 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "#96 on copilot/add-control-over-features",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultAutoModeForALLUsers.v1": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "#99 on copilot/create-plotting-system",
+    "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -83,6 +75,7 @@
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "project.kotlinCompiler",
+    "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -144,6 +137,8 @@
       <workItem from="1759609941784" duration="848000" />
       <workItem from="1759616639603" duration="123000" />
       <workItem from="1759653299381" duration="10758000" />
+      <workItem from="1760523371992" duration="1598000" />
+      <workItem from="1762109434262" duration="1903000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />

@@ -2,10 +2,7 @@ package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
-import net.cyberneticforge.quickstocks.core.model.Company;
-import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
-import net.cyberneticforge.quickstocks.core.model.CompanyJob;
-import net.cyberneticforge.quickstocks.core.model.Replaceable;
+import net.cyberneticforge.quickstocks.core.model.*;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
 import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
