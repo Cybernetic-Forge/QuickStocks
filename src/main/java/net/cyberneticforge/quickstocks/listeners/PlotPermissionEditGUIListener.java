@@ -5,6 +5,7 @@ import net.cyberneticforge.quickstocks.core.model.PlotPermission;
 import net.cyberneticforge.quickstocks.gui.PlotEditGUI;
 import net.cyberneticforge.quickstocks.gui.PlotPermissionEditGUI;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,7 +47,7 @@ public class PlotPermissionEditGUIListener implements Listener {
             handleClick(player, gui, slot, clickedItem);
         } catch (Exception e) {
             logger.warning("Error handling Plot Permission Edit GUI click for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage("§cAn error occurred while editing permissions.");
+            player.sendMessage(ChatUT.hexComp("&cAn error occurred while editing permissions."));
         }
     }
     
@@ -54,6 +55,12 @@ public class PlotPermissionEditGUIListener implements Listener {
      * Handles clicks in the Plot Permission Edit GUI.
      */
     private void handleClick(Player player, PlotPermissionEditGUI gui, int slot, ItemStack item) throws Exception {
+        // Get configured slots
+        int buildSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("plot_permission_edit.build_permission", 10);
+        int interactSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("plot_permission_edit.interact_permission", 13);
+        int containerSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("plot_permission_edit.container_permission", 16);
+        int backSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("plot_permission_edit.back", 22);
+        
         // Get current permissions
         Optional<PlotPermission> permOpt = QuickStocksPlugin.getCompanyPlotService()
             .getPlotPermission(gui.getPlot().getId(), gui.getJob().getId());
@@ -64,23 +71,23 @@ public class PlotPermissionEditGUIListener implements Listener {
         
         boolean changed = false;
         
-        // Build permission (slot 10)
-        if (slot == 10) {
+        // Build permission
+        if (slot == buildSlot) {
             canBuild = !canBuild;
             changed = true;
         }
-        // Interact permission (slot 13)
-        else if (slot == 13) {
+        // Interact permission
+        else if (slot == interactSlot) {
             canInteract = !canInteract;
             changed = true;
         }
-        // Container permission (slot 16)
-        else if (slot == 16) {
+        // Container permission
+        else if (slot == containerSlot) {
             canContainer = !canContainer;
             changed = true;
         }
-        // Back button (slot 22)
-        else if (slot == 22 && item.getType() == Material.ARROW) {
+        // Back button
+        else if (slot == backSlot && item.getType() == Material.ARROW) {
             // Return to plot edit GUI
             PlotEditGUI plotEditGUI = new PlotEditGUI(player, gui.getPlot());
             player.openInventory(plotEditGUI.getInventory());
@@ -102,7 +109,7 @@ public class PlotPermissionEditGUIListener implements Listener {
             PlotPermissionEditGUI newGui = new PlotPermissionEditGUI(player, gui.getPlot(), gui.getJob());
             player.openInventory(newGui.getInventory());
             
-            player.sendMessage("§aPermission updated for " + gui.getJob().getTitle());
+            player.sendMessage(ChatUT.hexComp("&aPermission updated for " + gui.getJob().getTitle()));
         }
     }
 }
