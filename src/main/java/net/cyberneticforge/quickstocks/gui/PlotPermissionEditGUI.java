@@ -7,6 +7,7 @@ import net.cyberneticforge.quickstocks.core.model.CompanyPlot;
 import net.cyberneticforge.quickstocks.core.model.PlotPermission;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -82,13 +83,13 @@ public class PlotPermissionEditGUI implements InventoryHolder {
         ItemMeta meta = item.getItemMeta();
         meta.displayName(ChatUT.hexComp("&e" + name));
         
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatUT.hexComp("&7" + description).content());
-        lore.add("");
-        lore.add(ChatUT.hexComp("&7Status: " + (enabled ? "&a✓ Enabled" : "&c✗ Disabled")).content());
-        lore.add("");
-        lore.add(ChatUT.hexComp("&eClick to toggle").content());
-        meta.setLore(lore);
+        List<Component> lore = new ArrayList<>();
+        lore.add(ChatUT.hexComp("&7" + description));
+        lore.add(ChatUT.hexComp(""));
+        lore.add(ChatUT.hexComp("&7Status: " + (enabled ? "&a✓ Enabled" : "&c✗ Disabled")));
+        lore.add(ChatUT.hexComp(""));
+        lore.add(ChatUT.hexComp("&eClick to toggle"));
+        meta.lore(lore);
         
         item.setItemMeta(meta);
         inventory.setItem(slot, item);

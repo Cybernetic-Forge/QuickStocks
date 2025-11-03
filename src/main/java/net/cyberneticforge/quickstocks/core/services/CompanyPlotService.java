@@ -5,12 +5,14 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.model.CompanyPlot;
+import net.cyberneticforge.quickstocks.core.model.PlotPermission;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 
+import javax.swing.text.html.Option;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -374,7 +376,7 @@ public class CompanyPlotService {
     /**
      * Gets plot permissions for a specific job on a plot.
      */
-    public Optional<net.cyberneticforge.quickstocks.core.model.PlotPermission> getPlotPermission(String plotId, String jobId) throws SQLException {
+    public Optional<PlotPermission> getPlotPermission(String plotId, String jobId) throws SQLException {
         List<Map<String, Object>> results = database.query(
             "SELECT id, plot_id, job_id, can_build, can_interact, can_container " +
             "FROM plot_permissions WHERE plot_id = ? AND job_id = ?",
@@ -386,7 +388,7 @@ public class CompanyPlotService {
         }
         
         Map<String, Object> row = results.getFirst();
-        return Optional.of(new net.cyberneticforge.quickstocks.core.model.PlotPermission(
+        return Optional.of(new PlotPermission(
             (String) row.get("id"),
             (String) row.get("plot_id"),
             (String) row.get("job_id"),
@@ -474,21 +476,38 @@ public class CompanyPlotService {
         
         // Get plot permission for this job
         Optional<net.cyberneticforge.quickstocks.core.model.PlotPermission> permission = getPlotPermission(plotId, playerJob.get().getId());
-        
-        if (permission.isEmpty()) {
-            // No specific permission set, use default (allow all for employees)
-            return true;
-        }
+
+        // No specific permission set, use default (allow all for employees)
+        return permission.map(plotPermission -> switch (permissionType.toLowerCase()) {
+            case "build" -> plotPermission.canBuild();
+            case "interact" -> plotPermission.canInteract();
+            case "container" -> plotPermission.canContainer();
+            default -> false;
+        }).orElse(true);
         
         // Check specific permission
-        return switch (permissionType.toLowerCase()) {
-            case "build" -> permission.get().canBuild();
-            case "interact" -> permission.get().canInteract();
-            case "container" -> permission.get().canContainer();
-            default -> false;
-        };
     }
-    
+
+    private Optional<CompanyPlot> getPlotById(String plotId) {
+        try {
+            List<Map<String, Object>> results = database.query(
+                "SELECT id, company_id, world_name, chunk_x, chunk_z, buy_price, purchased_at, rent_amount, rent_interval, last_rent_payment " +
+                "FROM company_plots WHERE id = ?",
+                plotId
+            );
+
+            if (results.isEmpty()) {
+                return Optional.empty();
+            }
+
+            Map<String, Object> row = results.getFirst();
+            return Optional.of(mapToPlot(row));
+        } catch (SQLException e) {
+            logger.severe("Error retrieving plot by ID: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
     /**
      * Gets nearby plots within a radius (in chunks).
      */

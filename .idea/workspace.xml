@@ -6,9 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="fixed some stuff out">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/CompanyManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/managers/CompanyManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/MigrationRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/MigrationRunner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/CompanyJob.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/CompanyJob.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyPlotService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyPlotService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/CompanyService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/PlotEditGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/PlotEditGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/PlotPermissionEditGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/PlotPermissionEditGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanyPlotListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanyPlotListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/PlotEditGUIListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/PlotEditGUIListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +144,7 @@
       <workItem from="1759653299381" duration="10758000" />
       <workItem from="1760523371992" duration="1598000" />
       <workItem from="1762109434262" duration="2243000" />
-      <workItem from="1762153961376" duration="8600000" />
+      <workItem from="1762153961376" duration="10904000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />
@@ -429,7 +434,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762161152249</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="fixed some stuff out">
+      <option name="closed" value="true" />
+      <created>1762175557992</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1762175557992</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -4,11 +4,14 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.*;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
+import net.cyberneticforge.quickstocks.gui.PlotEditGUI;
 import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Particle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -644,7 +647,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canManagePlots = permsStr.contains("plots");
         
         QuickStocksPlugin.getCompanyService().updateJobTitle(companyOpt.get().getId(), playerUuid, title,
-                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries);
+                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries, canManagePlots);
 
         String permissions = (canManage ? "Manage " : "") +
                          (canInvite ? "Invite " : "") +
@@ -1709,30 +1712,34 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
      * Shows plot boundaries using particles.
      */
     private void showPlotBoundaries(Player player, CompanyPlot plot) {
-        org.bukkit.World world = player.getServer().getWorld(plot.getWorldName());
-        if (world == null) return;
-        
-        // Get chunk boundaries (chunks are 16x16 blocks)
-        int startX = plot.getChunkX() * 16;
-        int startZ = plot.getChunkZ() * 16;
-        int endX = startX + 16;
-        int endZ = startZ + 16;
-        
-        // Get company info for particle color
-        Optional<Company> company = QuickStocksPlugin.getCompanyService().getCompanyById(plot.getCompanyId());
-        
-        // Show particles along the chunk borders at player's Y level
-        int y = player.getLocation().getBlockY();
-        
-        // Create particles along the edges
-        for (int x = startX; x <= endX; x++) {
-            spawnParticle(player, world, x, y, startZ);
-            spawnParticle(player, world, x, y, endZ);
-        }
-        
-        for (int z = startZ; z <= endZ; z++) {
-            spawnParticle(player, world, startX, y, z);
-            spawnParticle(player, world, endX, y, z);
+        try {
+            org.bukkit.World world = player.getServer().getWorld(plot.getWorldName());
+            if (world == null) return;
+
+            // Get chunk boundaries (chunks are 16x16 blocks)
+            int startX = plot.getChunkX() * 16;
+            int startZ = plot.getChunkZ() * 16;
+            int endX = startX + 16;
+            int endZ = startZ + 16;
+
+            // Get company info for particle color
+            Optional<Company> company = QuickStocksPlugin.getCompanyService().getCompanyById(plot.getCompanyId());
+
+            // Show particles along the chunk borders at player's Y level
+            int y = player.getLocation().getBlockY();
+
+            // Create particles along the edges
+            for (int x = startX; x <= endX; x++) {
+                spawnParticle(player, world, x, y, startZ);
+                spawnParticle(player, world, x, y, endZ);
+            }
+
+            for (int z = startZ; z <= endZ; z++) {
+                spawnParticle(player, world, startX, y, z);
+                spawnParticle(player, world, endX, y, z);
+            }
+        } catch (Exception e) {
+            Translation.Errors_Internal.sendMessage(player, new Replaceable("%error%", e.getMessage()));
         }
     }
     
@@ -1741,7 +1748,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
      */
     private void spawnParticle(Player player, org.bukkit.World world, int x, int y, int z) {
         player.spawnParticle(
-            org.bukkit.Particle.VILLAGER_HAPPY,
+            Particle.HAPPY_VILLAGER,
             new Location(world, x + 0.5, y + 1, z + 0.5),
             1, 0, 0, 0, 0
         );
@@ -1778,8 +1785,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         }
         
         // Open the plot edit GUI
-        net.cyberneticforge.quickstocks.gui.PlotEditGUI gui = 
-            new net.cyberneticforge.quickstocks.gui.PlotEditGUI(player, plot);
+        PlotEditGUI gui = new PlotEditGUI(player, plot);
         player.openInventory(gui.getInventory());
     }
 }

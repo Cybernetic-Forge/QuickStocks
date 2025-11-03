@@ -670,7 +670,7 @@ public class CompanyService {
     public void updateJobTitle(String companyId, String actorUuid, String title,
                                boolean canInvite, boolean canCreateTitles,
                                boolean canWithdraw, boolean canManageCompany,
-                               boolean canManageChestShop, boolean canManageSalaries) throws SQLException {
+                               boolean canManageChestShop, boolean canManageSalaries, boolean canManagePlots) throws SQLException {
         // Check if actor has permission
         Optional<CompanyJob> actorJob = getPlayerJob(companyId, actorUuid);
         if (actorJob.isEmpty() || !actorJob.get().canCreateTitles()) {
@@ -687,7 +687,7 @@ public class CompanyService {
         
         // Update job permissions
         database.execute(
-            "UPDATE company_jobs SET can_invite = ?, can_create_titles = ?, can_withdraw = ?, can_manage_company = ?, can_manage_chestshop = ?, can_manage_salaries = ? " +
+            "UPDATE company_jobs SET can_invite = ?, can_create_titles = ?, can_withdraw = ?, can_manage_company = ?, can_manage_chestshop = ?, can_manage_salaries = ?, can_manage_plots = ? " +
             "WHERE id = ?",
             canInvite ? 1 : 0,
             canCreateTitles ? 1 : 0,
@@ -695,6 +695,7 @@ public class CompanyService {
             canManageCompany ? 1 : 0,
             canManageChestShop ? 1 : 0,
             canManageSalaries ? 1 : 0,
+            canManagePlots? 1 : 0,
             job.getId()
         );
         

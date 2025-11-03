@@ -1,9 +1,11 @@
 package net.cyberneticforge.quickstocks.listeners;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.gui.PlotEditGUI;
 import net.cyberneticforge.quickstocks.gui.PlotPermissionEditGUI;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,21 +64,11 @@ public class PlotEditGUIListener implements Listener {
         
         // Job role items (slots 18-35)
         if (slot >= 18 && slot < 36 && item.getType() == Material.NAME_TAG) {
-            // Extract job title from item display name
-            String jobTitle = item.getItemMeta().displayName().toString();
-            // Remove color codes
-            jobTitle = jobTitle.replaceAll("§[0-9a-fk-or]", "").trim();
-            
-            // Get job ID from title
-            List<net.cyberneticforge.quickstocks.core.model.CompanyJob> jobs = 
-                QuickStocksPlugin.getCompanyService().getCompanyJobs(gui.getPlot().getCompanyId());
-            
-            for (net.cyberneticforge.quickstocks.core.model.CompanyJob job : jobs) {
-                if (job.getTitle().equals(jobTitle)) {
-                    // Open permission edit GUI for this job
+            if(gui.getInvSlots().containsKey(slot)) {
+                CompanyJob job = gui.getInvSlots().get(slot);
+                if (job != null) {
                     PlotPermissionEditGUI permGui = new PlotPermissionEditGUI(player, gui.getPlot(), job);
                     player.openInventory(permGui.getInventory());
-                    return;
                 }
             }
         }

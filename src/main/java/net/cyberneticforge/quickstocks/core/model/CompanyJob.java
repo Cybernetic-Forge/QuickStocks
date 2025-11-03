@@ -33,22 +33,6 @@ public class CompanyJob {
         this.canManagePlots = canManagePlots;
     }
     
-    // Overloaded constructor for backward compatibility
-    public CompanyJob(String id, String companyId, String title, boolean canInvite, 
-                     boolean canCreateTitles, boolean canWithdraw, boolean canManageCompany, 
-                     boolean canManageChestShop, boolean canManageSalaries) {
-        this(id, companyId, title, canInvite, canCreateTitles, canWithdraw, 
-             canManageCompany, canManageChestShop, canManageSalaries, false);
-    }
-    
-    // Overloaded constructor for backward compatibility
-    public CompanyJob(String id, String companyId, String title, boolean canInvite, 
-                     boolean canCreateTitles, boolean canWithdraw, boolean canManageCompany, 
-                     boolean canManageChestShop) {
-        this(id, companyId, title, canInvite, canCreateTitles, canWithdraw, 
-             canManageCompany, canManageChestShop, false, false);
-    }
-    
     public boolean canInvite() {
         return canInvite;
     }

@@ -13,9 +13,13 @@ import net.kyori.adventure.title.Title;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Chunk;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.time.Duration;
@@ -208,13 +212,13 @@ public class CompanyPlotListener implements Listener {
      * Prevents block breaking in company plots unless player has permission.
      */
     @EventHandler
-    public void onBlockBreak(org.bukkit.event.block.BlockBreakEvent event) {
+    public void onBlockBreak(BlockBreakEvent event) {
         if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
             return;
         }
         
         Player player = event.getPlayer();
-        org.bukkit.block.Block block = event.getBlock();
+        Block block = event.getBlock();
         Chunk chunk = block.getChunk();
         
         try {
@@ -239,13 +243,13 @@ public class CompanyPlotListener implements Listener {
      * Prevents block placing in company plots unless player has permission.
      */
     @EventHandler
-    public void onBlockPlace(org.bukkit.event.block.BlockPlaceEvent event) {
+    public void onBlockPlace(BlockPlaceEvent event) {
         if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
             return;
         }
         
         Player player = event.getPlayer();
-        org.bukkit.block.Block block = event.getBlock();
+        Block block = event.getBlock();
         Chunk chunk = block.getChunk();
         
         try {
@@ -270,7 +274,7 @@ public class CompanyPlotListener implements Listener {
      * Prevents container access in company plots unless player has permission.
      */
     @EventHandler
-    public void onPlayerInteract(org.bukkit.event.player.PlayerInteractEvent event) {
+    public void onPlayerInteract(PlayerInteractEvent event) {
         if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
             return;
         }
@@ -280,7 +284,7 @@ public class CompanyPlotListener implements Listener {
         }
         
         // Only check for container interactions
-        org.bukkit.block.Block block = event.getClickedBlock();
+        Block block = event.getClickedBlock();
         if (!isContainer(block.getType())) {
             return;
         }

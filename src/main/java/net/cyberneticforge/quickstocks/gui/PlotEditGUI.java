@@ -7,6 +7,7 @@ import net.cyberneticforge.quickstocks.core.model.CompanyPlot;
 import net.cyberneticforge.quickstocks.core.model.PlotPermission;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,11 +33,14 @@ public class PlotEditGUI implements InventoryHolder {
     @Getter
     private final CompanyPlot plot;
     private final Inventory inventory;
-    
+    @Getter
+    private final HashMap<Integer, CompanyJob> invSlots;
+
     public PlotEditGUI(Player player, CompanyPlot plot) {
         this.player = player;
         this.plot = plot;
         this.inventory = Bukkit.createInventory(this, 54, ChatUT.hexComp("&6Edit Plot Permissions"));
+        this.invSlots = new HashMap<>();
         setupGUI();
     }
     
@@ -72,12 +77,12 @@ public class PlotEditGUI implements InventoryHolder {
         ItemMeta meta = plotInfo.getItemMeta();
         meta.displayName(ChatUT.hexComp("&6Plot Information"));
         
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatUT.hexComp("&7World: &f" + plot.getWorldName()).content());
-        lore.add(ChatUT.hexComp("&7Chunk: &f(" + plot.getChunkX() + ", " + plot.getChunkZ() + ")").content());
-        lore.add("");
-        lore.add(ChatUT.hexComp("&7Click on job roles below to edit permissions").content());
-        meta.setLore(lore);
+        List<Component> lore = new ArrayList<>();
+        lore.add(ChatUT.hexComp("&7World: &f" + plot.getWorldName()));
+        lore.add(ChatUT.hexComp("&7Chunk: &f(" + plot.getChunkX() + ", " + plot.getChunkZ() + ")"));
+        lore.add(ChatUT.hexComp(""));
+        lore.add(ChatUT.hexComp("&7Click on job roles below to edit permissions"));
+        meta.lore(lore);
         
         plotInfo.setItemMeta(meta);
         inventory.setItem(4, plotInfo);
@@ -103,6 +108,7 @@ public class PlotEditGUI implements InventoryHolder {
             
             ItemStack jobItem = createJobPermissionItem(job, canBuild, canInteract, canContainer);
             inventory.setItem(slot, jobItem);
+            invSlots.put(slot, job);
             slot++;
         }
     }
@@ -115,14 +121,14 @@ public class PlotEditGUI implements InventoryHolder {
         ItemMeta meta = item.getItemMeta();
         meta.displayName(ChatUT.hexComp("&e" + job.getTitle()));
         
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatUT.hexComp("&7Permissions:").content());
-        lore.add(ChatUT.hexComp((canBuild ? "&a✓" : "&c✗") + " &7Build (Break/Place)").content());
-        lore.add(ChatUT.hexComp((canInteract ? "&a✓" : "&c✗") + " &7Interact (Buttons/Doors)").content());
-        lore.add(ChatUT.hexComp((canContainer ? "&a✓" : "&c✗") + " &7Containers (Chests)").content());
-        lore.add("");
-        lore.add(ChatUT.hexComp("&eClick to edit permissions").content());
-        meta.setLore(lore);
+        List<Component> lore = new ArrayList<>();
+        lore.add(ChatUT.hexComp("&7Permissions:"));
+        lore.add(ChatUT.hexComp((canBuild ? "&a✓" : "&c✗") + " &7Build (Break/Place)"));
+        lore.add(ChatUT.hexComp((canInteract ? "&a✓" : "&c✗") + " &7Interact (Buttons/Doors)"));
+        lore.add(ChatUT.hexComp((canContainer ? "&a✓" : "&c✗") + " &7Containers (Chests)"));
+        lore.add(ChatUT.hexComp(""));
+        lore.add(ChatUT.hexComp("&eClick to edit permissions"));
+        meta.lore(lore);
         
         item.setItemMeta(meta);
         return item;
