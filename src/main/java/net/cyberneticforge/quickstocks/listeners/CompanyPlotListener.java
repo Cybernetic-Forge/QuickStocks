@@ -64,11 +64,17 @@ public class CompanyPlotListener implements Listener {
         lastChunkByPlayer.put(player.getUniqueId(), chunkKey);
         
         try {
-            // Check for plot ownership and show terrain messages
+            // Check for plot ownership - use the player's actual position for terrain messages
+            // This ensures messages show when the player is actually in the plot
+            Chunk playerChunk = player.getLocation().getChunk();
+            Optional<CompanyPlot> currentPlot = QuickStocksPlugin.getCompanyPlotService()
+                .getPlotByLocation(playerChunk.getWorld().getName(), playerChunk.getX(), playerChunk.getZ());
+            
+            handleTerrainMessages(player, currentPlot);
+            
+            // For auto-buy, use the chunk they're moving to
             Optional<CompanyPlot> toPlot = QuickStocksPlugin.getCompanyPlotService()
                 .getPlotByLocation(toChunk.getWorld().getName(), toChunk.getX(), toChunk.getZ());
-            
-            handleTerrainMessages(player, toPlot);
             
             // Handle auto-buy mode
             Optional<String> autoBuyCompanyId = QuickStocksPlugin.getCompanyPlotService().getAutoBuyMode(playerUuid);
@@ -79,7 +85,7 @@ public class CompanyPlotListener implements Listener {
             
             String companyId = autoBuyCompanyId.get();
             
-            // If plot is already owned, skip auto-buy
+            // If the chunk they're moving to is already owned, skip auto-buy
             if (toPlot.isPresent()) {
                 return;
             }
@@ -230,9 +236,14 @@ public class CompanyPlotListener implements Listener {
             }
             
             // Check if player has build permission on this plot
-            if (!hasPlotPermission(player, plot.get(), "build")) {
+            PermissionCheckResult result = checkPlotPermission(player, plot.get(), "build");
+            if (!result.hasPermission) {
                 event.setCancelled(true);
-                Translation.Company_Plot_NoPermission.sendMessage(player);
+                if (result.isEmployee) {
+                    Translation.Company_Plot_NoPermissionEmployee.sendMessage(player);
+                } else {
+                    Translation.Company_Plot_NoPermission.sendMessage(player);
+                }
             }
         } catch (Exception e) {
             logger.warning("Error checking plot protection: " + e.getMessage());
@@ -261,9 +272,14 @@ public class CompanyPlotListener implements Listener {
             }
             
             // Check if player has build permission on this plot
-            if (!hasPlotPermission(player, plot.get(), "build")) {
+            PermissionCheckResult result = checkPlotPermission(player, plot.get(), "build");
+            if (!result.hasPermission) {
                 event.setCancelled(true);
-                Translation.Company_Plot_NoPermission.sendMessage(player);
+                if (result.isEmployee) {
+                    Translation.Company_Plot_NoPermissionEmployee.sendMessage(player);
+                } else {
+                    Translation.Company_Plot_NoPermission.sendMessage(player);
+                }
             }
         } catch (Exception e) {
             logger.warning("Error checking plot protection: " + e.getMessage());
@@ -301,9 +317,14 @@ public class CompanyPlotListener implements Listener {
             }
             
             // Check if player has container permission on this plot
-            if (!hasPlotPermission(player, plot.get(), "container")) {
+            PermissionCheckResult result = checkPlotPermission(player, plot.get(), "container");
+            if (!result.hasPermission) {
                 event.setCancelled(true);
-                Translation.Company_Plot_NoPermission.sendMessage(player);
+                if (result.isEmployee) {
+                    Translation.Company_Plot_NoPermissionEmployee.sendMessage(player);
+                } else {
+                    Translation.Company_Plot_NoPermission.sendMessage(player);
+                }
             }
         } catch (Exception e) {
             logger.warning("Error checking plot protection: " + e.getMessage());
@@ -311,18 +332,42 @@ public class CompanyPlotListener implements Listener {
     }
     
     /**
-     * Checks if a player has a specific permission on a plot using per-plot permissions.
+     * Result of a permission check including whether player is an employee.
      */
-    private boolean hasPlotPermission(Player player, CompanyPlot plot, String permissionType) {
+    private static class PermissionCheckResult {
+        boolean hasPermission;
+        boolean isEmployee;
+        
+        PermissionCheckResult(boolean hasPermission, boolean isEmployee) {
+            this.hasPermission = hasPermission;
+            this.isEmployee = isEmployee;
+        }
+    }
+    
+    /**
+     * Checks if a player has a specific permission on a plot using per-plot permissions.
+     * Returns detailed information about whether they have permission and are an employee.
+     */
+    private PermissionCheckResult checkPlotPermission(Player player, CompanyPlot plot, String permissionType) {
         try {
             String playerUuid = player.getUniqueId().toString();
             
-            // Use the plot service method to check permission
-            return QuickStocksPlugin.getCompanyPlotService()
+            // First check if player is an employee
+            Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService()
+                .getPlayerJob(plot.getCompanyId(), playerUuid);
+            
+            if (playerJob.isEmpty()) {
+                return new PermissionCheckResult(false, false); // Not an employee
+            }
+            
+            // Player is an employee, now check specific permission
+            boolean hasPermission = QuickStocksPlugin.getCompanyPlotService()
                 .hasPlotPermission(plot.getId(), playerUuid, permissionType);
+            
+            return new PermissionCheckResult(hasPermission, true);
         } catch (Exception e) {
             logger.warning("Error checking plot permission: " + e.getMessage());
-            return false;
+            return new PermissionCheckResult(false, false);
         }
     }
     
