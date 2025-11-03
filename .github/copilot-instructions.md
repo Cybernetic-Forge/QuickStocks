@@ -10,51 +10,55 @@
 - [Architecture Decisions](#architecture-decisions) - Why things are built this way
 
 ## Quick Start
-QuickStocks is a Minecraft Paper plugin (version 1.21.8) that simulates a realistic stock market within the game.
+QuickStocks is a Minecraft Paper plugin (version 1.21.8) that provides a comprehensive stock market and company management system.
 
 **TL;DR for Copilot:**
-- 🏗️ **Architecture**: IoC pattern with clean layer separation (core/application/infrastructure)
+- 🏗️ **Architecture**: Clean architecture with service layer separation (core/api/infrastructure)
 - 🗄️ **Database**: Multi-provider support (SQLite/MySQL/PostgreSQL) with automatic migrations
-- 🎮 **Minecraft**: Paper plugin with `/stocks` and `/crypto` commands
-- ⚠️ **Build Issues**: Use `pom-test.xml` for local development due to PaperMC repo connectivity
-- 🧪 **Testing**: Run `StockMarketSimulationTest` to verify market behavior
+- 🎮 **Minecraft**: Paper plugin with `/stocks`, `/market`, `/company`, `/crypto`, `/wallet`, and `/watch` commands
+- 📦 **Package**: `net.cyberneticforge.quickstocks` (not `com.example.quickstocks`)
+- ⚠️ **Build Issues**: Network connectivity issues may prevent external repository access in sandboxed environments
+- 🧪 **Testing**: Limited test coverage; focus on manual testing and integration verification
 
 ## Project Overview
 QuickStocks provides players with an immersive stock trading experience based on real-world market factors and behaviors. The plugin features realistic price calculations, comprehensive market simulation, and full database persistence.
 
 ## Architecture
-The project follows an **Inversion of Control (IoC) architecture** with clear separation of concerns:
+The project follows a **clean architecture pattern** with clear separation of concerns:
 
 ```
-src/main/java/com/example/quickstocks/
+src/main/java/net/cyberneticforge/quickstocks/
 ├── QuickStocksPlugin.java          # Main plugin class
-├── application/                    # Application layer
-│   └── boot/                      # Bootstrap and seeding
-│       ├── ItemSeeder.java        # Seeds Minecraft items as instruments
-│       ├── MockMaterial.java      # Mock materials for testing
-│       └── WordUtils.java         # String utilities
-├── core/
-│   ├── services/                   # Business logic services
-│   │   └── StockMarketService.java # Core market management
-│   ├── models/                     # Data models
-│   │   ├── Stock.java             # Stock representation
-│   │   └── MarketInfluence.java   # Market factor influences
+├── api/                            # Public API layer
+│   ├── events/                    # Event system (market, company, wallet events)
+│   └── managers/                  # Manager interfaces (market, portfolio, company)
+├── commands/                       # Command handlers
+│   ├── StocksCommand.java         # /stocks command
+│   ├── MarketCommand.java         # /market command
+│   ├── CompanyCommand.java        # /company command
+│   ├── CryptoCommand.java         # /crypto command
+│   ├── WalletCommand.java         # /wallet command
+│   ├── WatchCommand.java          # /watch command
+│   └── MarketDeviceCommand.java   # /marketdevice command
+├── core/                           # Business logic layer
+│   ├── services/                  # Business logic services
+│   ├── model/                     # Data models
 │   ├── algorithms/                # Core algorithms
-│   │   └── StockPriceCalculator.java # Realistic price calculation
-│   ├── enums/                     # Enumerations
-│   │   └── MarketFactor.java      # Market influence factors
-│   ├── interfaces/                # Contracts (future)
-│   └── events/                    # Event system (future)
-└── infrastructure/                # Infrastructure layer
-    ├── db/                        # Database layer
-    │   ├── ConfigLoader.java      # Configuration file loader
-    │   ├── DatabaseConfig.java    # Database configuration holder
-    │   ├── DatabaseManager.java   # Central DB coordinator
-    │   ├── DataSourceProvider.java # Connection pooling
-    │   ├── Db.java               # Database utility wrapper
-    │   └── MigrationRunner.java   # Schema migration management
-    └── logging/                   # Logging infrastructure
-        └── PluginLogger.java      # Centralized logger with debug levels
+│   └── enums/                     # Enumerations
+├── gui/                            # GUI components
+├── hooks/                          # Plugin integrations
+│   └── chestshop/                 # ChestShop integration
+├── infrastructure/                 # Infrastructure layer
+│   ├── config/                    # Configuration management
+│   ├── db/                        # Database layer
+│   │   ├── DatabaseManager.java   # Central DB coordinator
+│   │   ├── DataSourceProvider.java # Connection pooling
+│   │   └── MigrationRunner.java   # Schema migration management
+│   └── logging/                   # Logging infrastructure
+│       └── PluginLogger.java      # Centralized logger with debug levels
+├── listeners/                      # Event listeners
+│   └── shops/                     # Shop-related listeners
+└── utils/                          # Utility classes
 ```
 
 ## Development Environment Setup
@@ -66,39 +70,48 @@ src/main/java/com/example/quickstocks/
 
 ### Build Commands
 ```bash
-# ⚠️ Use test profile due to PaperMC connectivity issues
-mvn -f pom-test.xml clean compile
-mvn -f pom-test.xml test
+# Standard Maven build
+mvn clean compile
 
-# For production builds (when PaperMC is accessible)
+# Run tests (if available)
+mvn test
+
+# Package for production
 mvn clean package
+
+# Note: External repositories may not be accessible in sandboxed environments
+# This is expected behavior and does not indicate a project issue
 ```
 
 ### Common Issues & Solutions
-- **PaperMC repo unreachable**: Use `pom-test.xml` instead of `pom.xml`
-- **Plugin not loading**: Ensure `.ready` files are renamed to `.java` (use `activate-plugin.sh`)
-- **Database errors**: Check SQLite file permissions or MySQL/PostgreSQL connectivity
-- **Test failures**: Run database migrations first with `SimpleMigrationTest`
+- **External repo unreachable**: Network connectivity issues are expected in sandboxed environments; dependencies should be cached
+- **Database errors**: Check SQLite file permissions (plugins/QuickStocks/data.db) or MySQL/PostgreSQL connectivity
+- **Build failures**: Ensure Java 21+ and Maven 3.9+ are installed
+- **Plugin not loading**: Verify plugin.yml is properly configured and all dependencies are present
 
 ### 📂 Key Files & Locations
 **Configuration:**
-- `src/main/resources/config.yml` - Main plugin configuration
+- `src/main/resources/config.yml` - Main plugin configuration (database, logging, features)
+- `src/main/resources/market.yml` - Market and analytics settings
+- `src/main/resources/trading.yml` - Trading economy settings
+- `src/main/resources/companies.yml` - Company system configuration
+- `src/main/resources/guis.yml` - GUI layout configuration
 - `src/main/resources/plugin.yml` - Minecraft plugin descriptor
 - `src/main/resources/migrations/` - Database schema migrations
 
 **Core Services:**
-- `src/main/java/com/example/quickstocks/core/services/StockMarketService.java` - Main market logic
-- `src/main/java/com/example/quickstocks/infrastructure/db/DatabaseManager.java` - Database coordinator
-- `src/main/java/com/example/quickstocks/core/algorithms/StockPriceCalculator.java` - Price calculation
+- `src/main/java/net/cyberneticforge/quickstocks/core/services/` - Business logic services
+- `src/main/java/net/cyberneticforge/quickstocks/infrastructure/db/DatabaseManager.java` - Database coordinator
+- `src/main/java/net/cyberneticforge/quickstocks/core/algorithms/` - Price calculation and algorithms
 
 **Plugin Entry Points:**
-- `src/main/java/com/example/quickstocks/QuickStocksPlugin.java.ready` - Main plugin class (rename to .java)
-- `src/main/java/com/example/quickstocks/commands/` - Command handlers (.ready files)
+- `src/main/java/net/cyberneticforge/quickstocks/QuickStocksPlugin.java` - Main plugin class
+- `src/main/java/net/cyberneticforge/quickstocks/commands/` - Command handlers
 
 **Build Files:**
-- `pom.xml` - Main Maven config (PaperMC dependency issues)
-- `pom-test.xml` - Alternative build config for development
-- `activate-plugin.sh` - Script to activate plugin files
+- `pom.xml` - Maven configuration
+- `.gitignore` - Git ignore rules
+- `README.md` - Project overview and features
 
 ## Core Features Implemented
 
@@ -145,18 +158,33 @@ mvn clean package
 - **Documentation**: See `Documentation/Copilot-Changes/LOGGING_SYSTEM.md`
 
 ### 4. Configuration System
-- **Location**: `src/main/resources/config.yml`
-- **Logging Configuration Keys**:
+- **Primary Config**: `src/main/resources/config.yml`
   - `logging.debugLevel`: Debug verbosity level (0-3, default: 1)
-- **Database Configuration Keys**:
   - `database.provider`: sqlite | mysql | postgres
   - `database.sqlite.file`: SQLite database file path
-  - `database.mysql.*`: MySQL connection parameters (host, port, database, user, password, useSSL)
+  - `database.mysql.*`: MySQL connection parameters
   - `database.postgres.*`: PostgreSQL connection parameters
-- **Market Configuration Keys**:
-  - `market.updateInterval`: Price update frequency in seconds (default: 5)
-  - `market.startOpen`: Whether market starts open on plugin load
-  - `market.defaultStocks`: Whether to seed default stock instruments
+  - `features.companies.enabled`: Enable/disable company system
+  - `features.market.enabled`: Enable/disable market system
+  - `metrics.enabled`: Enable bStats anonymous statistics
+
+- **Market Config**: `src/main/resources/market.yml`
+  - Market update intervals, circuit breakers, price limits
+  - Market device configuration
+  - Analytics settings
+
+- **Trading Config**: `src/main/resources/trading.yml`
+  - Trading fees, slippage settings
+  - Position limits and restrictions
+
+- **Companies Config**: `src/main/resources/companies.yml`
+  - Company creation costs and types
+  - Default job titles and permissions
+  - IPO settings
+
+- **GUIs Config**: `src/main/resources/guis.yml`
+  - GUI layout and item configurations
+  - Menu structures and navigation
 
 ### 5. Realistic Stock Price Algorithm
 - **Location**: `core.algorithms.StockPriceCalculator`
@@ -208,20 +236,41 @@ mvn clean package
   - Random market event simulation
   - Performance analytics
 
-### 10. Command System (Planned)
-- **Command Prefix**: `/stocks`
-- **Planned Commands**:
-  - `/stocks list` - Display available instruments/stocks
-  - `/stocks price <symbol>` - Get current price for a specific instrument
-  - `/stocks buy <symbol> <amount>` - Purchase shares of an instrument
-  - `/stocks sell <symbol> <amount>` - Sell shares of an instrument  
-  - `/stocks portfolio` - View player's current holdings
-  - `/stocks market` - Display market overview and statistics
-  - `/stocks history <symbol>` - Show price history for an instrument
-  - `/stocks top` - Show best performing instruments
-  - `/stocks worst` - Show worst performing instruments
-- **Status**: Commands are planned but not yet implemented
-- **Implementation Notes**: Command handlers should be added to plugin.yml and command executor classes
+### 10. Command System (Implemented)
+- **Stock Commands** (`/stocks`, aliases: `stock`, `quote`):
+  - View stock market information and quotes
+  - Display top performing instruments
+  - Get detailed information about specific instruments
+
+- **Market Commands** (`/market`, aliases: `trade`, `trading`):
+  - Browse and trade in the market
+  - Buy/sell instruments
+  - View portfolio and history
+  - Manage watchlist
+
+- **Company Commands** (`/company`, aliases: `corp`, `corporation`):
+  - Create and manage companies
+  - Invite/manage employees
+  - Handle deposits and withdrawals
+  - Go public and trade shares
+
+- **Crypto Commands** (`/crypto`):
+  - Create custom cryptocurrency instruments
+  - Requires `quickstocks.command.crypto.create` permission
+
+- **Wallet Commands** (`/wallet`, aliases: `money`, `balance`):
+  - View and manage wallet balance
+  - Admin commands for balance manipulation
+
+- **Watch Commands** (`/watch`, aliases: `watchlist`, `wl`):
+  - Add/remove instruments from watchlist
+  - View watchlist and instrument details
+
+- **Market Device** (`/marketdevice`, aliases: `mdevice`):
+  - Give Market Link Device items to players
+  - Requires operator permission
+
+- **Implementation**: All command handlers are in `src/main/java/net/cyberneticforge/quickstocks/commands/`
 
 ### 11. Company/Corporation System
 - **Location**: `core.services.CompanyService`, `core.services.InvitationService`
@@ -267,43 +316,51 @@ mvn clean package
 ## Current Implementation Status
 
 ### ✅ Completed
-- [x] Project structure and IoC architecture
+- [x] Project structure and clean architecture
 - [x] Database layer and persistence system
-- [x] Database migrations system (V1-V7 migrations)
+- [x] Database migrations system with schema versioning
 - [x] Multi-database support (SQLite, MySQL, PostgreSQL)
-- [x] Configuration system with config.yml
-- [x] Core database tables (instruments, instrument_state, instrument_price_history)
-- [x] Item seeding system for Minecraft materials
-- [x] Comprehensive market factors enum (25+ factors)
-- [x] Realistic stock price calculation algorithm
-- [x] Stock and market influence models
-- [x] Core stock market service
-- [x] 5-second update simulation test
-- [x] Plugin integration with Bukkit scheduler
-- [x] .gitignore file (excludes .idea folder)
-- [x] Updated copilot instructions with DB layer
-- [x] Company/Corporation system with database tables
-- [x] Company services (CompanyService, InvitationService)
-- [x] /company command with full subcommand set
-- [x] Role-based permission system for companies
-- [x] Company transaction tracking
+- [x] Configuration system with multiple config files
+- [x] Full command system implementation
+  - [x] `/stocks` - Market information and quotes
+  - [x] `/market` - Trading interface
+  - [x] `/company` - Company management
+  - [x] `/crypto` - Cryptocurrency creation
+  - [x] `/wallet` - Balance management
+  - [x] `/watch` - Watchlist management
+  - [x] `/marketdevice` - Market Link Device
+- [x] Company/Corporation system
+  - [x] Company creation and management
+  - [x] Employee management with roles
+  - [x] IPO and share trading
+  - [x] Transaction history
+- [x] Market system
+  - [x] Real-time price updates
+  - [x] Circuit breakers
+  - [x] Trading fees and slippage
+  - [x] Price history tracking
+- [x] GUI system for market browsing
+- [x] ChestShop integration (soft dependency)
+- [x] WorldGuard integration (soft dependency)
+- [x] Vault economy integration
+- [x] bStats anonymous statistics
+- [x] Centralized logging system
+- [x] Public API for developers
 
 ### 🔄 In Progress
-- [ ] Player interaction commands (/stocks command set)
-- [ ] Command handlers and permission system
-- [ ] Player portfolio management
-- [ ] Trading mechanics integration with database
+- [ ] Enhanced testing coverage
+- [ ] Performance optimization for large player counts
+- [ ] Additional market analytics features
 
 ### 📋 Planned Features
-- [ ] Complete command system implementation (/stocks commands)
-- [ ] Player portfolios and trading mechanics
-- [ ] Market visualization and GUI interfaces
-- [ ] Economic events tied to Minecraft mechanics
 - [ ] Web dashboard for market monitoring
-- [ ] API endpoints for external integrations
-- [ ] Player balance integration with economy plugins
+- [ ] REST API for external integrations
 - [ ] Market maker bots for liquidity
-- [ ] Advanced analytics and reporting
+- [ ] Advanced charting and visualization
+- [ ] Economic events tied to Minecraft mechanics
+- [ ] Multi-server synchronization
+- [ ] Advanced company features (dividends, stock splits)
+- [ ] Options and derivatives trading
 
 ## Key Design Principles
 
@@ -320,26 +377,45 @@ mvn clean package
 **NEW FEATURES - Follow this pattern:**
 1. **Service Layer**: Add business logic to `core/services/`
    ```java
-   @Service // Use IoC pattern
    public class YourService {
        private final DatabaseManager dbManager;
-       // Constructor injection
+       
+       public YourService(DatabaseManager dbManager) {
+           this.dbManager = dbManager;
+       }
+       
+       // Service methods here
    }
    ```
 
 2. **Database Changes**: Create migration files
    ```sql
-   -- src/main/resources/migrations/V2__your_change.sql
+   -- src/main/resources/migrations/VX__your_change.sql
+   -- Where X is the next version number
    ALTER TABLE instruments ADD COLUMN your_field TEXT;
    ```
 
-3. **Models**: Place in `core/models/` with proper validation
+3. **Models**: Place in `core/model/` with proper validation
    ```java
    public class YourModel {
        // Use record classes when possible
-       // Include validation methods
+       private final String field;
+       
+       public YourModel(String field) {
+           if (field == null || field.isEmpty()) {
+               throw new IllegalArgumentException("Field cannot be null or empty");
+           }
+           this.field = field;
+       }
    }
    ```
+
+4. **Configuration**: Add to appropriate config file
+   - System config → `config.yml`
+   - Market settings → `market.yml`
+   - Trading settings → `trading.yml`
+   - Company settings → `companies.yml`
+   - GUI layouts → `guis.yml`
 
 **COMMANDS - Minecraft integration:**
 ```java
@@ -393,14 +469,25 @@ public class YourService {
 
 ### When Working on This Project:
 1. **Always update these instructions** when making significant changes
-2. **Maintain the IoC architecture** - new features should follow the established patterns
+2. **Maintain the clean architecture** - new features should follow the established patterns
 3. **Use the database layer** - all persistence should go through the infrastructure.db package
-4. **Follow migration patterns** - schema changes require new migration files (V2__*.sql, etc.)
+4. **Follow migration patterns** - schema changes require new migration files (VX__*.sql)
 5. **Avoid code duplication** - delegate to existing services, extract common code to utilities
 6. **Document breaking changes** in the section below
-7. **Test thoroughly** using the simulation test before deploying changes
+7. **Test thoroughly** - manual testing on Minecraft server is essential
 8. **Consider performance impact** - this runs in a game server environment
-9. **Preserve realism** - market behavior should remain realistic
+9. **Use appropriate config files** - don't clutter config.yml with domain-specific settings
+10. **Respect soft dependencies** - ChestShop and WorldGuard should be optional
+
+### Best Practices from GitHub Copilot Guide:
+- **Make small, focused changes** - Each PR should address one specific issue
+- **Write clear commit messages** - Describe what changed and why
+- **Update documentation** - Keep README and docs in sync with code changes
+- **Test before committing** - Verify changes work on a test server
+- **Use meaningful variable names** - Code should be self-documenting
+- **Add comments for complex logic** - Explain the "why", not the "what"
+- **Follow existing code style** - Consistency is important
+- **Consider backwards compatibility** - Don't break existing configurations or data
 
 ### Code Standards:
 - Use clear, descriptive variable and method names
@@ -413,89 +500,57 @@ public class YourService {
 
 ### 🧪 Testing Strategy
 
-**Quick Verification Commands:**
-```bash
-# Test core market simulation
-mvn -f pom-test.xml test -Dtest=StockMarketSimulationTest
+**Manual Testing is Primary:**
+Due to the Minecraft plugin nature, most testing is done manually on a test server.
 
-# Run all available tests
-mvn -f pom-test.xml test
-```
-
-**Test Coverage Checklist:**
-- ✅ Market behavior simulation (`StockMarketSimulationTest`)
-- ✅ Service layer functionality (various test classes)
-- ⚠️ Database migrations (tested via MigrationRunner in services)
-- ⚠️ Configuration loading from config.yml (manual testing needed)
+**Testing Checklist:**
+- ⚠️ Limited automated test coverage currently
+- ✅ Manual testing on Minecraft server required
+- ✅ Database migrations tested via MigrationRunner
+- ⚠️ Configuration loading from config files (manual testing)
 - ⚠️ Performance under load (manual testing needed)
-- ⚠️ Thread safety in multi-player environments (manual testing needed)
-- ⚠️ Performance under load (manual testing needed)
-- ⚠️ Thread safety in multi-player environments (manual testing needed)
+- ⚠️ Thread safety in multi-player environments (manual testing)
 
-**Testing Patterns:**
-- Use JUnit 5 for new tests
-- Mock external dependencies (database, Minecraft APIs)
+**Testing Approach:**
+1. **Unit Tests**: Create tests in `src/test/java` for core logic when possible
+2. **Integration Tests**: Test on a development Minecraft server
+3. **Manual Testing**: Verify commands, GUIs, and user interactions in-game
+4. **Database Testing**: Verify migrations and data persistence
+
+**When Adding Tests:**
+- Use JUnit 5 for new test classes
+- Mock external dependencies (database, Minecraft APIs) when needed
 - Test both success and failure scenarios
 - Include edge cases and boundary conditions
+- Focus on business logic that can be tested without Minecraft server
 
 ## Breaking Changes Log
 
-### Version 1.1.0-SNAPSHOT (Database Layer Implementation)
-- **Date**: 2024-12-XX  
-- **Changes**: 
-  - **BREAKING**: Added database layer and persistence system
-  - **BREAKING**: Introduced migration system requiring V1__init.sql
-  - **BREAKING**: Added configuration system with config.yml dependencies
-  - **BREAKING**: New database tables: instruments, instrument_state, instrument_price_history
-  - **BREAKING**: Item seeding system now populates database on startup
-  - Database provider support: SQLite (default), MySQL, PostgreSQL
-  - Connection pooling and transaction management
-  - New infrastructure.db package with DB utilities
-- **Migration Impact**: Existing deployments need database initialization
-- **Config Impact**: New config.yml file required with database settings
+### Previous Development History
+See `Documentation/Copilot-Changes/` for detailed implementation notes and migration guides for specific features.
 
-### Version 1.0.0-SNAPSHOT (Initial Setup)
-- **Date**: 2024-12-XX
-- **Changes**: 
-  - Initial project structure established
-  - Core stock market simulation implemented
-  - 25+ market factors defined and integrated
-  - Realistic price calculation algorithm developed
-  - Test infrastructure created
-
-### Version 1.2.0-SNAPSHOT (Centralized Logging System)
-- **Date**: 2024-10-12
-- **Changes**:
-  - **BREAKING**: Replaced all `java.util.logging.Logger` with `PluginLogger`
-  - **BREAKING**: New config section `logging:` with `debugLevel` setting
-  - **CHANGE**: Info messages now require `debugLevel >= 1` to be logged
-  - **CHANGE**: Replaced `logger.fine()` with `logger.debug()`
-  - **NEW**: Centralized logging with configurable debug levels (0-3)
-  - **NEW**: Thread-safe logging for concurrent operations
-  - **NEW**: `infrastructure.logging.PluginLogger` class
-- **Migration Impact**: None - backward compatible
-- **Config Impact**: New optional `logging.debugLevel` setting (default: 1)
-- **Code Impact**: All 38 files with Logger updated to use PluginLogger
-- **Documentation**: See `Documentation/Copilot-Changes/LOGGING_SYSTEM.md`
-
-### Version 1.2.0-SNAPSHOT (Company/Corporation Feature)
-- **Date**: 2024-12-XX
-- **Changes**:
-  - **BREAKING**: Added company/corporation system with new database tables
-  - **BREAKING**: New migration V8__companies.sql required
-  - **BREAKING**: New config section `companies:` in config.yml
-  - **NEW**: Company management system with roles, permissions, and shared balances
-  - **NEW**: Tables: companies, company_jobs, company_employees, company_tx, company_invitations
-  - **NEW**: /company command with subcommands (create, invite, accept, deposit, withdraw, etc.)
-  - **NEW**: Permission system for company management (CEO, CFO, EMPLOYEE roles)
-  - **NEW**: Invitation system with expiration and status tracking
-  - **NEW**: Company transaction history for deposits and withdrawals
-- **Migration Impact**: Existing deployments need to run V7 migration
-- **Config Impact**: Optional `companies:` section in config.yml (defaults provided)
-- **Services Added**: CompanyService, InvitationService
-- **Models Added**: Company, CompanyJob, CompanyEmployee, CompanyInvitation
-- **Commands Added**: /company (aliases: /corp, /corporation)
-- **Permissions Added**: quickstocks.company.create, quickstocks.company.manage
+### Version 1.0.0-SNAPSHOT (Current Release)
+- **Date**: 2025-11-XX
+- **Major Features**:
+  - **NEW**: Complete market trading system
+  - **NEW**: Company/Corporation management system
+  - **NEW**: Full command implementation (/stocks, /market, /company, /crypto, /wallet, /watch)
+  - **NEW**: GUI system for market browsing
+  - **NEW**: ChestShop integration (soft dependency)
+  - **NEW**: WorldGuard integration (soft dependency)
+  - **NEW**: Vault economy integration
+  - **NEW**: bStats anonymous statistics
+  - **NEW**: Multi-file configuration system (config.yml, market.yml, trading.yml, companies.yml, guis.yml)
+  - **NEW**: Public API for developers
+  - **NEW**: Database migration system with schema versioning
+  - **NEW**: Centralized logging system with debug levels
+  - **NEW**: Circuit breakers and trading limits
+  - **NEW**: Market Link Device for portable market access
+- **Config Files**: config.yml, market.yml, trading.yml, companies.yml, guis.yml
+- **Database**: SQLite (default), MySQL, PostgreSQL support
+- **Package**: net.cyberneticforge.quickstocks
+- **Java Version**: 21+ required
+- **Minecraft Version**: 1.21.8 (Paper recommended)
 
 *Add new breaking changes here when they occur, including:*
 - *Date of change*
@@ -540,35 +595,100 @@ Based on research of real-world stock market influences, covering:
 - **Rollback Support**: Failed migrations are logged and can be recovered
 - **Team Development**: Consistent database state across environments
 
+## Public API for Developers
+
+### Event System
+The plugin provides a comprehensive event system for developers to hook into:
+
+**Location**: `src/main/java/net/cyberneticforge/quickstocks/api/events/`
+
+**Available Events**:
+- **Market Events**: `MarketOpenEvent`, `MarketCloseEvent`, `InstrumentPriceUpdateEvent`, `CircuitBreakerTriggeredEvent`
+- **Trading Events**: `InstrumentBuyEvent`, `ShareBuyEvent`, `ShareSellEvent`
+- **Company Events**: `CompanyCreateEvent`, `CompanyIPOEvent`, `CompanyEmployeeJoinEvent`, `CompanyEmployeeLeaveEvent`
+- **Wallet Events**: `WalletBalanceChangeEvent`
+- **Watchlist Events**: `WatchlistAddEvent`, `WatchlistRemoveEvent`
+- **Crypto Events**: `CryptoCreateEvent`
+
+**Usage Example**:
+```java
+@EventHandler
+public void onMarketOpen(MarketOpenEvent event) {
+    // React to market opening
+}
+```
+
+### Manager Interfaces
+Public interfaces for accessing plugin functionality:
+
+**Location**: `src/main/java/net/cyberneticforge/quickstocks/api/managers/`
+
+**Available Managers**:
+- `MarketManager` - Access market data and state
+- `PortfolioManager` - Manage player portfolios
+- `TradingManager` - Execute trades programmatically
+- `CompanyManager` - Access company information
+- `CryptoManager` - Manage cryptocurrency instruments
+
+**Access Pattern**:
+```java
+QuickStocksPlugin plugin = (QuickStocksPlugin) Bukkit.getPluginManager().getPlugin("QuickStocks");
+MarketManager marketManager = plugin.getMarketManager();
+```
+
+## Plugin Integrations
+
+### Vault Economy (Optional)
+- **Status**: ✅ Implemented
+- **Purpose**: Integrate with economy plugins for wallet management
+- **Automatic Detection**: WalletService detects and uses Vault if available
+- **Fallback**: Built-in wallet system if Vault not present
+
+### ChestShop (Optional Soft Dependency)
+- **Status**: ✅ Implemented
+- **Purpose**: Companies can own and manage chest shops
+- **Features**: Employee-based shop management, revenue tracking
+- **Configuration**: Automatic detection, no configuration needed
+
+### WorldGuard (Optional Soft Dependency)
+- **Status**: ✅ Implemented
+- **Purpose**: Region-based permission control
+- **Custom Flags**: `quickstocks-plots` flag for plot purchases
+- **Graceful Degradation**: Works without WorldGuard installed
+
 ## Notes for Future Development
 - Consider adding seasonal events tied to Minecraft calendar
 - Implement company earnings based on player activity
 - Add sector rotation based on server events
-- ✅ **COMPLETED**: Integration with economy plugins (Vault API) - WalletService now automatically detects and uses Vault
 - Plan for multi-server market synchronization via shared database
-- Add command permissions and player balance integration
-- Implement portfolio persistence and trading history
 - Consider real-time price feeds from external APIs for crypto/stocks
+- Add advanced analytics and reporting features
+- Implement dividends and stock splits for companies
+- Add options and derivatives trading
 
 ## 🔧 Troubleshooting Guide
 
 ### Common Build Issues
-**Problem**: Maven can't resolve PaperMC dependencies
+**Problem**: Maven can't resolve external repositories
 ```bash
-# Solution: Use test profile
-mvn -f pom-test.xml clean compile
+# This is expected in sandboxed environments
+# Dependencies should be cached from previous builds
+# Solution: Ensure dependencies are available in local Maven repository
 ```
 
-**Problem**: Compilation errors with Bukkit classes
+**Problem**: Compilation errors
 ```bash
-# Solution: Plugin classes are in .ready files
-./activate-plugin.sh  # Renames .ready to .java files
+# Solution: Check Java version (requires Java 21+)
+java -version
+# Solution: Clean and rebuild
+mvn clean compile
 ```
 
-**Problem**: Tests fail with database errors
+**Problem**: Database connection errors
 ```bash
-# Solution: Check database setup or try running market simulation test
-mvn -f pom-test.xml test -Dtest=StockMarketSimulationTest
+# Solution: Verify SQLite file path in config.yml
+# Solution: For MySQL/PostgreSQL, check connection parameters
+# Default SQLite location: plugins/QuickStocks/data.db
 ```
 
 ### Runtime Issues
@@ -588,12 +708,29 @@ mvn -f pom-test.xml test -Dtest=StockMarketSimulationTest
 - Ensure proper permissions are configured
 
 ### Performance Issues
-- **High CPU**: Reduce market.updateInterval in config.yml
-- **Memory leaks**: Check for unclosed database connections
-- **Slow queries**: Add database indexes for frequently accessed data
+- **High CPU**: 
+  - Reduce market update frequency in `market.yml`
+  - Check for infinite loops in market calculations
+  - Profile database queries for optimization opportunities
+- **Memory leaks**: 
+  - Check for unclosed database connections
+  - Verify event listeners are properly unregistered
+  - Monitor HikariCP connection pool usage
+- **Slow queries**: 
+  - Add database indexes for frequently accessed data
+  - Consider query optimization in service layer
+  - Check database migration logs for schema issues
+
+### Development Workflow Issues
+- **Config changes not taking effect**: Restart the server; config is loaded on startup
+- **GUI not displaying correctly**: Check `guis.yml` for layout configuration
+- **Commands not working**: Verify plugin.yml registration and permissions
+- **Integration issues**: Check ChestShop/WorldGuard/Vault are properly loaded
 
 ### Getting Help
-1. Check server logs for detailed error messages
-2. Run `StockMarketSimulationTest` to verify core functionality
-3. Review migration logs in database schema_version table
-4. Validate configuration file syntax (config.yml)
+1. Check server logs for detailed error messages (increase `logging.debugLevel` if needed)
+2. Review database migration logs in `schema_version` table
+3. Validate configuration file syntax (all YAML files)
+4. Check `Documentation/` folder for feature-specific guides
+5. Review `Documentation/Copilot-Changes/` for implementation details
+6. Verify soft dependencies (ChestShop, WorldGuard, Vault) are compatible versions
