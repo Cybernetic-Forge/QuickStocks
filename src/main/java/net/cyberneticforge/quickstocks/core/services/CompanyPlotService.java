@@ -6,11 +6,13 @@ import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.model.CompanyPlot;
 import net.cyberneticforge.quickstocks.core.model.PlotPermission;
+import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -29,9 +31,16 @@ public class CompanyPlotService {
     /**
      * Buys a plot for a company at the specified location.
      */
-    public CompanyPlot buyPlot(String companyId, String playerUuid, Location location) throws SQLException {
+    public CompanyPlot buyPlot(String companyId, String playerUuid, Location location, Player player) throws SQLException {
         if (!config.isPlotsEnabled()) {
             throw new IllegalStateException("Plot system is not enabled");
+        }
+        
+        // Check WorldGuard region permissions if WorldGuard is hooked
+        if (QuickStocksPlugin.getHookManager().isHooked(HookType.WorldGuard)) {
+            if (!QuickStocksPlugin.getWorldGuardHook().canBuyPlot(player, location)) {
+                throw new IllegalArgumentException("You cannot buy plots in this WorldGuard region");
+            }
         }
         
         Chunk chunk = location.getChunk();

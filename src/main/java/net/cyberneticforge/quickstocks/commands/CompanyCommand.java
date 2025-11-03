@@ -1546,7 +1546,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         try {
             CompanyPlot plot = QuickStocksPlugin.getCompanyPlotService().buyPlot(
-                company.getId(), playerUuid, player.getLocation()
+                company.getId(), playerUuid, player.getLocation(), player
             );
             
             Translation.Company_Plot_Purchased.sendMessage(player,
