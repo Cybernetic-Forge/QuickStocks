@@ -86,8 +86,13 @@ public class PlotPermissionEditGUI implements InventoryHolder {
      */
     private void addPermissionToggle(String configKey, boolean enabled) {
         String path = "plot_permission_edit." + configKey;
-        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial(path, Material.STONE);
-        int slot = QuickStocksPlugin.getGuiConfig().getItemSlot(path, 0);
+        
+        // Get defaults based on permission type
+        Material defaultMaterial = getDefaultMaterial(configKey);
+        int defaultSlot = getDefaultSlot(configKey);
+        
+        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial(path, defaultMaterial);
+        int slot = QuickStocksPlugin.getGuiConfig().getItemSlot(path, defaultSlot);
         
         String statusKey = enabled ? path + ".status_enabled" : path + ".status_disabled";
         String statusText = QuickStocksPlugin.getGuiConfig().getConfig().getString(statusKey, enabled ? "&a✓ Enabled" : "&c✗ Disabled");
@@ -106,6 +111,30 @@ public class PlotPermissionEditGUI implements InventoryHolder {
         
         item.setItemMeta(meta);
         inventory.setItem(slot, item);
+    }
+    
+    /**
+     * Gets the default material for a permission type.
+     */
+    private Material getDefaultMaterial(String configKey) {
+        return switch (configKey) {
+            case "build_permission" -> Material.IRON_PICKAXE;
+            case "interact_permission" -> Material.LEVER;
+            case "container_permission" -> Material.CHEST;
+            default -> Material.STONE;
+        };
+    }
+    
+    /**
+     * Gets the default slot for a permission type.
+     */
+    private int getDefaultSlot(String configKey) {
+        return switch (configKey) {
+            case "build_permission" -> 10;
+            case "interact_permission" -> 13;
+            case "container_permission" -> 16;
+            default -> 0;
+        };
     }
     
     /**
