@@ -96,13 +96,12 @@ public class WorldGuardHook {
             // Convert Bukkit player to WorldGuard LocalPlayer
             LocalPlayer localPlayer = worldGuardPlugin.wrapPlayer(player);
             
-            // Query the flag - if null (not set), defaults to allow (true in StateFlag constructor)
+            // Query the flag - if null (not set), defaults to allow
             StateFlag.State state = query.queryState(weLocation, localPlayer, flag);
             
-            // If state is null, use the flag's default value
-            // StateFlag defaults to ALLOW (true) unless explicitly set to DENY
+            // If state is null, default to allow (permissive by default)
             if (state == null) {
-                return flag.getDefault();
+                return true;
             }
             
             return state == StateFlag.State.ALLOW;

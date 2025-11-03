@@ -38,8 +38,7 @@ public class CompanyPlotService {
         
         // Check WorldGuard region permissions if WorldGuard is hooked
         if (QuickStocksPlugin.getHookManager().isHooked(HookType.WorldGuard)) {
-            if (QuickStocksPlugin.getWorldGuardHook() != null && 
-                !QuickStocksPlugin.getWorldGuardHook().canBuyPlot(player, location)) {
+            if (!QuickStocksPlugin.getWorldGuardHook().canBuyPlot(player, location)) {
                 throw new IllegalArgumentException("You cannot buy plots in this WorldGuard region");
             }
         }
