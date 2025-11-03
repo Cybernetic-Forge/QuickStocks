@@ -431,6 +431,16 @@ public final class QuickStocksPlugin extends JavaPlugin {
         pluginLogger = new PluginLogger(this, debugLevel);
         pluginLogger.info("PluginLogger reinitialized with debug level: " + debugLevel);
     }
+    
+    /**
+     * Recreates the simulation engine with a fresh executor service.
+     * This is necessary because the executor service is terminated on stop and cannot be restarted.
+     * Package-private for reload functionality.
+     */
+    void recreateSimulationEngine() {
+        simulationEngine = new SimulationEngine();
+        simulationEngine.start();
+    }
 
     public static void registerCommand(String command, CommandExecutor executor) {
         Objects.requireNonNull(instance.getCommand(command)).setExecutor(executor);

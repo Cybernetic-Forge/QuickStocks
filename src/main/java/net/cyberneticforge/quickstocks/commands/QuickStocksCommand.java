@@ -110,10 +110,10 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
             // Restart services
             sender.sendMessage(Component.text("Restarting services...", NamedTextColor.GRAY));
             
-            // Restart simulation engine
+            // Recreate and start simulation engine (needed because executor service is terminated on stop)
             if (QuickStocksPlugin.getSimulationEngine() != null) {
-                QuickStocksPlugin.getSimulationEngine().start();
-                getLogger().info("Simulation engine restarted");
+                plugin.recreateSimulationEngine();
+                getLogger().info("Simulation engine recreated and started");
             }
             
             // Restart salary payment scheduler
