@@ -421,6 +421,16 @@ public final class QuickStocksPlugin extends JavaPlugin {
         };
         rentCollectionTask.runTaskTimerAsynchronously(this, 20L * 60 * 10, 20L * 60 * 10); // Run every 10 minutes
     }
+    
+    /**
+     * Reinitializes the plugin logger with a new debug level.
+     * Package-private for reload functionality.
+     */
+    void reinitializeLogger() {
+        int debugLevel = getConfig().getInt("logging.debugLevel", 1);
+        pluginLogger = new PluginLogger(this, debugLevel);
+        pluginLogger.info("PluginLogger reinitialized with debug level: " + debugLevel);
+    }
 
     public static void registerCommand(String command, CommandExecutor executor) {
         Objects.requireNonNull(instance.getCommand(command)).setExecutor(executor);

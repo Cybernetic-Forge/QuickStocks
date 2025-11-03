@@ -74,6 +74,9 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
             plugin.reloadConfig();
             sender.sendMessage(Component.text("Reloaded config.yml", NamedTextColor.GRAY));
             
+            // Reinitialize logger with new debug level
+            plugin.reinitializeLogger();
+            
             // Reload all configuration files
             sender.sendMessage(Component.text("Reloading configuration files...", NamedTextColor.GRAY));
             
@@ -93,7 +96,7 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
             }
             
             if (QuickStocksPlugin.getGuiConfig() != null) {
-                // GuiConfig uses YamlParser which handles reload automatically
+                QuickStocksPlugin.getGuiConfig().reload();
                 logger.info("GUI configuration reloaded");
             }
             
