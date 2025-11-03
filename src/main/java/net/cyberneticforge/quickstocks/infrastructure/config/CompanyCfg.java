@@ -164,6 +164,7 @@ public class CompanyCfg {
                 perms.setCanCreateJobTitles(config.getBoolean(basePath + ".canCreateJobTitles", false));
                 perms.setCanWithdraw(config.getBoolean(basePath + ".canWithdraw", false));
                 perms.setCanManageSalaries(config.getBoolean(basePath + ".canManageSalaries", false));
+                perms.setCanManagePlots(config.getBoolean(basePath + ".canManagePlots", false));
                 
                 permissionsByTitle.put(title, perms);
             }
@@ -177,6 +178,7 @@ public class CompanyCfg {
             ceoPerms.setCanCreateJobTitles(true);
             ceoPerms.setCanWithdraw(true);
             ceoPerms.setCanManageSalaries(true);
+            ceoPerms.setCanManagePlots(true);
             permissionsByTitle.put("CEO", ceoPerms);
             
             JobPermissions cfoPerms = new JobPermissions();

@@ -18,16 +18,19 @@ companies:
       canCreateJobTitles: true
       canWithdraw: true
       canManageSalaries: true
+      canManagePlots: true
     CFO:
       canWithdraw: true
       canInvite: false
       canCreateJobTitles: false
       canManageSalaries: true
+      canManagePlots: false
     EMPLOYEE:
       canInvite: false
       canWithdraw: false
       canCreateJobTitles: false
       canManageSalaries: false
+      canManagePlots: false
   # Salary settings
   salaries:
     paymentCycles:  # Available payment cycle options

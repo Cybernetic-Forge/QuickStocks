@@ -46,7 +46,7 @@ public class CompanyPlotService {
         
         // Check if player has permission to buy plots
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(companyId, playerUuid);
-        if (playerJob.isEmpty() || !playerJob.get().canManageCompany()) {
+        if (playerJob.isEmpty() || !playerJob.get().canManagePlots()) {
             throw new IllegalArgumentException("You don't have permission to buy plots for this company");
         }
         
@@ -115,7 +115,7 @@ public class CompanyPlotService {
         
         // Check if player has permission to sell plots
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(companyId, playerUuid);
-        if (playerJob.isEmpty() || !playerJob.get().canManageCompany()) {
+        if (playerJob.isEmpty() || !playerJob.get().canManagePlots()) {
             throw new IllegalArgumentException("You don't have permission to sell plots for this company");
         }
         

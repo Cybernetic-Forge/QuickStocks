@@ -1556,7 +1556,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         
         // Check if player has permission
         Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
-        if (playerJob.isEmpty() || !playerJob.get().canManageCompany()) {
+        if (playerJob.isEmpty() || !playerJob.get().canManagePlots()) {
             Translation.NoPermission.sendMessage(player);
             return;
         }
