@@ -278,7 +278,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             // Register plot listener if plots are enabled
             if (companyCfg.isPlotsEnabled()) {
                 getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.CompanyPlotListener(), this);
-                getLogger().info("Registered company plot listener");
+                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.PlotEditGUIListener(), this);
+                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.PlotPermissionEditGUIListener(), this);
+                getLogger().info("Registered company plot listeners");
             }
             
             // Register ChestShop integration listeners if ChestShop is hooked and chestshop is enabled

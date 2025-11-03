@@ -225,8 +225,8 @@ public class CompanyPlotListener implements Listener {
                 return; // Not a company plot
             }
             
-            // Check if player has permission to modify this plot
-            if (!canModifyPlot(player, plot.get())) {
+            // Check if player has build permission on this plot
+            if (!hasPlotPermission(player, plot.get(), "build")) {
                 event.setCancelled(true);
                 Translation.Company_Plot_NoPermission.sendMessage(player);
             }
@@ -256,8 +256,8 @@ public class CompanyPlotListener implements Listener {
                 return; // Not a company plot
             }
             
-            // Check if player has permission to modify this plot
-            if (!canModifyPlot(player, plot.get())) {
+            // Check if player has build permission on this plot
+            if (!hasPlotPermission(player, plot.get(), "build")) {
                 event.setCancelled(true);
                 Translation.Company_Plot_NoPermission.sendMessage(player);
             }
@@ -296,8 +296,8 @@ public class CompanyPlotListener implements Listener {
                 return; // Not a company plot
             }
             
-            // Check if player has permission to access this plot
-            if (!canModifyPlot(player, plot.get())) {
+            // Check if player has container permission on this plot
+            if (!hasPlotPermission(player, plot.get(), "container")) {
                 event.setCancelled(true);
                 Translation.Company_Plot_NoPermission.sendMessage(player);
             }
@@ -307,21 +307,17 @@ public class CompanyPlotListener implements Listener {
     }
     
     /**
-     * Checks if a player can modify a plot (break/place blocks, open containers).
+     * Checks if a player has a specific permission on a plot using per-plot permissions.
      */
-    private boolean canModifyPlot(Player player, CompanyPlot plot) {
+    private boolean hasPlotPermission(Player player, CompanyPlot plot, String permissionType) {
         try {
             String playerUuid = player.getUniqueId().toString();
-            String companyId = plot.getCompanyId();
             
-            // Check if player is an employee of the company that owns this plot
-            Optional<net.cyberneticforge.quickstocks.core.model.CompanyJob> playerJob = 
-                QuickStocksPlugin.getCompanyService().getPlayerJob(companyId, playerUuid);
-            
-            // Player must be an employee to modify the plot
-            return playerJob.isPresent();
+            // Use the plot service method to check permission
+            return QuickStocksPlugin.getCompanyPlotService()
+                .hasPlotPermission(plot.getId(), playerUuid, permissionType);
         } catch (Exception e) {
-            logger.warning("Error checking plot modification permission: " + e.getMessage());
+            logger.warning("Error checking plot permission: " + e.getMessage());
             return false;
         }
     }

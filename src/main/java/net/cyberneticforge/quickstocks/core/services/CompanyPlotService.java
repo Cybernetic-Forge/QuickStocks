@@ -86,6 +86,9 @@ public class CompanyPlotService {
         // Transaction was already recorded by removeWithDebtAllowance
         logger.info("Company " + companyId + " purchased plot at " + worldName + " (" + chunkX + ", " + chunkZ + ") for $" + buyPrice);
         
+        // Apply default plot permissions
+        applyDefaultPlotPermissions(plotId, companyId);
+        
         return new CompanyPlot(plotId, companyId, worldName, chunkX, chunkZ, buyPrice, now, rentAmount, rentInterval, now);
     }
     
@@ -366,5 +369,160 @@ public class CompanyPlotService {
             (String) row.get("rent_interval"),
             lastRentPayment
         );
+    }
+    
+    /**
+     * Gets plot permissions for a specific job on a plot.
+     */
+    public Optional<net.cyberneticforge.quickstocks.core.model.PlotPermission> getPlotPermission(String plotId, String jobId) throws SQLException {
+        List<Map<String, Object>> results = database.query(
+            "SELECT id, plot_id, job_id, can_build, can_interact, can_container " +
+            "FROM plot_permissions WHERE plot_id = ? AND job_id = ?",
+            plotId, jobId
+        );
+        
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Map<String, Object> row = results.getFirst();
+        return Optional.of(new net.cyberneticforge.quickstocks.core.model.PlotPermission(
+            (String) row.get("id"),
+            (String) row.get("plot_id"),
+            (String) row.get("job_id"),
+            ((Number) row.get("can_build")).intValue() != 0,
+            ((Number) row.get("can_interact")).intValue() != 0,
+            ((Number) row.get("can_container")).intValue() != 0
+        ));
+    }
+    
+    /**
+     * Gets all plot permissions for a plot.
+     */
+    public List<net.cyberneticforge.quickstocks.core.model.PlotPermission> getPlotPermissions(String plotId) throws SQLException {
+        List<Map<String, Object>> results = database.query(
+            "SELECT id, plot_id, job_id, can_build, can_interact, can_container " +
+            "FROM plot_permissions WHERE plot_id = ? ORDER BY job_id",
+            plotId
+        );
+        
+        List<net.cyberneticforge.quickstocks.core.model.PlotPermission> permissions = new ArrayList<>();
+        for (Map<String, Object> row : results) {
+            permissions.add(new net.cyberneticforge.quickstocks.core.model.PlotPermission(
+                (String) row.get("id"),
+                (String) row.get("plot_id"),
+                (String) row.get("job_id"),
+                ((Number) row.get("can_build")).intValue() != 0,
+                ((Number) row.get("can_interact")).intValue() != 0,
+                ((Number) row.get("can_container")).intValue() != 0
+            ));
+        }
+        
+        return permissions;
+    }
+    
+    /**
+     * Sets plot permission for a specific job.
+     */
+    public void setPlotPermission(String plotId, String jobId, boolean canBuild, boolean canInteract, boolean canContainer) throws SQLException {
+        // Check if permission already exists
+        Optional<net.cyberneticforge.quickstocks.core.model.PlotPermission> existing = getPlotPermission(plotId, jobId);
+        
+        if (existing.isPresent()) {
+            // Update existing permission
+            database.execute(
+                "UPDATE plot_permissions SET can_build = ?, can_interact = ?, can_container = ? " +
+                "WHERE plot_id = ? AND job_id = ?",
+                canBuild ? 1 : 0,
+                canInteract ? 1 : 0,
+                canContainer ? 1 : 0,
+                plotId,
+                jobId
+            );
+        } else {
+            // Create new permission
+            String permissionId = UUID.randomUUID().toString();
+            database.execute(
+                "INSERT INTO plot_permissions (id, plot_id, job_id, can_build, can_interact, can_container) " +
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                permissionId,
+                plotId,
+                jobId,
+                canBuild ? 1 : 0,
+                canInteract ? 1 : 0,
+                canContainer ? 1 : 0
+            );
+        }
+        
+        logger.debug("Set plot permission for job " + jobId + " on plot " + plotId);
+    }
+    
+    /**
+     * Checks if a player has a specific permission on a plot.
+     */
+    public boolean hasPlotPermission(String plotId, String playerUuid, String permissionType) throws SQLException {
+        // Get player's job
+        CompanyPlot plot = getPlotById(plotId).orElse(null);
+        if (plot == null) {
+            return false;
+        }
+        
+        Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(plot.getCompanyId(), playerUuid);
+        if (playerJob.isEmpty()) {
+            return false; // Not an employee
+        }
+        
+        // Get plot permission for this job
+        Optional<net.cyberneticforge.quickstocks.core.model.PlotPermission> permission = getPlotPermission(plotId, playerJob.get().getId());
+        
+        if (permission.isEmpty()) {
+            // No specific permission set, use default (allow all for employees)
+            return true;
+        }
+        
+        // Check specific permission
+        return switch (permissionType.toLowerCase()) {
+            case "build" -> permission.get().canBuild();
+            case "interact" -> permission.get().canInteract();
+            case "container" -> permission.get().canContainer();
+            default -> false;
+        };
+    }
+    
+    /**
+     * Gets nearby plots within a radius (in chunks).
+     */
+    public List<CompanyPlot> getNearbyPlots(Location location, int radiusChunks) throws SQLException {
+        Chunk centerChunk = location.getChunk();
+        String worldName = centerChunk.getWorld().getName();
+        int centerX = centerChunk.getX();
+        int centerZ = centerChunk.getZ();
+        
+        List<CompanyPlot> nearbyPlots = new ArrayList<>();
+        
+        // Query plots within the radius
+        for (int x = centerX - radiusChunks; x <= centerX + radiusChunks; x++) {
+            for (int z = centerZ - radiusChunks; z <= centerZ + radiusChunks; z++) {
+                Optional<CompanyPlot> plot = getPlotByLocation(worldName, x, z);
+                plot.ifPresent(nearbyPlots::add);
+            }
+        }
+        
+        return nearbyPlots;
+    }
+    
+    /**
+     * Applies default plot permissions when a plot is bought.
+     */
+    public void applyDefaultPlotPermissions(String plotId, String companyId) throws SQLException {
+        // Get all jobs for the company
+        List<CompanyJob> jobs = QuickStocksPlugin.getCompanyService().getCompanyJobs(companyId);
+        
+        // Apply default permissions (all allowed for all jobs by default)
+        for (CompanyJob job : jobs) {
+            setPlotPermission(plotId, job.getId(), true, true, true);
+        }
+        
+        logger.debug("Applied default plot permissions for plot " + plotId);
     }
 }
