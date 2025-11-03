@@ -12,7 +12,6 @@ import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 
-import javax.swing.text.html.Option;
 import java.sql.SQLException;
 import java.util.*;
 

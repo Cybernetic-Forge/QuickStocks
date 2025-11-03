@@ -5,15 +5,12 @@ import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.gui.PlotEditGUI;
 import net.cyberneticforge.quickstocks.gui.PlotPermissionEditGUI;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
-import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
 
 /**
  * Handles interactions with the Plot Edit GUI.
