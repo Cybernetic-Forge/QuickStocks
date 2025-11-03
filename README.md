@@ -55,6 +55,11 @@ QuickStocks brings real-world financial markets to Minecraft. Players can:
   - Shop revenues and purchases tied to company balance
   - Automatic balance validation for transactions
   - Fully optional soft-dependency (works without ChestShop)
+- **WorldGuard integration** - Region-based permission control
+  - Custom flags for plot purchases, trading, and shop placement
+  - `quickstocks-plots` flag to control plot purchases in regions
+  - Graceful degradation when WorldGuard not installed
+  - Fully optional soft-dependency (works without WorldGuard)
 
 ### 🎨 Beautiful User Interface
 - **Interactive market GUI** for browsing and trading
@@ -101,6 +106,7 @@ QuickStocks brings real-world financial markets to Minecraft. Players can:
 - **[Configuration](Documentation/Configuration.md)** - Detailed configuration options
 - **[Database Management](Documentation/Database.md)** - Database administration
 - **[ChestShop Integration](Documentation/ChestShop-Integration.md)** - Company-owned chest shops
+- **[WorldGuard Integration](WORLDGUARD_INTEGRATION.md)** - Region-based permissions and custom flags
 
 ### 📖 Command References
 - **[Stocks Commands](Documentation/Commands-Stocks.md)** - Market data and analysis
