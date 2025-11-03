@@ -13,8 +13,6 @@ import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
  */
 public class WorldGuardFlags {
     
-    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
-    
     /**
      * Flag to control whether players can buy plots in a WorldGuard region.
      * When set to ALLOW, players can purchase plots within the region.
@@ -37,7 +35,7 @@ public class WorldGuardFlags {
      * When set to DENY, ChestShop creation is blocked.
      * Default state is ALLOW (null means allow).
      */
-    public static StateFlag QUICKSTOCKS_CHESTSHOPS;
+    //public static StateFlag QUICKSTOCKS_CHESTSHOPS; // TODO Might be considered in future
     
     /**
      * Registers all QuickStocks custom flags with WorldGuard.
@@ -51,17 +49,20 @@ public class WorldGuardFlags {
             StateFlag plotsFlag = new StateFlag("quickstocks-plots", true);
             registry.register(plotsFlag);
             QUICKSTOCKS_PLOTS = plotsFlag;
-            logger.info("Registered WorldGuard flag: quickstocks-plots");
+            QuickStocksPlugin.getInstance().getLogger().info("Registered WorldGuard flag: quickstocks-plots");
             
         } catch (FlagConflictException e) {
             // Flag already exists, try to get it
             Flag<?> existing = registry.get("quickstocks-plots");
             if (existing instanceof StateFlag) {
                 QUICKSTOCKS_PLOTS = (StateFlag) existing;
-                logger.debug("WorldGuard flag 'quickstocks-plots' already registered");
+                QuickStocksPlugin.getInstance().getLogger().warning("WorldGuard flag 'quickstocks-plots' already registered");
             } else {
-                logger.warning("Could not register flag 'quickstocks-plots': conflict with existing flag", e);
+                QuickStocksPlugin.getInstance().getLogger().warning("Flag name conflict for 'quickstocks-plots' " + e.getMessage());
             }
+        } catch (IllegalStateException locked) {
+            // If called after WG finished loading, fail fast with a clear message
+            throw new IllegalStateException("WorldGuard flag registry is not available - registerFlags() was called too late. Ensure this is called during plugin enable before WorldGuard finishes loading.", locked);
         }
         
         try {
@@ -69,35 +70,41 @@ public class WorldGuardFlags {
             StateFlag tradingFlag = new StateFlag("quickstocks-trading", true);
             registry.register(tradingFlag);
             QUICKSTOCKS_TRADING = tradingFlag;
-            logger.info("Registered WorldGuard flag: quickstocks-trading");
+            QuickStocksPlugin.getInstance().getLogger().info("Registered WorldGuard flag: quickstocks-trading");
             
         } catch (FlagConflictException e) {
             // Flag already exists, try to get it
             Flag<?> existing = registry.get("quickstocks-trading");
             if (existing instanceof StateFlag) {
                 QUICKSTOCKS_TRADING = (StateFlag) existing;
-                logger.debug("WorldGuard flag 'quickstocks-trading' already registered");
+                QuickStocksPlugin.getInstance().getLogger().warning("WorldGuard flag 'quickstocks-trading' already registered");
             } else {
-                logger.warning("Could not register flag 'quickstocks-trading': conflict with existing flag", e);
+                QuickStocksPlugin.getInstance().getLogger().warning("Flag name conflict for 'quickstocks-trading' " + e.getMessage());
             }
+        } catch (IllegalStateException locked) {
+            // If called after WG finished loading, fail fast with a clear message
+            throw new IllegalStateException("WorldGuard flag registry is not available - registerFlags() was called too late. Ensure this is called during plugin enable before WorldGuard finishes loading.", locked);
         }
         
-        try {
+        /*try {
             // Register quickstocks-chestshops flag
             StateFlag chestshopsFlag = new StateFlag("quickstocks-chestshops", true);
             registry.register(chestshopsFlag);
             QUICKSTOCKS_CHESTSHOPS = chestshopsFlag;
-            logger.info("Registered WorldGuard flag: quickstocks-chestshops");
+            QuickStocksPlugin.getInstance().getLogger().info("Registered WorldGuard flag: quickstocks-chestshops");
             
         } catch (FlagConflictException e) {
             // Flag already exists, try to get it
             Flag<?> existing = registry.get("quickstocks-chestshops");
             if (existing instanceof StateFlag) {
                 QUICKSTOCKS_CHESTSHOPS = (StateFlag) existing;
-                logger.debug("WorldGuard flag 'quickstocks-chestshops' already registered");
+                QuickStocksPlugin.getInstance().getLogger().warning("WorldGuard flag 'quickstocks-chestshops' already registered");
             } else {
-                logger.warning("Could not register flag 'quickstocks-chestshops': conflict with existing flag", e);
+                QuickStocksPlugin.getInstance().getLogger().warning("Flag name conflict for 'quickstocks-chestshops' " + e.getMessage());
             }
-        }
+        } catch (IllegalStateException locked) {
+            // If called after WG finished loading, fail fast with a clear message
+            throw new IllegalStateException("WorldGuard flag registry is not available - registerFlags() was called too late. Ensure this is called during plugin enable before WorldGuard finishes loading.", locked);
+        }*/
     }
 }

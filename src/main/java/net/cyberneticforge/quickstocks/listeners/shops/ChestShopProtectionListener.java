@@ -5,7 +5,7 @@ import com.Acrobot.ChestShop.Events.AccountAccessEvent;
 import com.Acrobot.ChestShop.Events.Protection.ProtectionCheckEvent;
 import com.Acrobot.ChestShop.Utils.uBlock;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
-import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
+import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import org.bukkit.Bukkit;

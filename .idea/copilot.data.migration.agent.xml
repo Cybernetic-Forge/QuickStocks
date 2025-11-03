@@ -25,6 +25,13 @@
             </set>
           </value>
         </entry>
+        <entry key="c9680f53-589a-4d68-bfec-56b595da22d1">
+          <value>
+            <set>
+              <option value="efdf4f28-dac7-4fc0-b592-e94e8c40bdb1" />
+            </set>
+          </value>
+        </entry>
         <entry key="d6592602-c60c-49ad-994f-bab9e979a3c7">
           <value>
             <set>
@@ -46,6 +53,11 @@
     </option>
     <pendingWorkingSetItems>
       <entry key="a51b9dfb-eab9-406b-99a2-5199a6c632c6" />
+      <entry key="c9680f53-589a-4d68-bfec-56b595da22d1">
+        <set>
+          <option value="file://$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/hooks/WorldGuardFlags.java" />
+        </set>
+      </entry>
     </pendingWorkingSetItems>
   </component>
 </project>

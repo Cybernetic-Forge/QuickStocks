@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.hooks;
+package net.cyberneticforge.quickstocks.hooks.chestshop;
 
 import com.Acrobot.ChestShop.UUIDs.NameManager;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;

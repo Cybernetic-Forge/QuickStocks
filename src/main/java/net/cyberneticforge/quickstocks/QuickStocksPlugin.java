@@ -5,8 +5,8 @@ import net.cyberneticforge.quickstocks.api.QuickStocksAPI;
 import net.cyberneticforge.quickstocks.commands.*;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
 import net.cyberneticforge.quickstocks.core.services.*;
-import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
-import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
+import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopAccountProvider;
+import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookManager;
 import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.hooks.WorldGuardFlags;
@@ -102,6 +102,24 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static WorldGuardHook worldGuardHook;
 
     @Override
+    public void onLoad() {
+        instance = this;
+        // Register WG flags BEFORE WG locks its registry
+        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+            try {
+                WorldGuardFlags.registerFlags();
+                getLogger().info("WorldGuard flags registered in onLoad().");
+            } catch (IllegalStateException ex) {
+                // Safety net in case something still tries to register too late
+                getLogger().severe("Could not register WorldGuard flags (registry locked). " +
+                        "Ensure load: STARTUP & softdepend: [WorldGuard].");
+            }
+        } else {
+            getLogger().warning("WorldGuard not present during onLoad(); skipping flag registration.");
+        }
+    }
+
+    @Override
     public void onEnable() {
         getLogger().info("QuickStocks enabling (Paper 1.21.8)...");
         instance = this;
@@ -118,11 +136,13 @@ public final class QuickStocksPlugin extends JavaPlugin {
             hookManager = new HookManager();
             
             // Initialize WorldGuard hook if available
-            if (hookManager.isHooked(HookType.WorldGuard)) {
-                pluginLogger.info("WorldGuard detected, registering custom flags...");
-                WorldGuardFlags.registerFlags();
+            if (hookManager.isHooked(HookType.WorldGuard) && WorldGuardFlags.QUICKSTOCKS_TRADING != null && WorldGuardFlags.QUICKSTOCKS_PLOTS != null) {
                 worldGuardHook = new WorldGuardHook();
-                pluginLogger.info("WorldGuard hook initialized successfully");
+                getLogger().info("WorldGuard hook initialized successfully.");
+            } else {
+                getLogger().severe("WorldGuard flags unavailable; disabling QuickStocks to avoid NPEs.");
+                getServer().getPluginManager().disablePlugin(this);
+                return;
             }
 
             // Initialize translation service
