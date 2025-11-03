@@ -85,6 +85,11 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
             // Reload all configuration files
             sender.sendMessage(Component.text("Reloading configuration files...", NamedTextColor.GRAY));
             
+            if (QuickStocksPlugin.getTranslationService() != null) {
+                QuickStocksPlugin.getTranslationService().reload();
+                getLogger().info("Translations configuration reloaded");
+            }
+            
             if (QuickStocksPlugin.getMarketCfg() != null) {
                 QuickStocksPlugin.getMarketCfg().reload();
                 getLogger().info("Market configuration reloaded");

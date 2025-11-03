@@ -101,4 +101,12 @@ public class TranslationService {
 
         return entries;
     }
+    
+    /**
+     * Reloads the translations configuration from disk.
+     */
+    public void reload() {
+        config.reload();
+        setup();
+    }
 }
