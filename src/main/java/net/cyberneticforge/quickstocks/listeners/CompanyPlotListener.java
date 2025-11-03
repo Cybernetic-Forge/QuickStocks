@@ -63,17 +63,12 @@ public class CompanyPlotListener implements Listener {
         lastChunkByPlayer.put(player.getUniqueId(), chunkKey);
         
         try {
-            // Check for plot ownership - use the player's actual position for terrain messages
-            // This ensures messages show when the player is actually in the plot
-            Chunk playerChunk = player.getLocation().getChunk();
-            Optional<CompanyPlot> currentPlot = QuickStocksPlugin.getCompanyPlotService()
-                .getPlotByLocation(playerChunk.getWorld().getName(), playerChunk.getX(), playerChunk.getZ());
-            
-            handleTerrainMessages(player, currentPlot);
-            
-            // For auto-buy, use the chunk they're moving to
+            // Check for plot ownership - use toChunk (where player is moving TO)
+            // This ensures messages show correctly when entering/leaving plots
             Optional<CompanyPlot> toPlot = QuickStocksPlugin.getCompanyPlotService()
                 .getPlotByLocation(toChunk.getWorld().getName(), toChunk.getX(), toChunk.getZ());
+            
+            handleTerrainMessages(player, toPlot);
             
             // Handle auto-buy mode
             Optional<String> autoBuyCompanyId = QuickStocksPlugin.getCompanyPlotService().getAutoBuyMode(playerUuid);
