@@ -272,6 +272,7 @@ public enum Translation {
     Company_Plot_AlreadyOwned("Company.Plot.AlreadyOwned"),
     Company_Plot_NotOwned("Company.Plot.NotOwned"),
     Company_Plot_InsufficientFunds("Company.Plot.InsufficientFunds"),
+    Company_Plot_NoPermission("Company.Plot.NoPermission"),
     Company_Plot_RentDue("Company.Plot.RentDue"),
     Company_Plot_PlotSeized("Company.Plot.PlotSeized"),
     

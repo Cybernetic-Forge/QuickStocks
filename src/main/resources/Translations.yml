@@ -372,6 +372,7 @@ Company:
     AlreadyOwned: '&cThis plot is already owned by another company.'
     NotOwned: '&cThis plot is not owned by your company.'
     InsufficientFunds: '&cInsufficient company funds to purchase this plot.'
+    NoPermission: '&cYou cannot modify this plot. You must be an employee of the owning company.'
     RentDue: '&cRent payment failed for plot at &e%world% &7(&e%x%&7, &e%z%&7). Company balance too low!'
     PlotSeized: '&cPlot at &e%world% &7(&e%x%&7, &e%z%&7) has been seized due to unpaid rent!'
     PaymentReceived: '&a💰 Salary payment received: &e$%amount% &afrom &e%company%'

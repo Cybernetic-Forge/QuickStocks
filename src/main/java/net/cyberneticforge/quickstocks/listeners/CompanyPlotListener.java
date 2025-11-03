@@ -203,4 +203,143 @@ public class CompanyPlotListener implements Listener {
             logger.warning("Error sending terrain message: " + e.getMessage());
         }
     }
+    
+    /**
+     * Prevents block breaking in company plots unless player has permission.
+     */
+    @EventHandler
+    public void onBlockBreak(org.bukkit.event.block.BlockBreakEvent event) {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            return;
+        }
+        
+        Player player = event.getPlayer();
+        org.bukkit.block.Block block = event.getBlock();
+        Chunk chunk = block.getChunk();
+        
+        try {
+            Optional<CompanyPlot> plot = QuickStocksPlugin.getCompanyPlotService()
+                .getPlotByLocation(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+            
+            if (plot.isEmpty()) {
+                return; // Not a company plot
+            }
+            
+            // Check if player has permission to modify this plot
+            if (!canModifyPlot(player, plot.get())) {
+                event.setCancelled(true);
+                Translation.Company_Plot_NoPermission.sendMessage(player);
+            }
+        } catch (Exception e) {
+            logger.warning("Error checking plot protection: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Prevents block placing in company plots unless player has permission.
+     */
+    @EventHandler
+    public void onBlockPlace(org.bukkit.event.block.BlockPlaceEvent event) {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            return;
+        }
+        
+        Player player = event.getPlayer();
+        org.bukkit.block.Block block = event.getBlock();
+        Chunk chunk = block.getChunk();
+        
+        try {
+            Optional<CompanyPlot> plot = QuickStocksPlugin.getCompanyPlotService()
+                .getPlotByLocation(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+            
+            if (plot.isEmpty()) {
+                return; // Not a company plot
+            }
+            
+            // Check if player has permission to modify this plot
+            if (!canModifyPlot(player, plot.get())) {
+                event.setCancelled(true);
+                Translation.Company_Plot_NoPermission.sendMessage(player);
+            }
+        } catch (Exception e) {
+            logger.warning("Error checking plot protection: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Prevents container access in company plots unless player has permission.
+     */
+    @EventHandler
+    public void onPlayerInteract(org.bukkit.event.player.PlayerInteractEvent event) {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            return;
+        }
+        
+        if (event.getClickedBlock() == null) {
+            return;
+        }
+        
+        // Only check for container interactions
+        org.bukkit.block.Block block = event.getClickedBlock();
+        if (!isContainer(block.getType())) {
+            return;
+        }
+        
+        Player player = event.getPlayer();
+        Chunk chunk = block.getChunk();
+        
+        try {
+            Optional<CompanyPlot> plot = QuickStocksPlugin.getCompanyPlotService()
+                .getPlotByLocation(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+            
+            if (plot.isEmpty()) {
+                return; // Not a company plot
+            }
+            
+            // Check if player has permission to access this plot
+            if (!canModifyPlot(player, plot.get())) {
+                event.setCancelled(true);
+                Translation.Company_Plot_NoPermission.sendMessage(player);
+            }
+        } catch (Exception e) {
+            logger.warning("Error checking plot protection: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Checks if a player can modify a plot (break/place blocks, open containers).
+     */
+    private boolean canModifyPlot(Player player, CompanyPlot plot) {
+        try {
+            String playerUuid = player.getUniqueId().toString();
+            String companyId = plot.getCompanyId();
+            
+            // Check if player is an employee of the company that owns this plot
+            Optional<net.cyberneticforge.quickstocks.core.model.CompanyJob> playerJob = 
+                QuickStocksPlugin.getCompanyService().getPlayerJob(companyId, playerUuid);
+            
+            // Player must be an employee to modify the plot
+            return playerJob.isPresent();
+        } catch (Exception e) {
+            logger.warning("Error checking plot modification permission: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Checks if a block type is a container that should be protected.
+     */
+    private boolean isContainer(org.bukkit.Material material) {
+        return switch (material) {
+            case CHEST, TRAPPED_CHEST, BARREL, SHULKER_BOX,
+                 WHITE_SHULKER_BOX, ORANGE_SHULKER_BOX, MAGENTA_SHULKER_BOX,
+                 LIGHT_BLUE_SHULKER_BOX, YELLOW_SHULKER_BOX, LIME_SHULKER_BOX,
+                 PINK_SHULKER_BOX, GRAY_SHULKER_BOX, LIGHT_GRAY_SHULKER_BOX,
+                 CYAN_SHULKER_BOX, PURPLE_SHULKER_BOX, BLUE_SHULKER_BOX,
+                 BROWN_SHULKER_BOX, GREEN_SHULKER_BOX, RED_SHULKER_BOX,
+                 BLACK_SHULKER_BOX, FURNACE, BLAST_FURNACE, SMOKER,
+                 DROPPER, DISPENSER, HOPPER, BREWING_STAND, ENDER_CHEST -> true;
+            default -> false;
+        };
+    }
 }
