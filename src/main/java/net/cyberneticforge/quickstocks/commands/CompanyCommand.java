@@ -154,6 +154,14 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handlePlots(player, args);
                     break;
                     
+                case "nearplots":
+                    handleNearPlots(player, playerUuid);
+                    break;
+                    
+                case "editplot":
+                    handleEditPlot(player, playerUuid);
+                    break;
+                    
                 default:
                     showHelp(player);
                     break;
@@ -720,7 +728,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                                    "invitations", "deposit", "withdraw", "employees", "jobs",
                                    "createjob", "editjob", "assignjob", "settings",
                                    "setsymbol", "market", "notifications", "leave", "transferownership", "fire", "salary",
-                                   "buyplot", "sellplot", "plots")
+                                   "buyplot", "sellplot", "plots", "nearplots", "editplot")
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
             }
@@ -1660,5 +1668,110 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 new Replaceable("%z%", String.valueOf(plot.getChunkZ())),
                 new Replaceable("%rent%", rentInfo));
         }
+    }
+    
+    /**
+     * Handles the nearplots command - visualizes nearby company plots with particles.
+     */
+    private void handleNearPlots(Player player, String playerUuid) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        // Get nearby plots (radius of 3 chunks = ~50 blocks)
+        List<CompanyPlot> nearbyPlots = QuickStocksPlugin.getCompanyPlotService().getNearbyPlots(player.getLocation(), 3);
+        
+        if (nearbyPlots.isEmpty()) {
+            player.sendMessage("§7No company plots found nearby.");
+            return;
+        }
+        
+        // Show particles for each plot
+        int count = 0;
+        for (CompanyPlot plot : nearbyPlots) {
+            showPlotBoundaries(player, plot);
+            count++;
+        }
+        
+        player.sendMessage("§aHighlighting §e" + count + " §acompany plot(s) nearby.");
+    }
+    
+    /**
+     * Shows plot boundaries using particles.
+     */
+    private void showPlotBoundaries(Player player, CompanyPlot plot) {
+        org.bukkit.World world = player.getServer().getWorld(plot.getWorldName());
+        if (world == null) return;
+        
+        // Get chunk boundaries (chunks are 16x16 blocks)
+        int startX = plot.getChunkX() * 16;
+        int startZ = plot.getChunkZ() * 16;
+        int endX = startX + 16;
+        int endZ = startZ + 16;
+        
+        // Get company info for particle color
+        Optional<Company> company = QuickStocksPlugin.getCompanyService().getCompanyById(plot.getCompanyId());
+        
+        // Show particles along the chunk borders at player's Y level
+        int y = player.getLocation().getBlockY();
+        
+        // Create particles along the edges
+        for (int x = startX; x <= endX; x++) {
+            spawnParticle(player, world, x, y, startZ);
+            spawnParticle(player, world, x, y, endZ);
+        }
+        
+        for (int z = startZ; z <= endZ; z++) {
+            spawnParticle(player, world, startX, y, z);
+            spawnParticle(player, world, endX, y, z);
+        }
+    }
+    
+    /**
+     * Spawns a particle at the specified location for the player.
+     */
+    private void spawnParticle(Player player, org.bukkit.World world, int x, int y, int z) {
+        player.spawnParticle(
+            org.bukkit.Particle.VILLAGER_HAPPY,
+            new Location(world, x + 0.5, y + 1, z + 0.5),
+            1, 0, 0, 0, 0
+        );
+    }
+    
+    /**
+     * Handles the editplot command - opens GUI to edit plot permissions.
+     */
+    private void handleEditPlot(Player player, String playerUuid) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        // Get the plot the player is standing on
+        org.bukkit.Chunk chunk = player.getLocation().getChunk();
+        Optional<CompanyPlot> plotOpt = QuickStocksPlugin.getCompanyPlotService()
+            .getPlotByLocation(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+        
+        if (plotOpt.isEmpty()) {
+            player.sendMessage("§cYou must be standing on a company plot to edit it.");
+            return;
+        }
+        
+        CompanyPlot plot = plotOpt.get();
+        
+        // Check if player has permission to manage plots for this company
+        Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService()
+            .getPlayerJob(plot.getCompanyId(), playerUuid);
+        
+        if (playerJob.isEmpty() || !playerJob.get().canManagePlots()) {
+            Translation.NoPermission.sendMessage(player);
+            return;
+        }
+        
+        // Open the plot edit GUI
+        net.cyberneticforge.quickstocks.gui.PlotEditGUI gui = 
+            new net.cyberneticforge.quickstocks.gui.PlotEditGUI(player, plot);
+        player.openInventory(gui.getInventory());
     }
 }
