@@ -287,3 +287,103 @@ market:
   
   # Error messages
   error_message: "&cFailed to load market data. Please try again."
+
+# Plot Edit GUI Configuration
+plot_edit:
+  title: "&6Edit Plot Permissions"
+  size: 54
+  
+  # Plot info display
+  plot_info:
+    name: "&6Plot Information"
+    material: MAP
+    slot: 4
+    lore:
+      - "&7World: &f{world_name}"
+      - "&7Chunk: &f({chunk_x}, {chunk_z})"
+      - ""
+      - "&7Click on job roles below to edit permissions"
+  
+  # Job permission item template
+  job_item:
+    name: "&e{job_title}"
+    material: NAME_TAG
+    lore:
+      - "&7Permissions:"
+      - "{build_status} &7Build (Break/Place)"
+      - "{interact_status} &7Interact (Buttons/Doors)"
+      - "{container_status} &7Containers (Chests)"
+      - ""
+      - "&eClick to edit permissions"
+    permission_enabled: "&a✓"
+    permission_disabled: "&c✗"
+  
+  # Navigation
+  close:
+    name: "&cClose"
+    material: BARRIER
+    slot: 49
+    lore:
+      - "&7Close this menu"
+  
+  # Error messages
+  error_message: "&cFailed to load plot permissions."
+
+# Plot Permission Edit GUI Configuration
+plot_permission_edit:
+  title: "&6Edit: &e{job_title}"
+  size: 27
+  
+  # Permission toggles
+  build_permission:
+    name: "&eBuild"
+    description: "&7Break and place blocks"
+    material: IRON_PICKAXE
+    slot: 10
+    lore:
+      - "{description}"
+      - ""
+      - "&7Status: {status}"
+      - ""
+      - "&eClick to toggle"
+    status_enabled: "&a✓ Enabled"
+    status_disabled: "&c✗ Disabled"
+  
+  interact_permission:
+    name: "&eInteract"
+    description: "&7Use buttons, levers, doors"
+    material: LEVER
+    slot: 13
+    lore:
+      - "{description}"
+      - ""
+      - "&7Status: {status}"
+      - ""
+      - "&eClick to toggle"
+    status_enabled: "&a✓ Enabled"
+    status_disabled: "&c✗ Disabled"
+  
+  container_permission:
+    name: "&eContainer"
+    description: "&7Access chests and containers"
+    material: CHEST
+    slot: 16
+    lore:
+      - "{description}"
+      - ""
+      - "&7Status: {status}"
+      - ""
+      - "&eClick to toggle"
+    status_enabled: "&a✓ Enabled"
+    status_disabled: "&c✗ Disabled"
+  
+  # Navigation
+  back:
+    name: "&eBack"
+    material: ARROW
+    slot: 22
+    lore:
+      - "&7Return to plot permissions"
+  
+  # Error messages
+  error_message: "&cFailed to load permissions."

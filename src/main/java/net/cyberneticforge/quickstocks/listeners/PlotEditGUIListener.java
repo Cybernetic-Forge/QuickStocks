@@ -5,6 +5,7 @@ import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.gui.PlotEditGUI;
 import net.cyberneticforge.quickstocks.gui.PlotPermissionEditGUI;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,7 +45,7 @@ public class PlotEditGUIListener implements Listener {
             handleClick(player, gui, slot, clickedItem);
         } catch (Exception e) {
             logger.warning("Error handling Plot Edit GUI click for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage("§cAn error occurred while editing plot permissions.");
+            player.sendMessage(ChatUT.hexComp("&cAn error occurred while editing plot permissions."));
         }
     }
     
@@ -52,15 +53,20 @@ public class PlotEditGUIListener implements Listener {
      * Handles clicks in the Plot Edit GUI.
      */
     private void handleClick(Player player, PlotEditGUI gui, int slot, ItemStack item) throws Exception {
-        // Close button (slot 49)
-        if (slot == 49 && item.getType() == Material.BARRIER) {
+        // Get configured close button slot
+        int closeSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("plot_edit.close", 49);
+        Material closeMaterial = QuickStocksPlugin.getGuiConfig().getItemMaterial("plot_edit.close", Material.BARRIER);
+        Material jobMaterial = QuickStocksPlugin.getGuiConfig().getItemMaterial("plot_edit.job_item", Material.NAME_TAG);
+        
+        // Close button
+        if (slot == closeSlot && item.getType() == closeMaterial) {
             player.closeInventory();
-            player.sendMessage("§aPlot permissions saved.");
+            player.sendMessage(ChatUT.hexComp("&aPlot permissions saved."));
             return;
         }
         
         // Job role items (slots 18-35)
-        if (slot >= 18 && slot < 36 && item.getType() == Material.NAME_TAG) {
+        if (slot >= 18 && slot < 36 && item.getType() == jobMaterial) {
             if(gui.getInvSlots().containsKey(slot)) {
                 CompanyJob job = gui.getInvSlots().get(slot);
                 if (job != null) {

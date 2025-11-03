@@ -5,6 +5,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.model.CompanyPlot;
 import net.cyberneticforge.quickstocks.core.model.PlotPermission;
+import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
 import net.kyori.adventure.text.Component;
@@ -39,7 +40,9 @@ public class PlotEditGUI implements InventoryHolder {
     public PlotEditGUI(Player player, CompanyPlot plot) {
         this.player = player;
         this.plot = plot;
-        this.inventory = Bukkit.createInventory(this, 54, ChatUT.hexComp("&6Edit Plot Permissions"));
+        int guiSize = QuickStocksPlugin.getGuiConfig().getConfig().getInt("plot_edit.size", 54);
+        Component title = QuickStocksPlugin.getGuiConfig().getTitle("plot_edit");
+        this.inventory = Bukkit.createInventory(this, guiSize, title);
         this.invSlots = new HashMap<>();
         setupGUI();
     }
@@ -65,7 +68,8 @@ public class PlotEditGUI implements InventoryHolder {
             
         } catch (Exception e) {
             logger.warning("Error setting up Plot Edit GUI: " + e.getMessage());
-            player.sendMessage("§cFailed to load plot permissions.");
+            String errorMsg = QuickStocksPlugin.getGuiConfig().getConfig().getString("plot_edit.error_message", "&cFailed to load plot permissions.");
+            player.sendMessage(ChatUT.hexComp(errorMsg));
         }
     }
     
@@ -73,19 +77,22 @@ public class PlotEditGUI implements InventoryHolder {
      * Adds plot information display.
      */
     private void addPlotInfo() {
-        ItemStack plotInfo = new ItemStack(Material.MAP);
-        ItemMeta meta = plotInfo.getItemMeta();
-        meta.displayName(ChatUT.hexComp("&6Plot Information"));
+        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial("plot_edit.plot_info", Material.MAP);
+        int slot = QuickStocksPlugin.getGuiConfig().getItemSlot("plot_edit.plot_info", 4);
         
-        List<Component> lore = new ArrayList<>();
-        lore.add(ChatUT.hexComp("&7World: &f" + plot.getWorldName()));
-        lore.add(ChatUT.hexComp("&7Chunk: &f(" + plot.getChunkX() + ", " + plot.getChunkZ() + ")"));
-        lore.add(ChatUT.hexComp(""));
-        lore.add(ChatUT.hexComp("&7Click on job roles below to edit permissions"));
+        ItemStack plotInfo = new ItemStack(material);
+        ItemMeta meta = plotInfo.getItemMeta();
+        meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName("plot_edit.plot_info"));
+        
+        List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("plot_edit.plot_info",
+            new Replaceable("{world_name}", plot.getWorldName()),
+            new Replaceable("{chunk_x}", String.valueOf(plot.getChunkX())),
+            new Replaceable("{chunk_z}", String.valueOf(plot.getChunkZ()))
+        );
         meta.lore(lore);
         
         plotInfo.setItemMeta(meta);
-        inventory.setItem(4, plotInfo);
+        inventory.setItem(slot, plotInfo);
     }
     
     /**
@@ -117,17 +124,21 @@ public class PlotEditGUI implements InventoryHolder {
      * Creates an item representing a job role with its permissions.
      */
     private ItemStack createJobPermissionItem(CompanyJob job, boolean canBuild, boolean canInteract, boolean canContainer) {
-        ItemStack item = new ItemStack(Material.NAME_TAG);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(ChatUT.hexComp("&e" + job.getTitle()));
+        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial("plot_edit.job_item", Material.NAME_TAG);
+        String enabledIcon = QuickStocksPlugin.getGuiConfig().getConfig().getString("plot_edit.job_item.permission_enabled", "&a✓");
+        String disabledIcon = QuickStocksPlugin.getGuiConfig().getConfig().getString("plot_edit.job_item.permission_disabled", "&c✗");
         
-        List<Component> lore = new ArrayList<>();
-        lore.add(ChatUT.hexComp("&7Permissions:"));
-        lore.add(ChatUT.hexComp((canBuild ? "&a✓" : "&c✗") + " &7Build (Break/Place)"));
-        lore.add(ChatUT.hexComp((canInteract ? "&a✓" : "&c✗") + " &7Interact (Buttons/Doors)"));
-        lore.add(ChatUT.hexComp((canContainer ? "&a✓" : "&c✗") + " &7Containers (Chests)"));
-        lore.add(ChatUT.hexComp(""));
-        lore.add(ChatUT.hexComp("&eClick to edit permissions"));
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName("plot_edit.job_item",
+            new Replaceable("{job_title}", job.getTitle())
+        ));
+        
+        List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("plot_edit.job_item",
+            new Replaceable("{build_status}", canBuild ? enabledIcon : disabledIcon),
+            new Replaceable("{interact_status}", canInteract ? enabledIcon : disabledIcon),
+            new Replaceable("{container_status}", canContainer ? enabledIcon : disabledIcon)
+        );
         meta.lore(lore);
         
         item.setItemMeta(meta);
@@ -139,10 +150,15 @@ public class PlotEditGUI implements InventoryHolder {
      */
     private void addNavigationButtons() {
         // Close button
-        ItemStack closeItem = new ItemStack(Material.BARRIER);
+        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial("plot_edit.close", Material.BARRIER);
+        int slot = QuickStocksPlugin.getGuiConfig().getItemSlot("plot_edit.close", 49);
+        
+        ItemStack closeItem = new ItemStack(material);
         ItemMeta closeMeta = closeItem.getItemMeta();
-        closeMeta.displayName(ChatUT.hexComp("&cClose"));
+        closeMeta.displayName(QuickStocksPlugin.getGuiConfig().getItemName("plot_edit.close"));
+        List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("plot_edit.close");
+        closeMeta.lore(lore);
         closeItem.setItemMeta(closeMeta);
-        inventory.setItem(49, closeItem);
+        inventory.setItem(slot, closeItem);
     }
 }
