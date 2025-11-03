@@ -181,10 +181,9 @@ public class HoldingsService {
      * @return Number of players with at least one holding
      */
     public int getPlayerCountWithHoldings() throws SQLException {
-        String result = database.queryValue(
+        Number result = database.queryValue(
             "SELECT COUNT(DISTINCT player_uuid) FROM user_holdings WHERE qty > 0"
         );
-        Bukkit.getConsoleSender().sendMessage("Result: " + result);
-        return result != null ? Integer.parseInt(result) : 0;
+        return result != null ? result.intValue() : 0;
     }
 }
