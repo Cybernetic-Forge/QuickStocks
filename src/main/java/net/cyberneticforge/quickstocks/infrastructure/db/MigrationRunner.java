@@ -107,6 +107,8 @@ public class MigrationRunner {
             "V10__chestshop_permission.sql",
             "V11__employee_salaries.sql",
             "V12__company_plots.sql",
+            "V13__plot_permission.sql",
+            "V14__plot_permissions.sql",
         };
         
         for (String filename : expectedMigrations) {

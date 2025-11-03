@@ -269,6 +269,8 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
+                             (job.canManageSalaries() ? "Salaries " : "") +
+                             (job.canManagePlots() ? "Plots " : "") +
                              (job.canManageChestShop() ? "ChestShop" : "");
             Translation.Company_JobItem.sendMessage(player, new Replaceable("%job%", job.getTitle()));
             Translation.Company_JobPermissions.sendMessage(player, new Replaceable("%permissions%", permissions));
@@ -383,6 +385,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
                              (job.canManageSalaries() ? "Salaries " : "") +
+                             (job.canManageSalaries() ? "Plots " : "") +
                              (job.canManageChestShop() ? "ChestShop" : "");
             Translation.Company_JoinedWithJob.sendMessage(player,
                 new Replaceable("%company%", companyOpt.get().getName()),
@@ -568,6 +571,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
                              (job.canManageSalaries() ? "Salaries " : "") +
+                             (job.canManagePlots() ? "Plots " : "") +
                              (job.canManageChestShop() ? "ChestShop" : "");
             Translation.Company_JobDetails.sendMessage(player,
                 new Replaceable("%job%", job.getTitle()),
@@ -578,7 +582,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     private void handleCreateJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company createjob <company> <title> <permissions>"));
-            player.sendMessage(ChatUT.hexComp(String.format("&cPermissions format: invite,createjobs,withdraw,manage,salaries%s (comma-separated)", QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? ",chestshop" : "")));
+            player.sendMessage(ChatUT.hexComp(String.format("&cPermissions format: invite,createjobs,withdraw,manage,salaries,plots%s (comma-separated)", QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? ",chestshop" : "")));
             return;
         }
         
@@ -598,9 +602,11 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canManage = permsStr.contains("manage");
         boolean canChestShop = permsStr.contains("chestshop");
         boolean canManageSalaries = permsStr.contains("salaries");
+        boolean canManagePlots = permsStr.contains("plots");
+
         
         QuickStocksPlugin.getCompanyService().createJobTitle(companyOpt.get().getId(), playerUuid, title, 
-                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries);
+                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries, canManagePlots);
         Translation.Company_JobCreated.sendMessage(player, new Replaceable("%company%", companyName), new Replaceable("%job%", title));
     }
     
@@ -627,6 +633,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canManage = permsStr.contains("manage");
         boolean canChestShop = permsStr.contains("chestshop");
         boolean canManageSalaries = permsStr.contains("salaries");
+        boolean canManagePlots = permsStr.contains("plots");
         
         QuickStocksPlugin.getCompanyService().updateJobTitle(companyOpt.get().getId(), playerUuid, title,
                                      canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries);
@@ -636,6 +643,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                          (canCreateTitles ? "CreateJobs " : "") +
                          (canWithdraw ? "Withdraw " : "") +
                          (canManageSalaries ? "Salaries " : "") +
+                        (canManagePlots ? "Plots " : "") +
                          (canChestShop ? "ChestShop" : "");
         Translation.Company_JobEditedWithPerms.sendMessage(player,
             new Replaceable("%job%", title),
@@ -832,11 +840,11 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             
             // Permission suggestions for createjob and editjob (4th arg)
             if (args.length == 4 && (args[0].equalsIgnoreCase("createjob") || args[0].equalsIgnoreCase("editjob"))) {
-                List<String> permissions = Arrays.asList("invite", "createjobs", "withdraw", "manage", "invite,createjobs", "invite,withdraw", "manage,invite,createjobs,withdraw");
+                List<String> permissions = Arrays.asList("invite", "createjobs", "withdraw", "manage", "salaries", "plots", "invite,createjobs", "invite,withdraw,plots", "manage,invite,createjobs,withdraw");
 
                 if(QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) {
                     permissions.remove("manage,invite,createjobs,withdraw");
-                    permissions.add("manage,invite,createjobs,withdraw, chestshop");
+                    permissions.add("manage,invite,createjobs,withdraw,chestshop");
                     permissions.add("chestshop");
                 }
 
