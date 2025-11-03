@@ -9,6 +9,10 @@ load: POSTWORLD
 softdepend: [ChestShop, WorldGuard]
 
 commands:
+  quickstocks:
+    description: "QuickStocks plugin management commands"
+    usage: "/quickstocks <reload>"
+    aliases: [qs]
   stocks:
     description: "View stock market information and quotes"
     usage: "/stocks [symbol|material]"
@@ -38,6 +42,9 @@ commands:
     aliases: [corp, corporation]
     
 permissions:
+  quickstocks.admin.reload:
+    description: "Allows reloading QuickStocks configurations and services"
+    default: op
   quickstocks.command.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments"
     default: false

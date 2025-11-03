@@ -100,6 +100,10 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static MetricsService metricsService;
     @Getter
     private static WorldGuardHook worldGuardHook;
+    
+    // Scheduler task tracking for reload functionality
+    private static BukkitRunnable salaryPaymentTask;
+    private static BukkitRunnable rentCollectionTask;
 
     @Override
     public void onLoad() {
@@ -263,6 +267,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Registers commands with the server.
      */
     private void registerCommands() {
+        // Register admin commands (always available)
+        registerCommand("quickstocks", new QuickStocksCommand());
         registerCommand("wallet", new WalletCommand());
         
         // Only register market-related commands if market system is enabled
@@ -347,9 +353,15 @@ public final class QuickStocksPlugin extends JavaPlugin {
     /**
      * Starts a scheduler to process salary payments for all companies.
      * Checks every 5 minutes if any company needs to pay salaries.
+     * Package-private for reload functionality.
      */
-    private void startSalaryPaymentScheduler() {
-        new BukkitRunnable() {
+    void startSalaryPaymentScheduler() {
+        // Cancel existing task if running
+        if (salaryPaymentTask != null && !salaryPaymentTask.isCancelled()) {
+            salaryPaymentTask.cancel();
+        }
+        
+        salaryPaymentTask = new BukkitRunnable() {
             @Override
             public void run() {
                 try {
@@ -381,14 +393,21 @@ public final class QuickStocksPlugin extends JavaPlugin {
                     getLogger().warning("Error in salary payment scheduler: " + e.getMessage());
                 }
             }
-        }.runTaskTimerAsynchronously(this, 20L * 60 * 5, 20L * 60 * 5); // Run every 5 minutes
+        };
+        salaryPaymentTask.runTaskTimerAsynchronously(this, 20L * 60 * 5, 20L * 60 * 5); // Run every 5 minutes
     }
     
     /**
      * Starts the scheduled task for rent collection.
+     * Package-private for reload functionality.
      */
-    private void startRentCollectionScheduler() {
-        new BukkitRunnable() {
+    void startRentCollectionScheduler() {
+        // Cancel existing task if running
+        if (rentCollectionTask != null && !rentCollectionTask.isCancelled()) {
+            rentCollectionTask.cancel();
+        }
+        
+        rentCollectionTask = new BukkitRunnable() {
             @Override
             public void run() {
                 try {
@@ -399,7 +418,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
                     getLogger().warning("Error in rent collection scheduler: " + e.getMessage());
                 }
             }
-        }.runTaskTimerAsynchronously(this, 20L * 60 * 10, 20L * 60 * 10); // Run every 10 minutes
+        };
+        rentCollectionTask.runTaskTimerAsynchronously(this, 20L * 60 * 10, 20L * 60 * 10); // Run every 10 minutes
     }
 
     public static void registerCommand(String command, CommandExecutor executor) {
