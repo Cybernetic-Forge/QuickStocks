@@ -8,6 +8,8 @@ import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Chunk;
@@ -16,6 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -117,57 +120,61 @@ public class CompanyPlotListener implements Listener {
      * Handles terrain enter/leave messages.
      */
     private void handleTerrainMessages(Player player, Optional<CompanyPlot> currentPlot) {
-        CompanyCfg config = QuickStocksPlugin.getCompanyCfg();
-        
-        if (!config.isTerrainMessagesEnabled()) {
-            return;
-        }
-        
-        String currentCompanyId = currentPlot.map(CompanyPlot::getCompanyId).orElse(null);
-        String lastCompanyId = lastCompanyByPlayer.get(player.getUniqueId());
-        
-        // Check if we changed company territory
-        if ((currentCompanyId == null && lastCompanyId == null) ||
-            (currentCompanyId != null && currentCompanyId.equals(lastCompanyId))) {
-            return; // No change
-        }
-        
-        // Update last company
-        lastCompanyByPlayer.put(player.getUniqueId(), currentCompanyId);
-        
-        String message = null;
-        String companyName = null;
-        
-        if (currentCompanyId == null) {
-            // Entering wilderness
-            message = config.getTerrainWildernessMessage();
-        } else if (lastCompanyId == null) {
-            // Entering company territory from wilderness
-            message = config.getTerrainEnterMessage();
-            Optional<Company> company = QuickStocksPlugin.getCompanyService().getCompanyById(currentCompanyId);
-            companyName = company.map(Company::getName).orElse("Unknown");
-        } else {
-            // Moving from one company to another - show leave message for old, enter for new
-            Optional<Company> oldCompany = QuickStocksPlugin.getCompanyService().getCompanyById(lastCompanyId);
-            String oldCompanyName = oldCompany.map(Company::getName).orElse("Unknown");
-            
-            String leaveMessage = config.getTerrainLeaveMessage();
-            if (leaveMessage != null && !leaveMessage.trim().isEmpty()) {
-                String formattedLeave = leaveMessage.replace("%company%", oldCompanyName);
-                sendTerrainMessage(player, formattedLeave, config.getTerrainDisplayMode());
+        try {
+            CompanyCfg config = QuickStocksPlugin.getCompanyCfg();
+
+            if (!config.isTerrainMessagesEnabled()) {
+                return;
             }
-            
-            // Then show enter message for new company
-            message = config.getTerrainEnterMessage();
-            Optional<Company> newCompany = QuickStocksPlugin.getCompanyService().getCompanyById(currentCompanyId);
-            companyName = newCompany.map(Company::getName).orElse("Unknown");
-        }
-        
-        if (message != null && !message.trim().isEmpty()) {
-            if (companyName != null) {
-                message = message.replace("%company%", companyName);
+
+            String currentCompanyId = currentPlot.map(CompanyPlot::getCompanyId).orElse(null);
+            String lastCompanyId = lastCompanyByPlayer.get(player.getUniqueId());
+
+            // Check if we changed company territory
+            if ((currentCompanyId == null && lastCompanyId == null) ||
+                    (currentCompanyId != null && currentCompanyId.equals(lastCompanyId))) {
+                return; // No change
             }
-            sendTerrainMessage(player, message, config.getTerrainDisplayMode());
+
+            // Update last company
+            lastCompanyByPlayer.put(player.getUniqueId(), currentCompanyId);
+
+            String message = null;
+            String companyName = null;
+
+            if (currentCompanyId == null) {
+                // Entering wilderness
+                message = config.getTerrainWildernessMessage();
+            } else if (lastCompanyId == null) {
+                // Entering company territory from wilderness
+                message = config.getTerrainEnterMessage();
+                Optional<Company> company = QuickStocksPlugin.getCompanyService().getCompanyById(currentCompanyId);
+                companyName = company.map(Company::getName).orElse("Unknown");
+            } else {
+                // Moving from one company to another - show leave message for old, enter for new
+                Optional<Company> oldCompany = QuickStocksPlugin.getCompanyService().getCompanyById(lastCompanyId);
+                String oldCompanyName = oldCompany.map(Company::getName).orElse("Unknown");
+
+                String leaveMessage = config.getTerrainLeaveMessage();
+                if (leaveMessage != null && !leaveMessage.trim().isEmpty()) {
+                    String formattedLeave = leaveMessage.replace("%company%", oldCompanyName);
+                    sendTerrainMessage(player, formattedLeave, config.getTerrainDisplayMode());
+                }
+
+                // Then show enter message for new company
+                message = config.getTerrainEnterMessage();
+                Optional<Company> newCompany = QuickStocksPlugin.getCompanyService().getCompanyById(currentCompanyId);
+                companyName = newCompany.map(Company::getName).orElse("Unknown");
+            }
+
+            if (message != null && !message.trim().isEmpty()) {
+                if (companyName != null) {
+                    message = message.replace("%company%", companyName);
+                }
+                sendTerrainMessage(player, message, config.getTerrainDisplayMode());
+            }
+        } catch (Exception e) {
+            Translation.UnknownException.sendMessage(player);
         }
     }
     
@@ -176,15 +183,15 @@ public class CompanyPlotListener implements Listener {
      */
     private void sendTerrainMessage(Player player, String message, String displayMode) {
         try {
-            String formattedMessage = ChatUT.hexComp(message).content();
+            var formattedMessage = ChatUT.hexComp(message);
             
             switch (displayMode.toUpperCase()) {
                 case "ACTIONBAR":
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(formattedMessage));
+                    player.sendActionBar(formattedMessage);
                     break;
                     
                 case "TITLE":
-                    player.sendTitle("", formattedMessage, 10, 40, 10);
+                    player.showTitle(Title.title(formattedMessage, Component.text(""), Title.Times.times(Duration.ofMillis(10),Duration.ofMillis(40),Duration.ofMillis(10))));
                     break;
                     
                 case "CHAT":
