@@ -3,8 +3,11 @@
 ## 📋 Table of Contents
 - [Quick Start](#quick-start) - Essential info for getting started
 - [Development Environment Setup](#development-environment-setup) - Build and dev setup
-- [Development Guidelines](#development-guidelines) - Coding patterns and standards
+- [Architecture](#architecture) - Project structure and organization
 - [Core Features Implemented](#core-features-implemented) - Current functionality
+- [Development Guidelines](#development-guidelines) - Coding patterns and standards
+- [Public API for Developers](#public-api-for-developers) - Events and manager interfaces
+- [Plugin Integrations](#plugin-integrations) - Vault, ChestShop, WorldGuard
 - [Testing Strategy](#-testing-strategy) - How to test changes
 - [Troubleshooting Guide](#-troubleshooting-guide) - Common issues and solutions
 - [Architecture Decisions](#architecture-decisions) - Why things are built this way
@@ -12,13 +15,24 @@
 ## Quick Start
 QuickStocks is a Minecraft Paper plugin (version 1.21.8) that provides a comprehensive stock market and company management system.
 
-**TL;DR for Copilot:**
-- 🏗️ **Architecture**: Clean architecture with service layer separation (core/api/infrastructure)
-- 🗄️ **Database**: Multi-provider support (SQLite/MySQL/PostgreSQL) with automatic migrations
-- 🎮 **Minecraft**: Paper plugin with `/stocks`, `/market`, `/company`, `/crypto`, `/wallet`, and `/watch` commands
-- 📦 **Package**: `net.cyberneticforge.quickstocks` (not `com.example.quickstocks`)
-- ⚠️ **Build Issues**: Network connectivity issues may prevent external repository access in sandboxed environments
-- 🧪 **Testing**: Limited test coverage; focus on manual testing and integration verification
+**🎯 Critical Info for Copilot - Read This First:**
+- 📦 **Package**: `net.cyberneticforge.quickstocks` (NOT `com.example.quickstocks` - this is outdated)
+- ☕ **Java Version**: Java 21 required (pom.xml setting; README needs update)
+- 🏗️ **Architecture**: Clean architecture with service layers (core/api/infrastructure/commands/gui)
+- 🗄️ **Database**: Multi-provider (SQLite/MySQL/PostgreSQL) with schema migrations in `src/main/resources/migrations/`
+- ⚙️ **Configuration**: Multi-file config system (config.yml, market.yml, trading.yml, companies.yml, guis.yml)
+- 🎮 **Commands**: All 7 commands fully implemented (/stocks, /market, /company, /crypto, /wallet, /watch, /marketdevice)
+- 🔌 **Soft Dependencies**: ChestShop, WorldGuard, Vault (all optional, plugin works without them)
+- 🧪 **Testing**: Primarily manual on Minecraft server; limited automated tests
+- 🚀 **Build**: Standard Maven; external repos may be unreachable in sandboxed environments (expected)
+
+**When Making Changes:**
+1. Use the correct package name (`net.cyberneticforge.quickstocks`)
+2. Database changes require new migration files (`VX__description.sql`)
+3. Configuration changes go in appropriate YAML file (not all in config.yml)
+4. Follow the service layer pattern (don't bypass services to access DB directly)
+5. Manual testing on Minecraft server is required for most changes
+6. Update this file when making significant architectural changes
 
 ## Project Overview
 QuickStocks provides players with an immersive stock trading experience based on real-world market factors and behaviors. The plugin features realistic price calculations, comprehensive market simulation, and full database persistence.
@@ -64,9 +78,10 @@ src/main/java/net/cyberneticforge/quickstocks/
 ## Development Environment Setup
 
 ### Prerequisites
-- **Java 17+** (verified with OpenJDK 17)
+- **Java 21+** (required by pom.xml; note: README says 17+ but pom.xml is configured for 21)
 - **Maven 3.9+** for build management
 - **IDE**: IntelliJ IDEA recommended (.idea folder configured)
+- **Minecraft Server**: Paper 1.21.8 or compatible Spigot/Bukkit server for testing
 
 ### Build Commands
 ```bash
@@ -228,13 +243,10 @@ mvn clean package
   - Configurable seeding via `market.defaultStocks` config
 
 ### 9. Testing Infrastructure
-- **Location**: `src/test/java/com/example/quickstocks/StockMarketSimulationTest.java`
-- **Features**:
-  - Comprehensive simulation with 10 diverse stocks
-  - 5-second update intervals
-  - Real-time market statistics display
-  - Random market event simulation
-  - Performance analytics
+- **Status**: Limited automated test coverage
+- **Approach**: Primarily manual testing on Minecraft server
+- **Future**: Test infrastructure can be added in `src/test/java/net/cyberneticforge/quickstocks/`
+- **Recommendation**: Create unit tests for core business logic in `core/services/` and `core/algorithms/`
 
 ### 10. Command System (Implemented)
 - **Stock Commands** (`/stocks`, aliases: `stock`, `quote`):
