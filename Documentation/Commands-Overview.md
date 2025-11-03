@@ -4,10 +4,11 @@ This page provides an overview of all QuickStocks commands organized by domain.
 
 ## 📚 Command Domains
 
-QuickStocks commands are organized into seven main domains:
+QuickStocks commands are organized into eight main domains:
 
 | Domain | Command | Description |
 |--------|---------|-------------|
+| ⚙️ **Admin** | `/quickstocks` | Plugin management and configuration |
 | 📊 **Stocks** | `/stocks` | View stock market information and quotes |
 | 🪙 **Crypto** | `/crypto` | Create and manage custom cryptocurrencies |
 | 💰 **Wallet** | `/wallet` | Manage your in-game wallet balance |
@@ -35,10 +36,11 @@ QuickStocks commands are organized into seven main domains:
 
 **Admin commands:**
 ```
-/wallet add <amount>              # Add funds to wallet
-/wallet set <amount>              # Set wallet balance
-/marketdevice give [player]       # Give Market Device
-/stocks audit [repair]            # Database maintenance
+/quickstocks reload                 # Reload all configurations
+/wallet add <amount>                # Add funds to wallet
+/wallet set <amount>                # Set wallet balance
+/marketdevice give [player]         # Give Market Device
+/stocks audit [repair]              # Database maintenance
 ```
 
 ---
@@ -51,6 +53,37 @@ Each domain has its own detailed documentation page with:
 - Permission requirements
 - GUI screenshots (where applicable)
 - Tips and best practices
+
+### ⚙️ QuickStocks Admin Commands
+
+Plugin management and configuration commands.
+
+**Main commands:**
+- `/quickstocks reload` - Reload all configurations
+
+**Aliases:** `/qs`
+
+**Permissions:** `quickstocks.admin.reload` (op by default)
+
+**Description:** The `/quickstocks reload` command allows server administrators to reload all plugin configurations without restarting the server. This includes:
+- config.yml (main configuration)
+- market.yml (market settings)
+- trading.yml (trading economy settings)
+- companies.yml (company system settings)
+- guis.yml (GUI layout configuration)
+
+The command also:
+- Stops and restarts the simulation engine
+- Cancels and restarts scheduler tasks (salary payments, rent collection)
+- Updates the logger debug level from the config
+
+**Usage:**
+```
+/quickstocks reload    # Reload all configurations and restart services
+/qs reload            # Same as above (using alias)
+```
+
+---
 
 ### 📊 [Stocks Commands](Commands-Stocks.md)
 
@@ -204,6 +237,7 @@ Most commands are available to all players by default. See the [Permissions](Per
 - `/wallet` (balance check only)
 
 **Restricted Commands (permission required):**
+- `/quickstocks reload` - Requires `quickstocks.admin.reload`
 - `/crypto create` - Requires `maksy.stocks.crypto.create`
 - `/wallet add/set` - Requires `quickstocks.wallet.add` or `quickstocks.wallet.set`
 - `/marketdevice give` - Requires `maksy.stocks.marketdevice.give`
@@ -229,10 +263,11 @@ Most commands are available to all players by default. See the [Permissions](Per
 
 ### For Administrators
 
-1. **Use audit tools** - Regularly check `/stocks audit` for database health
-2. **Monitor wallets** - Use `/wallet set` for economy management
-3. **Configure permissions** - Fine-tune access with permission plugins
-4. **Read config.yml** - Many features are configurable
+1. **Use reload command** - Use `/quickstocks reload` to apply config changes without restart
+2. **Use audit tools** - Regularly check `/stocks audit` for database health
+3. **Monitor wallets** - Use `/wallet set` for economy management
+4. **Configure permissions** - Fine-tune access with permission plugins
+5. **Read config files** - Many features are configurable in config.yml, market.yml, etc.
 
 ---
 
