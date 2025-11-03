@@ -20,7 +20,12 @@ import java.util.List;
  */
 public class QuickStocksCommand implements CommandExecutor, TabCompleter {
     
-    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
+    /**
+     * Gets the current logger instance dynamically to support logger reinitialization during reload.
+     */
+    private PluginLogger getLogger() {
+        return QuickStocksPlugin.getPluginLogger();
+    }
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
@@ -63,12 +68,12 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
             // Stop simulation engine
             if (QuickStocksPlugin.getSimulationEngine() != null) {
                 QuickStocksPlugin.getSimulationEngine().stop();
-                logger.info("Simulation engine stopped for reload");
+                getLogger().info("Simulation engine stopped for reload");
             }
             
             // Cancel all Bukkit scheduler tasks for this plugin
             plugin.getServer().getScheduler().cancelTasks(plugin);
-            logger.info("All scheduled tasks cancelled for reload");
+            getLogger().info("All scheduled tasks cancelled for reload");
             
             // Reload main config
             plugin.reloadConfig();
@@ -82,22 +87,22 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
             
             if (QuickStocksPlugin.getMarketCfg() != null) {
                 QuickStocksPlugin.getMarketCfg().reload();
-                logger.info("Market configuration reloaded");
+                getLogger().info("Market configuration reloaded");
             }
             
             if (QuickStocksPlugin.getTradingCfg() != null) {
                 QuickStocksPlugin.getTradingCfg().reload();
-                logger.info("Trading configuration reloaded");
+                getLogger().info("Trading configuration reloaded");
             }
             
             if (QuickStocksPlugin.getCompanyCfg() != null) {
                 QuickStocksPlugin.getCompanyCfg().reload();
-                logger.info("Company configuration reloaded");
+                getLogger().info("Company configuration reloaded");
             }
             
             if (QuickStocksPlugin.getGuiConfig() != null) {
                 QuickStocksPlugin.getGuiConfig().reload();
-                logger.info("GUI configuration reloaded");
+                getLogger().info("GUI configuration reloaded");
             }
             
             sender.sendMessage(Component.text("Configuration files reloaded", NamedTextColor.GRAY));
@@ -108,23 +113,23 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
             // Restart simulation engine
             if (QuickStocksPlugin.getSimulationEngine() != null) {
                 QuickStocksPlugin.getSimulationEngine().start();
-                logger.info("Simulation engine restarted");
+                getLogger().info("Simulation engine restarted");
             }
             
             // Restart salary payment scheduler
             plugin.startSalaryPaymentScheduler();
-            logger.info("Salary payment scheduler restarted");
+            getLogger().info("Salary payment scheduler restarted");
             
             // Restart rent collection scheduler
             plugin.startRentCollectionScheduler();
-            logger.info("Rent collection scheduler restarted");
+            getLogger().info("Rent collection scheduler restarted");
             
             sender.sendMessage(Component.text("QuickStocks reloaded successfully!", NamedTextColor.GREEN));
-            logger.info("QuickStocks reload completed successfully");
+            getLogger().info("QuickStocks reload completed successfully");
             
         } catch (Exception e) {
             sender.sendMessage(Component.text("Error reloading QuickStocks: " + e.getMessage(), NamedTextColor.RED));
-            logger.severe("Failed to reload QuickStocks: " + e.getMessage());
+            getLogger().severe("Failed to reload QuickStocks: " + e.getMessage());
             e.printStackTrace();
         }
     }
