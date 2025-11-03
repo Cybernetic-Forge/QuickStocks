@@ -41,6 +41,25 @@ public class CompanyCfg {
     private double defaultJobSalary = 0.0;
     private boolean offlinePayment = true;
     
+    // Plot/land ownership settings
+    private boolean plotsEnabled = true;
+    private double buyPlotPrice = 10000.0;
+    private double sellPlotPrice = 8000.0;
+    private double plotRent = -1.0;
+    private String plotRentInterval = "monthly";
+    
+    // Terrain message settings
+    private boolean terrainMessagesEnabled = true;
+    private String terrainDisplayMode = "ACTIONBAR";
+    private String terrainEnterMessage = "&aEntering &e%company%&a territory";
+    private String terrainLeaveMessage = "&7Leaving &e%company%&7 territory";
+    private String terrainWildernessMessage = "&7Entering wilderness";
+    
+    // Debt management settings
+    private double allowedDebtChestShops = -5000.0;
+    private double allowedDebtPlots = -10000.0;
+    private double allowedDebtSalaries = -3000.0;
+    
     public CompanyCfg() {
         config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "companies.yml");
         addMissingDefaults();
@@ -87,6 +106,25 @@ public class CompanyCfg {
         config.addMissing("companies.chestshop.enabled", true);
         config.addMissing("companies.chestshop.companyMinBalance", 1000.0);
         
+        // Plot settings
+        config.addMissing("companies.plots.enabled", true);
+        config.addMissing("companies.plots.buyPlotPrice", 10000.0);
+        config.addMissing("companies.plots.sellPlotPrice", 8000.0);
+        config.addMissing("companies.plots.plotRent", -1.0);
+        config.addMissing("companies.plots.plotRentInterval", "monthly");
+        
+        // Terrain message settings
+        config.addMissing("companies.plots.terrainMessages.enabled", true);
+        config.addMissing("companies.plots.terrainMessages.displayMode", "ACTIONBAR");
+        config.addMissing("companies.plots.terrainMessages.enterMessage", "&aEntering &e%company%&a territory");
+        config.addMissing("companies.plots.terrainMessages.leaveMessage", "&7Leaving &e%company%&7 territory");
+        config.addMissing("companies.plots.terrainMessages.wildernessMessage", "&7Entering wilderness");
+        
+        // Debt management settings
+        config.addMissing("companies.allowedDebts.chestshops", -5000.0);
+        config.addMissing("companies.allowedDebts.companyPlots", -10000.0);
+        config.addMissing("companies.allowedDebts.salaries", -3000.0);
+        
         config.saveChanges();
     }
     
@@ -126,6 +164,7 @@ public class CompanyCfg {
                 perms.setCanCreateJobTitles(config.getBoolean(basePath + ".canCreateJobTitles", false));
                 perms.setCanWithdraw(config.getBoolean(basePath + ".canWithdraw", false));
                 perms.setCanManageSalaries(config.getBoolean(basePath + ".canManageSalaries", false));
+                perms.setCanManagePlots(config.getBoolean(basePath + ".canManagePlots", false));
                 
                 permissionsByTitle.put(title, perms);
             }
@@ -139,6 +178,7 @@ public class CompanyCfg {
             ceoPerms.setCanCreateJobTitles(true);
             ceoPerms.setCanWithdraw(true);
             ceoPerms.setCanManageSalaries(true);
+            ceoPerms.setCanManagePlots(true);
             permissionsByTitle.put("CEO", ceoPerms);
             
             JobPermissions cfoPerms = new JobPermissions();
@@ -163,6 +203,25 @@ public class CompanyCfg {
         // ChestShop settings
         setChestShopEnabled(config.getBoolean("companies.chestshop.enabled", true));
         setChestShopCompanyMinBalance(config.getDouble("companies.chestshop.companyMinBalance", 1000.0));
+        
+        // Plot settings
+        setPlotsEnabled(config.getBoolean("companies.plots.enabled", true));
+        setBuyPlotPrice(config.getDouble("companies.plots.buyPlotPrice", 10000.0));
+        setSellPlotPrice(config.getDouble("companies.plots.sellPlotPrice", 8000.0));
+        setPlotRent(config.getDouble("companies.plots.plotRent", -1.0));
+        setPlotRentInterval(config.getString("companies.plots.plotRentInterval", "monthly"));
+        
+        // Terrain message settings
+        setTerrainMessagesEnabled(config.getBoolean("companies.plots.terrainMessages.enabled", true));
+        setTerrainDisplayMode(config.getString("companies.plots.terrainMessages.displayMode", "ACTIONBAR"));
+        setTerrainEnterMessage(config.getString("companies.plots.terrainMessages.enterMessage", "&aEntering &e%company%&a territory"));
+        setTerrainLeaveMessage(config.getString("companies.plots.terrainMessages.leaveMessage", "&7Leaving &e%company%&7 territory"));
+        setTerrainWildernessMessage(config.getString("companies.plots.terrainMessages.wildernessMessage", "&7Entering wilderness"));
+        
+        // Debt management settings
+        setAllowedDebtChestShops(config.getDouble("companies.allowedDebts.chestshops", -5000.0));
+        setAllowedDebtPlots(config.getDouble("companies.allowedDebts.companyPlots", -10000.0));
+        setAllowedDebtSalaries(config.getDouble("companies.allowedDebts.salaries", -3000.0));
     }
     
     /**

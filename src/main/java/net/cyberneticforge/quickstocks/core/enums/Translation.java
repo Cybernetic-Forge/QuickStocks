@@ -258,6 +258,29 @@ public enum Translation {
     Company_Salary_Error_NotEmployee("Company.Salary.Error.NotEmployee"),
     Company_Salary_Error_InvalidCycle("Company.Salary.Error.InvalidCycle"),
     Company_Salary_PaymentReceived("Company.Salary.PaymentReceived"),
+    
+    // Company Plot Messages
+    Company_Plots_Disabled("Company.Plot.Disabled"),
+    Company_Plot_Purchased("Company.Plot.Purchased"),
+    Company_Plot_Sold("Company.Plot.Sold"),
+    Company_Plot_ListHeader("Company.Plot.ListHeader"),
+    Company_Plot_ListItem("Company.Plot.ListItem"),
+    Company_Plot_NoPlots("Company.Plot.NoPlots"),
+    Company_Plot_AutoBuyEnabled("Company.Plot.AutoBuyEnabled"),
+    Company_Plot_AutoBuyDisabled("Company.Plot.AutoBuyDisabled"),
+    Company_Plot_AutoBuyAlreadyEnabled("Company.Plot.AutoBuyAlreadyEnabled"),
+    Company_Plot_AlreadyOwned("Company.Plot.AlreadyOwned"),
+    Company_Plot_NotOwned("Company.Plot.NotOwned"),
+    Company_Plot_InsufficientFunds("Company.Plot.InsufficientFunds"),
+    Company_Plot_NoPermission("Company.Plot.NoPermission"),
+    Company_Plot_NoPermissionEmployee("Company.Plot.NoPermissionEmployee"),
+    Company_Plot_RentDue("Company.Plot.RentDue"),
+    Company_Plot_PlotSeized("Company.Plot.PlotSeized"),
+    
+    // Company Help Messages for Plots
+    Company_Help_BuyPlot("Company.Help.BuyPlot"),
+    Company_Help_SellPlot("Company.Help.SellPlot"),
+    Company_Help_Plots("Company.Help.Plots"),
 
     // GUI Messages
     GUI_CompanySettings_Refresh_Success("GUI.CompanySettings.Refresh_Success"),

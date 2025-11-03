@@ -12,4 +12,5 @@ public class JobPermissions {
     private boolean canWithdraw = false;
     private boolean canManageChestShop = false;
     private boolean canManageSalaries = false;
+    private boolean canManagePlots = false;
 }

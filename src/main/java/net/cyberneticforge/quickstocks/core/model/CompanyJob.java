@@ -16,10 +16,11 @@ public class CompanyJob {
     private final boolean canManageCompany;
     private final boolean canManageChestShop;
     private final boolean canManageSalaries;
+    private final boolean canManagePlots;
     
     public CompanyJob(String id, String companyId, String title, boolean canInvite, 
                      boolean canCreateTitles, boolean canWithdraw, boolean canManageCompany, 
-                     boolean canManageChestShop, boolean canManageSalaries) {
+                     boolean canManageChestShop, boolean canManageSalaries, boolean canManagePlots) {
         this.id = id;
         this.companyId = companyId;
         this.title = title;
@@ -29,14 +30,7 @@ public class CompanyJob {
         this.canManageCompany = canManageCompany;
         this.canManageChestShop = canManageChestShop;
         this.canManageSalaries = canManageSalaries;
-    }
-    
-    // Overloaded constructor for backward compatibility
-    public CompanyJob(String id, String companyId, String title, boolean canInvite, 
-                     boolean canCreateTitles, boolean canWithdraw, boolean canManageCompany, 
-                     boolean canManageChestShop) {
-        this(id, companyId, title, canInvite, canCreateTitles, canWithdraw, 
-             canManageCompany, canManageChestShop, false);
+        this.canManagePlots = canManagePlots;
     }
     
     public boolean canInvite() {
@@ -61,5 +55,9 @@ public class CompanyJob {
     
     public boolean canManageSalaries() {
         return canManageSalaries;
+    }
+    
+    public boolean canManagePlots() {
+        return canManagePlots;
     }
 }

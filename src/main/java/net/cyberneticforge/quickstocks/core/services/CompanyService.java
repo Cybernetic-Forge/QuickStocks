@@ -431,6 +431,60 @@ public class CompanyService {
     }
     
     /**
+     * Removes funds from a company balance with debt allowance.
+     * This is used for operations that can cause debt (plots, salaries, chestshops).
+     * 
+     * @param companyId The company ID
+     * @param amount The amount to deduct
+     * @param reason The reason for deduction (for transaction log)
+     * @param debtCategory The debt category (chestshops, companyPlots, salaries)
+     * @return true if successful, false if would exceed debt limit
+     */
+    public boolean removeWithDebtAllowance(String companyId, double amount, String reason, String debtCategory) throws SQLException {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        
+        // Check company balance
+        Optional<Company> companyOpt = getCompanyById(companyId);
+        if (companyOpt.isEmpty()) {
+            throw new IllegalArgumentException("Company not found");
+        }
+        
+        Company company = companyOpt.get();
+        
+        // Determine debt allowance based on category
+        double debtAllowance = switch (debtCategory.toLowerCase()) {
+            case "chestshops" -> config.getAllowedDebtChestShops();
+            case "companyplots" -> config.getAllowedDebtPlots();
+            case "salaries" -> config.getAllowedDebtSalaries();
+            default -> 0.0;
+        };
+        
+        // Check if deduction would exceed debt limit
+        if (company.getBalance() - amount < debtAllowance) {
+            return false; // Would exceed debt limit
+        }
+        
+        // Deduct from company balance
+        database.execute(
+            "UPDATE companies SET balance = balance - ? WHERE id = ?",
+            amount, companyId
+        );
+        
+        // Record transaction with system UUID
+        String txId = UUID.randomUUID().toString();
+        database.execute(
+            "INSERT INTO company_tx (id, company_id, player_uuid, type, amount, ts) VALUES (?, ?, ?, ?, ?, ?)",
+            txId, companyId, "00000000-0000-0000-0000-000000000000", 
+            reason.toUpperCase(), amount, System.currentTimeMillis()
+        );
+        
+        logger.debug("Removed $" + amount + " from company " + companyId + " with debt allowance - Reason: " + reason);
+        return true;
+    }
+    
+    /**
      * Checks if a player can withdraw from a company.
      */
     public boolean canPlayerWithdraw(String companyId, String playerUuid) throws SQLException {
@@ -454,7 +508,7 @@ public class CompanyService {
      */
     public Optional<CompanyJob> getPlayerJob(String companyId, String playerUuid) throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT cj.id, cj.company_id, cj.title, cj.can_invite, cj.can_create_titles, cj.can_withdraw, cj.can_manage_company, cj.can_manage_chestshop " +
+            "SELECT cj.id, cj.company_id, cj.title, cj.can_invite, cj.can_create_titles, cj.can_withdraw, cj.can_manage_company, cj.can_manage_chestshop, cj.can_manage_salaries, cj.can_manage_plots " +
             "FROM company_employees ce " +
             "INNER JOIN company_jobs cj ON ce.job_id = cj.id " +
             "WHERE ce.company_id = ? AND ce.player_uuid = ?",
@@ -474,7 +528,9 @@ public class CompanyService {
             ((Number) row.get("can_create_titles")).intValue() != 0,
             ((Number) row.get("can_withdraw")).intValue() != 0,
             ((Number) row.get("can_manage_company")).intValue() != 0,
-            ((Number) row.get("can_manage_chestshop")).intValue() != 0
+            ((Number) row.get("can_manage_chestshop")).intValue() != 0,
+            getIntOrDefault(row, "can_manage_salaries") != 0,
+            getIntOrDefault(row, "can_manage_plots") != 0
         ));
     }
     
@@ -484,7 +540,8 @@ public class CompanyService {
     public CompanyJob createJobTitle(String companyId, String creatorUuid, String title, 
                                      boolean canInvite, boolean canCreateTitles, 
                                      boolean canWithdraw, boolean canManageCompany, 
-                                     boolean canManageChestShop, boolean canManageSalaries) throws SQLException {
+                                     boolean canManageChestShop, boolean canManageSalaries, 
+                                     boolean canManagePlots) throws SQLException {
         // Check if creator has permission
         Optional<CompanyJob> creatorJob = getPlayerJob(companyId, creatorUuid);
         if (creatorJob.isEmpty() || !creatorJob.get().canCreateTitles()) {
@@ -503,20 +560,21 @@ public class CompanyService {
         // Create job
         String jobId = UUID.randomUUID().toString();
         database.execute(
-            "INSERT INTO company_jobs (id, company_id, title, can_invite, can_create_titles, can_withdraw, can_manage_company, can_manage_chestshop, can_manage_salaries) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO company_jobs (id, company_id, title, can_invite, can_create_titles, can_withdraw, can_manage_company, can_manage_chestshop, can_manage_salaries, can_manage_plots) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             jobId, companyId, title,
             canInvite ? 1 : 0,
             canCreateTitles ? 1 : 0,
             canWithdraw ? 1 : 0,
             canManageCompany ? 1 : 0,
             canManageChestShop ? 1 : 0,
-            canManageSalaries ? 1 : 0
+            canManageSalaries ? 1 : 0,
+            canManagePlots ? 1 : 0
         );
         
         logger.info("Created job title '" + title + "' in company " + companyId);
         
-        return new CompanyJob(jobId, companyId, title, canInvite, canCreateTitles, canWithdraw, canManageCompany, canManageChestShop, canManageSalaries);
+        return new CompanyJob(jobId, companyId, title, canInvite, canCreateTitles, canWithdraw, canManageCompany, canManageChestShop, canManageSalaries, canManagePlots);
     }
     
     /**
@@ -524,7 +582,7 @@ public class CompanyService {
      */
     public List<CompanyJob> getCompanyJobs(String companyId) throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT id, company_id, title, can_invite, can_create_titles, can_withdraw, can_manage_company, can_manage_chestshop, can_manage_salaries " +
+            "SELECT id, company_id, title, can_invite, can_create_titles, can_withdraw, can_manage_company, can_manage_chestshop, can_manage_salaries, can_manage_plots " +
             "FROM company_jobs WHERE company_id = ? ORDER BY title",
             companyId
         );
@@ -540,7 +598,8 @@ public class CompanyService {
                 ((Number) row.get("can_withdraw")).intValue() != 0,
                 ((Number) row.get("can_manage_company")).intValue() != 0,
                 ((Number) row.get("can_manage_chestshop")).intValue() != 0,
-                getIntOrDefault(row, "can_manage_salaries") != 0
+                getIntOrDefault(row, "can_manage_salaries") != 0,
+                getIntOrDefault(row, "can_manage_plots") != 0
             ));
         }
         
@@ -552,7 +611,7 @@ public class CompanyService {
      */
     public Optional<CompanyJob> getJobByTitle(String companyId, String title) throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT id, company_id, title, can_invite, can_create_titles, can_withdraw, can_manage_company, can_manage_chestshop, can_manage_salaries " +
+            "SELECT id, company_id, title, can_invite, can_create_titles, can_withdraw, can_manage_company, can_manage_chestshop, can_manage_salaries, can_manage_plots " +
             "FROM company_jobs WHERE company_id = ? AND title = ?",
             companyId, title
         );
@@ -571,7 +630,8 @@ public class CompanyService {
             ((Number) row.get("can_withdraw")).intValue() != 0,
             ((Number) row.get("can_manage_company")).intValue() != 0,
             ((Number) row.get("can_manage_chestshop")).intValue() != 0,
-            getIntOrDefault(row, "can_manage_salaries") != 0
+            getIntOrDefault(row, "can_manage_salaries") != 0,
+            getIntOrDefault(row, "can_manage_plots") != 0
         ));
     }
     
@@ -580,7 +640,7 @@ public class CompanyService {
      */
     public Optional<CompanyJob> getJobById(String jobId) throws SQLException {
         List<Map<String, Object>> results = database.query(
-            "SELECT id, company_id, title, can_invite, can_create_titles, can_withdraw, can_manage_company, can_manage_chestshop, can_manage_salaries " +
+            "SELECT id, company_id, title, can_invite, can_create_titles, can_withdraw, can_manage_company, can_manage_chestshop, can_manage_salaries, can_manage_plots " +
             "FROM company_jobs WHERE id = ?",
             jobId
         );
@@ -599,7 +659,8 @@ public class CompanyService {
             ((Number) row.get("can_withdraw")).intValue() != 0,
             ((Number) row.get("can_manage_company")).intValue() != 0,
             ((Number) row.get("can_manage_chestshop")).intValue() != 0,
-            getIntOrDefault(row, "can_manage_salaries") != 0
+            getIntOrDefault(row, "can_manage_salaries") != 0,
+            getIntOrDefault(row, "can_manage_plots") != 0
         ));
     }
     
@@ -609,7 +670,7 @@ public class CompanyService {
     public void updateJobTitle(String companyId, String actorUuid, String title,
                                boolean canInvite, boolean canCreateTitles,
                                boolean canWithdraw, boolean canManageCompany,
-                               boolean canManageChestShop, boolean canManageSalaries) throws SQLException {
+                               boolean canManageChestShop, boolean canManageSalaries, boolean canManagePlots) throws SQLException {
         // Check if actor has permission
         Optional<CompanyJob> actorJob = getPlayerJob(companyId, actorUuid);
         if (actorJob.isEmpty() || !actorJob.get().canCreateTitles()) {
@@ -626,7 +687,7 @@ public class CompanyService {
         
         // Update job permissions
         database.execute(
-            "UPDATE company_jobs SET can_invite = ?, can_create_titles = ?, can_withdraw = ?, can_manage_company = ?, can_manage_chestshop = ?, can_manage_salaries = ? " +
+            "UPDATE company_jobs SET can_invite = ?, can_create_titles = ?, can_withdraw = ?, can_manage_company = ?, can_manage_chestshop = ?, can_manage_salaries = ?, can_manage_plots = ? " +
             "WHERE id = ?",
             canInvite ? 1 : 0,
             canCreateTitles ? 1 : 0,
@@ -634,6 +695,7 @@ public class CompanyService {
             canManageCompany ? 1 : 0,
             canManageChestShop ? 1 : 0,
             canManageSalaries ? 1 : 0,
+            canManagePlots? 1 : 0,
             job.getId()
         );
         

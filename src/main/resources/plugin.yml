@@ -33,7 +33,7 @@ commands:
     aliases: [watchlist, wl]
   company:
     description: "Manage companies and corporations"
-    usage: "/company [create|info|invite|accept|decline|deposit|withdraw|employees|jobs]"
+    usage: "§cThis feature is currently disabled."
     aliases: [corp, corporation]
     
 permissions:

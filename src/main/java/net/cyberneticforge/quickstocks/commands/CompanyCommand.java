@@ -2,16 +2,16 @@ package net.cyberneticforge.quickstocks.commands;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
-import net.cyberneticforge.quickstocks.core.model.Company;
-import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
-import net.cyberneticforge.quickstocks.core.model.CompanyJob;
-import net.cyberneticforge.quickstocks.core.model.Replaceable;
+import net.cyberneticforge.quickstocks.core.model.*;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
+import net.cyberneticforge.quickstocks.gui.PlotEditGUI;
 import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Particle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -145,6 +145,26 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     handleSalary(player, playerUuid, args);
                     break;
                     
+                case "buyplot":
+                    handleBuyPlot(player, playerUuid, args);
+                    break;
+                    
+                case "sellplot":
+                    handleSellPlot(player, playerUuid, args);
+                    break;
+                    
+                case "plots":
+                    handlePlots(player, args);
+                    break;
+                    
+                case "nearplots":
+                    handleNearPlots(player, playerUuid);
+                    break;
+                    
+                case "editplot":
+                    handleEditPlot(player, playerUuid);
+                    break;
+                    
                 default:
                     showHelp(player);
                     break;
@@ -184,6 +204,9 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         Translation.Company_Help_Settings.sendMessage(player);
         Translation.Company_Help_Notifications.sendMessage(player);
         Translation.Company_Salary_Help_Main.sendMessage(player);
+        Translation.Company_Help_BuyPlot.sendMessage(player);
+        Translation.Company_Help_SellPlot.sendMessage(player);
+        Translation.Company_Help_Plots.sendMessage(player);
     }
     
     private void handleCreate(Player player, String playerUuid, String[] args) throws Exception {
@@ -257,6 +280,8 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canInvite() ? "Invite " : "") +
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
+                             (job.canManageSalaries() ? "Salaries " : "") +
+                             (job.canManagePlots() ? "Plots " : "") +
                              (job.canManageChestShop() ? "ChestShop" : "");
             Translation.Company_JobItem.sendMessage(player, new Replaceable("%job%", job.getTitle()));
             Translation.Company_JobPermissions.sendMessage(player, new Replaceable("%permissions%", permissions));
@@ -371,6 +396,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
                              (job.canManageSalaries() ? "Salaries " : "") +
+                             (job.canManageSalaries() ? "Plots " : "") +
                              (job.canManageChestShop() ? "ChestShop" : "");
             Translation.Company_JoinedWithJob.sendMessage(player,
                 new Replaceable("%company%", companyOpt.get().getName()),
@@ -556,6 +582,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                              (job.canCreateTitles() ? "CreateJobs " : "") +
                              (job.canWithdraw() ? "Withdraw " : "") +
                              (job.canManageSalaries() ? "Salaries " : "") +
+                             (job.canManagePlots() ? "Plots " : "") +
                              (job.canManageChestShop() ? "ChestShop" : "");
             Translation.Company_JobDetails.sendMessage(player,
                 new Replaceable("%job%", job.getTitle()),
@@ -566,7 +593,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     private void handleCreateJob(Player player, String playerUuid, String[] args) throws Exception {
         if (args.length < 4) {
             Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company createjob <company> <title> <permissions>"));
-            player.sendMessage(ChatUT.hexComp(String.format("&cPermissions format: invite,createjobs,withdraw,manage,salaries%s (comma-separated)", QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? ",chestshop" : "")));
+            player.sendMessage(ChatUT.hexComp(String.format("&cPermissions format: invite,createjobs,withdraw,manage,salaries,plots%s (comma-separated)", QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? ",chestshop" : "")));
             return;
         }
         
@@ -586,9 +613,11 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canManage = permsStr.contains("manage");
         boolean canChestShop = permsStr.contains("chestshop");
         boolean canManageSalaries = permsStr.contains("salaries");
+        boolean canManagePlots = permsStr.contains("plots");
+
         
         QuickStocksPlugin.getCompanyService().createJobTitle(companyOpt.get().getId(), playerUuid, title, 
-                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries);
+                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries, canManagePlots);
         Translation.Company_JobCreated.sendMessage(player, new Replaceable("%company%", companyName), new Replaceable("%job%", title));
     }
     
@@ -615,15 +644,17 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canManage = permsStr.contains("manage");
         boolean canChestShop = permsStr.contains("chestshop");
         boolean canManageSalaries = permsStr.contains("salaries");
+        boolean canManagePlots = permsStr.contains("plots");
         
         QuickStocksPlugin.getCompanyService().updateJobTitle(companyOpt.get().getId(), playerUuid, title,
-                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries);
+                                     canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries, canManagePlots);
 
         String permissions = (canManage ? "Manage " : "") +
                          (canInvite ? "Invite " : "") +
                          (canCreateTitles ? "CreateJobs " : "") +
                          (canWithdraw ? "Withdraw " : "") +
                          (canManageSalaries ? "Salaries " : "") +
+                        (canManagePlots ? "Plots " : "") +
                          (canChestShop ? "ChestShop" : "");
         Translation.Company_JobEditedWithPerms.sendMessage(player,
             new Replaceable("%job%", title),
@@ -707,7 +738,8 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 return Stream.of("create", "info", "list", "invite", "accept", "decline",
                                    "invitations", "deposit", "withdraw", "employees", "jobs",
                                    "createjob", "editjob", "assignjob", "settings",
-                                   "setsymbol", "market", "notifications", "leave", "transferownership", "fire", "salary")
+                                   "setsymbol", "market", "notifications", "leave", "transferownership", "fire", "salary",
+                                   "buyplot", "sellplot", "plots", "nearplots", "editplot")
                     .filter(option -> option.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
             }
@@ -738,7 +770,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                 String subcommand = args[0].toLowerCase();
                 if (subcommand.equals("info") || subcommand.equals("employees") || subcommand.equals("jobs") ||
                     subcommand.equals("deposit") || subcommand.equals("withdraw") || subcommand.equals("settings") ||
-                    subcommand.equals("setsymbol")) {
+                    subcommand.equals("setsymbol") || subcommand.equals("plots")) {
                     return getCompanyNames(args[1]);
                 }
                 
@@ -748,6 +780,18 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     subcommand.equals("transferownership")) {
                     return getPlayerCompanyNames(playerUuid, args[1]);
                 }
+                
+                // For buyplot/sellplot - suggest company names
+                if (subcommand.equals("buyplot") || subcommand.equals("sellplot")) {
+                    return getPlayerCompanyNames(playerUuid, args[1]);
+                }
+            }
+            
+            // For buyplot <company> - suggest on/off as third argument
+            if (args.length == 3 && args[0].equalsIgnoreCase("buyplot")) {
+                return Stream.of("on", "off")
+                    .filter(option -> option.toLowerCase().startsWith(args[2].toLowerCase()))
+                    .collect(Collectors.toList());
             }
             
             // Company names for salary commands (3rd arg)
@@ -807,11 +851,11 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
             
             // Permission suggestions for createjob and editjob (4th arg)
             if (args.length == 4 && (args[0].equalsIgnoreCase("createjob") || args[0].equalsIgnoreCase("editjob"))) {
-                List<String> permissions = Arrays.asList("invite", "createjobs", "withdraw", "manage", "invite,createjobs", "invite,withdraw", "manage,invite,createjobs,withdraw");
+                List<String> permissions = Arrays.asList("invite", "createjobs", "withdraw", "manage", "salaries", "plots", "invite,createjobs", "invite,withdraw,plots", "manage,invite,createjobs,withdraw");
 
                 if(QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop)) {
                     permissions.remove("manage,invite,createjobs,withdraw");
-                    permissions.add("manage,invite,createjobs,withdraw, chestshop");
+                    permissions.add("manage,invite,createjobs,withdraw,chestshop");
                     permissions.add("chestshop");
                 }
 
@@ -1465,5 +1509,283 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
                     new Replaceable("%amount%", String.format("%.2f", jobSalary)));
             }
         }
+    }
+    
+    /**
+     * Handles buying a plot for a company.
+     */
+    private void handleBuyPlot(Player player, String playerUuid, String[] args) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        // Need at least company name
+        if (args.length < 2) {
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company buyplot <company> [on|off]"));
+            return;
+        }
+        
+        String companyName = args[1];
+        
+        // Check if this is a mode toggle command
+        if (args.length >= 3 && (args[2].equalsIgnoreCase("on") || args[2].equalsIgnoreCase("off"))) {
+            handleBuyPlotMode(player, playerUuid, companyName, args[2].equalsIgnoreCase("on"));
+            return;
+        }
+        
+        // Regular buy plot command
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        try {
+            CompanyPlot plot = QuickStocksPlugin.getCompanyPlotService().buyPlot(
+                company.getId(), playerUuid, player.getLocation()
+            );
+            
+            Translation.Company_Plot_Purchased.sendMessage(player,
+                new Replaceable("%company%", companyName),
+                new Replaceable("%world%", plot.getWorldName()),
+                new Replaceable("%x%", String.valueOf(plot.getChunkX())),
+                new Replaceable("%z%", String.valueOf(plot.getChunkZ())),
+                new Replaceable("%price%", String.format("%.2f", plot.getBuyPrice())));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            Translation.Errors_Internal.sendMessage(player, new Replaceable("%error%", e.getMessage()));
+        }
+    }
+    
+    /**
+     * Handles toggling auto-buy mode.
+     */
+    private void handleBuyPlotMode(Player player, String playerUuid, String companyName, boolean enable) throws Exception {
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        // Check if player has permission
+        Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
+        if (playerJob.isEmpty() || !playerJob.get().canManagePlots()) {
+            Translation.NoPermission.sendMessage(player);
+            return;
+        }
+        
+        if (enable) {
+            // Check if player already has auto-buy enabled for another company
+            Optional<String> currentCompanyId = QuickStocksPlugin.getCompanyPlotService().getAutoBuyMode(playerUuid);
+            if (currentCompanyId.isPresent() && !currentCompanyId.get().equals(company.getId())) {
+                Optional<Company> currentCompany = QuickStocksPlugin.getCompanyService().getCompanyById(currentCompanyId.get());
+                String currentCompanyName = currentCompany.map(Company::getName).orElse("Unknown");
+                Translation.Company_Plot_AutoBuyAlreadyEnabled.sendMessage(player, 
+                    new Replaceable("%company%", currentCompanyName));
+                return;
+            }
+            
+            QuickStocksPlugin.getCompanyPlotService().setAutoBuyMode(playerUuid, company.getId(), true);
+            Translation.Company_Plot_AutoBuyEnabled.sendMessage(player, new Replaceable("%company%", companyName));
+        } else {
+            QuickStocksPlugin.getCompanyPlotService().setAutoBuyMode(playerUuid, null, false);
+            Translation.Company_Plot_AutoBuyDisabled.sendMessage(player);
+        }
+    }
+    
+    /**
+     * Handles selling a plot owned by a company.
+     */
+    private void handleSellPlot(Player player, String playerUuid, String[] args) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        if (args.length < 2) {
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company sellplot <company>"));
+            return;
+        }
+        
+        String companyName = args[1];
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        
+        try {
+            QuickStocksPlugin.getCompanyPlotService().sellPlot(
+                company.getId(), playerUuid, player.getLocation()
+            );
+            
+            double refund = QuickStocksPlugin.getCompanyCfg().getSellPlotPrice();
+            Translation.Company_Plot_Sold.sendMessage(player,
+                new Replaceable("%company%", companyName),
+                new Replaceable("%refund%", String.format("%.2f", refund)));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            Translation.Errors_Internal.sendMessage(player, new Replaceable("%error%", e.getMessage()));
+        }
+    }
+    
+    /**
+     * Handles listing plots for a company.
+     */
+    private void handlePlots(Player player, String[] args) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        if (args.length < 2) {
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company plots <company>"));
+            return;
+        }
+        
+        String companyName = args[1];
+        Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
+        
+        if (companyOpt.isEmpty()) {
+            Translation.Company_Error_CompanyNotFound.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Company company = companyOpt.get();
+        List<CompanyPlot> plots = QuickStocksPlugin.getCompanyPlotService().getCompanyPlots(company.getId());
+        
+        if (plots.isEmpty()) {
+            Translation.Company_Plot_NoPlots.sendMessage(player, new Replaceable("%company%", companyName));
+            return;
+        }
+        
+        Translation.Company_Plot_ListHeader.sendMessage(player, new Replaceable("%company%", companyName));
+        for (CompanyPlot plot : plots) {
+            String rentInfo = plot.hasRent() ? 
+                " (Rent: $" + String.format("%.2f", plot.getRentAmount()) + "/" + plot.getRentInterval() + ")" : 
+                " (No rent)";
+            
+            Translation.Company_Plot_ListItem.sendMessage(player,
+                new Replaceable("%world%", plot.getWorldName()),
+                new Replaceable("%x%", String.valueOf(plot.getChunkX())),
+                new Replaceable("%z%", String.valueOf(plot.getChunkZ())),
+                new Replaceable("%rent%", rentInfo));
+        }
+    }
+    
+    /**
+     * Handles the nearplots command - visualizes nearby company plots with particles.
+     */
+    private void handleNearPlots(Player player, String playerUuid) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        // Get nearby plots (radius of 3 chunks = ~50 blocks)
+        List<CompanyPlot> nearbyPlots = QuickStocksPlugin.getCompanyPlotService().getNearbyPlots(player.getLocation(), 3);
+        
+        if (nearbyPlots.isEmpty()) {
+            player.sendMessage("§7No company plots found nearby.");
+            return;
+        }
+        
+        // Show particles for each plot
+        int count = 0;
+        for (CompanyPlot plot : nearbyPlots) {
+            showPlotBoundaries(player, plot);
+            count++;
+        }
+        
+        player.sendMessage("§aHighlighting §e" + count + " §acompany plot(s) nearby.");
+    }
+    
+    /**
+     * Shows plot boundaries using particles.
+     */
+    private void showPlotBoundaries(Player player, CompanyPlot plot) {
+        try {
+            org.bukkit.World world = player.getServer().getWorld(plot.getWorldName());
+            if (world == null) return;
+
+            // Get chunk boundaries (chunks are 16x16 blocks)
+            int startX = plot.getChunkX() * 16;
+            int startZ = plot.getChunkZ() * 16;
+            int endX = startX + 16;
+            int endZ = startZ + 16;
+
+            // Get company info for particle color
+            Optional<Company> company = QuickStocksPlugin.getCompanyService().getCompanyById(plot.getCompanyId());
+
+            // Show particles along the chunk borders at player's Y level
+            int y = player.getLocation().getBlockY();
+
+            // Create particles along the edges
+            for (int x = startX; x <= endX; x++) {
+                spawnParticle(player, world, x, y, startZ);
+                spawnParticle(player, world, x, y, endZ);
+            }
+
+            for (int z = startZ; z <= endZ; z++) {
+                spawnParticle(player, world, startX, y, z);
+                spawnParticle(player, world, endX, y, z);
+            }
+        } catch (Exception e) {
+            Translation.Errors_Internal.sendMessage(player, new Replaceable("%error%", e.getMessage()));
+        }
+    }
+    
+    /**
+     * Spawns a particle at the specified location for the player.
+     */
+    private void spawnParticle(Player player, org.bukkit.World world, int x, int y, int z) {
+        player.spawnParticle(
+            Particle.HAPPY_VILLAGER,
+            new Location(world, x + 0.5, y + 1, z + 0.5),
+            1, 0, 0, 0, 0
+        );
+    }
+    
+    /**
+     * Handles the editplot command - opens GUI to edit plot permissions.
+     */
+    private void handleEditPlot(Player player, String playerUuid) throws Exception {
+        if (!QuickStocksPlugin.getCompanyCfg().isPlotsEnabled()) {
+            Translation.Company_Plots_Disabled.sendMessage(player);
+            return;
+        }
+        
+        // Get the plot the player is standing on
+        org.bukkit.Chunk chunk = player.getLocation().getChunk();
+        Optional<CompanyPlot> plotOpt = QuickStocksPlugin.getCompanyPlotService()
+            .getPlotByLocation(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+        
+        if (plotOpt.isEmpty()) {
+            player.sendMessage("§cYou must be standing on a company plot to edit it.");
+            return;
+        }
+        
+        CompanyPlot plot = plotOpt.get();
+        
+        // Check if player has permission to manage plots for this company
+        Optional<CompanyJob> playerJob = QuickStocksPlugin.getCompanyService()
+            .getPlayerJob(plot.getCompanyId(), playerUuid);
+        
+        if (playerJob.isEmpty() || !playerJob.get().canManagePlots()) {
+            Translation.NoPermission.sendMessage(player);
+            return;
+        }
+        
+        // Open the plot edit GUI
+        PlotEditGUI gui = new PlotEditGUI(player, plot);
+        player.openInventory(gui.getInventory());
     }
 }

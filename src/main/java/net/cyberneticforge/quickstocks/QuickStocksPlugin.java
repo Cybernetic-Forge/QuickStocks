@@ -84,6 +84,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     @Getter
     private static SalaryService salaryService;
     @Getter
+    private static CompanyPlotService companyPlotService;
+    @Getter
     private static BukkitRunnable marketUpdateTask;
     @Getter
     private static InstrumentPersistenceService instrumentPersistenceService;
@@ -134,6 +136,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             invitationService = new InvitationService();
             companyMarketService = new CompanyMarketService();
             salaryService = new SalaryService();
+            companyPlotService = new CompanyPlotService();
             holdingsService = new HoldingsService();
             tradingService = new TradingService();
             watchlistService = new WatchlistService();
@@ -147,6 +150,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             simulationEngine.start();
 
             startSalaryPaymentScheduler();
+            startRentCollectionScheduler();
 
             if (getConfig().getBoolean("metrics.enabled", true)) {
                 metricsService = new MetricsService();
@@ -271,6 +275,14 @@ public final class QuickStocksPlugin extends JavaPlugin {
         if (companyCfg.isEnabled()) {
             getServer().getPluginManager().registerEvents(new CompanySettingsGUIListener(), this);
             
+            // Register plot listener if plots are enabled
+            if (companyCfg.isPlotsEnabled()) {
+                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.CompanyPlotListener(), this);
+                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.PlotEditGUIListener(), this);
+                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.PlotPermissionEditGUIListener(), this);
+                getLogger().info("Registered company plot listeners");
+            }
+            
             // Register ChestShop integration listeners if ChestShop is hooked and chestshop is enabled
             if (companyCfg.isChestShopEnabled() && hookManager.isHooked(net.cyberneticforge.quickstocks.hooks.HookType.ChestShop)) {
                 ChestShopHook chestShopHook = new ChestShopHook(companyService);
@@ -337,6 +349,24 @@ public final class QuickStocksPlugin extends JavaPlugin {
                 }
             }
         }.runTaskTimerAsynchronously(this, 20L * 60 * 5, 20L * 60 * 5); // Run every 5 minutes
+    }
+    
+    /**
+     * Starts the scheduled task for rent collection.
+     */
+    private void startRentCollectionScheduler() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    if (companyCfg.isPlotsEnabled()) {
+                        companyPlotService.processRentCollection();
+                    }
+                } catch (Exception e) {
+                    getLogger().warning("Error in rent collection scheduler: " + e.getMessage());
+                }
+            }
+        }.runTaskTimerAsynchronously(this, 20L * 60 * 10, 20L * 60 * 10); // Run every 10 minutes
     }
 
     public static void registerCommand(String command, CommandExecutor executor) {
