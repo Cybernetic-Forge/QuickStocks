@@ -55,7 +55,7 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(Component.text("Reloading QuickStocks...", NamedTextColor.YELLOW));
         
         try {
-            QuickStocksPlugin plugin = (QuickStocksPlugin) QuickStocksPlugin.getInstance();
+            QuickStocksPlugin plugin = QuickStocksPlugin.getInstance();
             
             // Stop running services
             sender.sendMessage(Component.text("Stopping services...", NamedTextColor.GRAY));

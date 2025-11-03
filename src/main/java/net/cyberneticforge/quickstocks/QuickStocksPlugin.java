@@ -39,7 +39,7 @@ import java.util.Objects;
 public final class QuickStocksPlugin extends JavaPlugin {
 
     @Getter
-    private static JavaPlugin instance;
+    private static QuickStocksPlugin instance;
 
     /* Logging */
     @Getter
