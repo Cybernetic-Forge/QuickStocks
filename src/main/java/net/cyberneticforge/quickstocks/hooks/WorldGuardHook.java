@@ -62,22 +62,6 @@ public class WorldGuardHook {
     }
     
     /**
-     * Checks if a company can create a ChestShop at the given location based on WorldGuard regions.
-     * 
-     * @param player The player attempting to create the shop
-     * @param location The Bukkit location where the shop is being created
-     * @return true if ChestShop can be created, false if blocked by a region flag
-     */
-    public boolean canCreateChestShop(Player player, org.bukkit.Location location) {
-        if (WorldGuardFlags.QUICKSTOCKS_CHESTSHOPS == null) {
-            // Flag not registered, allow by default
-            return true;
-        }
-        
-        return checkFlag(player, location, WorldGuardFlags.QUICKSTOCKS_CHESTSHOPS);
-    }
-    
-    /**
      * Generic method to check a StateFlag at a location for a player.
      * 
      * @param player The player to check
