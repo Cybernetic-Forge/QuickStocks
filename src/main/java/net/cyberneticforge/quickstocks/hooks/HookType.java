@@ -2,7 +2,8 @@ package net.cyberneticforge.quickstocks.hooks;
 
 @SuppressWarnings("SameParameterValue")
 public enum HookType {
-    ChestShop("ChestShop");
+    ChestShop("ChestShop"),
+    WorldGuard("WorldGuard");
 
     private final String pluginName;
 

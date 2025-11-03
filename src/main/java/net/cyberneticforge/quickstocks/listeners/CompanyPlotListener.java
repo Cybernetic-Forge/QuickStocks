@@ -92,7 +92,7 @@ public class CompanyPlotListener implements Listener {
             // Try to buy the plot
             try {
                 CompanyPlot plot = QuickStocksPlugin.getCompanyPlotService().buyPlot(
-                    companyId, playerUuid, player.getLocation()
+                    companyId, playerUuid, player.getLocation(), player
                 );
                 
                 // Get company name for message

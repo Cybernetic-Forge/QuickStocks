@@ -8,6 +8,9 @@ import net.cyberneticforge.quickstocks.core.services.*;
 import net.cyberneticforge.quickstocks.hooks.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookManager;
+import net.cyberneticforge.quickstocks.hooks.HookType;
+import net.cyberneticforge.quickstocks.hooks.WorldGuardFlags;
+import net.cyberneticforge.quickstocks.hooks.WorldGuardHook;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import net.cyberneticforge.quickstocks.infrastructure.config.MarketCfg;
@@ -95,6 +98,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static HookManager hookManager;
     @Getter
     private static MetricsService metricsService;
+    @Getter
+    private static WorldGuardHook worldGuardHook;
 
     @Override
     public void onEnable() {
@@ -111,6 +116,14 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Initialize hook manager to detect external plugins
             hookManager = new HookManager();
+            
+            // Initialize WorldGuard hook if available
+            if (hookManager.isHooked(HookType.WorldGuard)) {
+                pluginLogger.info("WorldGuard detected, registering custom flags...");
+                WorldGuardFlags.registerFlags();
+                worldGuardHook = new WorldGuardHook();
+                pluginLogger.info("WorldGuard hook initialized successfully");
+            }
 
             // Initialize translation service
             translationService = new TranslationService();
