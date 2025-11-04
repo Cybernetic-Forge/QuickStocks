@@ -117,4 +117,11 @@ public class GuiConfig {
     public int getItemSlot(String path, int defaultSlot) {
         return config.getInt(path + ".slot", defaultSlot);
     }
+    
+    /**
+     * Reloads the GUI configuration from disk
+     */
+    public void reload() {
+        config.reload();
+    }
 }
