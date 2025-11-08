@@ -244,6 +244,31 @@ Developed with ❤️ by the Cybernetic Forge team
 - **Architecture:** Clean architecture with IoC patterns
 - **Database:** Multi-provider support with automatic migrations
 - **UI/UX:** Adventure Components for beautiful formatting
-- **Testing:** Comprehensive test coverage
+- **Testing:** Comprehensive test suite with MockBukkit (78 test cases)
+- **CI/CD:** Automated build pipeline with test validation
+
+---
+
+## 🧪 Testing
+
+QuickStocks includes a comprehensive automated test suite:
+
+- **78 test cases** covering core business logic
+- **MockBukkit** integration for Bukkit API mocking
+- **JUnit 5** test framework
+- **GitHub Actions** CI/CD pipeline
+- **Test Coverage**: Fee calculations, wallet operations, trading logic, company management, portfolio operations
+
+See [TEST_SUITE.md](TEST_SUITE.md) for detailed documentation.
+
+### Running Tests
+
+```bash
+# Run all tests
+mvn test
+
+# Run specific test class
+mvn test -Dtest=WalletServiceTest
+```
 
 ---
