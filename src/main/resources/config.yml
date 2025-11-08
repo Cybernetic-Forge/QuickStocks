@@ -46,6 +46,5 @@ metrics:
 
 # NOTE: Market, Market Device, Analytics, Trading, and Companies configurations
 # have been moved to separate files:
-# - market.yml - Market, Market Device, and Analytics settings
-# - trading.yml - Trading economy settings
+# - market.yml - Market, Market Device, Analytics, and Trading economy settings
 # - companies.yml - Companies/Corporations settings

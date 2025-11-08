@@ -97,7 +97,7 @@ double creationCost = config.getCreationCost();
 ## Rollback
 
 If needed, you can merge all the separate files back into config.yml by:
-1. Copying contents of market.yml, trading.yml, and companies.yml
+1. Copying contents of market.yml and companies.yml
 2. Removing the NOTE comment from config.yml
 3. Reverting to the previous plugin version
 
