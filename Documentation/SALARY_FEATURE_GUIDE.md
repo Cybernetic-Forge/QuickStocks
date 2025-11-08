@@ -247,10 +247,10 @@ companies:
 
 ## Need Help?
 
-- **Documentation**: See [Commands-Company.md](Documentation/Commands-Company.md) for detailed command reference
-- **Configuration**: See [Configuration.md](Documentation/Configuration.md) for config options
-- **Permissions**: See [Permissions.md](Documentation/Permissions.md) for permission details
-- **Database**: See [Database.md](Documentation/Database.md) for database schema and queries
+- **Documentation**: See [Commands-Company.md](Commands-Company.md) for detailed command reference
+- **Configuration**: See [Configuration.md](Configuration.md) for config options
+- **Permissions**: See [Permissions.md](Permissions.md) for permission details
+- **Database**: See [Database.md](Database.md) for database schema and queries
 
 ## Examples
 

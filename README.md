@@ -106,7 +106,7 @@ QuickStocks brings real-world financial markets to Minecraft. Players can:
 - **[Configuration](Documentation/Configuration.md)** - Detailed configuration options
 - **[Database Management](Documentation/Database.md)** - Database administration
 - **[ChestShop Integration](Documentation/ChestShop-Integration.md)** - Company-owned chest shops
-- **[WorldGuard Integration](WORLDGUARD_INTEGRATION.md)** - Region-based permissions and custom flags
+- **[WorldGuard Integration](Documentation/WORLDGUARD_INTEGRATION.md)** - Region-based permissions and custom flags
 
 ### 📖 Command References
 - **[Stocks Commands](Documentation/Commands-Stocks.md)** - Market data and analysis
@@ -259,7 +259,7 @@ QuickStocks includes a comprehensive automated test suite:
 - **GitHub Actions** CI/CD pipeline
 - **Test Coverage**: Fee calculations, wallet operations, trading logic, company management, portfolio operations
 
-See [TEST_SUITE.md](TEST_SUITE.md) for detailed documentation.
+See [TEST_SUITE.md](Documentation/TEST_SUITE.md) for detailed documentation.
 
 ### Running Tests
 
