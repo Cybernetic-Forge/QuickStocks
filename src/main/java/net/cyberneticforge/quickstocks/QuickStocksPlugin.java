@@ -355,7 +355,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Checks every 5 minutes if any company needs to pay salaries.
      * Package-private for reload functionality.
      */
-    void startSalaryPaymentScheduler() {
+    public void startSalaryPaymentScheduler() {
         // Cancel existing task if running
         if (salaryPaymentTask != null && !salaryPaymentTask.isCancelled()) {
             salaryPaymentTask.cancel();
@@ -401,7 +401,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Starts the scheduled task for rent collection.
      * Package-private for reload functionality.
      */
-    void startRentCollectionScheduler() {
+    public void startRentCollectionScheduler() {
         // Cancel existing task if running
         if (rentCollectionTask != null && !rentCollectionTask.isCancelled()) {
             rentCollectionTask.cancel();
@@ -426,7 +426,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * Reinitializes the plugin logger with a new debug level.
      * Package-private for reload functionality.
      */
-    void reinitializeLogger() {
+    public void reinitializeLogger() {
         int debugLevel = getConfig().getInt("logging.debugLevel", 1);
         pluginLogger = new PluginLogger(this, debugLevel);
         pluginLogger.info("PluginLogger reinitialized with debug level: " + debugLevel);
@@ -437,7 +437,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * This is necessary because the executor service is terminated on stop and cannot be restarted.
      * Package-private for reload functionality.
      */
-    void recreateSimulationEngine() {
+    public void recreateSimulationEngine() {
         simulationEngine = new SimulationEngine();
         simulationEngine.start();
     }
