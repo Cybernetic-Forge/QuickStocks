@@ -12,13 +12,12 @@ All configuration was in a single `config.yml` file (133 lines).
 ### After
 Configuration is split into multiple focused files:
 - **config.yml** (36 lines) - Database, features, and metrics
-- **market.yml** (35 lines) - Market settings, market device, and analytics
-- **trading.yml** (20 lines) - Trading economy configuration
+- **market.yml** (65 lines) - Market settings, trading economy, market device, and analytics
 - **companies.yml** (47 lines) - Companies/corporations system
 
 ## New Configuration Classes
 
-Three new configuration manager classes were created following the `YamlParser` pattern:
+Two new configuration manager classes were created following the `YamlParser` pattern:
 
 ### 1. MarketCfg (`infrastructure/config/MarketCfg.java`)
 Manages configuration from `market.yml`:
@@ -26,6 +25,7 @@ Manages configuration from `market.yml`:
 - Price threshold configuration (dampening, volume sensitivity)
 - Market device recipe settings
 - Analytics configuration (lambda, windows)
+- Trading economy configuration (fees, limits, circuit breakers, slippage)
 
 **Usage:**
 ```java
@@ -35,7 +35,7 @@ double lambda = marketCfg.getAnalyticsLambda();
 ```
 
 ### 2. TradingCfg (`infrastructure/config/TradingCfg.java`)
-Manages configuration from `trading.yml`:
+Manages configuration from `market.yml` (trading section):
 - Fee configuration (mode, percent, flat)
 - Trading limits (maxOrderQty, cooldowns)
 - Circuit breakers (levels, halt durations)
@@ -66,7 +66,7 @@ double creationCost = config.getCreationCost();
 ## Migration for Existing Installations
 
 1. **Automatic Migration**: On first run with the new version, the plugin will:
-   - Create the new config files (market.yml, trading.yml, companies.yml) with default values
+   - Create the new config files (market.yml, companies.yml) with default values
    - Update config.yml to remove migrated sections
    - Add a note in config.yml pointing to the new files
 

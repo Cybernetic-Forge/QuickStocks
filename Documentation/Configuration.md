@@ -9,8 +9,7 @@ QuickStocks uses these configuration files:
 ```
 plugins/QuickStocks/
 ├── config.yml          # Database and features configuration
-├── market.yml          # Market, market device, and analytics settings
-├── trading.yml         # Trading economy configuration
+├── market.yml          # Market, trading economy, and analytics settings
 ├── companies.yml       # Companies/corporations configuration
 ├── guis.yml            # GUI customization
 └── Translations.yml    # Language translations
@@ -22,11 +21,10 @@ plugins/QuickStocks/
 
 **Note:** Starting with this version, configuration has been split into multiple files for better organization:
 - **config.yml** - Core settings (database, features, metrics)
-- **market.yml** - Market behavior, market device, and analytics
-- **trading.yml** - Trading fees, limits, circuit breakers, and order types
+- **market.yml** - Market behavior, trading economy, analytics, and market device
 - **companies.yml** - Company system, salaries, and permissions
 
-**For existing installations:** The plugin will automatically create the new config files (market.yml, trading.yml, companies.yml) with default values on first run. Your existing config.yml will be automatically updated to remove the migrated sections. You may want to copy your custom settings from the old config.yml to the appropriate new files.
+**For existing installations:** The plugin will automatically create the new config files (market.yml, companies.yml) with default values on first run. Your existing config.yml will be automatically updated to remove the migrated sections. You may want to copy your custom settings from the old config.yml to the appropriate new files.
 
 ---
 
@@ -355,7 +353,7 @@ Set `enabled: false` to opt-out of data collection. You can also disable bStats 
 
 ## 💰 Trading Configuration
 
-**Configuration File:** `trading.yml`
+**Configuration File:** `market.yml`
 
 Configure trading fees, limits, and safeguards.
 
@@ -740,7 +738,7 @@ trading:
 
 ## 🔄 Reloading Configuration
 
-After editing any configuration file (config.yml, market.yml, trading.yml, companies.yml):
+After editing any configuration file (config.yml, market.yml, companies.yml):
 
 **Option 1: Restart Server**
 ```bash

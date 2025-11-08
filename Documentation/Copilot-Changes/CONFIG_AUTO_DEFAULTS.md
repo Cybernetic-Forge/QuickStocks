@@ -50,7 +50,7 @@ private void addMissingDefaults() {
 - ChestShop settings (enabled, companyMinBalance)
 
 #### 3. TradingCfg.java
-**Config file:** `trading.yml`  
+**Config file:** `market.yml` (trading section)  
 **Entries added:** 12 configuration entries
 - Fee settings (mode, percent, flat)
 - Limits settings (maxOrderQty, maxNotionalPerMinute, perPlayerCooldownMs)

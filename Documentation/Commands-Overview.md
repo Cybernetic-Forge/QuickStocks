@@ -67,8 +67,7 @@ Plugin management and configuration commands.
 
 **Description:** The `/quickstocks reload` command allows server administrators to reload all plugin configurations without restarting the server. This includes:
 - config.yml (main configuration)
-- market.yml (market settings)
-- trading.yml (trading economy settings)
+- market.yml (market and trading economy settings)
 - companies.yml (company system settings)
 - guis.yml (GUI layout configuration)
 
