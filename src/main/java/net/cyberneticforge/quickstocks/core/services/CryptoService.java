@@ -34,6 +34,22 @@ public class CryptoService {
      * @throws IllegalArgumentException if symbol already exists or parameters are invalid
      */
     public String createCustomCrypto(String symbol, String displayName, String createdBy) throws SQLException {
+        return createCustomCrypto(symbol, displayName, createdBy, null, true);
+    }
+    
+    /**
+     * Creates a new custom cryptocurrency instrument with balance validation.
+     * 
+     * @param symbol The cryptocurrency symbol (e.g., "MYCOIN")
+     * @param displayName The human-readable name (e.g., "My Custom Coin")
+     * @param createdBy The UUID of the player creating the crypto
+     * @param companyId The company ID if created by a company (null for personal)
+     * @param checkBalance Whether to check and deduct balance
+     * @return The instrument ID of the created crypto
+     * @throws SQLException if database operation fails
+     * @throws IllegalArgumentException if symbol already exists or parameters are invalid
+     */
+    public String createCustomCrypto(String symbol, String displayName, String createdBy, String companyId, boolean checkBalance) throws SQLException {
         // Validate inputs
         if (symbol == null || symbol.trim().isEmpty()) {
             throw new IllegalArgumentException("Symbol cannot be empty");
@@ -43,6 +59,75 @@ public class CryptoService {
         }
         if (createdBy == null || createdBy.trim().isEmpty()) {
             throw new IllegalArgumentException("Created by UUID cannot be empty");
+        }
+        
+        // Get crypto configuration
+        var cryptoCfg = QuickStocksPlugin.getCryptoCfg();
+        
+        // Check if crypto creation is enabled
+        if (!cryptoCfg.isEnabled()) {
+            throw new IllegalArgumentException("Cryptocurrency creation is disabled");
+        }
+        
+        // Validate and check limits
+        if (companyId == null) {
+            // Personal crypto creation
+            if (!cryptoCfg.getPersonalConfig().isEnabled()) {
+                throw new IllegalArgumentException("Personal cryptocurrency creation is disabled");
+            }
+            
+            // Check max per player limit
+            int maxPerPlayer = cryptoCfg.getPersonalConfig().getMaxPerPlayer();
+            if (maxPerPlayer > 0) {
+                int count = countCryptosByCreator(createdBy);
+                if (count >= maxPerPlayer) {
+                    throw new IllegalArgumentException("You have reached the maximum limit of " + maxPerPlayer + " cryptocurrencies");
+                }
+            }
+            
+            // Check and deduct balance
+            if (checkBalance) {
+                double cost = cryptoCfg.getPersonalConfig().getCreationCost();
+                double balance = QuickStocksPlugin.getWalletService().getBalance(createdBy);
+                if (balance < cost) {
+                    throw new IllegalArgumentException("Insufficient funds. Required: $" + String.format("%.2f", cost) + 
+                        ", Available: $" + String.format("%.2f", balance));
+                }
+                QuickStocksPlugin.getWalletService().removeBalance(createdBy, cost);
+                logger.info("Deducted $" + String.format("%.2f", cost) + " from player " + createdBy + " for crypto creation");
+            }
+        } else {
+            // Company crypto creation
+            if (!cryptoCfg.getCompanyConfig().isEnabled()) {
+                throw new IllegalArgumentException("Company cryptocurrency creation is disabled");
+            }
+            
+            // Check max per company limit
+            int maxPerCompany = cryptoCfg.getCompanyConfig().getMaxPerCompany();
+            if (maxPerCompany > 0) {
+                int count = countCryptosByCompany(companyId);
+                if (count >= maxPerCompany) {
+                    throw new IllegalArgumentException("Company has reached the maximum limit of " + maxPerCompany + " cryptocurrencies");
+                }
+            }
+            
+            // Check company balance
+            if (checkBalance) {
+                var companyOpt = QuickStocksPlugin.getCompanyService().getCompanyById(companyId);
+                if (companyOpt.isEmpty()) {
+                    throw new IllegalArgumentException("Company not found");
+                }
+                var company = companyOpt.get();
+                
+                // Get threshold for company type
+                double threshold = cryptoCfg.getCompanyConfig().getBalanceThresholds()
+                    .getOrDefault(company.getType(), cryptoCfg.getCompanyConfig().getBalanceThreshold());
+                
+                if (company.getBalance() < threshold) {
+                    throw new IllegalArgumentException("Company needs at least $" + String.format("%.2f", threshold) + 
+                        " balance to create cryptocurrency. Current: $" + String.format("%.2f", company.getBalance()));
+                }
+            }
         }
         
         // Normalize symbol - uppercase and alphanumeric only
@@ -60,31 +145,37 @@ public class CryptoService {
             String instrumentId = UUID.randomUUID().toString();
             long now = System.currentTimeMillis();
             
+            // Get crypto defaults from config
+            var cryptoCfg = QuickStocksPlugin.getCryptoCfg();
+            double startingPrice = cryptoCfg.getDefaultsConfig().getStartingPrice();
+            int decimals = cryptoCfg.getDefaultsConfig().getDecimals();
+            
             // Create the instrument
             database.execute("""
                 INSERT INTO instruments\s
-                (id, type, symbol, display_name, mc_material, decimals, created_by, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (id, type, symbol, display_name, mc_material, decimals, created_by, created_at, company_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                \s""",
                 instrumentId,
                 "CUSTOM_CRYPTO",
                 symbol,
                 displayName.trim(),
                 null, // No Minecraft material for custom crypto
-                8, // 8 decimal places for crypto prices
+                decimals,
                 createdBy,
-                now
+                now,
+                companyId
             );
             
-            // Initialize the instrument state with a starting price of $1.00
+            // Initialize the instrument state with configured starting price
             database.execute("""
                 INSERT INTO instrument_state\s
                 (instrument_id, last_price, last_volume, change_1h, change_24h, volatility_24h, market_cap, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                \s""",
                 instrumentId,
-                1.0, // Starting price of $1.00
-                0.0, // No initial volume
+                startingPrice,
+                cryptoCfg.getDefaultsConfig().getInitialVolume(),
                 0.0, // No initial change
                 0.0, // No initial change
                 0.0, // No initial volatility
@@ -101,12 +192,13 @@ public class CryptoService {
                 UUID.randomUUID().toString(),
                 instrumentId,
                 now,
-                1.0, // Starting price
-                0.0, // No initial volume
-                "Initial crypto creation"
+                startingPrice,
+                cryptoCfg.getDefaultsConfig().getInitialVolume(),
+                companyId != null ? "Initial company crypto creation" : "Initial crypto creation"
             );
             
-            logger.info("Created custom crypto: " + symbol + " (" + displayName + ") -> " + instrumentId + " by player " + createdBy);
+            String ownerType = companyId != null ? "company " + companyId : "player " + createdBy;
+            logger.info("Created custom crypto: " + symbol + " (" + displayName + ") -> " + instrumentId + " by " + ownerType);
             return instrumentId;
             
         } catch (SQLException e) {
@@ -121,6 +213,28 @@ public class CryptoService {
     private boolean symbolExists(String symbol) throws SQLException {
         var result = database.queryValue("SELECT COUNT(*) FROM instruments WHERE UPPER(symbol) = UPPER(?)", symbol);
         return ((Number) result).intValue() > 0;
+    }
+    
+    /**
+     * Counts the number of cryptocurrencies created by a player.
+     */
+    private int countCryptosByCreator(String playerUuid) throws SQLException {
+        var result = database.queryValue(
+            "SELECT COUNT(*) FROM instruments WHERE (type = 'CRYPTO' OR type = 'CUSTOM_CRYPTO') AND created_by = ? AND company_id IS NULL",
+            playerUuid
+        );
+        return ((Number) result).intValue();
+    }
+    
+    /**
+     * Counts the number of cryptocurrencies created by a company.
+     */
+    private int countCryptosByCompany(String companyId) throws SQLException {
+        var result = database.queryValue(
+            "SELECT COUNT(*) FROM instruments WHERE (type = 'CRYPTO' OR type = 'CUSTOM_CRYPTO') AND company_id = ?",
+            companyId
+        );
+        return ((Number) result).intValue();
     }
     
     /**

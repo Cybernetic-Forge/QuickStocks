@@ -12,6 +12,7 @@ import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.hooks.WorldGuardFlags;
 import net.cyberneticforge.quickstocks.hooks.WorldGuardHook;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
+import net.cyberneticforge.quickstocks.infrastructure.config.CryptoCfg;
 import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import net.cyberneticforge.quickstocks.infrastructure.config.MarketCfg;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
@@ -52,6 +53,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static TradingCfg tradingCfg;
     @Getter
     private static CompanyCfg companyCfg;
+    @Getter
+    private static CryptoCfg cryptoCfg;
 
     /* Services */
     @Getter
@@ -159,6 +162,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             marketCfg = new MarketCfg();
             tradingCfg = new TradingCfg();
             companyCfg = new CompanyCfg();
+            cryptoCfg = new CryptoCfg();
 
             DatabaseConfig config = ConfigLoader.loadDatabaseConfig();
             PriceThresholdController thresholdController = new PriceThresholdController(config);
