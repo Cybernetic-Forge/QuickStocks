@@ -358,9 +358,10 @@ mvn clean package
 - [x] bStats anonymous statistics
 - [x] Centralized logging system
 - [x] Public API for developers
+- [x] **Comprehensive test suite with MockBukkit (78 test cases)**
+- [x] **GitHub Actions CI/CD pipeline with test validation**
 
 ### 🔄 In Progress
-- [ ] Enhanced testing coverage
 - [ ] Performance optimization for large player counts
 - [ ] Additional market analytics features
 
@@ -512,29 +513,60 @@ public class YourService {
 
 ### 🧪 Testing Strategy
 
-**Manual Testing is Primary:**
-Due to the Minecraft plugin nature, most testing is done manually on a test server.
+**Comprehensive Test Suite with MockBukkit:**
+The project now includes an automated test suite with 78 test cases covering core business logic.
+
+**Testing Infrastructure:**
+- ✅ **MockBukkit** integration for Bukkit API mocking
+- ✅ **JUnit 5** test framework
+- ✅ **Maven Surefire** plugin for test execution
+- ✅ **GitHub Actions** CI/CD pipeline with test validation
+- ✅ **78 test cases** covering:
+  - Fee calculations (FeeServiceTest)
+  - Wallet operations (WalletServiceTest)
+  - Trading logic (TradingServiceTest)
+  - Company management (CompanyServiceTest)
+  - Portfolio operations (HoldingsServiceTest)
 
 **Testing Checklist:**
-- ⚠️ Limited automated test coverage currently
-- ✅ Manual testing on Minecraft server required
+- ✅ Automated unit tests for business logic (78 test cases)
+- ✅ CI/CD pipeline enforces test passing
+- ✅ Manual testing on Minecraft server still required for full integration
 - ✅ Database migrations tested via MigrationRunner
 - ⚠️ Configuration loading from config files (manual testing)
 - ⚠️ Performance under load (manual testing needed)
 - ⚠️ Thread safety in multi-player environments (manual testing)
 
 **Testing Approach:**
-1. **Unit Tests**: Create tests in `src/test/java` for core logic when possible
+1. **Unit Tests**: Business logic tests in `src/test/java` with MockBukkit
 2. **Integration Tests**: Test on a development Minecraft server
 3. **Manual Testing**: Verify commands, GUIs, and user interactions in-game
 4. **Database Testing**: Verify migrations and data persistence
+5. **CI/CD Testing**: Automated testing on every push/PR via GitHub Actions
 
 **When Adding Tests:**
 - Use JUnit 5 for new test classes
+- Extend `TestBase` class for MockBukkit setup
+- Follow Given-When-Then pattern with descriptive names
 - Mock external dependencies (database, Minecraft APIs) when needed
 - Test both success and failure scenarios
 - Include edge cases and boundary conditions
 - Focus on business logic that can be tested without Minecraft server
+- Run `mvn test` before committing to ensure tests pass
+
+**Running Tests:**
+```bash
+# Run all tests
+mvn test
+
+# Run specific test class
+mvn test -Dtest=WalletServiceTest
+
+# Run specific test method
+mvn test -Dtest=WalletServiceTest#testAddBalance
+```
+
+See [TEST_SUITE.md](../TEST_SUITE.md) for detailed test documentation.
 
 ## Breaking Changes Log
 
