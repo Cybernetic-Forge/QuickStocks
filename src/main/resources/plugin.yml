@@ -48,10 +48,10 @@ permissions:
   quickstocks.command.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments"
     default: false
-  maksy.stocks.crypto.create:
+  quickstocks.stocks.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments (legacy)"
     default: false
-  maksy.stocks.marketdevice.give:
+  quickstocks.stocks.marketdevice.give:
     description: "Allows giving Market Link Device items to players"
     default: op
   quickstocks.wallet.add:
