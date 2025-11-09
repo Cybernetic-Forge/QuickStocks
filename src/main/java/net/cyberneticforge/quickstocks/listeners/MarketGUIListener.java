@@ -69,6 +69,16 @@ public class MarketGUIListener implements Listener {
             return;
         }
         
+        if (slot == 4) {
+            // Filter button - cycle through filter modes
+            marketGUI.toggleFilter();
+            String filterMode = marketGUI.getFilterMode().toString();
+            player.sendMessage(net.cyberneticforge.quickstocks.utils.ChatUT.hexComp(
+                "&aFilter changed to: &e" + filterMode
+            ));
+            return;
+        }
+        
         if (slot == 8 && item.getType() == Material.GOLD_INGOT) {
             // Wallet button - show balance info
             double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
