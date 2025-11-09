@@ -63,3 +63,35 @@ trading:
   slippage:
     mode: linear            # none | linear | sqrtImpact
     k: 0.0005               # impact coefficient (tune)
+
+# Cryptocurrency Configuration
+crypto:
+  enabled: true  # Enable/disable crypto creation system
+  
+  # Personal Crypto Creation
+  personal:
+    enabled: true  # Allow players to create personal cryptocurrencies
+    creationCost: 500000.0  # Cost to create a personal cryptocurrency ($500,000 default)
+    maxPerPlayer: -1  # Maximum cryptos a player can create (-1 = unlimited)
+  
+  # Company Crypto Creation
+  company:
+    enabled: true  # Allow companies to create cryptocurrencies
+    balanceThreshold: 100000.0  # Minimum company balance required to create crypto
+    # Balance thresholds by company type
+    balanceThresholds:
+      PRIVATE: 100000.0  # Private companies need $100,000
+      PUBLIC: 250000.0   # Public companies need $250,000
+      DAO: 150000.0      # DAO companies need $150,000
+    maxPerCompany: -1  # Maximum cryptos a company can create (-1 = unlimited)
+  
+  # Initial Crypto Settings
+  defaults:
+    startingPrice: 1.0  # Starting price for new cryptocurrencies
+    decimals: 8  # Number of decimal places (8 for crypto standard)
+    initialVolume: 0.0  # Initial trading volume
+  
+  # Trading Settings
+  trading:
+    minPrice: 0.00000001  # Minimum price (1 satoshi equivalent)
+    maxPrice: 1000000.0  # Maximum price per unit

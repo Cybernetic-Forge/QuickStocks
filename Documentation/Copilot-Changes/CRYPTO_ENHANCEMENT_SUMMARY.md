@@ -9,14 +9,14 @@
 Enhanced the `/crypto` command to support:
 1. Balance-based personal cryptocurrency creation ($500k requirement)
 2. Company-owned cryptocurrency creation with balance thresholds
-3. Full configuration system via crypto.yml
+3. Full configuration system in market.yml
 4. Tradeable crypto through existing market infrastructure
 
 ## Requirements Analysis
 
 ### Original Requirements
 1. **Companies creating crypto** when they reach a certain balance threshold (configurable)
-2. **Individual players creating crypto** with 500,000 money (configurable in crypto.yml)
+2. **Individual players creating crypto** with 500,000 money (configurable in market.yml)
 3. **Crypto should be tradeable** as shares and stocks in /market
 
 ### Additional Features Implemented
@@ -30,11 +30,11 @@ Enhanced the `/crypto` command to support:
 
 ## Technical Implementation
 
-### 1. Configuration System (crypto.yml)
+### 1. Configuration System (market.yml)
 
-**File**: `src/main/resources/crypto.yml`
+**File**: `src/main/resources/market.yml`
 
-Created a comprehensive configuration file with:
+Added a comprehensive crypto configuration section with:
 - **Personal crypto settings**: Creation cost, max per player
 - **Company crypto settings**: Balance thresholds by type, max per company
 - **Defaults**: Starting price, decimals, initial volume
@@ -103,7 +103,7 @@ Added database support for company-owned crypto:
 - Added crypto counting methods:
   - `countCryptosByCreator()` - For per-player limits
   - `countCryptosByCompany()` - For per-company limits
-- Uses configurable starting price and decimals from crypto.yml
+- Uses configurable starting price and decimals from market.yml
 - Tracks company ownership in database via company_id
 
 **Method Signature**:
@@ -160,7 +160,7 @@ Created comprehensive test suite with 8 test cases:
 
 **Files Updated**:
 - `README.md` - Added crypto creation example
-- `Documentation/Configuration.md` - Full crypto.yml documentation
+- `Documentation/Configuration.md` - Full market.yml (crypto section) documentation
 - `Documentation/Copilot-Changes/CRYPTO_ENHANCEMENT_TESTING.md` - Testing guide
 
 **Documentation Includes**:
@@ -171,11 +171,12 @@ Created comprehensive test suite with 8 test cases:
 
 ## Architecture Decisions
 
-### Why Separate crypto.yml?
-- Follows existing pattern (market.yml, trading.yml, companies.yml)
-- Isolates crypto-specific settings
+### Why Crypto Config in market.yml?
+- Follows consolidated configuration pattern (market.yml now includes trading and crypto)
+- Keeps market-related features together
+- Reduces number of config files
 - Easier to maintain and document
-- Allows independent reloading
+- Consistent with recent consolidation of trading.yml into market.yml
 
 ### Why Balance Validation in Service?
 - Business logic belongs in service layer
@@ -241,7 +242,7 @@ Created comprehensive test suite with 8 test cases:
 - [x] Company crypto requires balance threshold by type
 - [x] Balance is deducted on creation
 - [x] Crypto is tradeable in /market (verified existing infrastructure)
-- [x] Configuration system works (crypto.yml)
+- [x] Configuration system works (market.yml)
 - [x] Database migration added (V15)
 - [x] Company permission system integrated
 - [x] Tests created (CryptoCfgTest)
@@ -279,11 +280,11 @@ Potential improvements for future work:
 ## Deployment Notes
 
 ### For Server Administrators
-1. Plugin will auto-create crypto.yml on first run
+1. Plugin will use market.yml (crypto configuration section auto-created)
 2. Migration V15 runs automatically
 3. No manual database changes needed
 4. Existing crypto unaffected
-5. Can disable feature via `crypto.enabled: false`
+5. Can disable feature via `crypto.enabled: false` in market.yml
 
 ### Configuration Recommendations
 - **High-value economies**: Increase costs to prevent spam
@@ -294,7 +295,7 @@ Potential improvements for future work:
 ## Files Changed
 
 ### New Files (6)
-1. `src/main/resources/crypto.yml` - Configuration file
+1. `src/main/resources/market.yml` - Added crypto configuration section
 2. `src/main/java/net/cyberneticforge/quickstocks/infrastructure/config/CryptoCfg.java` - Config loader
 3. `src/main/resources/migrations/V15__enhanced_crypto.sql` - Database migration
 4. `src/test/java/net/cyberneticforge/quickstocks/infrastructure/config/CryptoCfgTest.java` - Tests
@@ -306,7 +307,7 @@ Potential improvements for future work:
 2. `src/main/java/net/cyberneticforge/quickstocks/core/services/CryptoService.java` - Balance validation
 3. `src/main/java/net/cyberneticforge/quickstocks/commands/CryptoCommand.java` - Company support
 4. `README.md` - Crypto examples
-5. `Documentation/Configuration.md` - crypto.yml docs
+5. `Documentation/Configuration.md` - Crypto configuration documentation
 
 ## Code Statistics
 

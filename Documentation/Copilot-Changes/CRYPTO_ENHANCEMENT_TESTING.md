@@ -6,7 +6,7 @@ This document provides testing instructions for the crypto command enhancement f
 ## What Was Implemented
 
 ### 1. Personal Cryptocurrency Creation
-- **Cost**: $500,000 (configurable in `crypto.yml`)
+- **Cost**: $500,000 (configurable in `market.yml`)
 - **Command**: `/crypto create <symbol> <name>`
 - **Requirements**:
   - Player must have sufficient balance ($500k)
@@ -24,8 +24,8 @@ This document provides testing instructions for the crypto command enhancement f
   - Company must meet balance threshold for its type
   - Symbol must be unique and 2-10 characters
 
-### 3. Configuration (crypto.yml)
-New configuration file with comprehensive settings:
+### 3. Configuration (market.yml)
+Crypto configuration section in market.yml with comprehensive settings:
 - Personal crypto creation cost and limits
 - Company crypto balance thresholds by type
 - Starting price, decimals, and trading limits
@@ -38,7 +38,7 @@ New configuration file with comprehensive settings:
 
 ### Setup
 - [ ] Install plugin on test server
-- [ ] Verify crypto.yml is created in plugins/QuickStocks/
+- [ ] Verify market.yml contains crypto section
 - [ ] Check logs for successful migration V15 execution
 
 ### Test Personal Crypto Creation
@@ -131,32 +131,32 @@ New configuration file with comprehensive settings:
 ### Test Configuration
 
 #### Test 13: Modify Personal Cost
-1. Edit `crypto.yml`: Set `personal.creationCost: 100000.0`
+1. Edit market.yml crypto section: Set `personal.creationCost: 100000.0`
 2. Restart server
 3. Create crypto with $100k balance
 4. **Expected**: Success with new cost
 
 #### Test 14: Modify Company Threshold
-1. Edit `crypto.yml`: Set `company.balanceThresholds.PRIVATE: 50000.0`
+1. Edit market.yml crypto section: Set `company.balanceThresholds.PRIVATE: 50000.0`
 2. Restart server
 3. Create PRIVATE company with $50k
 4. Create crypto
 5. **Expected**: Success with new threshold
 
 #### Test 15: Disable Personal Crypto
-1. Edit `crypto.yml`: Set `personal.enabled: false`
+1. Edit market.yml crypto section: Set `personal.enabled: false`
 2. Restart server
 3. Try `/crypto create TEST "Test"`
 4. **Expected**: Error about personal crypto being disabled
 
 #### Test 16: Disable Company Crypto
-1. Edit `crypto.yml`: Set `company.enabled: false`
+1. Edit market.yml crypto section: Set `company.enabled: false`
 2. Restart server
 3. Try `/crypto company <name> TEST "Test"`
 4. **Expected**: Error about company crypto being disabled
 
 #### Test 17: Max Per Player Limit
-1. Edit `crypto.yml`: Set `personal.maxPerPlayer: 2`
+1. Edit market.yml crypto section: Set `personal.maxPerPlayer: 2`
 2. Restart server
 3. Create first crypto: Success
 4. Create second crypto: Success
@@ -182,7 +182,7 @@ New configuration file with comprehensive settings:
 
 ## Configuration Testing
 
-### Test crypto.yml Defaults
+### Test market.yml Crypto Section Defaults
 - personal.creationCost: 500000.0
 - personal.maxPerPlayer: -1 (unlimited)
 - company.balanceThresholds.PRIVATE: 100000.0
@@ -214,7 +214,7 @@ New configuration file with comprehensive settings:
 - Review migration logs
 
 ### Crypto Creation Fails
-- Verify crypto.yml exists and is valid YAML
+- Verify market.yml crypto section exists and is valid YAML
 - Check player/company balance
 - Verify permissions are set
 
@@ -227,7 +227,7 @@ New configuration file with comprehensive settings:
 ✅ Personal crypto creation requires and deducts $500k (configurable)
 ✅ Company crypto creation validates company balance thresholds
 ✅ Both personal and company crypto are tradeable in /market
-✅ Configuration system works with crypto.yml
+✅ Configuration system works with market.yml
 ✅ Database migration runs successfully
 ✅ All error cases handled gracefully
 ✅ Help and tab completion work correctly

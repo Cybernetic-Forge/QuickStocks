@@ -9,9 +9,8 @@ QuickStocks uses these configuration files:
 ```
 plugins/QuickStocks/
 ├── config.yml          # Database and features configuration
-├── market.yml          # Market, trading economy, and analytics settings
+├── market.yml          # Market, trading economy, analytics, and cryptocurrency settings
 ├── companies.yml       # Companies/corporations configuration
-├── crypto.yml          # Cryptocurrency creation configuration
 ├── guis.yml            # GUI customization
 └── Translations.yml    # Language translations
 ```
@@ -22,9 +21,8 @@ plugins/QuickStocks/
 
 **Note:** Starting with this version, configuration has been split into multiple files for better organization:
 - **config.yml** - Core settings (database, features, metrics)
-- **market.yml** - Market behavior, trading economy, analytics, and market device
+- **market.yml** - Market behavior, trading economy, analytics, cryptocurrency creation, and market device
 - **companies.yml** - Company system, salaries, and permissions
-- **crypto.yml** - Cryptocurrency creation costs and limits
 
 **For existing installations:** The plugin will automatically create the new config files (market.yml, companies.yml) with default values on first run. Your existing config.yml will be automatically updated to remove the migrated sections. You may want to copy your custom settings from the old config.yml to the appropriate new files.
 
@@ -740,7 +738,7 @@ trading:
 
 ## 🪙 Cryptocurrency Configuration
 
-**Configuration File:** `crypto.yml`
+**Configuration File:** `market.yml`
 
 Configure cryptocurrency creation costs, limits, and trading parameters.
 
@@ -925,7 +923,7 @@ crypto:
 
 ## 🔄 Reloading Configuration
 
-After editing any configuration file (config.yml, market.yml, trading.yml, companies.yml, crypto.yml):
+After editing any configuration file (config.yml, market.yml, companies.yml):
 
 **Option 1: Restart Server**
 ```bash

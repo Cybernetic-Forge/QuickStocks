@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * Configuration manager for cryptocurrency settings.
- * Loads configuration from crypto.yml using YamlParser.
+ * Loads configuration from market.yml using YamlParser.
  */
 @Getter
 public class CryptoCfg {
@@ -24,7 +24,7 @@ public class CryptoCfg {
     private boolean enabled = true;
     
     public CryptoCfg() {
-        config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "crypto.yml");
+        config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "market.yml");
         addMissingDefaults();
         loadValues();
     }
