@@ -561,7 +561,7 @@ mvn test -Dtest=WalletServiceTest
 mvn test -Dtest=WalletServiceTest#testAddBalance
 ```
 
-See [TEST_SUITE.md](../TEST_SUITE.md) for detailed test documentation.
+See [TEST_SUITE.md](../Documentation/TEST_SUITE.md) for detailed test documentation.
 
 ## Breaking Changes Log
 

@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="fix some wg hook stuff" />
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="fix some wg hook stuff">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/COMPANY_PLOTS_FEATURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/COMPANY_PLOTS_FEATURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CONFIG_MIGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/CONFIG_MIGRATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CONTRIBUTING_TESTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/CONTRIBUTING_TESTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FEATURE_TOGGLES.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/FEATURE_TOGGLES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IMPLEMENTATION_SUMMARY.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/IMPLEMENTATION_SUMMARY.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IMPLEMENTATION_SUMMARY_PLOTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/IMPLEMENTATION_SUMMARY_PLOTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IMPLEMENTATION_SUMMARY_TESTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/IMPLEMENTATION_SUMMARY_TESTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PLOT_FEATURE_TESTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/PLOT_FEATURE_TESTING.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PR_SUMMARY.md" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/PR_SUMMARY.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WORLDGUARD_INTEGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/WORLDGUARD_INTEGRATION.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -33,7 +45,7 @@
     </favorite-branches>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="copilot/implement-robust-test-suite" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -71,7 +83,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultAutoModeForALLUsers.v1": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "#115 on copilot/implement-robust-test-suite",
+    "git-widget-placeholder": "main",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
@@ -94,6 +106,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\maksy\IdeaProjects\QuickStocks\Documentation" />
       <recent name="C:\Users\maksy\IdeaProjects\QuickStocks\Documentation\Copilot-Changes" />
       <recent name="C:\Users\maksy\IdeaProjects\QuickStocks\libs" />
     </key>
