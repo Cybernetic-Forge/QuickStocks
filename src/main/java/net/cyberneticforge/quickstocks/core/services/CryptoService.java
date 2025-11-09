@@ -146,7 +146,6 @@ public class CryptoService {
             long now = System.currentTimeMillis();
             
             // Get crypto defaults from config
-            var cryptoCfg = QuickStocksPlugin.getCryptoCfg();
             double startingPrice = cryptoCfg.getDefaultsConfig().getStartingPrice();
             int decimals = cryptoCfg.getDefaultsConfig().getDecimals();
             
