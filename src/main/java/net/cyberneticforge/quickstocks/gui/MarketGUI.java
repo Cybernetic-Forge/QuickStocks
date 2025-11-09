@@ -1,5 +1,6 @@
 package net.cyberneticforge.quickstocks.gui;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.Crypto;
@@ -39,6 +40,11 @@ public class MarketGUI implements InventoryHolder {
 
     private final Inventory inventory;
     private final Player player;
+    /**
+     * -- GETTER --
+     *  Gets the current filter mode
+     */
+    @Getter
     private FilterMode filterMode = FilterMode.ALL;
 
     public MarketGUI(Player player) {
@@ -287,11 +293,11 @@ public class MarketGUI implements InventoryHolder {
      * Creates an ItemStack representing a cryptocurrency
      */
     private ItemStack createCryptoItem(Crypto crypto) {
-        String symbol = crypto.getInstrument().getSymbol();
-        String displayName = crypto.getInstrument().getDisplayName();
-        double price = crypto.getState().getLastPrice();
-        double change24h = crypto.getState().getChange24h();
-        double volume = crypto.getState().getLastVolume();
+        String symbol = crypto.instrument().symbol();
+        String displayName = crypto.instrument().displayName();
+        double price = crypto.state().lastPrice();
+        double change24h = crypto.state().change24h();
+        double volume = crypto.state().lastVolume();
 
         // Handle null values with defaults
         if (symbol == null) symbol = "UNKNOWN";
@@ -383,13 +389,6 @@ public class MarketGUI implements InventoryHolder {
             case CRYPTO -> FilterMode.ALL;
         };
         refresh();
-    }
-
-    /**
-     * Gets the current filter mode
-     */
-    public FilterMode getFilterMode() {
-        return filterMode;
     }
 
     /**

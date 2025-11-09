@@ -8,6 +8,7 @@ import net.cyberneticforge.quickstocks.core.services.HoldingsService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -73,7 +74,7 @@ public class MarketGUIListener implements Listener {
             // Filter button - cycle through filter modes
             marketGUI.toggleFilter();
             String filterMode = marketGUI.getFilterMode().toString();
-            player.sendMessage(net.cyberneticforge.quickstocks.utils.ChatUT.hexComp(
+            player.sendMessage(ChatUT.hexComp(
                 "&aFilter changed to: &e" + filterMode
             ));
             return;
