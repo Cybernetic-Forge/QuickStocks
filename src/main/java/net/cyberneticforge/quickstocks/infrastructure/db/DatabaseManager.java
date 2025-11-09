@@ -51,7 +51,7 @@ public class DatabaseManager {
         
         // Run item seeder after migrations (only if enabled)
         if (enableSeeding) {
-            runItemSeeder();
+            // TODO implement fictive company shares seeding?
         }
         
         logger.info("Database system initialized successfully");
@@ -128,15 +128,6 @@ public class DatabaseManager {
             logger.warning("Could not create indices: " + e.getMessage());
             // Don't throw - indices are performance optimization, not critical
         }
-    }
-    
-    /**
-     * Runs the item seeder to populate Minecraft items as instruments.
-     */
-    private void runItemSeeder() {
-        logger.info("Running item seeder...");
-        ItemSeeder itemSeeder = new ItemSeeder(db);
-        itemSeeder.seedItems();
     }
     
     /**
