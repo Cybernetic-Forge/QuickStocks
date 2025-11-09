@@ -2,8 +2,8 @@ package net.cyberneticforge.quickstocks.api.managers;
 
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
-import net.cyberneticforge.quickstocks.core.services.CompanyMarketService;
-import net.cyberneticforge.quickstocks.core.services.CompanyService;
+import net.cyberneticforge.quickstocks.core.services.features.market.CompanyMarketService;
+import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyService;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -5,7 +5,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
-import net.cyberneticforge.quickstocks.core.services.CompanyService;
+import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyService;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.HookType;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;

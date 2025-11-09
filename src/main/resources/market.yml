@@ -11,7 +11,6 @@ market:
     portfolio: true # Enable/disable portfolio viewing
     trading: true # Enable/disable buying/selling shares
     marketDevice: true # Enable/disable market device item
-    stocksCommand: true # Enable/disable /stocks command
     cryptoCommand: true # Enable/disable /crypto command (custom cryptocurrency creation)
   
   # Price growth threshold configuration

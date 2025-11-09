@@ -1,7 +1,7 @@
 package net.cyberneticforge.quickstocks.api.managers;
 
 import net.cyberneticforge.quickstocks.core.services.HoldingsService;
-import net.cyberneticforge.quickstocks.core.services.TradingService;
+import net.cyberneticforge.quickstocks.core.services.features.market.TradingService;
 
 import java.sql.SQLException;
 import java.util.List;

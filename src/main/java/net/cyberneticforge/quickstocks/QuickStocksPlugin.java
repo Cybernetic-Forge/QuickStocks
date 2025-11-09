@@ -5,6 +5,14 @@ import net.cyberneticforge.quickstocks.api.QuickStocksAPI;
 import net.cyberneticforge.quickstocks.commands.*;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
 import net.cyberneticforge.quickstocks.core.services.*;
+import net.cyberneticforge.quickstocks.core.services.features.companies.InvitationService;
+import net.cyberneticforge.quickstocks.core.services.features.companies.SalaryService;
+import net.cyberneticforge.quickstocks.core.services.features.market.CompanyMarketService;
+import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyPlotService;
+import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyService;
+import net.cyberneticforge.quickstocks.core.services.features.market.TradingService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.WalletService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.WatchlistService;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopHook;
 import net.cyberneticforge.quickstocks.hooks.HookManager;
@@ -61,8 +69,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static TranslationService translationService;
     @Getter
     private static StockMarketService stockMarketService;
-    @Getter
-    private static SimulationEngine simulationEngine;
     @Getter
     private static DatabaseManager databaseManager;
     @Getter
@@ -169,7 +175,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
 
             stockMarketService = new StockMarketService(thresholdController);
             analyticsService = new AnalyticsService();
-            simulationEngine = new SimulationEngine();
             queryService = new QueryService();
             cryptoService = new CryptoService();
             walletService = new WalletService();
@@ -188,7 +193,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
             initializeDefaultStocks();
             registerCommands();
             registerListeners();
-            simulationEngine.start();
 
             startSalaryPaymentScheduler();
             startRentCollectionScheduler();
@@ -212,11 +216,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("QuickStocks disabling...");
-        
-        // Stop the simulation engine
-        if (simulationEngine != null) {
-            simulationEngine.stop();
-        }
         
         // Stop the market update task
         if (marketUpdateTask != null && !marketUpdateTask.isCancelled()) {
@@ -283,9 +282,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
             }
             if (marketCfg.isWatchlistEnabled()) {
                 registerCommand("watch", new WatchCommand());
-            }
-            if (marketCfg.isStocksCommandEnabled()) {
-                registerCommand("stocks", new StocksCommand());
             }
             if (marketCfg.isCryptoCommandEnabled()) {
                 registerCommand("crypto", new CryptoCommand(cryptoService));
@@ -434,16 +430,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
         int debugLevel = getConfig().getInt("logging.debugLevel", 1);
         pluginLogger = new PluginLogger(this, debugLevel);
         pluginLogger.info("PluginLogger reinitialized with debug level: " + debugLevel);
-    }
-    
-    /**
-     * Recreates the simulation engine with a fresh executor service.
-     * This is necessary because the executor service is terminated on stop and cannot be restarted.
-     * Package-private for reload functionality.
-     */
-    public void recreateSimulationEngine() {
-        simulationEngine = new SimulationEngine();
-        simulationEngine.start();
     }
 
     public static void registerCommand(String command, CommandExecutor executor) {
