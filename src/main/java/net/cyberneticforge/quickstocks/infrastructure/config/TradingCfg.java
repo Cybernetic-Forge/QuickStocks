@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Configuration manager for trading economy settings.
- * Loads configuration from trading.yml using YamlParser.
+ * Loads configuration from market.yml using YamlParser.
  */
 @Getter
 public class TradingCfg {
@@ -22,7 +22,7 @@ public class TradingCfg {
     private final SlippageConfig slippageConfig = new SlippageConfig();
     
     public TradingCfg() {
-        config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "trading.yml");
+        config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "market.yml");
         addMissingDefaults();
         loadValues();
     }

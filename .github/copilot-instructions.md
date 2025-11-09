@@ -20,7 +20,7 @@ QuickStocks is a Minecraft Paper plugin (version 1.21.8) that provides a compreh
 - ☕ **Java Version**: Java 21 required (pom.xml setting; README needs update)
 - 🏗️ **Architecture**: Clean architecture with service layers (core/api/infrastructure/commands/gui)
 - 🗄️ **Database**: Multi-provider (SQLite/MySQL/PostgreSQL) with schema migrations in `src/main/resources/migrations/`
-- ⚙️ **Configuration**: Multi-file config system (config.yml, market.yml, trading.yml, companies.yml, guis.yml)
+- ⚙️ **Configuration**: Multi-file config system (config.yml, market.yml, companies.yml, guis.yml)
 - 🎮 **Commands**: All 7 commands fully implemented (/stocks, /market, /company, /crypto, /wallet, /watch, /marketdevice)
 - 🔌 **Soft Dependencies**: ChestShop, WorldGuard, Vault (all optional, plugin works without them)
 - 🧪 **Testing**: Primarily manual on Minecraft server; limited automated tests
@@ -107,8 +107,7 @@ mvn clean package
 ### 📂 Key Files & Locations
 **Configuration:**
 - `src/main/resources/config.yml` - Main plugin configuration (database, logging, features)
-- `src/main/resources/market.yml` - Market and analytics settings
-- `src/main/resources/trading.yml` - Trading economy settings
+- `src/main/resources/market.yml` - Market, analytics, and trading economy settings
 - `src/main/resources/companies.yml` - Company system configuration
 - `src/main/resources/guis.yml` - GUI layout configuration
 - `src/main/resources/plugin.yml` - Minecraft plugin descriptor
@@ -187,10 +186,7 @@ mvn clean package
   - Market update intervals, circuit breakers, price limits
   - Market device configuration
   - Analytics settings
-
-- **Trading Config**: `src/main/resources/trading.yml`
-  - Trading fees, slippage settings
-  - Position limits and restrictions
+  - Trading economy settings (fees, slippage, position limits)
 
 - **Companies Config**: `src/main/resources/companies.yml`
   - Company creation costs and types
@@ -425,8 +421,7 @@ mvn clean package
 
 4. **Configuration**: Add to appropriate config file
    - System config → `config.yml`
-   - Market settings → `market.yml`
-   - Trading settings → `trading.yml`
+   - Market and trading settings → `market.yml`
    - Company settings → `companies.yml`
    - GUI layouts → `guis.yml`
 
@@ -584,13 +579,13 @@ See `Documentation/Copilot-Changes/` for detailed implementation notes and migra
   - **NEW**: WorldGuard integration (soft dependency)
   - **NEW**: Vault economy integration
   - **NEW**: bStats anonymous statistics
-  - **NEW**: Multi-file configuration system (config.yml, market.yml, trading.yml, companies.yml, guis.yml)
+  - **NEW**: Multi-file configuration system (config.yml, market.yml, companies.yml, guis.yml)
   - **NEW**: Public API for developers
   - **NEW**: Database migration system with schema versioning
   - **NEW**: Centralized logging system with debug levels
   - **NEW**: Circuit breakers and trading limits
   - **NEW**: Market Link Device for portable market access
-- **Config Files**: config.yml, market.yml, trading.yml, companies.yml, guis.yml
+- **Config Files**: config.yml, market.yml, companies.yml, guis.yml
 - **Database**: SQLite (default), MySQL, PostgreSQL support
 - **Package**: net.cyberneticforge.quickstocks
 - **Java Version**: 21+ required
