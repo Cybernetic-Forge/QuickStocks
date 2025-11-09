@@ -13,7 +13,7 @@ class CryptoCfgTest extends TestBase {
     @Test
     void testCryptoConfigDefaults() {
         // Given: Default configuration values
-        // When: Creating a new CryptoCfg (will use defaults if crypto.yml doesn't exist)
+        // When: Creating a new CryptoCfg (loads crypto section from market.yml)
         // Note: In test environment, config may not load properly, but we can test the structure
         
         // Then: Verify the config class has expected structure
