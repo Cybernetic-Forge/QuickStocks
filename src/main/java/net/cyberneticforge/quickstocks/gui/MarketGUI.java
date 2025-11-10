@@ -132,42 +132,28 @@ public class MarketGUI implements InventoryHolder {
      */
     private void addFilterButton() {
         try {
-            Material filterMat;
-            String filterName;
-            List<String> filterLore = Arrays.asList(
-                "&7Current Filter: &e" + filterMode.toString(),
-                "",
-                "&7Click to cycle through:",
-                "&e• ALL &7- Show everything",
-                "&e• SHARES &7- Show company shares only",
-                "&e• CRYPTO &7- Show cryptocurrencies only"
-            );
-
-            // Choose material based on current filter mode
-            switch (filterMode) {
-                case ALL -> filterMat = Material.COMPASS;
-                case SHARES -> filterMat = Material.PAPER;
-                case CRYPTO -> filterMat = Material.GOLD_NUGGET;
-                default -> filterMat = Material.COMPASS;
-            }
+            // Get slot from config
+            int filterSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("market.filter", 4);
+            
+            // Determine config path based on filter mode
+            String modePath = switch (filterMode) {
+                case ALL -> "market.filter.all";
+                case SHARES -> "market.filter.shares";
+                case CRYPTO -> "market.filter.crypto";
+            };
+            
+            // Get material, name, and lore from config
+            Material filterMat = QuickStocksPlugin.getGuiConfig().getItemMaterial(modePath, Material.COMPASS);
+            Component filterName = QuickStocksPlugin.getGuiConfig().getItemName(modePath);
+            List<Component> filterLore = QuickStocksPlugin.getGuiConfig().getItemLore(modePath);
 
             ItemStack filterItem = new ItemStack(filterMat);
             ItemMeta meta = filterItem.getItemMeta();
-            
-            switch (filterMode) {
-                case ALL -> meta.displayName(ChatUT.hexComp("&6Filter: &eALL"));
-                case SHARES -> meta.displayName(ChatUT.hexComp("&6Filter: &eSHARES"));
-                case CRYPTO -> meta.displayName(ChatUT.hexComp("&6Filter: &eCRYPTO"));
-            }
-            
-            List<Component> loreComponents = filterLore.stream()
-                .map(ChatUT::hexComp)
-                .toList();
-            meta.lore(loreComponents);
+            meta.displayName(filterName);
+            meta.lore(filterLore);
             filterItem.setItemMeta(meta);
             
-            // Place in slot 4 (middle of top row)
-            inventory.setItem(4, filterItem);
+            inventory.setItem(filterSlot, filterItem);
 
         } catch (Exception e) {
             logger.warning("Error adding filter button: " + e.getMessage());
@@ -208,13 +194,19 @@ public class MarketGUI implements InventoryHolder {
             }
 
             // Fill empty slots with barrier blocks
-            Material emptyMat = QuickStocksPlugin.getGuiConfig().getItemMaterial("market.no_companies", Material.GRAY_STAINED_GLASS_PANE);
-            String emptyName = getEmptySlotName();
+            String emptyPath = switch (filterMode) {
+                case SHARES -> "market.no_companies";
+                case CRYPTO -> "market.no_crypto";
+                case ALL -> "market.no_items";
+            };
+            
+            Material emptyMat = QuickStocksPlugin.getGuiConfig().getItemMaterial(emptyPath, Material.GRAY_STAINED_GLASS_PANE);
+            Component emptyName = QuickStocksPlugin.getGuiConfig().getItemName(emptyPath);
             
             for (int i = slot; i < 45; i++) {
                 ItemStack emptySlot = new ItemStack(emptyMat);
                 ItemMeta meta = emptySlot.getItemMeta();
-                meta.displayName(ChatUT.hexComp(emptyName));
+                meta.displayName(emptyName);
                 emptySlot.setItemMeta(meta);
                 inventory.setItem(i, emptySlot);
             }
@@ -222,17 +214,6 @@ public class MarketGUI implements InventoryHolder {
         } catch (Exception e) {
             logger.warning("Error adding items to GUI: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
         }
-    }
-
-    /**
-     * Gets the appropriate empty slot name based on filter mode
-     */
-    private String getEmptySlotName() {
-        return switch (filterMode) {
-            case SHARES -> "&7No Company Shares Available";
-            case CRYPTO -> "&7No Cryptocurrencies Available";
-            case ALL -> "&7No Items Available";
-        };
     }
 
     /**
@@ -303,29 +284,31 @@ public class MarketGUI implements InventoryHolder {
         if (symbol == null) symbol = "UNKNOWN";
         if (displayName == null) displayName = "Unknown Crypto";
 
-        // Use gold nugget for crypto items
-        Material material = Material.GOLD_NUGGET;
+        // Get material from config
+        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial("market.crypto_item", Material.GOLD_NUGGET);
 
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
-        // Set display name with crypto symbol
-        Component name = ChatUT.hexComp("&e" + symbol + " &7- &f" + displayName);
+        // Set display name from config
+        Component name = QuickStocksPlugin.getGuiConfig().getItemName("market.crypto_item",
+            new Replaceable("{symbol}", symbol),
+            new Replaceable("{display_name}", displayName));
         meta.displayName(name);
 
-        // Create detailed lore
-        String priceColor = change24h >= 0 ? "&a" : "&c";
+        // Calculate color and symbol for change
+        String changeColor = change24h >= 0 ? "&a" : "&c";
         String changeSymbol = change24h >= 0 ? "+" : "";
         
-        List<Component> lore = Arrays.asList(
-            ChatUT.hexComp("&7Type: &6Cryptocurrency"),
-            ChatUT.hexComp(""),
-            ChatUT.hexComp("&ePrice: &f$" + String.format("%.8f", price)),
-            ChatUT.hexComp("&e24h Change: " + priceColor + changeSymbol + String.format("%.2f", change24h) + "%"),
-            ChatUT.hexComp("&e24h Volume: &f" + String.format("%.2f", volume)),
-            ChatUT.hexComp(""),
-            ChatUT.hexComp("&7Left click to buy"),
-            ChatUT.hexComp("&7Right click to sell")
+        // Get lore from config with replacements
+        List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("market.crypto_item",
+            new Replaceable("{symbol}", symbol),
+            new Replaceable("{display_name}", displayName),
+            new Replaceable("{price}", String.format("%.8f", price)),
+            new Replaceable("{change_color}", changeColor),
+            new Replaceable("{change_symbol}", changeSymbol),
+            new Replaceable("{change_24h}", String.format("%.2f", change24h)),
+            new Replaceable("{volume}", String.format("%.2f", volume))
         );
         
         meta.lore(lore);

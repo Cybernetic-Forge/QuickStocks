@@ -229,6 +229,40 @@ market:
       - ""
       - "&7Click to view detailed portfolio"
   
+  # Filter button - cycles through ALL/SHARES/CRYPTO
+  filter:
+    slot: 4
+    all:
+      name: "&6Filter: &eALL"
+      material: COMPASS
+      lore:
+        - "&7Current Filter: &eALL"
+        - ""
+        - "&7Click to cycle through:"
+        - "&e• ALL &7- Show everything"
+        - "&e• SHARES &7- Show company shares only"
+        - "&e• CRYPTO &7- Show cryptocurrencies only"
+    shares:
+      name: "&6Filter: &eSHARES"
+      material: PAPER
+      lore:
+        - "&7Current Filter: &eSHARES"
+        - ""
+        - "&7Click to cycle through:"
+        - "&e• ALL &7- Show everything"
+        - "&e• SHARES &7- Show company shares only"
+        - "&e• CRYPTO &7- Show cryptocurrencies only"
+    crypto:
+      name: "&6Filter: &eCRYPTO"
+      material: GOLD_NUGGET
+      lore:
+        - "&7Current Filter: &eCRYPTO"
+        - ""
+        - "&7Click to cycle through:"
+        - "&e• ALL &7- Show everything"
+        - "&e• SHARES &7- Show company shares only"
+        - "&e• CRYPTO &7- Show cryptocurrencies only"
+  
   wallet:
     name: "&6Wallet"
     material: GOLD_INGOT
@@ -259,8 +293,30 @@ market:
       - "&bThis is a company share"
       - "&7Buy shares with: /market buy {company_name} <qty>"
   
+  # Cryptocurrency items
+  crypto_item:
+    name: "&e{symbol} &7- &f{display_name}"
+    material: GOLD_NUGGET
+    lore:
+      - "&7Type: &6Cryptocurrency"
+      - ""
+      - "&ePrice: &f${price}"
+      - "&e24h Change: {change_color}{change_symbol}{change_24h}%"
+      - "&e24h Volume: &f{volume}"
+      - ""
+      - "&7Left click to buy"
+      - "&7Right click to sell"
+  
   no_companies:
     name: "&7No Company Shares Available"
+    material: GRAY_STAINED_GLASS_PANE
+  
+  no_crypto:
+    name: "&7No Cryptocurrencies Available"
+    material: GRAY_STAINED_GLASS_PANE
+  
+  no_items:
+    name: "&7No Items Available"
     material: GRAY_STAINED_GLASS_PANE
   
   # Navigation buttons
