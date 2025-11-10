@@ -5,8 +5,9 @@ import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
-import net.cyberneticforge.quickstocks.infrastructure.config.GuisCfg;
+import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,71 +56,46 @@ public class CompanySettingsGUIListener implements Listener {
      * Handles clicks in the Company Settings GUI
      */
     private void handleClick(Player player, CompanySettingsGUI gui, int slot, ItemStack item, Company company) {
-        GuisCfg cfg = QuickStocksPlugin.getGuisCfg();
+         GuiConfig cfg = QuickStocksPlugin.getGuiConfig();
         
         // Get configured slots and materials from guis.yml
-        int refreshSlot = cfg.getInt("company_settings.refresh.slot", 49);
-        Material refreshMaterial = Material.valueOf(cfg.getString("company_settings.refresh.material", "CLOCK"));
-        
-        int closeSlot = cfg.getInt("company_settings.close.slot", 53);
-        Material closeMaterial = Material.valueOf(cfg.getString("company_settings.close.material", "BARRIER"));
-        
+        int refreshSlot = cfg.getItemSlot("company_settings.refresh.slot", 49);
+        int closeSlot = cfg.getItemSlot("company_settings.close.slot", 53);
+
         // Management section
-        int viewEmployeesSlot = cfg.getInt("company_settings.view_employees.slot", 11);
-        Material viewEmployeesMaterial = Material.valueOf(cfg.getString("company_settings.view_employees.material", "PLAYER_HEAD"));
-        
-        int viewJobsSlot = cfg.getInt("company_settings.view_jobs.slot", 13);
-        Material viewJobsMaterial = Material.valueOf(cfg.getString("company_settings.view_jobs.material", "WRITABLE_BOOK"));
-        
-        int invitePlayerSlot = cfg.getInt("company_settings.invite_player.slot", 12);
-        Material invitePlayerMaterial = Material.valueOf(cfg.getString("company_settings.invite_player.material", "EMERALD"));
-        
+        int viewEmployeesSlot = cfg.getItemSlot("company_settings.view_employees.slot", 11);
+        int viewJobsSlot = cfg.getItemSlot("company_settings.view_jobs.slot", 13);
+        int invitePlayerSlot = cfg.getItemSlot("company_settings.invite_player.slot", 12);
+
         // Financial section
-        int depositSlot = cfg.getInt("company_settings.deposit.slot", 29);
-        Material depositMaterial = Material.valueOf(cfg.getString("company_settings.deposit.material", "HOPPER"));
-        
-        int withdrawSlot = cfg.getInt("company_settings.withdraw.slot", 30);
-        Material withdrawMaterial = Material.valueOf(cfg.getString("company_settings.withdraw.material", "GOLD_INGOT"));
-        
-        int transactionsSlot = cfg.getInt("company_settings.transactions.slot", 31);
-        Material transactionsMaterial = Material.valueOf(cfg.getString("company_settings.transactions.material", "BOOK"));
-        
-        // Market section
-        int marketStatusSlot = cfg.getInt("company_settings.market_status.slot", 39);
-        Material marketStatusMaterial = Material.valueOf(cfg.getString("company_settings.market_status.material", "EMERALD"));
-        
-        int goPublicSlot = cfg.getInt("company_settings.go_public.slot", 38);
-        Material goPublicMaterial = Material.valueOf(cfg.getString("company_settings.go_public.material", "DIAMOND"));
-        
-        int manageSharesSlot = cfg.getInt("company_settings.manage_shares.slot", 40);
-        Material manageSharesMaterial = Material.valueOf(cfg.getString("company_settings.manage_shares.material", "PAPER"));
-        
+        int depositSlot = cfg.getItemSlot("company_settings.deposit.slot", 29);
+        int withdrawSlot = cfg.getItemSlot("company_settings.withdraw.slot", 30);
+        int transactionsSlot = cfg.getItemSlot("company_settings.transactions.slot", 31);
+        int marketStatusSlot = cfg.getItemSlot("company_settings.market_status.slot", 39);
+        int goPublicSlot = cfg.getItemSlot("company_settings.go_public.slot", 38);
+        int manageSharesSlot = cfg.getItemSlot("company_settings.manage_shares.slot", 40);
+
         // Roles section
-        int createJobSlot = cfg.getInt("company_settings.create_job.slot", 14);
-        Material createJobMaterial = Material.valueOf(cfg.getString("company_settings.create_job.material", "BOOK"));
-        
-        int assignJobSlot = cfg.getInt("company_settings.assign_job.slot", 15);
-        Material assignJobMaterial = Material.valueOf(cfg.getString("company_settings.assign_job.material", "NAME_TAG"));
-        
-        int editPermissionsSlot = cfg.getInt("company_settings.edit_permissions.slot", 16);
-        Material editPermissionsMaterial = Material.valueOf(cfg.getString("company_settings.edit_permissions.material", "ENCHANTED_BOOK"));
-        
+        int createJobSlot = cfg.getItemSlot("company_settings.create_job.slot", 14);
+        int assignJobSlot = cfg.getItemSlot("company_settings.assign_job.slot", 15);
+        int editPermissionsSlot = cfg.getItemSlot("company_settings.edit_permissions.slot", 16);
+
         // Refresh button
-        if (slot == refreshSlot && item.getType() == refreshMaterial) {
+        if (slot == refreshSlot) {
             gui.refresh();
             Translation.GUI_CompanySettings_Refresh_Success.sendMessage(player);
             return;
         }
         
         // Close button
-        if (slot == closeSlot && item.getType() == closeMaterial) {
+        if (slot == closeSlot) {
             player.closeInventory();
             return;
         }
         
         // === Management Section ===
         // View Employees button
-        if (slot == viewEmployeesSlot && item.getType() == viewEmployeesMaterial) {
+        if (slot == viewEmployeesSlot) {
             player.closeInventory();
             player.performCommand("company employees " + company.getName());
             // TODO: Open employees sub-GUI instead
@@ -127,7 +103,7 @@ public class CompanySettingsGUIListener implements Listener {
         }
         
         // View Jobs button
-        if (slot == viewJobsSlot && item.getType() == viewJobsMaterial) {
+        if (slot == viewJobsSlot) {
             player.closeInventory();
             player.performCommand("company jobs " + company.getName());
             // TODO: Open jobs sub-GUI instead
@@ -135,7 +111,7 @@ public class CompanySettingsGUIListener implements Listener {
         }
         
         // Invite Player button
-        if (slot == invitePlayerSlot && item.getType() == invitePlayerMaterial) {
+        if (slot == invitePlayerSlot) {
             player.closeInventory();
             Translation.GUI_CompanySettings_InviteHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
@@ -144,7 +120,7 @@ public class CompanySettingsGUIListener implements Listener {
         
         // === Financial Section ===
         // Deposit button
-        if (slot == depositSlot && item.getType() == depositMaterial) {
+        if (slot == depositSlot) {
             player.closeInventory();
             Translation.GUI_CompanySettings_DepositHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
@@ -152,7 +128,7 @@ public class CompanySettingsGUIListener implements Listener {
         }
         
         // Withdraw button
-        if (slot == withdrawSlot && item.getType() == withdrawMaterial) {
+        if (slot == withdrawSlot) {
             player.closeInventory();
             Translation.GUI_CompanySettings_WithdrawHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
@@ -160,7 +136,7 @@ public class CompanySettingsGUIListener implements Listener {
         }
         
         // Transactions button
-        if (slot == transactionsSlot && item.getType() == transactionsMaterial) {
+        if (slot == transactionsSlot) {
             player.closeInventory();
             player.sendMessage(net.cyberneticforge.quickstocks.utils.ChatUT.hexComp(
                 "&eTransaction history feature coming soon!"));
@@ -169,35 +145,35 @@ public class CompanySettingsGUIListener implements Listener {
         
         // === Market Section ===
         // Market Status button
-        if (slot == marketStatusSlot && item.getType() == marketStatusMaterial) {
+        if (slot == marketStatusSlot) {
             player.closeInventory();
             if (company.isOnMarket()) {
                 player.performCommand("market");
             } else {
-                player.sendMessage(net.cyberneticforge.quickstocks.utils.ChatUT.hexComp(
+                player.sendMessage(ChatUT.hexComp(
                     "&eCompany is not yet public. Use the IPO button to go public!"));
             }
             return;
         }
         
         // Go Public (IPO) button
-        if (slot == goPublicSlot && item.getType() == goPublicMaterial) {
+        if (slot == goPublicSlot) {
             player.closeInventory();
             player.performCommand("company ipo " + company.getName());
             return;
         }
         
         // Manage Shares button
-        if (slot == manageSharesSlot && item.getType() == manageSharesMaterial) {
+        if (slot == manageSharesSlot) {
             player.closeInventory();
-            player.sendMessage(net.cyberneticforge.quickstocks.utils.ChatUT.hexComp(
+            player.sendMessage(ChatUT.hexComp(
                 "&eShare management feature coming soon!"));
             return;
         }
         
         // === Roles & Titles Section ===
         // Create Job button
-        if (slot == createJobSlot && item.getType() == createJobMaterial) {
+        if (slot == createJobSlot) {
             player.closeInventory();
             Translation.GUI_CompanySettings_CreateJobHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
@@ -205,7 +181,7 @@ public class CompanySettingsGUIListener implements Listener {
         }
         
         // Assign Job button
-        if (slot == assignJobSlot && item.getType() == assignJobMaterial) {
+        if (slot == assignJobSlot) {
             player.closeInventory();
             Translation.GUI_CompanySettings_AssignJobHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
@@ -213,7 +189,7 @@ public class CompanySettingsGUIListener implements Listener {
         }
         
         // Edit Permissions button
-        if (slot == editPermissionsSlot && item.getType() == editPermissionsMaterial) {
+        if (slot == editPermissionsSlot) {
             player.closeInventory();
             Translation.GUI_CompanySettings_EditJobHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));

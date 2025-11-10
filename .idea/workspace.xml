@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="refactoring + removed redundancies">
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="configuration">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/guis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/guis.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanySettingsGUIListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanySettingsGUIListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -528,7 +528,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762727272610</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="configuration">
+      <option name="closed" value="true" />
+      <created>1762793700190</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1762793700190</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -569,6 +577,7 @@
     <MESSAGE value="removed redundant ItemSeeder.java" />
     <MESSAGE value="fixes" />
     <MESSAGE value="refactoring + removed redundancies" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactoring + removed redundancies" />
+    <MESSAGE value="configuration" />
+    <option name="LAST_COMMIT_MESSAGE" value="configuration" />
   </component>
 </project>
