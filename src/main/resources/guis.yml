@@ -8,26 +8,27 @@ company_settings:
   title: "&6Company: &f{company_name}"
   size: 54
   
-  # Header items
-  balance_display:
-    name: "&6Company Balance"
-    material: GOLD_INGOT
-    slot: 0
-    lore:
-      - "&a${balance}"
-      - ""
-      - "&7Use deposit/withdraw commands"
-      - "&7to manage funds"
-  
+  # Header items - Top Row (slots 0-8)
   company_info:
     name: "&6{company_name}"
     material: GOLDEN_HELMET
     slot: 4
     lore:
       - "&7Type: &f{company_type}"
-      - "&7Balance: &a${balance}"
       - "&7Owner: &e{owner_name}"
       - "&7Created: &f{created_date}"
+      - ""
+      - "&7Company ID: &8{company_id}"
+  
+  balance_display:
+    name: "&6Company Balance"
+    material: GOLD_INGOT
+    slot: 0
+    lore:
+      - "&eBalance: &a${balance}"
+      - ""
+      - "&7Your company's available funds"
+      - "&7for operations and investments"
   
   player_job:
     name: "&eYour Position"
@@ -38,94 +39,204 @@ company_settings:
       - ""
       - "&7Permissions:"
     permission_prefix: "&a✓ &f"
-    no_permissions: "&cNo special permissions"
+    no_permissions: "&7No special permissions"
   
-  # Action buttons
+  # Management Section - Slots 19-21
+  section_management:
+    name: "&b&lManagement"
+    material: WRITABLE_BOOK
+    slot: 10
+    lore:
+      - "&7Manage company operations"
+      - "&7and administrative tasks"
+  
   view_employees:
-    name: "&bView Employees"
+    name: "&bEmployees List"
     material: PLAYER_HEAD
     slot: 19
     lore:
-      - "&7Click to view all employees"
-      - "&eCommand: /company employees {company_name}"
+      - "&7Current Employees: &e{employee_count}"
+      - ""
+      - "&7Click to view detailed"
+      - "&7employee list and manage them"
   
   view_jobs:
-    name: "&bView Job Titles"
+    name: "&bJob Titles"
     material: WRITABLE_BOOK
     slot: 20
     lore:
+      - "&7Total Jobs: &e{job_count}"
+      - ""
       - "&7Click to view all job titles"
-      - "&eCommand: /company jobs {company_name}"
+      - "&7and their permissions"
+  
+  invite_player:
+    name: "&aInvite Player"
+    material: EMERALD
+    slot: 21
+    lore:
+      - "&7Invite new members to join"
+      - "&7your company"
+      - ""
+      - "&eClick to invite"
+      - "&8Requires: Invite Permission"
+  
+  # Financial Section - Slots 23-25
+  section_financial:
+    name: "&e&lFinancial"
+    material: GOLD_BLOCK
+    slot: 12
+    lore:
+      - "&7Manage company funds"
+      - "&7and transactions"
   
   deposit:
     name: "&aDeposit Funds"
     material: HOPPER
-    slot: 21
+    slot: 23
     lore:
-      - "&7Click to deposit funds"
-      - "&eCommand: /company deposit {company_name} <amount>"
+      - "&7Transfer money from your"
+      - "&7wallet to company balance"
+      - ""
+      - "&eClick to deposit"
   
   withdraw:
     name: "&6Withdraw Funds"
-    material: DISPENSER
-    slot: 22
-    lore:
-      - "&7Click to withdraw funds"
-      - "&eCommand: /company withdraw {company_name} <amount>"
-  
-  assign_job:
-    name: "&bAssign Job Title"
-    material: ENCHANTED_BOOK
-    slot: 23
-    lore:
-      - "&7Click to assign a job to employee"
-      - "&eCommand: /company assignjob {company_name}"
-      - "&e         <player> <job>"
-  
-  invite_player:
-    name: "&aInvite Player"
-    material: PAPER
+    material: GOLD_INGOT
     slot: 24
     lore:
-      - "&7Click to invite a player"
-      - "&eCommand: /company invite {company_name} <player> <job>"
+      - "&7Transfer money from company"
+      - "&7balance to your wallet"
+      - ""
+      - "&eClick to withdraw"
+      - "&8Requires: Withdraw Permission"
+  
+  transactions:
+    name: "&eTransaction History"
+    material: BOOK
+    slot: 25
+    lore:
+      - "&7View recent company"
+      - "&7transactions and activity"
+      - ""
+      - "&eClick to view history"
+  
+  # Market Section - Slots 28-30
+  section_market:
+    name: "&2&lMarket"
+    material: EMERALD_BLOCK
+    slot: 14
+    lore:
+      - "&7Company market presence"
+      - "&7and public trading"
+  
+  market_status:
+    name: "&2Market Status"
+    material: EMERALD
+    slot: 28
+    lore:
+      - "&7Status: &e{market_status}"
+      - "&7Share Price: &a${share_price}"
+      - "&7Market Cap: &a${market_cap}"
+      - ""
+      - "&7Click for market details"
+  
+  go_public:
+    name: "&aGo Public (IPO)"
+    material: DIAMOND
+    slot: 29
+    lore:
+      - "&7List your company on"
+      - "&7the public stock market"
+      - ""
+      - "&eRequires: ${ipo_cost}"
+      - "&eClick to start IPO"
+  
+  manage_shares:
+    name: "&6Manage Shares"
+    material: PAPER
+    slot: 30
+    lore:
+      - "&7Configure share pricing"
+      - "&7and distribution"
+      - ""
+      - "&eClick to manage"
+  
+  # Jobs & Roles Section - Slots 32-34
+  section_roles:
+    name: "&d&lRoles & Titles"
+    material: ENCHANTED_BOOK
+    slot: 16
+    lore:
+      - "&7Job titles and permissions"
+      - "&7management system"
   
   create_job:
     name: "&dCreate Job Title"
     material: BOOK
-    slot: 25
+    slot: 32
     lore:
-      - "&7Click to create a new job"
-      - "&eCommand: /company createjob {company_name}"
-      - "&e         <title> <permissions>"
+      - "&7Create a new job title with"
+      - "&7custom permissions"
+      - ""
+      - "&eClick to create"
+      - "&8Requires: Create Titles Permission"
   
-  edit_job:
-    name: "&dEdit Job Title"
-    material: WRITABLE_BOOK
-    slot: 26
+  assign_job:
+    name: "&bAssign Job"
+    material: NAME_TAG
+    slot: 33
     lore:
-      - "&7Click to edit an existing job"
-      - "&eCommand: /company editjob {company_name}"
-      - "&e         <title> <permissions>"
+      - "&7Assign job titles to"
+      - "&7company employees"
+      - ""
+      - "&eClick to assign"
+      - "&8Requires: Manage Company Permission"
   
-  # Navigation buttons
+  edit_permissions:
+    name: "&6Edit Permissions"
+    material: ENCHANTED_BOOK
+    slot: 34
+    lore:
+      - "&7Modify permissions for"
+      - "&7existing job titles"
+      - ""
+      - "&eClick to edit"
+      - "&8Requires: Create Titles Permission"
+  
+  # Decorative borders
+  border:
+    material: GRAY_STAINED_GLASS_PANE
+    name: " "
+  
+  # Navigation buttons - Bottom Row
+  back:
+    name: "&7« Back"
+    material: ARROW
+    slot: 45
+    lore:
+      - "&7Return to previous menu"
+  
   refresh:
     name: "&eRefresh"
     material: CLOCK
     slot: 49
     lore:
-      - "&7Click to refresh company info"
+      - "&7Update company information"
+      - ""
+      - "&eClick to refresh"
   
   close:
     name: "&cClose"
     material: BARRIER
     slot: 53
     lore:
-      - "&7Click to close this menu"
+      - "&7Close this menu"
   
   # Error messages
   error_message: "&cFailed to load company settings."
   refresh_error: "&cFailed to refresh company settings."
+  no_permission: "&cYou don't have permission to do that!"
 
 # Portfolio GUI Configuration
 portfolio:
@@ -443,3 +554,138 @@ plot_permission_edit:
   
   # Error messages
   error_message: "&cFailed to load permissions."
+
+# Company Employees List GUI Configuration
+company_employees:
+  title: "&6Employees - &f{company_name}"
+  size: 54
+  
+  # Info display
+  info:
+    name: "&6Employee Overview"
+    material: PLAYER_HEAD
+    slot: 4
+    lore:
+      - "&7Total Employees: &e{employee_count}"
+      - "&7Total Job Titles: &e{job_count}"
+      - ""
+      - "&7Viewing employee list"
+  
+  # Employee item template (dynamically created)
+  employee_item:
+    material: PLAYER_HEAD
+    name: "&e{player_name}"
+    lore:
+      - "&7Job: &f{job_title}"
+      - "&7Joined: &f{joined_date}"
+      - ""
+      - "&7Permissions:"
+      - "{permissions}"
+      - ""
+      - "&eLeft-click to view details"
+      - "&cRight-click to remove (if permitted)"
+  
+  # Empty slot
+  no_employees:
+    name: "&7No Employees"
+    material: GRAY_STAINED_GLASS_PANE
+  
+  # Navigation
+  previous_page:
+    name: "&e« Previous Page"
+    material: ARROW
+    slot: 45
+    lore:
+      - "&7Go to page {prev_page}"
+  
+  page_info:
+    name: "&6Page {current_page} of {total_pages}"
+    material: PAPER
+    slot: 49
+    lore:
+      - "&7Viewing employees {start} to {end}"
+      - "&7of {total_employees} total"
+  
+  next_page:
+    name: "&eNext Page »"
+    material: ARROW
+    slot: 53
+    lore:
+      - "&7Go to page {next_page}"
+  
+  back:
+    name: "&7« Back to Company"
+    material: BARRIER
+    slot: 48
+    lore:
+      - "&7Return to company settings"
+  
+  # Error messages
+  error_message: "&cFailed to load employees."
+
+# Company Jobs List GUI Configuration
+company_jobs:
+  title: "&6Job Titles - &f{company_name}"
+  size: 54
+  
+  # Info display
+  info:
+    name: "&6Jobs Overview"
+    material: WRITABLE_BOOK
+    slot: 4
+    lore:
+      - "&7Total Job Titles: &e{job_count}"
+      - "&7Total Employees: &e{employee_count}"
+      - ""
+      - "&7Viewing job titles"
+  
+  # Job item template (dynamically created)
+  job_item:
+    material: NAME_TAG
+    name: "&d{job_title}"
+    lore:
+      - "&7Employees: &e{employee_count}"
+      - ""
+      - "&7Permissions:"
+      - "{permissions}"
+      - ""
+      - "&eLeft-click to view employees with this job"
+      - "&6Right-click to edit job (if permitted)"
+  
+  # Empty slot
+  no_jobs:
+    name: "&7No Job Titles"
+    material: GRAY_STAINED_GLASS_PANE
+  
+  # Navigation
+  previous_page:
+    name: "&e« Previous Page"
+    material: ARROW
+    slot: 45
+    lore:
+      - "&7Go to page {prev_page}"
+  
+  page_info:
+    name: "&6Page {current_page} of {total_pages}"
+    material: PAPER
+    slot: 49
+    lore:
+      - "&7Viewing jobs {start} to {end}"
+      - "&7of {total_jobs} total"
+  
+  next_page:
+    name: "&eNext Page »"
+    material: ARROW
+    slot: 53
+    lore:
+      - "&7Go to page {next_page}"
+  
+  back:
+    name: "&7« Back to Company"
+    material: BARRIER
+    slot: 48
+    lore:
+      - "&7Return to company settings"
+  
+  # Error messages
+  error_message: "&cFailed to load job titles."
