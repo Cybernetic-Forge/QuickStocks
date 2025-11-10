@@ -163,46 +163,46 @@ company_settings:
       - '&eClick to manage'
 
   # Jobs & Roles Section - Slots 32-34
-  section_roles:
-    name: '&d&lRoles & Titles'
-    material: ENCHANTED_BOOK
+  section_territory:
+    name: '&a&lTerritory'
+    material: GRASS_BLOCK
     slot: 18
     lore:
-      - '&7Job titles and permissions'
-      - '&7management system'
+      - '&7Manage company plots'
+      - '&7and territory control'
 
-  create_job:
-    name: '&dCreate Job Title'
-    material: BOOK
+  view_plots:
+    name: '&aView Plots'
+    material: MAP
     slot: 14
     lore:
-      - '&7Create a new job title with'
-      - '&7custom permissions'
+      - '&7View all plots owned'
+      - '&7by your company'
       - ''
-      - '&eClick to create'
-      - '&8Requires: Create Titles Permission'
-
-  assign_job:
-    name: '&bAssign Job'
-    material: NAME_TAG
-    slot: 15
-    lore:
-      - '&7Assign job titles to'
-      - '&7company employees'
-      - ''
-      - '&eClick to assign'
+      - '&eClick to view'
       - '&8Requires: Manage Company Permission'
 
-  edit_permissions:
-    name: '&6Edit Permissions'
-    material: ENCHANTED_BOOK
-    slot: 16
+  edit_current_plot:
+    name: '&6Edit Current Plot'
+    material: IRON_PICKAXE
+    slot: 15
     lore:
-      - '&7Modify permissions for'
-      - '&7existing job titles'
+      - '&7Edit settings for the'
+      - '&7plot you''re standing on'
       - ''
       - '&eClick to edit'
-      - '&8Requires: Create Titles Permission'
+      - '&8Requires: Plots Permission'
+
+  claim_plot:
+    name: '&2Claim New Plot'
+    material: DIAMOND_PICKAXE
+    slot: 16
+    lore:
+      - '&7Claim a new plot for'
+      - '&7your company'
+      - ''
+      - '&eClick to claim'
+      - '&8Requires: Manage Company Permission'
 
   # Decorative borders
   border:

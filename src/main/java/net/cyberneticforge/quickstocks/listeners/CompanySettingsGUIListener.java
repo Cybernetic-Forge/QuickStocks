@@ -77,10 +77,10 @@ public class CompanySettingsGUIListener implements Listener {
         int goPublicSlot = cfg.getItemSlot("company_settings.go_public.slot", 38);
         int manageSharesSlot = cfg.getItemSlot("company_settings.manage_shares.slot", 40);
 
-        // Roles section
-        int createJobSlot = cfg.getItemSlot("company_settings.create_job.slot", 14);
-        int assignJobSlot = cfg.getItemSlot("company_settings.assign_job.slot", 15);
-        int editPermissionsSlot = cfg.getItemSlot("company_settings.edit_permissions.slot", 16);
+        // Territory section
+        int viewPlotsSlot = cfg.getItemSlot("company_settings.view_plots.slot", 14);
+        int editCurrentPlotSlot = cfg.getItemSlot("company_settings.edit_current_plot.slot", 15);
+        int claimPlotSlot = cfg.getItemSlot("company_settings.claim_plot.slot", 16);
 
         // Refresh button
         if (slot == refreshSlot) {
@@ -173,28 +173,34 @@ public class CompanySettingsGUIListener implements Listener {
             return;
         }
         
-        // === Roles & Titles Section ===
-        // Create Job button
-        if (slot == createJobSlot) {
+        // === Territory Section ===
+        // View Plots button
+        if (slot == viewPlotsSlot) {
             player.closeInventory();
-            Translation.GUI_CompanySettings_CreateJobHint.sendMessage(player,
-                new Replaceable("%company%", company.getName()));
+            player.sendMessage(ChatUT.hexComp(
+                "&aViewing plots for &e" + company.getName()));
+            player.sendMessage(ChatUT.hexComp(
+                "&7Plot viewing feature coming soon!"));
             return;
         }
         
-        // Assign Job button
-        if (slot == assignJobSlot) {
+        // Edit Current Plot button
+        if (slot == editCurrentPlotSlot) {
             player.closeInventory();
-            Translation.GUI_CompanySettings_AssignJobHint.sendMessage(player,
-                new Replaceable("%company%", company.getName()));
+            player.sendMessage(ChatUT.hexComp(
+                "&6Editing current plot for &e" + company.getName()));
+            player.sendMessage(ChatUT.hexComp(
+                "&7Plot editing feature coming soon!"));
             return;
         }
         
-        // Edit Permissions button
-        if (slot == editPermissionsSlot) {
+        // Claim Plot button
+        if (slot == claimPlotSlot) {
             player.closeInventory();
-            Translation.GUI_CompanySettings_EditJobHint.sendMessage(player,
-                new Replaceable("%company%", company.getName()));
+            player.sendMessage(ChatUT.hexComp(
+                "&2Claiming plot for &e" + company.getName()));
+            player.sendMessage(ChatUT.hexComp(
+                "&7Plot claiming feature coming soon!"));
         }
     }
 }

@@ -120,7 +120,7 @@ public class CompanySettingsGUI implements InventoryHolder {
             addButton("section_management");
             addButton("section_financial");
             addButton("section_market");
-            addButton("section_roles");
+            addButton("section_territory");
         } catch (Exception e) {
             logger.warning("Error adding section headers: " + e.getMessage());
         }
@@ -338,23 +338,23 @@ public class CompanySettingsGUI implements InventoryHolder {
 
             CompanyJob job = jobOpt.get();
 
-            // Create Job button (if player has permission)
-            if (job.canCreateTitles()) {
-                addButton("create_job");
-            }
-
-            // Assign Job button (if player has permission)
+            // View Plots button (if player has permission)
             if (job.canManageCompany()) {
-                addButton("assign_job");
+                addButton("view_plots");
             }
 
-            // Edit Permissions button (if player has permission)
-            if (job.canCreateTitles()) {
-                addButton("edit_permissions");
+            // Edit Current Plot button (if player has permission)
+            if (job.canPlots()) {
+                addButton("edit_current_plot");
+            }
+
+            // Claim Plot button (if player has permission)
+            if (job.canManageCompany()) {
+                addButton("claim_plot");
             }
 
         } catch (Exception e) {
-            logger.warning("Error adding roles buttons: " + e.getMessage());
+            logger.warning("Error adding territory buttons: " + e.getMessage());
         }
     }
 
