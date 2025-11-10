@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="configuration">
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="config">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/CompanySettingsGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/gui/CompanySettingsGUI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanySettingsGUIListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/CompanySettingsGUIListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -544,7 +545,23 @@
       <option name="project" value="LOCAL" />
       <updated>1762796191713</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="fixes">
+      <option name="closed" value="true" />
+      <created>1762799126128</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1762799126128</updated>
+    </task>
+    <task id="LOCAL-00048" summary="config">
+      <option name="closed" value="true" />
+      <created>1762799234827</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1762799234827</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -583,9 +600,10 @@
     <MESSAGE value="fixed some flag things" />
     <MESSAGE value="migration fixes" />
     <MESSAGE value="removed redundant ItemSeeder.java" />
-    <MESSAGE value="fixes" />
     <MESSAGE value="refactoring + removed redundancies" />
     <MESSAGE value="configuration" />
-    <option name="LAST_COMMIT_MESSAGE" value="configuration" />
+    <MESSAGE value="fixes" />
+    <MESSAGE value="config" />
+    <option name="LAST_COMMIT_MESSAGE" value="config" />
   </component>
 </project>

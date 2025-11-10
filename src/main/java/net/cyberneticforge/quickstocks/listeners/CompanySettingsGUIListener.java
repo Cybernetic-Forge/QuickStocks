@@ -61,26 +61,26 @@ public class CompanySettingsGUIListener implements Listener {
          GuiConfig cfg = QuickStocksPlugin.getGuiConfig();
         
         // Get configured slots and materials from guis.yml
-        int refreshSlot = cfg.getItemSlot("company_settings.refresh.slot", 49);
-        int closeSlot = cfg.getItemSlot("company_settings.close.slot", 53);
+        int refreshSlot = cfg.getItemSlot("company_settings.refresh", 49);
+        int closeSlot = cfg.getItemSlot("company_settings.close", 53);
 
         // Management section
-        int viewEmployeesSlot = cfg.getItemSlot("company_settings.view_employees.slot", 11);
-        int viewJobsSlot = cfg.getItemSlot("company_settings.view_jobs.slot", 13);
-        int invitePlayerSlot = cfg.getItemSlot("company_settings.invite_player.slot", 12);
+        int viewEmployeesSlot = cfg.getItemSlot("company_settings.view_employees", 11);
+        int viewJobsSlot = cfg.getItemSlot("company_settings.view_jobs", 13);
+        int invitePlayerSlot = cfg.getItemSlot("company_settings.invite_player", 12);
 
         // Financial section
-        int depositSlot = cfg.getItemSlot("company_settings.deposit.slot", 29);
-        int withdrawSlot = cfg.getItemSlot("company_settings.withdraw.slot", 30);
-        int transactionsSlot = cfg.getItemSlot("company_settings.transactions.slot", 31);
-        int marketStatusSlot = cfg.getItemSlot("company_settings.market_status.slot", 39);
-        int goPublicSlot = cfg.getItemSlot("company_settings.go_public.slot", 38);
-        int manageSharesSlot = cfg.getItemSlot("company_settings.manage_shares.slot", 40);
+        int depositSlot = cfg.getItemSlot("company_settings.deposit", 29);
+        int withdrawSlot = cfg.getItemSlot("company_settings.withdraw", 30);
+        int transactionsSlot = cfg.getItemSlot("company_settings.transactions", 31);
+        int marketStatusSlot = cfg.getItemSlot("company_settings.market_status", 39);
+        int goPublicSlot = cfg.getItemSlot("company_settings.go_public", 38);
+        int manageSharesSlot = cfg.getItemSlot("company_settings.manage_shares", 40);
 
         // Territory section
-        int viewPlotsSlot = cfg.getItemSlot("company_settings.view_plots.slot", 14);
-        int editCurrentPlotSlot = cfg.getItemSlot("company_settings.edit_current_plot.slot", 15);
-        int claimPlotSlot = cfg.getItemSlot("company_settings.claim_plot.slot", 16);
+        int viewPlotsSlot = cfg.getItemSlot("company_settings.view_plots", 14);
+        int editCurrentPlotSlot = cfg.getItemSlot("company_settings.edit_current_plot", 15);
+        int claimPlotSlot = cfg.getItemSlot("company_settings.claim_plot", 39);
 
         // Refresh button
         if (slot == refreshSlot) {

@@ -79,7 +79,7 @@ public class CompanySettingsGUI implements InventoryHolder {
             addManagementButtons();
             addFinancialButtons();
             addMarketButtons();
-            addRolesButtons();
+            addPlotButtons();
 
             // Add navigation buttons
             addNavigationButtons();
@@ -104,8 +104,8 @@ public class CompanySettingsGUI implements InventoryHolder {
             
             // Add borders around sections (rows 1 and 3)
             int[] borderSlots = {9, 11, 13, 15, 17, 18, 22, 26, 27, 31, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 50, 51, 52};
-            for (int slot : borderSlots) {
-                inventory.setItem(slot, border);
+            for (int i = 0; i < borderSlots.length; i++) {
+                inventory.setItem(i, border);
             }
         } catch (Exception e) {
             logger.debug("Error adding borders: " + e.getMessage());
@@ -327,7 +327,7 @@ public class CompanySettingsGUI implements InventoryHolder {
     /**
      * Adds roles section buttons (create job, assign job, edit permissions)
      */
-    private void addRolesButtons() {
+    private void addPlotButtons() {
         try {
             String playerUuid = player.getUniqueId().toString();
             Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
@@ -344,12 +344,12 @@ public class CompanySettingsGUI implements InventoryHolder {
             }
 
             // Edit Current Plot button (if player has permission)
-            if (job.canPlots()) {
+            if (job.canManagePlots()) {
                 addButton("edit_current_plot");
             }
 
             // Claim Plot button (if player has permission)
-            if (job.canManageCompany()) {
+            if (job.canManagePlots()) {
                 addButton("claim_plot");
             }
 
