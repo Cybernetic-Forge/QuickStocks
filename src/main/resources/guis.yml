@@ -45,158 +45,158 @@ company_settings:
   section_management:
     name: "&b&lManagement"
     material: WRITABLE_BOOK
-    slot: 10
+    slot: 9
     lore:
       - "&7Manage company operations"
       - "&7and administrative tasks"
-  
+
   view_employees:
     name: "&bEmployees List"
     material: PLAYER_HEAD
-    slot: 19
+    slot: 11
     lore:
       - "&7Current Employees: &e{employee_count}"
       - ""
       - "&7Click to view detailed"
       - "&7employee list and manage them"
-  
+
   view_jobs:
     name: "&bJob Titles"
     material: WRITABLE_BOOK
-    slot: 20
+    slot: 13
     lore:
       - "&7Total Jobs: &e{job_count}"
       - ""
       - "&7Click to view all job titles"
       - "&7and their permissions"
-  
+
   invite_player:
     name: "&aInvite Player"
     material: EMERALD
-    slot: 21
+    slot: 12
     lore:
       - "&7Invite new members to join"
       - "&7your company"
       - ""
       - "&eClick to invite"
       - "&8Requires: Invite Permission"
-  
+
   # Financial Section - Slots 23-25
   section_financial:
     name: "&e&lFinancial"
     material: GOLD_BLOCK
-    slot: 12
+    slot: 27
     lore:
       - "&7Manage company funds"
       - "&7and transactions"
-  
+
   deposit:
     name: "&aDeposit Funds"
     material: HOPPER
-    slot: 23
+    slot: 29
     lore:
       - "&7Transfer money from your"
       - "&7wallet to company balance"
       - ""
       - "&eClick to deposit"
-  
+
   withdraw:
     name: "&6Withdraw Funds"
     material: GOLD_INGOT
-    slot: 24
+    slot: 30
     lore:
       - "&7Transfer money from company"
       - "&7balance to your wallet"
       - ""
       - "&eClick to withdraw"
       - "&8Requires: Withdraw Permission"
-  
+
   transactions:
     name: "&eTransaction History"
     material: BOOK
-    slot: 25
+    slot: 31
     lore:
       - "&7View recent company"
       - "&7transactions and activity"
       - ""
       - "&eClick to view history"
-  
+
   # Market Section - Slots 28-30
   section_market:
     name: "&2&lMarket"
     material: EMERALD_BLOCK
-    slot: 14
+    slot: 36
     lore:
       - "&7Company market presence"
       - "&7and public trading"
-  
+
   market_status:
     name: "&2Market Status"
     material: EMERALD
-    slot: 28
+    slot: 39
     lore:
       - "&7Status: &e{market_status}"
       - "&7Share Price: &a${share_price}"
       - "&7Market Cap: &a${market_cap}"
       - ""
       - "&7Click for market details"
-  
+
   go_public:
     name: "&aGo Public (IPO)"
     material: DIAMOND
-    slot: 29
+    slot: 38
     lore:
       - "&7List your company on"
       - "&7the public stock market"
       - ""
       - "&eRequires: ${ipo_cost}"
       - "&eClick to start IPO"
-  
+
   manage_shares:
     name: "&6Manage Shares"
     material: PAPER
-    slot: 30
+    slot: 40
     lore:
       - "&7Configure share pricing"
       - "&7and distribution"
       - ""
       - "&eClick to manage"
-  
+
   # Jobs & Roles Section - Slots 32-34
   section_roles:
     name: "&d&lRoles & Titles"
     material: ENCHANTED_BOOK
-    slot: 16
+    slot: 18
     lore:
       - "&7Job titles and permissions"
       - "&7management system"
-  
+
   create_job:
     name: "&dCreate Job Title"
     material: BOOK
-    slot: 32
+    slot: 14
     lore:
       - "&7Create a new job title with"
       - "&7custom permissions"
       - ""
       - "&eClick to create"
       - "&8Requires: Create Titles Permission"
-  
+
   assign_job:
     name: "&bAssign Job"
     material: NAME_TAG
-    slot: 33
+    slot: 15
     lore:
       - "&7Assign job titles to"
       - "&7company employees"
       - ""
       - "&eClick to assign"
       - "&8Requires: Manage Company Permission"
-  
+
   edit_permissions:
     name: "&6Edit Permissions"
     material: ENCHANTED_BOOK
-    slot: 34
+    slot: 16
     lore:
       - "&7Modify permissions for"
       - "&7existing job titles"
