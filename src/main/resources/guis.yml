@@ -689,3 +689,49 @@ company_jobs:
   
   # Error messages
   error_message: "&cFailed to load job titles."
+
+# Company Employees GUI Configuration
+company_employees:
+  title: "&6{company_name} - Employees"
+  size: 54
+  
+  # Navigation
+  back:
+    name: "&7« Back to Company"
+    material: ARROW
+    slot: 49
+    lore:
+      - "&7Return to company settings"
+
+# Company Jobs GUI Configuration
+company_jobs:
+  title: "&6{company_name} - Jobs"
+  size: 54
+  
+  # Navigation
+  back:
+    name: "&7« Back to Company"
+    material: ARROW
+    slot: 49
+    lore:
+      - "&7Return to company settings"
+
+# Company Job Edit GUI Configuration
+company_job_edit:
+  title: "&6Edit: {job_title}"
+  size: 27
+  
+  # Navigation
+  save:
+    name: "&aSave Changes"
+    material: LIME_DYE
+    slot: 22
+    lore:
+      - "&7Click to save permission changes"
+  
+  back:
+    name: "&cCancel"
+    material: ARROW
+    slot: 18
+    lore:
+      - "&7Return without saving"

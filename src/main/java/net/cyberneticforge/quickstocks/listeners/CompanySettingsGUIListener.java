@@ -120,17 +120,19 @@ public class CompanySettingsGUIListener implements Listener {
         // === Management Section ===
         // View Employees button
         if (slot == viewEmployeesSlot && item.getType() == viewEmployeesMaterial) {
-            player.closeInventory();
-            player.performCommand("company employees " + company.getName());
-            // TODO: Open employees sub-GUI instead
+            // Open employees sub-GUI
+            net.cyberneticforge.quickstocks.gui.CompanyEmployeesGUI employeesGUI = 
+                new net.cyberneticforge.quickstocks.gui.CompanyEmployeesGUI(player, company);
+            player.openInventory(employeesGUI.getInventory());
             return;
         }
         
         // View Jobs button
         if (slot == viewJobsSlot && item.getType() == viewJobsMaterial) {
-            player.closeInventory();
-            player.performCommand("company jobs " + company.getName());
-            // TODO: Open jobs sub-GUI instead
+            // Open jobs sub-GUI
+            net.cyberneticforge.quickstocks.gui.CompanyJobsGUI jobsGUI = 
+                new net.cyberneticforge.quickstocks.gui.CompanyJobsGUI(player, company);
+            player.openInventory(jobsGUI.getInventory());
             return;
         }
         
