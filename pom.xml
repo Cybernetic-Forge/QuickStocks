@@ -12,6 +12,8 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Obfuscation control: set to true to enable ProGuard obfuscation -->
+        <obfuscate.enabled>false</obfuscate.enabled>
     </properties>
 
     <repositories>
@@ -201,6 +203,126 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- ProGuard obfuscation plugin (conditional execution) -->
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>2.6.0</version>
+                <executions>
+                    <execution>
+                        <id>obfuscate</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Skip if obfuscate.enabled is false -->
+                            <skip>true</skip>
+                            <proguardVersion>7.3.2</proguardVersion>
+                            <injar>${project.build.finalName}.jar</injar>
+                            <outjar>${project.build.finalName}.jar</outjar>
+                            <libs>
+                                <lib>${java.home}/jmods/java.base.jmod</lib>
+                                <lib>${java.home}/jmods/java.sql.jmod</lib>
+                            </libs>
+                            <options>
+                                <!-- Keep main plugin class -->
+                                <option>-keep public class net.cyberneticforge.quickstocks.QuickStocksPlugin {
+                                    public *;
+                                }</option>
+                                
+                                <!-- Keep all command executors -->
+                                <option>-keep class * implements org.bukkit.command.CommandExecutor {
+                                    public *;
+                                }</option>
+                                
+                                <!-- Keep all tab completers -->
+                                <option>-keep class * implements org.bukkit.command.TabCompleter {
+                                    public *;
+                                }</option>
+                                
+                                <!-- Keep all event listeners -->
+                                <option>-keep class * implements org.bukkit.event.Listener {
+                                    public *;
+                                }</option>
+                                
+                                <!-- Keep all configuration serializable classes -->
+                                <option>-keep class * implements org.bukkit.configuration.serialization.ConfigurationSerializable {
+                                    public *;
+                                }</option>
+                                
+                                <!-- Keep public API package -->
+                                <option>-keep public class net.cyberneticforge.quickstocks.api.** {
+                                    public *;
+                                }</option>
+                                
+                                <!-- Keep enum classes -->
+                                <option>-keepclassmembers enum * {
+                                    public static **[] values();
+                                    public static ** valueOf(java.lang.String);
+                                }</option>
+                                
+                                <!-- Preserve line numbers for debugging -->
+                                <option>-keepattributes SourceFile,LineNumberTable</option>
+                                
+                                <!-- Keep annotations -->
+                                <option>-keepattributes *Annotation*</option>
+                                
+                                <!-- Don't warn about missing classes from provided dependencies -->
+                                <option>-dontwarn org.bukkit.**</option>
+                                <option>-dontwarn io.papermc.**</option>
+                                <option>-dontwarn com.destroystokyo.**</option>
+                                <option>-dontwarn net.kyori.**</option>
+                                <option>-dontwarn org.yaml.**</option>
+                                <option>-dontwarn com.google.**</option>
+                                <option>-dontwarn org.apache.**</option>
+                                <option>-dontwarn org.jetbrains.**</option>
+                                <option>-dontwarn javax.**</option>
+                                <option>-dontwarn java.sql.**</option>
+                                <option>-dontwarn lombok.**</option>
+                                
+                                <!-- Obfuscation enabled (rename classes/methods/fields) -->
+                                <option>-repackageclasses ''</option>
+                                <option>-allowaccessmodification</option>
+                                
+                                <!-- Optimization settings -->
+                                <option>-optimizationpasses 3</option>
+                                <option>-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*</option>
+                            </options>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Profile to enable obfuscation when obfuscate.enabled=true -->
+        <profile>
+            <id>obfuscate</id>
+            <activation>
+                <property>
+                    <name>obfuscate.enabled</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.wvengen</groupId>
+                        <artifactId>proguard-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>obfuscate</id>
+                                <configuration>
+                                    <skip>false</skip>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

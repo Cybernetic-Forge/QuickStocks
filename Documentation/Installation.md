@@ -477,6 +477,52 @@ After installation, check out:
 
 ---
 
+---
+
+## 🔨 Building from Source
+
+If you want to compile QuickStocks yourself, follow these steps:
+
+### Prerequisites
+
+- **Java 21+** (required for compilation)
+- **Maven 3.9+** (build tool)
+- **Git** (to clone the repository)
+
+### Build Instructions
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Cybernetic-Forge/QuickStocks.git
+   cd QuickStocks
+   ```
+
+2. **Build without obfuscation** (development)
+   ```bash
+   mvn clean package
+   ```
+
+3. **Build with obfuscation** (production/release)
+   ```bash
+   mvn clean package -Dobfuscate.enabled=true
+   ```
+
+4. **Find the compiled JAR**
+   ```
+   target/QuickStocks-1.0.0-SNAPSHOT.jar
+   ```
+
+### Obfuscation
+
+QuickStocks supports optional code obfuscation to protect against decompilation. By default, obfuscation is **disabled** for easier debugging.
+
+- **Development builds**: Use default settings (no obfuscation)
+- **Production builds**: Enable obfuscation with `-Dobfuscate.enabled=true`
+
+For detailed information about obfuscation, see [Build Obfuscation Guide](BUILD_OBFUSCATION.md).
+
+---
+
 ## 📚 Additional Resources
 
 ### Server Console Commands
