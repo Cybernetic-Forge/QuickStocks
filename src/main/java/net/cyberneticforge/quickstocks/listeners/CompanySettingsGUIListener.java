@@ -4,6 +4,8 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
+import net.cyberneticforge.quickstocks.gui.CompanyEmployeesGUI;
+import net.cyberneticforge.quickstocks.gui.CompanyJobsGUI;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
 import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
@@ -98,7 +100,7 @@ public class CompanySettingsGUIListener implements Listener {
         if (slot == viewEmployeesSlot) {
             player.closeInventory();
             player.performCommand("company employees " + company.getName());
-            // TODO: Open employees sub-GUI instead
+            player.openInventory(new CompanyEmployeesGUI(player, company).getInventory());
             return;
         }
         
@@ -106,7 +108,7 @@ public class CompanySettingsGUIListener implements Listener {
         if (slot == viewJobsSlot) {
             player.closeInventory();
             player.performCommand("company jobs " + company.getName());
-            // TODO: Open jobs sub-GUI instead
+            player.openInventory(new CompanyJobsGUI(player, company).getInventory());
             return;
         }
         
