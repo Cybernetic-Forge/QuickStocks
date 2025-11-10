@@ -75,13 +75,13 @@ public class CompanyJobsGUI implements InventoryHolder {
 
                 List<Component> lore = new ArrayList<>();
                 lore.add(ChatUT.hexComp("&7Permissions:"));
-                lore.add(ChatUT.hexComp(job.canInvite() ? "&a✓" : "&c✗" + " &7Invite Players"));
-                lore.add(ChatUT.hexComp(job.canCreateTitles() ? "&a✓" : "&c✗" + " &7Create Titles"));
-                lore.add(ChatUT.hexComp(job.canWithdraw() ? "&a✓" : "&c✗" + " &7Withdraw Funds"));
-                lore.add(ChatUT.hexComp(job.canManageCompany() ? "&a✓" : "&c✗" + " &7Manage Company"));
-                lore.add(ChatUT.hexComp(job.canManageChestShop() ? "&a✓" : "&c✗" + " &7Manage ChestShop"));
-                lore.add(ChatUT.hexComp(job.canManageSalaries() ? "&a✓" : "&c✗" + " &7Manage Salaries"));
-                lore.add(ChatUT.hexComp(job.canManagePlots() ? "&a✓" : "&c✗" + " &7Manage Plots"));
+                lore.add(ChatUT.hexComp((job.canInvite() ? "&a✓" : "&c✗") + " &7Invite Players"));
+                lore.add(ChatUT.hexComp((job.canCreateTitles() ? "&a✓" : "&c✗") + " &7Create Titles"));
+                lore.add(ChatUT.hexComp((job.canWithdraw() ? "&a✓" : "&c✗" ) + " &7Withdraw Funds"));
+                lore.add(ChatUT.hexComp((job.canManageCompany() ? "&a✓" : "&c✗") + " &7Manage Company"));
+                lore.add(ChatUT.hexComp((job.canManageChestShop() ? "&a✓" : "&c✗") + " &7Manage ChestShop"));
+                lore.add(ChatUT.hexComp((job.canManageSalaries() ? "&a✓" : "&c✗") + " &7Manage Salaries"));
+                lore.add(ChatUT.hexComp((job.canManagePlots() ? "&a✓" : "&c✗") + " &7Manage Plots"));
                 lore.add(ChatUT.hexComp(""));
                 
                 // Check if player has permission to edit
