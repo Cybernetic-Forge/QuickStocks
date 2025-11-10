@@ -29,6 +29,9 @@ import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import net.cyberneticforge.quickstocks.listeners.CompanyEmployeesGUIListener;
+import net.cyberneticforge.quickstocks.listeners.CompanyJobEditGUIListener;
+import net.cyberneticforge.quickstocks.listeners.CompanyJobsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
 import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
 import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
@@ -308,6 +311,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Only register company-related listeners if companies system is enabled
         if (companyCfg.isEnabled()) {
             getServer().getPluginManager().registerEvents(new CompanySettingsGUIListener(), this);
+            getServer().getPluginManager().registerEvents(new CompanyEmployeesGUIListener(), this);
+            getServer().getPluginManager().registerEvents(new CompanyJobsGUIListener(), this);
+            getServer().getPluginManager().registerEvents(new CompanyJobEditGUIListener(), this);
             
             // Register plot listener if plots are enabled
             if (companyCfg.isPlotsEnabled()) {

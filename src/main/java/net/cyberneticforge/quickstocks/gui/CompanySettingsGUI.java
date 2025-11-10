@@ -304,12 +304,13 @@ public class CompanySettingsGUI implements InventoryHolder {
                     new Replaceable("{share_price}", String.format("%.2f", sharePrice)),
                     new Replaceable("{market_cap}", String.format("%.2f", marketCap)));
 
-            // Go Public button (if not on market and has permission)
-            if (!company.isOnMarket() && jobOpt.isPresent() && jobOpt.get().canManageCompany()) {
+            // Go Public/Private button - always visible (toggleable if has permission)
+            if (jobOpt.isPresent() && jobOpt.get().canManageCompany()) {
                 // IPO cost is the minimum balance threshold for the company type
                 Double threshold = QuickStocksPlugin.getCompanyCfg().getMarketBalanceThresholds().get(company.getType());
                 double ipoCost = threshold != null ? threshold : 0.0;
-                addButtonWithReplacements("go_public",
+                String buttonName = company.isOnMarket() ? "go_private" : "go_public";
+                addButtonWithReplacements(buttonName,
                         new Replaceable("{ipo_cost}", String.format("%.2f", ipoCost)));
             }
 
