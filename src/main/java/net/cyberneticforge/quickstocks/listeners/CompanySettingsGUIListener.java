@@ -67,10 +67,12 @@ public class CompanySettingsGUIListener implements Listener {
             return;
         }
         
+        // === Management Section ===
         // View Employees button (slot 19)
         if (slot == 19 && item.getType() == Material.PLAYER_HEAD) {
             player.closeInventory();
             player.performCommand("company employees " + company.getName());
+            // TODO: Open employees sub-GUI instead
             return;
         }
         
@@ -78,51 +80,90 @@ public class CompanySettingsGUIListener implements Listener {
         if (slot == 20 && item.getType() == Material.WRITABLE_BOOK) {
             player.closeInventory();
             player.performCommand("company jobs " + company.getName());
+            // TODO: Open jobs sub-GUI instead
             return;
         }
         
-        // Deposit button (slot 21)
-        if (slot == 21 && item.getType() == Material.HOPPER) {
-            player.closeInventory();
-            Translation.GUI_CompanySettings_DepositHint.sendMessage(player,
-                new Replaceable("%company%", company.getName()));
-            return;
-        }
-        
-        // Withdraw button (slot 22)
-        if (slot == 22 && item.getType() == Material.DISPENSER) {
-            player.closeInventory();
-            Translation.GUI_CompanySettings_WithdrawHint.sendMessage(player,
-                new Replaceable("%company%", company.getName()));
-            return;
-        }
-        
-        // Assign Job button (slot 23)
-        if (slot == 23 && item.getType() == Material.ENCHANTED_BOOK) {
-            player.closeInventory();
-            Translation.GUI_CompanySettings_AssignJobHint.sendMessage(player,
-                new Replaceable("%company%", company.getName()));
-            return;
-        }
-        
-        // Invite Player button (slot 24)
-        if (slot == 24 && item.getType() == Material.PAPER) {
+        // Invite Player button (slot 21)
+        if (slot == 21 && item.getType() == Material.EMERALD) {
             player.closeInventory();
             Translation.GUI_CompanySettings_InviteHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
             return;
         }
         
-        // Create Job button (slot 25)
+        // === Financial Section ===
+        // Deposit button (slot 23)
+        if (slot == 23 && item.getType() == Material.HOPPER) {
+            player.closeInventory();
+            Translation.GUI_CompanySettings_DepositHint.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
+            return;
+        }
+        
+        // Withdraw button (slot 24)
+        if (slot == 24 && item.getType() == Material.GOLD_INGOT) {
+            player.closeInventory();
+            Translation.GUI_CompanySettings_WithdrawHint.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
+            return;
+        }
+        
+        // Transactions button (slot 25)
         if (slot == 25 && item.getType() == Material.BOOK) {
+            player.closeInventory();
+            player.sendMessage(net.cyberneticforge.quickstocks.utils.ChatUT.hexComp(
+                "&eTransaction history feature coming soon!"));
+            return;
+        }
+        
+        // === Market Section ===
+        // Market Status button (slot 28)
+        if (slot == 28 && item.getType() == Material.EMERALD) {
+            player.closeInventory();
+            if (company.isOnMarket()) {
+                player.performCommand("market");
+            } else {
+                player.sendMessage(net.cyberneticforge.quickstocks.utils.ChatUT.hexComp(
+                    "&eCompany is not yet public. Use the IPO button to go public!"));
+            }
+            return;
+        }
+        
+        // Go Public (IPO) button (slot 29)
+        if (slot == 29 && item.getType() == Material.DIAMOND) {
+            player.closeInventory();
+            player.performCommand("company ipo " + company.getName());
+            return;
+        }
+        
+        // Manage Shares button (slot 30)
+        if (slot == 30 && item.getType() == Material.PAPER) {
+            player.closeInventory();
+            player.sendMessage(net.cyberneticforge.quickstocks.utils.ChatUT.hexComp(
+                "&eShare management feature coming soon!"));
+            return;
+        }
+        
+        // === Roles & Titles Section ===
+        // Create Job button (slot 32)
+        if (slot == 32 && item.getType() == Material.BOOK) {
             player.closeInventory();
             Translation.GUI_CompanySettings_CreateJobHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
             return;
         }
         
-        // Edit Job button (slot 26)
-        if (slot == 26 && item.getType() == Material.WRITABLE_BOOK) {
+        // Assign Job button (slot 33)
+        if (slot == 33 && item.getType() == Material.NAME_TAG) {
+            player.closeInventory();
+            Translation.GUI_CompanySettings_AssignJobHint.sendMessage(player,
+                new Replaceable("%company%", company.getName()));
+            return;
+        }
+        
+        // Edit Permissions button (slot 34)
+        if (slot == 34 && item.getType() == Material.ENCHANTED_BOOK) {
             player.closeInventory();
             Translation.GUI_CompanySettings_EditJobHint.sendMessage(player,
                 new Replaceable("%company%", company.getName()));
