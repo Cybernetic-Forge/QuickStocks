@@ -212,12 +212,14 @@ Want to compile QuickStocks yourself?
 git clone https://github.com/Cybernetic-Forge/QuickStocks.git
 cd QuickStocks
 
-# Development build (no obfuscation)
+# Development build (no obfuscation) - NOT FOR PRODUCTION
 mvn clean package
 
-# Production build (with obfuscation)
+# Production build (with obfuscation) - REQUIRED FOR RELEASES
 mvn clean package -Dobfuscate.enabled=true
 ```
+
+> **⚠️ IMPORTANT**: For production releases, you **MUST** use `-Dobfuscate.enabled=true` to protect your code from decompilation. Without this flag, the code is NOT obfuscated and can be easily reverse-engineered.
 
 The compiled JAR will be in `target/QuickStocks-1.0.0-SNAPSHOT.jar`
 

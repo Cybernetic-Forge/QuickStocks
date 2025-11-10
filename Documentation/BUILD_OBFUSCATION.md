@@ -2,6 +2,10 @@
 
 QuickStocks supports optional code obfuscation during the build process to protect the plugin's source code from decompilation.
 
+> **⚠️ IMPORTANT**: Obfuscation is **DISABLED by default**. You MUST explicitly enable it using `-Dobfuscate.enabled=true` when building, otherwise your code will NOT be obfuscated and can be easily decompiled. 
+> 
+> **For production releases, always use**: `mvn clean package -Dobfuscate.enabled=true`
+
 ## Overview
 
 The obfuscation feature uses [ProGuard](https://www.guardsquare.com/proguard), a widely-used Java code optimizer and obfuscator. When enabled, ProGuard will:
@@ -48,6 +52,22 @@ mvn clean package -Dobfuscate.enabled=true
 - **With obfuscation**: `target/QuickStocks-1.0.0-SNAPSHOT.jar` (obfuscated version replaces the original)
 
 The obfuscated JAR will have the same filename as the non-obfuscated version.
+
+## Verifying Obfuscation Worked
+
+After building with obfuscation enabled, you can verify it worked by checking for the ProGuard mapping file:
+
+```bash
+# Check if ProGuard ran - mapping file should exist
+ls -lh target/proguard-mapping.txt
+
+# The mapping file shows original → obfuscated name mappings
+# If this file exists, obfuscation was applied
+```
+
+You can also use a Java decompiler to verify that class names are obfuscated. Classes like `PriceThresholdController` should be renamed to short names like `a`, `b`, `c`, etc.
+
+**Common Issue**: If you can still see readable class names like `PriceThresholdController` in a decompiler, you likely built **without** the `-Dobfuscate.enabled=true` flag, so ProGuard was skipped entirely.
 
 ## What Gets Preserved
 

@@ -30,8 +30,17 @@ build_project() {
     echo "=================================================="
     
     if [ -z "$obfuscate_flag" ]; then
+        echo ""
+        echo "⚠️  WARNING: Building without obfuscation!"
+        echo "⚠️  Code will be easily decompilable."
+        echo "⚠️  For production, use: ./build.sh prod"
+        echo ""
         mvn clean package
     else
+        echo ""
+        echo "🔒 Building with ProGuard obfuscation enabled"
+        echo "🔒 Code will be protected against decompilation"
+        echo ""
         mvn clean package -Dobfuscate.enabled=true
     fi
     

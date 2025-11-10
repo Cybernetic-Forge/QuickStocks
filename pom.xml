@@ -282,13 +282,20 @@
                                 <option>-dontwarn java.sql.**</option>
                                 <option>-dontwarn lombok.**</option>
                                 
-                                <!-- Obfuscation enabled (rename classes/methods/fields) -->
+                                <!-- Aggressive obfuscation: rename classes, methods, and fields -->
                                 <option>-repackageclasses ''</option>
                                 <option>-allowaccessmodification</option>
+                                <option>-overloadaggressively</option>
+                                
+                                <!-- Remove debug attributes to make reverse engineering harder -->
+                                <option>-renamesourcefileattribute SourceFile</option>
                                 
                                 <!-- Optimization settings -->
-                                <option>-optimizationpasses 3</option>
+                                <option>-optimizationpasses 5</option>
                                 <option>-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*</option>
+                                
+                                <!-- Print mapping file for debugging if needed -->
+                                <option>-printmapping ${project.build.directory}/proguard-mapping.txt</option>
                             </options>
                         </configuration>
                     </execution>
