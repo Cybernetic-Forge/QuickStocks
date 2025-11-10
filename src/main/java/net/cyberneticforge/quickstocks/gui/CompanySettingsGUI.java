@@ -102,9 +102,9 @@ public class CompanySettingsGUI implements InventoryHolder {
             meta.displayName(Component.text(" "));
             border.setItemMeta(meta);
             
-            // Add empty/separator slots next to each category (slots 10, 19, 28, 37)
-            int[] separatorSlots = {10, 19, 28, 37};
-            for (int slot : separatorSlots) {
+            // Add borders around sections (rows 1 and 3)
+            int[] borderSlots = {9, 11, 13, 15, 17, 18, 22, 26, 27, 31, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 50, 51, 52};
+            for (int slot : borderSlots) {
                 inventory.setItem(slot, border);
             }
         } catch (Exception e) {
