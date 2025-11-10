@@ -105,6 +105,7 @@ QuickStocks brings real-world financial markets to Minecraft. Players can:
 - **[Installation](Documentation/Installation.md)** - Step-by-step setup guide
 - **[Configuration](Documentation/Configuration.md)** - Detailed configuration options
 - **[Database Management](Documentation/Database.md)** - Database administration
+- **[Build Obfuscation](Documentation/BUILD_OBFUSCATION.md)** - Code protection for releases
 - **[ChestShop Integration](Documentation/ChestShop-Integration.md)** - Company-owned chest shops
 - **[WorldGuard Integration](Documentation/WORLDGUARD_INTEGRATION.md)** - Region-based permissions and custom flags
 
@@ -197,6 +198,30 @@ Run special market events and company competitions
 
 <!-- [GUI Screenshot Placeholder: Portfolio Display] -->
 *Portfolio view with P&L calculations and performance metrics*
+
+---
+
+---
+
+## 🔨 Building from Source
+
+Want to compile QuickStocks yourself?
+
+```bash
+# Clone the repository
+git clone https://github.com/Cybernetic-Forge/QuickStocks.git
+cd QuickStocks
+
+# Development build (no obfuscation)
+mvn clean package
+
+# Production build (with obfuscation)
+mvn clean package -Dobfuscate.enabled=true
+```
+
+The compiled JAR will be in `target/QuickStocks-1.0.0-SNAPSHOT.jar`
+
+For more details on obfuscation and advanced build options, see the [Build Obfuscation Guide](Documentation/BUILD_OBFUSCATION.md).
 
 ---
 
