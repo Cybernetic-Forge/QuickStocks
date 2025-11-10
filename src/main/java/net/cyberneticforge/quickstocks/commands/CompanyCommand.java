@@ -622,21 +622,53 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
     }
     
     private void handleEditJob(Player player, String playerUuid, String[] args) throws Exception {
-        if (args.length < 4) {
-            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company editjob <company> <title> <permissions>"));
+        if (args.length < 3) {
+            Translation.CommandSyntax.sendMessage(player, new Replaceable("%command%", "/company editjob <company> <title> [permissions]"));
             player.sendMessage(ChatUT.hexComp(String.format("&cPermissions format: invite,createjobs,withdraw,manage,salaries%s (comma-separated)", QuickStocksPlugin.getHookManager().isHooked(HookType.ChestShop) ? ",chestshop" : "")));
+            player.sendMessage(ChatUT.hexComp("&eOr omit permissions to open GUI editor"));
             return;
         }
         
         String companyName = args[1];
         String title = args[2];
-        String permsStr = args[3].toLowerCase();
         
         Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByName(companyName);
         if (companyOpt.isEmpty()) {
             Translation.Company_Error_CompanyNotFound.sendMessage(player);
             return;
         }
+        
+        Company company = companyOpt.get();
+        
+        // If no permissions argument, open GUI editor
+        if (args.length == 3) {
+            // Find the job by title
+            List<CompanyJob> jobs = QuickStocksPlugin.getCompanyService().getCompanyJobs(company.getId());
+            Optional<CompanyJob> jobOpt = jobs.stream()
+                .filter(j -> j.getTitle().equalsIgnoreCase(title))
+                .findFirst();
+            
+            if (jobOpt.isEmpty()) {
+                player.sendMessage(ChatUT.hexComp("&cJob title not found: " + title));
+                return;
+            }
+            
+            // Check if player has permission
+            Optional<CompanyJob> playerJobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
+            if (playerJobOpt.isEmpty() || !playerJobOpt.get().canManageCompany()) {
+                player.sendMessage(ChatUT.hexComp("&cYou don't have permission to edit job permissions."));
+                return;
+            }
+            
+            // Open GUI editor
+            net.cyberneticforge.quickstocks.gui.CompanyJobEditGUI editGUI = 
+                new net.cyberneticforge.quickstocks.gui.CompanyJobEditGUI(player, company, jobOpt.get());
+            player.openInventory(editGUI.getInventory());
+            return;
+        }
+        
+        // Command-line permission editing (existing functionality)
+        String permsStr = args[3].toLowerCase();
         
         boolean canInvite = permsStr.contains("invite");
         boolean canCreateTitles = permsStr.contains("createjobs");
@@ -646,7 +678,7 @@ public class CompanyCommand implements CommandExecutor, TabCompleter {
         boolean canManageSalaries = permsStr.contains("salaries");
         boolean canManagePlots = permsStr.contains("plots");
         
-        QuickStocksPlugin.getCompanyService().updateJobTitle(companyOpt.get().getId(), playerUuid, title,
+        QuickStocksPlugin.getCompanyService().updateJobTitle(company.getId(), playerUuid, title,
                                      canInvite, canCreateTitles, canWithdraw, canManage, canChestShop, canManageSalaries, canManagePlots);
 
         String permissions = (canManage ? "Manage " : "") +

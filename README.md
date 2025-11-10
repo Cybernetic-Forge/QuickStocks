@@ -18,7 +18,7 @@ QuickStocks brings real-world financial markets to Minecraft. Players can:
 - 📊 **Trade on a realistic stock market** with dynamic pricing and 25+ market factors
 - 🏢 **Create and manage companies** with employees, roles, and shared finances
 - 💹 **Go public with IPOs** and trade company shares on the market
-- 🪙 **Create custom cryptocurrencies** with permission-based controls
+- 🪙 **Create custom cryptocurrencies** - Players with $500k can create personal crypto, or companies can create their own tokens
 - 📈 **Build investment portfolios** and track performance in real-time
 - 💰 **Manage wallets** integrated with Vault economy
 - 👀 **Use watchlists** to monitor favorite instruments
@@ -183,6 +183,21 @@ Run special market events and company competitions
 
 # Monitor shareholders
 /market shareholders TECH
+```
+
+### Creating Cryptocurrency
+```bash
+# Personal cryptocurrency (requires $500k)
+/crypto create MYCOIN "My Custom Coin"
+
+# Company cryptocurrency (requires company balance threshold)
+/crypto company TechCorp TECHCOIN "TechCorp Token"
+
+# Check your crypto
+/stocks MYCOIN                  # View details
+
+# Trade crypto like any other instrument
+/market buy MYCOIN 1000         # Buy 1000 coins
 ```
 
 ---

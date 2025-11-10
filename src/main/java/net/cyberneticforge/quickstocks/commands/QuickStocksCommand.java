@@ -65,12 +65,6 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
             // Stop running services
             sender.sendMessage(Component.text("Stopping services...", NamedTextColor.GRAY));
             
-            // Stop simulation engine
-            if (QuickStocksPlugin.getSimulationEngine() != null) {
-                QuickStocksPlugin.getSimulationEngine().stop();
-                getLogger().info("Simulation engine stopped for reload");
-            }
-            
             // Cancel all Bukkit scheduler tasks for this plugin
             plugin.getServer().getScheduler().cancelTasks(plugin);
             getLogger().info("All scheduled tasks cancelled for reload");
@@ -114,12 +108,6 @@ public class QuickStocksCommand implements CommandExecutor, TabCompleter {
             
             // Restart services
             sender.sendMessage(Component.text("Restarting services...", NamedTextColor.GRAY));
-            
-            // Recreate and start simulation engine (needed because executor service is terminated on stop)
-            if (QuickStocksPlugin.getSimulationEngine() != null) {
-                plugin.recreateSimulationEngine();
-                getLogger().info("Simulation engine recreated and started");
-            }
             
             // Restart salary payment scheduler
             plugin.startSalaryPaymentScheduler();

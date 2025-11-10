@@ -1,22 +1,24 @@
 package net.cyberneticforge.quickstocks.core.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents a job title/role within a company.
  */
 @Getter
+@Setter
 public class CompanyJob {
     private final String id;
     private final String companyId;
     private final String title;
-    private final boolean canInvite;
-    private final boolean canCreateTitles;
-    private final boolean canWithdraw;
-    private final boolean canManageCompany;
-    private final boolean canManageChestShop;
-    private final boolean canManageSalaries;
-    private final boolean canManagePlots;
+    private boolean canInvite;
+    private boolean canCreateTitles;
+    private boolean canWithdraw;
+    private boolean canManageCompany;
+    private boolean canManageChestShop;
+    private boolean canManageSalaries;
+    private boolean canManagePlots;
     
     public CompanyJob(String id, String companyId, String title, boolean canInvite, 
                      boolean canCreateTitles, boolean canWithdraw, boolean canManageCompany, 

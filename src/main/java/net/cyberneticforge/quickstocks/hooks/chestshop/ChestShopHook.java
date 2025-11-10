@@ -5,7 +5,7 @@ import com.Acrobot.ChestShop.UUIDs.NameManager;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
-import net.cyberneticforge.quickstocks.core.services.CompanyService;
+import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyService;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.entity.Player;
 

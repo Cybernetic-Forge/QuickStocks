@@ -109,6 +109,7 @@ public class MigrationRunner {
             "V12__company_plots.sql",
             "V13__plot_permission.sql",
             "V14__plot_permissions.sql",
+            "V15__enhanced_crypto.sql",
         };
         
         for (String filename : expectedMigrations) {

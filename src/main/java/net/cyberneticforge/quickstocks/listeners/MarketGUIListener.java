@@ -4,10 +4,11 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
-import net.cyberneticforge.quickstocks.core.services.HoldingsService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -66,6 +67,16 @@ public class MarketGUIListener implements Listener {
         if (slot == 0 && item.getType() == Material.BOOK) {
             // Portfolio overview button
             openPortfolioGUI(player);
+            return;
+        }
+        
+        if (slot == 4) {
+            // Filter button - cycle through filter modes
+            marketGUI.toggleFilter();
+            String filterMode = marketGUI.getFilterMode().toString();
+            player.sendMessage(ChatUT.hexComp(
+                "&aFilter changed to: &e" + filterMode
+            ));
             return;
         }
         

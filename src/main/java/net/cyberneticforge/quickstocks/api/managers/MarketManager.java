@@ -4,8 +4,8 @@ import net.cyberneticforge.quickstocks.core.model.Instrument;
 import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.core.model.PriceHistory;
 import net.cyberneticforge.quickstocks.core.model.Stock;
-import net.cyberneticforge.quickstocks.core.services.InstrumentPersistenceService;
-import net.cyberneticforge.quickstocks.core.services.StockMarketService;
+import net.cyberneticforge.quickstocks.core.services.features.market.InstrumentPersistenceService;
+import net.cyberneticforge.quickstocks.core.services.features.market.StockMarketService;
 
 import java.sql.SQLException;
 import java.util.List;

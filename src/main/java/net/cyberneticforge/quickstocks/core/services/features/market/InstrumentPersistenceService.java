@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.core.services;
+package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Instrument;

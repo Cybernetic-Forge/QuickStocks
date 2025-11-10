@@ -1,8 +1,8 @@
 package net.cyberneticforge.quickstocks.api.managers;
 
-import net.cyberneticforge.quickstocks.core.services.HoldingsService;
-import net.cyberneticforge.quickstocks.core.services.WalletService;
-import net.cyberneticforge.quickstocks.core.services.WatchlistService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.WalletService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.WatchlistService;
 
 import java.sql.SQLException;
 import java.util.List;
