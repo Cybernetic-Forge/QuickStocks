@@ -41,11 +41,11 @@ company_settings:
     permission_prefix: "&a✓ &f"
     no_permissions: "&7No special permissions"
   
-  # Management Section - Slots 19-21
+  # Row 2: Management Section (Category on left, features after empty slot)
   section_management:
     name: "&b&lManagement"
     material: WRITABLE_BOOK
-    slot: 10
+    slot: 9
     lore:
       - "&7Manage company operations"
       - "&7and administrative tasks"
@@ -53,7 +53,7 @@ company_settings:
   view_employees:
     name: "&bEmployees List"
     material: PLAYER_HEAD
-    slot: 19
+    slot: 11
     lore:
       - "&7Current Employees: &e{employee_count}"
       - ""
@@ -63,7 +63,7 @@ company_settings:
   view_jobs:
     name: "&bJob Titles"
     material: WRITABLE_BOOK
-    slot: 20
+    slot: 12
     lore:
       - "&7Total Jobs: &e{job_count}"
       - ""
@@ -73,7 +73,7 @@ company_settings:
   invite_player:
     name: "&aInvite Player"
     material: EMERALD
-    slot: 21
+    slot: 13
     lore:
       - "&7Invite new members to join"
       - "&7your company"
@@ -81,11 +81,11 @@ company_settings:
       - "&eClick to invite"
       - "&8Requires: Invite Permission"
   
-  # Financial Section - Slots 23-25
+  # Row 3: Financial Section (Category on left, features after empty slot)
   section_financial:
     name: "&e&lFinancial"
     material: GOLD_BLOCK
-    slot: 12
+    slot: 18
     lore:
       - "&7Manage company funds"
       - "&7and transactions"
@@ -93,7 +93,7 @@ company_settings:
   deposit:
     name: "&aDeposit Funds"
     material: HOPPER
-    slot: 23
+    slot: 20
     lore:
       - "&7Transfer money from your"
       - "&7wallet to company balance"
@@ -103,7 +103,7 @@ company_settings:
   withdraw:
     name: "&6Withdraw Funds"
     material: GOLD_INGOT
-    slot: 24
+    slot: 21
     lore:
       - "&7Transfer money from company"
       - "&7balance to your wallet"
@@ -114,18 +114,18 @@ company_settings:
   transactions:
     name: "&eTransaction History"
     material: BOOK
-    slot: 25
+    slot: 22
     lore:
       - "&7View recent company"
       - "&7transactions and activity"
       - ""
       - "&eClick to view history"
   
-  # Market Section - Slots 28-30
+  # Row 4: Market Section (Category on left, features after empty slot)
   section_market:
     name: "&2&lMarket"
     material: EMERALD_BLOCK
-    slot: 14
+    slot: 27
     lore:
       - "&7Company market presence"
       - "&7and public trading"
@@ -133,7 +133,7 @@ company_settings:
   market_status:
     name: "&2Market Status"
     material: EMERALD
-    slot: 28
+    slot: 29
     lore:
       - "&7Status: &e{market_status}"
       - "&7Share Price: &a${share_price}"
@@ -144,7 +144,7 @@ company_settings:
   go_public:
     name: "&aGo Public (IPO)"
     material: DIAMOND
-    slot: 29
+    slot: 30
     lore:
       - "&7List your company on"
       - "&7the public stock market"
@@ -155,18 +155,18 @@ company_settings:
   manage_shares:
     name: "&6Manage Shares"
     material: PAPER
-    slot: 30
+    slot: 31
     lore:
       - "&7Configure share pricing"
       - "&7and distribution"
       - ""
       - "&eClick to manage"
   
-  # Jobs & Roles Section - Slots 32-34
+  # Row 5: Jobs & Roles Section (Category on left, features after empty slot)
   section_roles:
     name: "&d&lRoles & Titles"
     material: ENCHANTED_BOOK
-    slot: 16
+    slot: 36
     lore:
       - "&7Job titles and permissions"
       - "&7management system"
@@ -174,7 +174,7 @@ company_settings:
   create_job:
     name: "&dCreate Job Title"
     material: BOOK
-    slot: 32
+    slot: 38
     lore:
       - "&7Create a new job title with"
       - "&7custom permissions"
@@ -185,7 +185,7 @@ company_settings:
   assign_job:
     name: "&bAssign Job"
     material: NAME_TAG
-    slot: 33
+    slot: 39
     lore:
       - "&7Assign job titles to"
       - "&7company employees"
@@ -196,7 +196,7 @@ company_settings:
   edit_permissions:
     name: "&6Edit Permissions"
     material: ENCHANTED_BOOK
-    slot: 34
+    slot: 40
     lore:
       - "&7Modify permissions for"
       - "&7existing job titles"
