@@ -1,6 +1,6 @@
 package net.cyberneticforge.quickstocks.commands;
 
-import net.cyberneticforge.quickstocks.core.services.CryptoService;
+import net.cyberneticforge.quickstocks.core.services.features.market.CryptoService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;

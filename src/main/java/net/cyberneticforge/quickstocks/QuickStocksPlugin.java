@@ -7,10 +7,11 @@ import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
 import net.cyberneticforge.quickstocks.core.services.*;
 import net.cyberneticforge.quickstocks.core.services.features.companies.InvitationService;
 import net.cyberneticforge.quickstocks.core.services.features.companies.SalaryService;
-import net.cyberneticforge.quickstocks.core.services.features.market.CompanyMarketService;
+import net.cyberneticforge.quickstocks.core.services.features.market.*;
 import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyPlotService;
 import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyService;
-import net.cyberneticforge.quickstocks.core.services.features.market.TradingService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.QueryService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WalletService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WatchlistService;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopAccountProvider;
@@ -86,8 +87,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
     @Getter
     private static WatchlistService watchlistService;
     @Getter
-    private static AuditService auditService;
-    @Getter
     private static CompanyService companyService;
     @Getter
     private static InvitationService invitationService;
@@ -101,8 +100,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static BukkitRunnable marketUpdateTask;
     @Getter
     private static InstrumentPersistenceService instrumentPersistenceService;
-    @Getter
-    private static AnalyticsService analyticsService;
     @Getter
     private static HookManager hookManager;
     @Getter
@@ -174,7 +171,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
             PriceThresholdController thresholdController = new PriceThresholdController(config);
 
             stockMarketService = new StockMarketService(thresholdController);
-            analyticsService = new AnalyticsService();
             queryService = new QueryService();
             cryptoService = new CryptoService();
             walletService = new WalletService();
@@ -186,7 +182,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
             holdingsService = new HoldingsService();
             tradingService = new TradingService();
             watchlistService = new WatchlistService();
-            auditService = new AuditService();
             instrumentPersistenceService = new InstrumentPersistenceService();
             tradingService.setStockMarketService(new StockMarketService());
 

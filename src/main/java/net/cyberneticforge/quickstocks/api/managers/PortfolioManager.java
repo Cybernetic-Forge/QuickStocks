@@ -1,6 +1,6 @@
 package net.cyberneticforge.quickstocks.api.managers;
 
-import net.cyberneticforge.quickstocks.core.services.HoldingsService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WalletService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WatchlistService;
 

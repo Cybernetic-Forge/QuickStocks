@@ -1,7 +1,7 @@
 package net.cyberneticforge.quickstocks.api.managers;
 
 import net.cyberneticforge.quickstocks.core.model.Crypto;
-import net.cyberneticforge.quickstocks.core.services.CryptoService;
+import net.cyberneticforge.quickstocks.core.services.features.market.CryptoService;
 
 import java.sql.SQLException;
 import java.util.List;
