@@ -392,53 +392,10 @@ Contributions are welcome! Please:
 4. Write tests for new functionality
 5. Submit a pull request
 
-See [CONTRIBUTING_TESTS.md](Documentation/CONTRIBUTING_TESTS.md) for detailed guidelines.
-
 ### 💬 Need Help?
 - **[GitHub Issues](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Bug reports and feature requests
-- **[Discord]([https://discord.gg/your-invite](https://discord.gg/Sek4PRBf))** - Real-time chat and support
+- **[Discord](https://discord.gg/Sek4PRBf)** - Real-time chat and support
 - **[Documentation](Documentation/Getting-Started.md)** - Comprehensive guides
-
----
-
-## 📊 Anonymous Statistics
-
-QuickStocks uses [bStats](https://bstats.org/) to collect **anonymous usage statistics**. This helps us:
-- Understand how the plugin is used
-- Prioritize features and improvements
-- Identify compatibility issues
-- Make data-driven decisions
-
-### What We Collect
-- Server count and player counts
-- Plugin version distribution
-- Minecraft server software and version
-- Java version
-- Enabled features (market, companies, etc.)
-
-### View Public Statistics
-See aggregated data at: https://bstats.org/plugin/bukkit/QuickStocks/24106
-
-### Opt-Out
-To disable statistics:
-- **Per-Plugin:** Set `metrics.enabled: false` in `plugins/QuickStocks/config.yml`
-- **Globally:** Disable in `plugins/bStats/config.yml` (affects all plugins using bStats)
-
-We respect your privacy while improving the plugin for everyone.
-
----
-
-## 📜 License
-
-QuickStocks is released under the **MIT License**.
-
-You are free to:
-- ✅ Use commercially or personally
-- ✅ Modify and adapt the code
-- ✅ Distribute copies
-- ✅ Use in private projects
-
-See [LICENSE](LICENSE) file for full details.
 
 ---
 
