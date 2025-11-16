@@ -10,8 +10,8 @@ market:
     watchlist: true # Enable/disable watchlist functionality
     portfolio: true # Enable/disable portfolio viewing
     trading: true # Enable/disable buying/selling shares
-    marketDevice: true # Enable/disable market device item
-    cryptoCommand: true # Enable/disable /crypto command (custom cryptocurrency creation)
+    marketDevice: false # Enable/disable market device item
+    cryptoCommand: false # Enable/disable /crypto command (custom cryptocurrency creation)
   
   # Price growth threshold configuration
   priceThreshold:
@@ -26,12 +26,6 @@ market:
     minVolumeThreshold: 100
     # How quickly dampening decreases when volume increases (higher = more sensitive to volume)
     volumeSensitivity: 0.5
-
-# Market Device Configuration
-marketDevice:
-  recipe:
-    enabled: false # Enable crafting recipe for Market Device
-    shapedRecipe: true # Use shaped recipe (3x3 grid)
 
 # Analytics Configuration
 analytics:
@@ -65,17 +59,17 @@ trading:
 
 # Cryptocurrency Configuration
 crypto:
-  enabled: true  # Enable/disable crypto creation system
+  enabled: false  # Enable/disable crypto creation system
   
   # Personal Crypto Creation
   personal:
-    enabled: true  # Allow players to create personal cryptocurrencies
+    enabled: false  # Allow players to create personal cryptocurrencies
     creationCost: 500000.0  # Cost to create a personal cryptocurrency ($500,000 default)
     maxPerPlayer: -1  # Maximum cryptos a player can create (-1 = unlimited)
   
   # Company Crypto Creation
   company:
-    enabled: true  # Allow companies to create cryptocurrencies
+    enabled: false  # Allow companies to create cryptocurrencies
     balanceThreshold: 100000.0  # Minimum company balance required to create crypto
     # Balance thresholds by company type
     balanceThresholds:

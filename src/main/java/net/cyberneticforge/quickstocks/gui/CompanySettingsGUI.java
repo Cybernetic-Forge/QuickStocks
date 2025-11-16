@@ -32,6 +32,7 @@ public class CompanySettingsGUI implements InventoryHolder {
     private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final Player player;
+    private final int guiSize;
 
     /**
      * -- GETTER --
@@ -46,7 +47,7 @@ public class CompanySettingsGUI implements InventoryHolder {
         this.player = player;
         this.company = company;
 
-        int guiSize = QuickStocksPlugin.getGuiConfig().getConfig().getInt("company_settings.size", 54);
+        guiSize = QuickStocksPlugin.getGuiConfig().getConfig().getInt("company_settings.size", 54);
         String title = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.title", "&6Company: &f{company_name}")
                 .replace("{company_name}", company.getName());
         this.inventory = Bukkit.createInventory(this, guiSize, ChatUT.hexComp(title));
@@ -103,8 +104,7 @@ public class CompanySettingsGUI implements InventoryHolder {
             border.setItemMeta(meta);
             
             // Add borders around sections (rows 1 and 3)
-            int[] borderSlots = {9, 11, 13, 15, 17, 18, 22, 26, 27, 31, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 50, 51, 52};
-            for (int i = 0; i < borderSlots.length; i++) {
+            for (int i = 0; i < guiSize; i++) {
                 inventory.setItem(i, border);
             }
         } catch (Exception e) {
