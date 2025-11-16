@@ -1,24 +1,28 @@
-name: Build & Release
+name: Release
 
 on:
   pull_request:
     branches:
       - dev
       - main
-    types: [opened, reopened, synchronize, ready_for_review]
+    types: [closed]
 
 permissions:
   contents: write
 
 jobs:
-  build-and-release:
-    name: Build and publish tagged release
+  release:
+    name: Create versioned release
+    # Only run if the PR was merged
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -37,7 +41,7 @@ jobs:
           fi
 
           IFS='.' read -r major minor patch <<<"${latest_tag#v}"
-          base_branch="${{ github.base_ref }}"
+          base_branch="${{ github.event.pull_request.base.ref }}"
 
           if [ "$base_branch" = "dev" ]; then
             patch=$((patch + 1))
@@ -50,7 +54,25 @@ jobs:
           fi
 
           next_tag="v${major}.${minor}.${patch}"
+          next_version="${major}.${minor}.${patch}"
           echo "tag=$next_tag" | tee -a "$GITHUB_OUTPUT"
+          echo "version=$next_version" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Update pom.xml version
+        run: |
+          mvn -B -ntp versions:set -DnewVersion=${{ steps.version.outputs.version }} -DgenerateBackupPoms=false
+
+      - name: Update plugin.yml version
+        run: |
+          sed -i "s/^version: .*/version: ${{ steps.version.outputs.version }}/" src/main/resources/plugin.yml
+
+      - name: Commit version changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pom.xml src/main/resources/plugin.yml
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
+          git push
 
       - name: Build project
         run: mvn -B -ntp package
@@ -62,7 +84,7 @@ jobs:
           name: Release ${{ steps.version.outputs.tag }}
           target_commitish: ${{ github.sha }}
           body: |
-            Automated release for PR #${{ github.event.pull_request.number }} targeting `${{ github.base_ref }}`.
+            Automated release for merged PR #${{ github.event.pull_request.number }} to `${{ github.event.pull_request.base.ref }}`.
           files: |
             target/QuickStocks-*.jar
         env:
