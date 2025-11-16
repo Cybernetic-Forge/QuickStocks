@@ -2,6 +2,7 @@
 
 ## 📋 Table of Contents
 - [Quick Start](#quick-start) - Essential info for getting started
+- [Feature-Specific Documentation](#-feature-specific-documentation) - Deep dives into each feature
 - [Development Environment Setup](#development-environment-setup) - Build and dev setup
 - [Architecture](#architecture) - Project structure and organization
 - [Core Features Implemented](#core-features-implemented) - Current functionality
@@ -23,7 +24,7 @@ QuickStocks is a Minecraft Paper plugin (version 1.21.8) that provides a compreh
 - ⚙️ **Configuration**: Multi-file config system (config.yml, market.yml, companies.yml, guis.yml)
 - 🎮 **Commands**: All 7 commands fully implemented (/stocks, /market, /company, /crypto, /wallet, /watch, /marketdevice)
 - 🔌 **Soft Dependencies**: ChestShop, WorldGuard, Vault (all optional, plugin works without them)
-- 🧪 **Testing**: Primarily manual on Minecraft server; limited automated tests
+- 🧪 **Testing**: MockBukkit automated tests + manual integration testing (78 test cases)
 - 🚀 **Build**: Standard Maven; external repos may be unreachable in sandboxed environments (expected)
 
 **When Making Changes:**
@@ -31,8 +32,34 @@ QuickStocks is a Minecraft Paper plugin (version 1.21.8) that provides a compreh
 2. Database changes require new migration files (`VX__description.sql`)
 3. Configuration changes go in appropriate YAML file (not all in config.yml)
 4. Follow the service layer pattern (don't bypass services to access DB directly)
-5. Manual testing on Minecraft server is required for most changes
-6. Update this file when making significant architectural changes
+5. **Consult feature-specific documentation** before modifying a feature (see below)
+6. Write tests for business logic changes
+7. Update this file when making significant architectural changes
+
+## 📚 Feature-Specific Documentation
+
+For detailed information about specific features, consult these in-depth guides:
+
+### Core Systems
+- **[Market & Trading System](.github/copilot/features/market-trading.md)** - Trading engine, price algorithms, circuit breakers, fees, slippage
+- **[Company Management](.github/copilot/features/company-management.md)** - Companies, employees, roles, finances, plots, salaries, IPOs
+- **[Cryptocurrency System](.github/copilot/features/crypto-system.md)** - Custom crypto creation, default cryptos, company cryptos
+- **[Portfolio & Wallet](.github/copilot/features/portfolio-wallet.md)** - Balance management, holdings, watchlists, Vault integration
+
+### Infrastructure
+- **[Database & Persistence](.github/copilot/features/database-persistence.md)** - Schema, migrations, multi-provider support, query patterns
+- **[GUI System](.github/copilot/features/gui-system.md)** - Market GUI, Company Settings GUI, configuration, event handling
+
+### Integrations & Testing
+- **[Plugin Integrations](.github/copilot/features/plugin-integrations.md)** - Vault, ChestShop, WorldGuard integration patterns
+- **[Testing Strategy](.github/copilot/features/testing-strategy.md)** - MockBukkit tests, manual testing, CI/CD, coverage goals
+
+**When to Consult Feature Docs:**
+- Before modifying any feature's business logic
+- When adding new functionality to existing features
+- When debugging feature-specific issues
+- When understanding data flow and dependencies
+- When writing tests for a feature
 
 ## Project Overview
 QuickStocks provides players with an immersive stock trading experience based on real-world market factors and behaviors. The plugin features realistic price calculations, comprehensive market simulation, and full database persistence.
@@ -464,6 +491,8 @@ public class YourService {
 - Create migrations for schema changes (V2__*.sql, etc.)
 - Use PluginLogger instead of java.util.logging.Logger
 - Use appropriate log levels (info/debug/trace for different verbosity)
+- Extract common validation logic into utility methods
+- Use consistent error handling across commands
 
 **❌ DON'T:**
 - Access database directly - use service layer
@@ -474,6 +503,123 @@ public class YourService {
 - Duplicate code across services - use delegation or extraction instead
 - Add redundant @SuppressWarnings at method level when class already has it
 - Use java.util.logging.Logger directly - use PluginLogger instead
+- Repeat validation logic in multiple commands - extract to utilities
+- Copy-paste error handling - use common patterns
+
+### 🎯 Code Quality Patterns: Avoiding Duplication
+
+**Common Duplication Patterns & Solutions:**
+
+#### 1. Command Validation Pattern
+**Problem:** Player checks repeated in every command
+```java
+// ❌ Duplicated in every command
+if (!(sender instanceof Player player)) {
+    Translation.NoConsoleSender.sendMessage(sender);
+    return true;
+}
+```
+
+**Solution:** Already using translation system consistently - keep this pattern as it's minimal and clear
+
+#### 2. Number Parsing Pattern
+**Problem:** Try-catch blocks for parsing repeated
+```java
+// ❌ Duplicated
+try {
+    double amount = Double.parseDouble(args[1]);
+    if (amount <= 0) {
+        // error message
+    }
+} catch (NumberFormatException e) {
+    // error message
+}
+```
+
+**Solution:** Acceptable duplication for clarity. If patterns grow, consider utility:
+```java
+// Optional: utils/NumberParser.java
+public class NumberParser {
+    public static Optional<Double> parsePositiveDouble(String input) {
+        try {
+            double value = Double.parseDouble(input);
+            return value > 0 ? Optional.of(value) : Optional.empty();
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+}
+```
+
+#### 3. Feature Toggle Checks
+**Problem:** Feature enabled checks repeated
+```java
+// ✅ Already well-handled with config managers
+if (!QuickStocksPlugin.getMarketCfg().isEnabled()) {
+    Translation.MarketDisabled.sendMessage(player);
+    return true;
+}
+```
+**Keep this pattern** - it's clear and centralized via config managers.
+
+#### 4. Error Handling in Services
+**Problem:** Similar try-catch blocks in services
+```java
+// ❌ Duplicated error handling
+try {
+    // service operation
+    logger.info("Success message");
+} catch (SQLException e) {
+    logger.warning("Failed: " + e.getMessage());
+    throw new RuntimeException(e);
+}
+```
+
+**Solution:** This pattern is acceptable when each operation needs specific logging. If truly generic, consider:
+```java
+// Optional: ServiceHelper utility
+public interface DatabaseOperation<T> {
+    T execute() throws SQLException;
+}
+
+public class ServiceHelper {
+    public static <T> T executeWithLogging(
+        String operationName, 
+        DatabaseOperation<T> operation
+    ) throws SQLException {
+        try {
+            T result = operation.execute();
+            logger.info(operationName + " succeeded");
+            return result;
+        } catch (SQLException e) {
+            logger.warning(operationName + " failed: " + e.getMessage());
+            throw e;
+        }
+    }
+}
+```
+
+#### 5. Permission Checking Pattern
+**Problem:** Permission checks with error messages
+```java
+// ✅ Current pattern is fine
+if (!player.hasPermission("quickstocks.admin")) {
+    Translation.NoPermission.sendMessage(player);
+    return true;
+}
+```
+**Keep this pattern** - it's clear and uses translation system properly.
+
+**Key Principle:** *Don't extract duplication prematurely. Extract when:*
+1. The duplication spans 3+ locations (Rule of Three)
+2. The logic is complex and error-prone
+3. Changes would need to be made in multiple places
+4. The abstraction is clearer than inline code
+
+**Current Status:** ✅ The codebase has minimal problematic duplication. Most repeated patterns are:
+- Simple, clear, and easy to maintain
+- Use centralized systems (Translation, Config managers)
+- Follow consistent patterns that are self-documenting
 
 ### When Working on This Project:
 1. **Always update these instructions** when making significant changes
