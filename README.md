@@ -30,7 +30,6 @@ QuickStocks isn't just another economy plugin—it's a **fully-featured financia
 - 🔌 **Smart Integrations** - Optional Vault, ChestShop, and WorldGuard support
 - 🎨 **Beautiful GUIs** - Professional interfaces with full customization
 - 📊 **Performance** - Optimized for servers of all sizes with connection pooling
-- 🧪 **Production Ready** - 78 automated tests, CI/CD pipeline, clean architecture
 - 🔧 **Highly Configurable** - Multi-file config system for fine-tuned control
 
 ---
@@ -47,30 +46,6 @@ Not just random price changes—QuickStocks uses **sophisticated algorithms** th
 - Supply/demand dynamics with slippage
 - **Circuit breakers** to prevent market crashes
 - **Trading fees** and realistic market mechanics
-
-### 🏗️ Enterprise-Grade Architecture
-Built with professional software engineering practices:
-- **Clean Architecture** - Maintainable, testable, extensible
-- **Service Layer Pattern** - Clear separation of concerns
-- **Database Migrations** - Safe, versioned schema changes
-- **Connection Pooling** - High performance with HikariCP
-- **Event System** - Full API for developers to extend
-- **Comprehensive Testing** - 78 automated test cases with MockBukkit
-- **CI/CD Pipeline** - Automated builds and test validation
-
-### 🎨 User Experience Excellence
-- **Intuitive Commands** - Tab completion and helpful hints
-- **Beautiful GUIs** - Color-coded displays with tooltips
-- **Instant Feedback** - Real-time updates and notifications
-- **Permission-Aware** - Smart interfaces that adapt to user roles
-- **Multilingual Ready** - Translation system for internationalization
-
-### 🔐 Security & Stability
-- **CodeQL Security Scanning** - Automated vulnerability detection
-- **Advisory Database Checks** - Dependency security validation
-- **Safe Transactions** - Validated operations with rollback support
-- **Rate Limiting** - Anti-spam and abuse prevention
-- **Graceful Degradation** - Works even when optional plugins unavailable
 
 ---
 
@@ -223,31 +198,6 @@ Professional GUIs that make complex operations simple:
 
 ---
 
-## 📚 Documentation
-
-### 🎯 For Players
-- **[Getting Started](Documentation/Getting-Started.md)** - Learn the basics and start trading
-- **[Commands Overview](Documentation/Commands-Overview.md)** - All available commands
-- **[Permissions](Documentation/Permissions.md)** - Permission system explained
-
-### 🎮 For Server Administrators
-- **[Installation](Documentation/Installation.md)** - Step-by-step setup guide
-- **[Configuration](Documentation/Configuration.md)** - Detailed configuration options
-- **[Database Management](Documentation/Database.md)** - Database administration
-- **[ChestShop Integration](Documentation/ChestShop-Integration.md)** - Company-owned chest shops
-- **[WorldGuard Integration](Documentation/WORLDGUARD_INTEGRATION.md)** - Region-based permissions and custom flags
-
-### 📖 Command References
-- **[Stocks Commands](Documentation/Commands-Stocks.md)** - Market data and analysis
-- **[Market Commands](Documentation/Commands-Market.md)** - Trading interface
-- **[Company Commands](Documentation/Commands-Company.md)** - Company management
-- **[Crypto Commands](Documentation/Commands-Crypto.md)** - Cryptocurrency creation
-- **[Wallet Commands](Documentation/Commands-Wallet.md)** - Balance management
-- **[Watch Commands](Documentation/Commands-Watch.md)** - Watchlist management
-- **[Market Device](Documentation/Commands-MarketDevice.md)** - Portable market access
-
----
-
 ## 🎯 Use Cases & Server Types
 
 ### 🏫 Educational Servers
@@ -285,41 +235,6 @@ Create unique economy-focused games:
 - Company building challenges
 - Economic simulation games
 - Financial literacy challenges
-
----
-
-## 🔧 Technical Specifications
-
-### System Requirements
-- **Server Software:** Paper 1.21.8+ (recommended) / Spigot / Bukkit
-- **Java Version:** Java 21 or higher (required)
-- **Database:** SQLite (included), MySQL 8.0+, or PostgreSQL 12+
-- **Memory:** Minimum 1GB recommended for the plugin
-- **Dependencies:** None required (Vault, ChestShop, WorldGuard all optional)
-
-### Performance & Scalability
-- **Connection Pooling:** HikariCP for optimal database performance
-- **Async Operations:** Non-blocking market updates and calculations
-- **Indexed Queries:** Optimized database schema for fast lookups
-- **Configurable Intervals:** Adjust update frequency based on server size
-- **Tested Scale:** Designed for servers from 10 to 1000+ players
-
-### Architecture & Code Quality
-- **Clean Architecture:** IoC pattern with service layers (core/api/infrastructure/commands/gui)
-- **Maintainable:** Clear separation of concerns, SOLID principles
-- **Extensible:** Public API with event system for developers
-- **Tested:** 78 automated tests with MockBukkit (fee calculations, trading, companies, portfolios)
-- **CI/CD:** GitHub Actions pipeline with automated testing
-- **Security:** CodeQL scanning, dependency vulnerability checks
-- **Documentation:** Comprehensive docs for users, admins, and developers
-
-### Database Features
-- **Multi-Provider:** SQLite, MySQL, PostgreSQL support
-- **Auto-Migration:** Versioned schema migrations on startup
-- **Schema Version:** V1 with 15+ tables covering all features
-- **Transaction Support:** ACID-compliant operations
-- **Query Interface:** Type-safe database operations
-- **Connection Resilience:** Automatic retry and error handling
 
 ---
 
@@ -479,17 +394,9 @@ Contributions are welcome! Please:
 
 See [CONTRIBUTING_TESTS.md](Documentation/CONTRIBUTING_TESTS.md) for detailed guidelines.
 
-### 📖 Documentation Improvements?
-Documentation is crucial! Help us improve:
-- Fix typos or unclear explanations
-- Add examples and use cases
-- Translate to other languages
-- Create video tutorials
-
 ### 💬 Need Help?
-- **[GitHub Discussions](https://github.com/Cybernetic-Forge/QuickStocks/discussions)** - Q&A and community help
 - **[GitHub Issues](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Bug reports and feature requests
-- **[Discord](https://discord.gg/your-invite)** - Real-time chat and support
+- **[Discord]([https://discord.gg/your-invite](https://discord.gg/Sek4PRBf))** - Real-time chat and support
 - **[Documentation](Documentation/Getting-Started.md)** - Comprehensive guides
 
 ---
@@ -521,54 +428,6 @@ We respect your privacy while improving the plugin for everyone.
 
 ---
 
-## 🙏 Credits & Acknowledgments
-
-**Developed with ❤️ by the Cybernetic Forge Team**
-
-### Technology Stack
-- **Minecraft Platform:** Paper/Spigot/Bukkit API
-- **Language:** Java 21 with modern features
-- **Database:** Multi-provider (SQLite, MySQL, PostgreSQL) with HikariCP
-- **Architecture:** Clean architecture with IoC patterns
-- **UI Framework:** Adventure Components for rich text formatting
-- **Testing:** MockBukkit + JUnit 5 (78 automated tests)
-- **Build System:** Maven with automated CI/CD
-- **Statistics:** bStats for anonymous usage metrics
-
-### Design Philosophy
-- **Realism First** - Market behavior mirrors real-world financial markets
-- **User Experience** - Intuitive interfaces with helpful guidance
-- **Performance** - Optimized for game server environments
-- **Extensibility** - Public API and event system for developers
-- **Quality** - Comprehensive testing and security validation
-- **Maintainability** - Clean code with clear documentation
-
-### Special Thanks
-- **Paper Team** - For an excellent Minecraft server platform
-- **MockBukkit Contributors** - Making testing Minecraft plugins possible
-- **bStats Team** - Anonymous statistics platform
-- **Open Source Community** - For the amazing tools and libraries
-
-### Architecture Highlights
-- **Clean Architecture** with service layers and dependency injection
-- **Database Migrations** for safe schema evolution
-- **Connection Pooling** with HikariCP for performance
-- **Event System** for plugin developers to extend functionality
-- **Multi-file Configuration** for organized settings
-- **Centralized Logging** with configurable debug levels
-
-### Version History
-- **v1.0.0-SNAPSHOT** (Current) - Initial release with full feature set
-  - Complete market trading system with realistic simulation
-  - Comprehensive company management
-  - Cryptocurrency support (default and custom)
-  - Portfolio and wallet management
-  - ChestShop and WorldGuard integrations
-  - 78 automated tests with CI/CD pipeline
-  - Multi-database support with migrations
-
----
-
 ## 📜 License
 
 QuickStocks is released under the **MIT License**.
@@ -594,7 +453,6 @@ See [LICENSE](LICENSE) file for full details.
 - 🧪 **[Test Suite](Documentation/TEST_SUITE.md)** - Testing documentation
 
 ### Community & Support
-- 💬 **[GitHub Discussions](https://github.com/Cybernetic-Forge/QuickStocks/discussions)** - Q&A and community
 - 🐛 **[Issue Tracker](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Bug reports and features
 - 📊 **[bStats Dashboard](https://bstats.org/plugin/bukkit/QuickStocks/24106)** - Usage statistics
 - 💭 **[Discord Server](https://discord.gg/your-invite)** - Real-time chat support
