@@ -7,28 +7,59 @@
 
 ## Changes Implemented
 
-### 1. Enhanced GitHub Actions Workflow (`.github/workflows/build.yml`)
-Added the following new steps to automate version management:
+### 1. Split into Two Separate Workflows
 
-#### a. Enhanced Version Computation
-- Modified the "Compute next semantic version" step to output both `tag` (with 'v' prefix) and `version` (without prefix)
+#### a. Build CI Workflow (`.github/workflows/build-ci.yml`)
+**Purpose**: Continuous integration - runs on every commit
+**Trigger**: 
+- Push or pull request events
+- Only when files in `src/**` are modified
+
+**Steps**:
+1. Checkout repository
+2. Set up Java 21
+3. Build project with Maven
+4. Run tests
+
+**Benefits**:
+- Fast feedback for developers
+- Runs automatically on code changes
+- No unnecessary builds for documentation changes
+
+#### b. Release Workflow (`.github/workflows/release.yml`)
+**Purpose**: Create versioned releases when PRs are merged
+**Trigger**: 
+- Pull request closed event (merged only)
+- Target branches: `dev` or `main`
+
+**Steps**:
+1. Checkout base branch (dev or main)
+2. Compute next semantic version
+3. Update pom.xml using Maven Versions Plugin
+4. Update plugin.yml using sed
+5. Commit version changes to base branch
+6. Build project
+7. Create GitHub Release with tag
+
+**Version Computation**:
+- Modified to output both `tag` (with 'v' prefix) and `version` (without prefix)
 - This allows using the version number directly in Maven and plugin.yml
 
-#### b. Update pom.xml Version
+**Update pom.xml Version**:
 ```bash
 mvn -B -ntp versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
 ```
 - Uses Maven Versions Plugin to update the project version
 - No backup POM files are created (cleaner git history)
 
-#### c. Update plugin.yml Version
+**Update plugin.yml Version**:
 ```bash
 sed -i "s/^version: .*/version: $VERSION/" src/main/resources/plugin.yml
 ```
 - Uses sed to replace the version line in Bukkit's plugin descriptor
 - Ensures the plugin version matches the Maven version
 
-#### d. Commit and Push Version Changes
+**Commit and Push Version Changes**:
 ```bash
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -38,26 +69,36 @@ git push
 ```
 - Commits version changes with a clear commit message
 - Uses GitHub Actions bot identity
-- Pushes changes back to the PR branch
+- Pushes changes to the base branch (dev or main)
 
-#### e. Enhanced Checkout
+**Enhanced Checkout**:
 - Added `token: ${{ secrets.GITHUB_TOKEN }}` for push authentication
-- Added `ref: ${{ github.head_ref }}` to checkout the PR branch (not merge commit)
+- Uses `ref: ${{ github.event.pull_request.base.ref }}` to checkout the target branch
+- Only runs if PR was merged: `if: github.event.pull_request.merged == true`
+
+### 2. Removed Old Workflow
+- Deleted `.github/workflows/build.yml` (combined workflow)
+- Replaced with two specialized workflows for better separation of concerns
 
 ### 2. Documentation
 
 #### a. PIPELINE_VERSIONING.md
 Comprehensive documentation including:
-- Purpose and overview of the versioning system
+- Split workflow architecture (Build CI + Release)
+- Purpose and overview of each workflow
 - Semantic versioning rules (dev = patch, main = minor)
 - Detailed step-by-step workflow explanation
-- Example scenarios for both dev and main branches
+- Example scenarios for both workflows
 - Authentication and git configuration details
 - Troubleshooting guide
 - Development notes
 
 #### b. PIPELINE_WORKFLOW_DIAGRAM.md
 Visual documentation including:
+- Current split architecture diagrams
+- Build CI workflow visualization
+- Release workflow visualization
+- Before/after comparison
 - Before/after workflow diagrams
 - Semantic versioning logic examples
 - File changes flow visualization
@@ -65,13 +106,27 @@ Visual documentation including:
 
 ## Workflow Behavior
 
-### For PRs to `dev` branch (Patch Release)
+### Build CI Workflow
+Triggered on every push or PR that modifies `src/**`:
+```
+Developer commits to src/main/java/...
+↓
+Build CI runs automatically
+↓
+Code is compiled and tested
+↓
+Developer receives build status
+```
+
+### Release Workflow
+
+#### For Merged PRs to `dev` branch (Patch Release)
 ```
 Current:  v0.0.0  →  Next:  v0.0.1  →  Artifact:  QuickStocks-0.0.1.jar
 Current:  v1.2.3  →  Next:  v1.2.4  →  Artifact:  QuickStocks-1.2.4.jar
 ```
 
-### For PRs to `main` branch (Minor Release)
+#### For Merged PRs to `main` branch (Minor Release)
 ```
 Current:  v0.0.1  →  Next:  v0.1.0  →  Artifact:  QuickStocks-0.1.0.jar
 Current:  v1.2.9  →  Next:  v1.3.0  →  Artifact:  QuickStocks-1.3.0.jar
@@ -85,6 +140,9 @@ Current:  v1.2.9  →  Next:  v1.3.0  →  Artifact:  QuickStocks-1.3.0.jar
 4. ✅ **Git History**: All version changes tracked in commits
 5. ✅ **Traceability**: Clear audit trail of version increments
 6. ✅ **Zero Manual Intervention**: Fully automated process
+7. ✅ **Separated Concerns**: Build CI runs independently from releases
+8. ✅ **Efficient CI**: Only builds when source code changes
+9. ✅ **Fast Feedback**: Developers get quick build status without release overhead
 
 ## Testing Performed
 
@@ -96,32 +154,58 @@ Current:  v1.2.9  →  Next:  v1.3.0  →  Artifact:  QuickStocks-1.3.0.jar
 
 ## Files Modified
 
-1. `.github/workflows/build.yml` - Enhanced with version update automation (20 lines added)
-2. `Documentation/PIPELINE_VERSIONING.md` - Comprehensive versioning guide (91 lines)
-3. `Documentation/PIPELINE_WORKFLOW_DIAGRAM.md` - Visual workflow documentation (108 lines)
+1. `.github/workflows/build-ci.yml` - **NEW** Build CI workflow (27 lines)
+2. `.github/workflows/release.yml` - **NEW** Release workflow (90 lines)
+3. `.github/workflows/build.yml` - **DELETED** (replaced by split workflows)
+4. `Documentation/PIPELINE_VERSIONING.md` - Updated for split architecture
+5. `Documentation/PIPELINE_WORKFLOW_DIAGRAM.md` - Updated with new workflow diagrams
+6. `Documentation/PIPELINE_VERSIONING_IMPLEMENTATION.md` - Updated implementation details
 
-**Total Changes**: 219 lines added across 3 files
+**Total Changes**: 117 lines added, 90 lines removed (split and improved)
 
 ## Next Steps
 
-When this PR is merged, future PRs will:
-1. Automatically compute the next semantic version
-2. Update pom.xml and plugin.yml to that version
-3. Commit and push those changes back to the PR branch
-4. Build with the correct version
-5. Create a release with correctly named artifacts
+When this PR is merged, the repository will have:
+1. **Build CI** that runs automatically on source code changes
+2. **Release workflow** that triggers only when PRs are merged to dev/main
+3. Automatic version computation and updates
+4. Properly versioned artifacts in releases
 
 ## Example Usage
 
-When a developer creates a PR to `dev`:
-1. GitHub Actions runs automatically
-2. Computes next patch version (e.g., v0.0.1)
-3. Updates pom.xml: `<version>0.0.1</version>`
-4. Updates plugin.yml: `version: 0.0.1`
-5. Commits: "chore: bump version to 0.0.1"
-6. Pushes commit to PR branch
-7. Builds: `QuickStocks-0.0.1.jar`
-8. Creates release with tag `v0.0.1` containing `QuickStocks-0.0.1.jar`
+### Daily Development
+```
+Developer makes changes to src/main/java/...
+↓
+Commits and pushes
+↓
+Build CI runs automatically
+↓
+Maven compiles and tests
+↓
+Developer sees build status (pass/fail)
+```
+
+### Creating a Release
+```
+Developer merges PR to dev branch
+↓
+Release workflow triggers automatically
+↓
+Computes next patch version (e.g., v0.0.1)
+↓
+Updates pom.xml: <version>0.0.1</version>
+↓
+Updates plugin.yml: version: 0.0.1
+↓
+Commits: "chore: bump version to 0.0.1"
+↓
+Pushes commit to dev branch
+↓
+Builds: QuickStocks-0.0.1.jar
+↓
+Creates release with tag v0.0.1 containing QuickStocks-0.0.1.jar
+```
 
 ## Implementation Notes
 

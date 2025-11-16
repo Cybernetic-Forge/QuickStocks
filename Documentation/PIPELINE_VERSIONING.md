@@ -1,22 +1,45 @@
 # Pipeline Versioning Enhancement
 
 ## Overview
-This document describes the automatic version management system implemented in the GitHub Actions pipeline for QuickStocks.
+This document describes the automatic version management system implemented in the GitHub Actions pipelines for QuickStocks.
+
+## Workflows
+
+The system is split into two separate workflows:
+
+### 1. Build CI Workflow (`build-ci.yml`)
+- **Trigger**: Runs on every push or PR that modifies files in `src/`
+- **Purpose**: Continuous integration - builds and tests the code
+- **Actions**: 
+  - Checks out code
+  - Sets up Java 21
+  - Builds project with Maven
+  - Runs tests
+
+### 2. Release Workflow (`release.yml`)
+- **Trigger**: Runs when PRs to `dev` or `main` branches are **merged**
+- **Purpose**: Creates versioned releases with proper artifact names
+- **Actions**:
+  - Computes semantic version
+  - Updates `pom.xml` and `plugin.yml`
+  - Commits version changes
+  - Builds versioned artifact
+  - Creates GitHub release with tag
 
 ## Purpose
-The pipeline now automatically updates the Maven version in `pom.xml` and the plugin version in `plugin.yml` to match the semantic version being released. This ensures that:
+The release workflow automatically updates the Maven version in `pom.xml` and the plugin version in `plugin.yml` to match the semantic version being released. This ensures that:
 1. The built artifact is named `QuickStocks-X.X.X.jar` (e.g., `QuickStocks-0.0.1.jar`)
 2. The version in the source code matches the released version
-3. Version updates are committed back to the PR branch
+3. Version updates are committed to the target branch (dev or main)
 
 ## How It Works
 
 ### Semantic Versioning Rules
-The pipeline calculates the next version based on the target branch:
-- **PR to `dev`**: Patch version is incremented (e.g., `v0.0.0` → `v0.0.1`)
-- **PR to `main`**: Minor version is incremented, patch reset (e.g., `v0.0.1` → `v0.1.0`)
+The release workflow calculates the next version based on the merged PR's target branch:
+- **Merged PR to `dev`**: Patch version is incremented (e.g., `v0.0.0` → `v0.0.1`)
+- **Merged PR to `main`**: Minor version is incremented, patch reset (e.g., `v0.0.1` → `v0.1.0`)
 
-### Pipeline Steps
+### Release Workflow Steps
 1. **Compute Next Version**: Analyzes existing tags and target branch to determine next version
 2. **Update pom.xml**: Uses Maven Versions Plugin to update the version
    ```bash
@@ -40,22 +63,55 @@ The pipeline calculates the next version based on the target branch:
 - **Maven/Plugin Version**: `X.X.X` (no 'v' prefix, no -SNAPSHOT suffix)
 - **Artifact Name**: `QuickStocks-X.X.X.jar`
 
-## Example Workflow
+## Example Workflows
 
-### Scenario 1: PR to dev branch
+### Build CI Workflow
+```
+Developer commits changes to src/main/java/...
+↓
+Build CI workflow triggers automatically
+↓
+Maven builds and tests the code
+↓
+Developer receives build/test status
+```
+
+### Release Workflow
+
+#### Scenario 1: PR merged to dev branch
 ```
 Current tag: v0.0.0
 PR merged to: dev
-Next version: v0.0.1
-Artifact: QuickStocks-0.0.1.jar
+↓
+Release workflow triggers
+↓
+Next version computed: v0.0.1
+↓
+pom.xml and plugin.yml updated
+↓
+Changes committed to dev branch
+↓
+Build creates: QuickStocks-0.0.1.jar
+↓
+GitHub release created with tag v0.0.1
 ```
 
-### Scenario 2: PR to main branch
+#### Scenario 2: PR merged to main branch
 ```
 Current tag: v0.0.1
 PR merged to: main
-Next version: v0.1.0
-Artifact: QuickStocks-0.1.0.jar
+↓
+Release workflow triggers
+↓
+Next version computed: v0.1.0
+↓
+pom.xml and plugin.yml updated
+↓
+Changes committed to main branch
+↓
+Build creates: QuickStocks-0.1.0.jar
+↓
+GitHub release created with tag v0.1.0
 ```
 
 ## Authentication

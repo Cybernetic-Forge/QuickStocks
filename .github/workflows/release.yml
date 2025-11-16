@@ -1,18 +1,20 @@
-name: Build & Release
+name: Release
 
 on:
   pull_request:
     branches:
       - dev
       - main
-    types: [opened, reopened, synchronize, ready_for_review]
+    types: [closed]
 
 permissions:
   contents: write
 
 jobs:
-  build-and-release:
-    name: Build and publish tagged release
+  release:
+    name: Create versioned release
+    # Only run if the PR was merged
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,7 +22,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -39,7 +41,7 @@ jobs:
           fi
 
           IFS='.' read -r major minor patch <<<"${latest_tag#v}"
-          base_branch="${{ github.base_ref }}"
+          base_branch="${{ github.event.pull_request.base.ref }}"
 
           if [ "$base_branch" = "dev" ]; then
             patch=$((patch + 1))
@@ -82,7 +84,7 @@ jobs:
           name: Release ${{ steps.version.outputs.tag }}
           target_commitish: ${{ github.sha }}
           body: |
-            Automated release for PR #${{ github.event.pull_request.number }} targeting `${{ github.base_ref }}`.
+            Automated release for merged PR #${{ github.event.pull_request.number }} to `${{ github.event.pull_request.base.ref }}`.
           files: |
             target/QuickStocks-*.jar
         env:

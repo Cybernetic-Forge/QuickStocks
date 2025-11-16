@@ -1,9 +1,73 @@
 # Pipeline Workflow Visualization
 
+## Current Architecture: Split Workflows
+
+### Build CI Workflow (Continuous Integration)
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ GitHub Actions: Build CI                                         │
+│ Trigger: Push or PR with changes to src/**                      │
+└─────────────────────────────────────────────────────────────────┘
+    │
+    ├─► 1. Checkout repository
+    │
+    ├─► 2. Set up Java 21
+    │
+    ├─► 3. Build project
+    │    └─► mvn clean package
+    │
+    └─► 4. Run tests
+         └─► mvn test
+         
+✓ Runs on every commit that changes source code
+✓ Fast feedback for developers
+✓ No version updates or releases
+```
+
+### Release Workflow (When PR Merged)
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ GitHub Actions: Release                                          │
+│ Trigger: PR merged to dev or main                               │
+└─────────────────────────────────────────────────────────────────┘
+    │
+    ├─► 1. Checkout base branch (dev or main)
+    │
+    ├─► 2. Set up Java 21
+    │
+    ├─► 3. Compute next semantic version
+    │    └─► Output: tag=v0.0.1, version=0.0.1
+    │
+    ├─► 4. Update pom.xml version
+    │    └─► mvn versions:set -DnewVersion=0.0.1
+    │         Changes: <version>1.0.0-SNAPSHOT</version>
+    │                → <version>0.0.1</version>
+    │
+    ├─► 5. Update plugin.yml version
+    │    └─► sed -i "s/^version: .*/version: 0.0.1/"
+    │         Changes: version: 1.0.0-SNAPSHOT
+    │                → version: 0.0.1
+    │
+    ├─► 6. Commit version changes to base branch
+    │    └─► git commit -m "chore: bump version to 0.0.1"
+    │         git push (to dev or main)
+    │
+    ├─► 7. Build project (creates QuickStocks-0.0.1.jar)
+    │                     ✓ Correct version!
+    │
+    └─► 8. Create GitHub Release (tag: v0.0.1)
+         └─► Uploads: QuickStocks-0.0.1.jar
+                      ✓ Perfect match between tag and artifact!
+
+✓ Only runs when PRs are merged
+✓ Creates versioned releases
+✓ Updates version in source code
+```
+
 ## Before Enhancement
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ GitHub Actions: Build & Release (Original)                      │
+│ GitHub Actions: Build & Release (Original - Single Workflow)    │
 └─────────────────────────────────────────────────────────────────┘
     │
     ├─► 1. Checkout repository
@@ -19,35 +83,6 @@
          └─► Uploads: QuickStocks-1.0.0-SNAPSHOT.jar
                       ^^^^^^ PROBLEM: Mismatch between tag and artifact!
 ```
-
-## After Enhancement
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ GitHub Actions: Build & Release (Enhanced)                      │
-└─────────────────────────────────────────────────────────────────┘
-    │
-    ├─► 1. Checkout repository (with push token)
-    │
-    ├─► 2. Set up Java
-    │
-    ├─► 3. Compute next semantic version
-    │    └─► Output: tag=v0.0.1, version=0.0.1
-    │
-    ├─► 4. Update pom.xml version
-    │    └─► mvn versions:set -DnewVersion=0.0.1
-    │         Changes: <version>1.0.0-SNAPSHOT</version>
-    │                → <version>0.0.1</version>
-    │
-    ├─► 5. Update plugin.yml version
-    │    └─► sed -i "s/^version: .*/version: 0.0.1/"
-    │         Changes: version: 1.0.0-SNAPSHOT
-    │                → version: 0.0.1
-    │
-    ├─► 6. Commit and push version changes
-    │    └─► git commit -m "chore: bump version to 0.0.1"
-    │         git push (to PR branch)
-    │
-    ├─► 7. Build project (creates QuickStocks-0.0.1.jar)
     │                     ✓ Correct version!
     │
     └─► 8. Create GitHub Release (tag: v0.0.1)
