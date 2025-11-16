@@ -10,9 +10,8 @@ market:
     watchlist: true # Enable/disable watchlist functionality
     portfolio: true # Enable/disable portfolio viewing
     trading: true # Enable/disable buying/selling shares
-    marketDevice: true # Enable/disable market device item
-    stocksCommand: true # Enable/disable /stocks command
-    cryptoCommand: true # Enable/disable /crypto command (custom cryptocurrency creation)
+    marketDevice: false # Enable/disable market device item
+    cryptoCommand: false # Enable/disable /crypto command (custom cryptocurrency creation)
   
   # Price growth threshold configuration
   priceThreshold:
@@ -27,12 +26,6 @@ market:
     minVolumeThreshold: 100
     # How quickly dampening decreases when volume increases (higher = more sensitive to volume)
     volumeSensitivity: 0.5
-
-# Market Device Configuration
-marketDevice:
-  recipe:
-    enabled: false # Enable crafting recipe for Market Device
-    shapedRecipe: true # Use shaped recipe (3x3 grid)
 
 # Analytics Configuration
 analytics:
@@ -63,3 +56,35 @@ trading:
   slippage:
     mode: linear            # none | linear | sqrtImpact
     k: 0.0005               # impact coefficient (tune)
+
+# Cryptocurrency Configuration
+crypto:
+  enabled: false  # Enable/disable crypto creation system
+  
+  # Personal Crypto Creation
+  personal:
+    enabled: false  # Allow players to create personal cryptocurrencies
+    creationCost: 500000.0  # Cost to create a personal cryptocurrency ($500,000 default)
+    maxPerPlayer: -1  # Maximum cryptos a player can create (-1 = unlimited)
+  
+  # Company Crypto Creation
+  company:
+    enabled: false  # Allow companies to create cryptocurrencies
+    balanceThreshold: 100000.0  # Minimum company balance required to create crypto
+    # Balance thresholds by company type
+    balanceThresholds:
+      PRIVATE: 100000.0  # Private companies need $100,000
+      PUBLIC: 250000.0   # Public companies need $250,000
+      DAO: 150000.0      # DAO companies need $150,000
+    maxPerCompany: -1  # Maximum cryptos a company can create (-1 = unlimited)
+  
+  # Initial Crypto Settings
+  defaults:
+    startingPrice: 1.0  # Starting price for new cryptocurrencies
+    decimals: 8  # Number of decimal places (8 for crypto standard)
+    initialVolume: 0.0  # Initial trading volume
+  
+  # Trading Settings
+  trading:
+    minPrice: 0.00000001  # Minimum price (1 satoshi equivalent)
+    maxPrice: 1000000.0  # Maximum price per unit

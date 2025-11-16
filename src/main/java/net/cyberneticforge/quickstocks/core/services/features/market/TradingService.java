@@ -1,8 +1,9 @@
-package net.cyberneticforge.quickstocks.core.services;
+package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import lombok.Setter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;

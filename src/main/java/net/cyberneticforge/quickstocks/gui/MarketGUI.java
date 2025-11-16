@@ -1,7 +1,9 @@
 package net.cyberneticforge.quickstocks.gui;
 
+import lombok.Getter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
+import net.cyberneticforge.quickstocks.core.model.Crypto;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
@@ -27,8 +29,23 @@ public class MarketGUI implements InventoryHolder {
 
     private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
+    /**
+     * Filter modes for the market GUI
+     */
+    public enum FilterMode {
+        ALL,      // Show both shares and crypto
+        SHARES,   // Show only company shares
+        CRYPTO    // Show only cryptocurrencies
+    }
+
     private final Inventory inventory;
     private final Player player;
+    /**
+     * -- GETTER --
+     *  Gets the current filter mode
+     */
+    @Getter
+    private FilterMode filterMode = FilterMode.ALL;
 
     public MarketGUI(Player player) {
         this.player = player;
@@ -47,6 +64,7 @@ public class MarketGUI implements InventoryHolder {
     private void setupGUI() {
         try {
             addPortfolioInfoButton();
+            addFilterButton();
             addWalletInfoButton();
             addStocksToGUI();
             addNavigationButtons();
@@ -110,35 +128,91 @@ public class MarketGUI implements InventoryHolder {
     }
 
     /**
-     * Adds stock items to the GUI
+     * Adds the filter button to toggle between ALL/SHARES/CRYPTO views
+     */
+    private void addFilterButton() {
+        try {
+            // Get slot from config
+            int filterSlot = QuickStocksPlugin.getGuiConfig().getItemSlot("market.filter", 4);
+            
+            // Determine config path based on filter mode
+            String modePath = switch (filterMode) {
+                case ALL -> "market.filter.all";
+                case SHARES -> "market.filter.shares";
+                case CRYPTO -> "market.filter.crypto";
+            };
+            
+            // Get material, name, and lore from config
+            Material filterMat = QuickStocksPlugin.getGuiConfig().getItemMaterial(modePath, Material.COMPASS);
+            Component filterName = QuickStocksPlugin.getGuiConfig().getItemName(modePath);
+            List<Component> filterLore = QuickStocksPlugin.getGuiConfig().getItemLore(modePath);
+
+            ItemStack filterItem = new ItemStack(filterMat);
+            ItemMeta meta = filterItem.getItemMeta();
+            meta.displayName(filterName);
+            meta.lore(filterLore);
+            filterItem.setItemMeta(meta);
+            
+            inventory.setItem(filterSlot, filterItem);
+
+        } catch (Exception e) {
+            logger.warning("Error adding filter button: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Adds stock items to the GUI based on the current filter mode
      */
     private void addStocksToGUI() {
         try {
-            // Get companies that are on the market instead of predefined stocks
-            List<Company> companiesOnMarket = QuickStocksPlugin.getCompanyService().getCompaniesOnMarket();
-
             int slot = 9; // Start from second row
-            for (Company company : companiesOnMarket) {
-                if (slot >= 45) break; // Leave bottom row for navigation
 
-                ItemStack companyItem = createCompanyItem(company);
-                inventory.setItem(slot, companyItem);
-                slot++;
+            // Add company shares if filter allows
+            if (filterMode == FilterMode.ALL || filterMode == FilterMode.SHARES) {
+                List<Company> companiesOnMarket = QuickStocksPlugin.getCompanyService().getCompaniesOnMarket();
+                
+                for (Company company : companiesOnMarket) {
+                    if (slot >= 45) break; // Leave bottom row for navigation
+
+                    ItemStack companyItem = createCompanyItem(company);
+                    inventory.setItem(slot, companyItem);
+                    slot++;
+                }
             }
 
-            // Fill empty slots with barrier blocks to indicate no more stocks
-            Material noCompMat = QuickStocksPlugin.getGuiConfig().getItemMaterial("market.no_companies", Material.GRAY_STAINED_GLASS_PANE);
-            String noCompName = QuickStocksPlugin.getGuiConfig().getConfig().getString("market.no_companies.name", "&7No Company Shares Available");
+            // Add cryptocurrencies if filter allows
+            if (filterMode == FilterMode.ALL || filterMode == FilterMode.CRYPTO) {
+                List<Crypto> cryptos = QuickStocksPlugin.getCryptoService().getAllCryptos();
+                
+                for (Crypto crypto : cryptos) {
+                    if (slot >= 45) break; // Leave bottom row for navigation
+
+                    ItemStack cryptoItem = createCryptoItem(crypto);
+                    inventory.setItem(slot, cryptoItem);
+                    slot++;
+                }
+            }
+
+            // Fill empty slots with barrier blocks
+            String emptyPath = switch (filterMode) {
+                case SHARES -> "market.no_companies";
+                case CRYPTO -> "market.no_crypto";
+                case ALL -> "market.no_items";
+            };
+            
+            Material emptyMat = QuickStocksPlugin.getGuiConfig().getItemMaterial(emptyPath, Material.GRAY_STAINED_GLASS_PANE);
+            Component emptyName = QuickStocksPlugin.getGuiConfig().getItemName(emptyPath);
+            
             for (int i = slot; i < 45; i++) {
-                ItemStack emptySlot = new ItemStack(noCompMat);
+                ItemStack emptySlot = new ItemStack(emptyMat);
                 ItemMeta meta = emptySlot.getItemMeta();
-                meta.displayName(ChatUT.hexComp(noCompName));
+                meta.displayName(emptyName);
                 emptySlot.setItemMeta(meta);
                 inventory.setItem(i, emptySlot);
             }
 
         } catch (Exception e) {
-            logger.warning("Error adding companies to GUI: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
+            logger.warning("Error adding items to GUI: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -197,6 +271,53 @@ public class MarketGUI implements InventoryHolder {
     }
 
     /**
+     * Creates an ItemStack representing a cryptocurrency
+     */
+    private ItemStack createCryptoItem(Crypto crypto) {
+        String symbol = crypto.instrument().symbol();
+        String displayName = crypto.instrument().displayName();
+        double price = crypto.state().lastPrice();
+        double change24h = crypto.state().change24h();
+        double volume = crypto.state().lastVolume();
+
+        // Handle null values with defaults
+        if (symbol == null) symbol = "UNKNOWN";
+        if (displayName == null) displayName = "Unknown Crypto";
+
+        // Get material from config
+        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial("market.crypto_item", Material.GOLD_NUGGET);
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+
+        // Set display name from config
+        Component name = QuickStocksPlugin.getGuiConfig().getItemName("market.crypto_item",
+            new Replaceable("{symbol}", symbol),
+            new Replaceable("{display_name}", displayName));
+        meta.displayName(name);
+
+        // Calculate color and symbol for change
+        String changeColor = change24h >= 0 ? "&a" : "&c";
+        String changeSymbol = change24h >= 0 ? "+" : "";
+        
+        // Get lore from config with replacements
+        List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("market.crypto_item",
+            new Replaceable("{symbol}", symbol),
+            new Replaceable("{display_name}", displayName),
+            new Replaceable("{price}", String.format("%.8f", price)),
+            new Replaceable("{change_color}", changeColor),
+            new Replaceable("{change_symbol}", changeSymbol),
+            new Replaceable("{change_24h}", String.format("%.2f", change24h)),
+            new Replaceable("{volume}", String.format("%.2f", volume))
+        );
+        
+        meta.lore(lore);
+        item.setItemMeta(meta);
+
+        return item;
+    }
+
+    /**
      * Adds navigation buttons at the bottom of the GUI
      */
     private void addNavigationButtons() {
@@ -242,6 +363,18 @@ public class MarketGUI implements InventoryHolder {
     }
 
     /**
+     * Toggles the filter mode (ALL -> SHARES -> CRYPTO -> ALL)
+     */
+    public void toggleFilter() {
+        filterMode = switch (filterMode) {
+            case ALL -> FilterMode.SHARES;
+            case SHARES -> FilterMode.CRYPTO;
+            case CRYPTO -> FilterMode.ALL;
+        };
+        refresh();
+    }
+
+    /**
      * Gets the stock symbol from an inventory slot
      */
     public String getStockSymbolFromSlot(int slot) {
@@ -249,16 +382,24 @@ public class MarketGUI implements InventoryHolder {
         if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
             return null;
         }
-        // TODO Proper gui handling
+        
         String displayName = item.getItemMeta().getDisplayName();
         String plainText = ChatUT.extractText(displayName);
 
-        // Extract symbol from display name format: "DisplayName (SYMBOL)"
+        // For company shares: Extract symbol from display name format: "DisplayName (SYMBOL)"
         int startIndex = plainText.lastIndexOf('(');
         int endIndex = plainText.lastIndexOf(')');
 
         if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
             return plainText.substring(startIndex + 1, endIndex);
+        }
+
+        // For crypto: Extract symbol from format: "SYMBOL - Display Name"
+        if (plainText.contains(" - ")) {
+            String[] parts = plainText.split(" - ");
+            if (parts.length > 0) {
+                return parts[0].trim();
+            }
         }
 
         return null;

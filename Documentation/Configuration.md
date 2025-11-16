@@ -9,7 +9,7 @@ QuickStocks uses these configuration files:
 ```
 plugins/QuickStocks/
 ├── config.yml          # Database and features configuration
-├── market.yml          # Market, trading economy, and analytics settings
+├── market.yml          # Market, trading economy, analytics, and cryptocurrency settings
 ├── companies.yml       # Companies/corporations configuration
 ├── guis.yml            # GUI customization
 └── Translations.yml    # Language translations
@@ -21,7 +21,7 @@ plugins/QuickStocks/
 
 **Note:** Starting with this version, configuration has been split into multiple files for better organization:
 - **config.yml** - Core settings (database, features, metrics)
-- **market.yml** - Market behavior, trading economy, analytics, and market device
+- **market.yml** - Market behavior, trading economy, analytics, cryptocurrency creation, and market device
 - **companies.yml** - Company system, salaries, and permissions
 
 **For existing installations:** The plugin will automatically create the new config files (market.yml, companies.yml) with default values on first run. Your existing config.yml will be automatically updated to remove the migrated sections. You may want to copy your custom settings from the old config.yml to the appropriate new files.
@@ -732,6 +732,191 @@ trading:
   circuitBreakers:
     enable: true
     levels: [7, 13, 20]
+```
+
+---
+
+## 🪙 Cryptocurrency Configuration
+
+**Configuration File:** `market.yml`
+
+Configure cryptocurrency creation costs, limits, and trading parameters.
+
+### Basic Crypto Settings
+
+```yaml
+crypto:
+  enabled: true
+```
+
+**Parameters:**
+
+### `enabled`
+- **Type:** Boolean
+- **Default:** `true`
+- **Description:** Enable/disable the entire crypto creation system
+- **Impact:** When disabled, `/crypto` commands are blocked
+
+---
+
+### Personal Crypto Creation
+
+```yaml
+crypto:
+  personal:
+    enabled: true
+    creationCost: 500000.0
+    maxPerPlayer: -1
+```
+
+**Parameters:**
+
+### `personal.enabled`
+- **Type:** Boolean
+- **Default:** `true`
+- **Description:** Allow players to create personal cryptocurrencies
+- **Note:** Players must have `maksy.stocks.crypto.create` permission
+
+### `personal.creationCost`
+- **Type:** Decimal
+- **Default:** `500000.0`
+- **Description:** Cost to create a personal cryptocurrency
+- **Example:** Default $500,000 prevents crypto spam
+- **Range:** Any positive number or 0.0 for free
+
+### `personal.maxPerPlayer`
+- **Type:** Integer
+- **Default:** `-1` (unlimited)
+- **Description:** Maximum cryptocurrencies a player can create
+- **Example:** Set to `5` to limit each player to 5 cryptos
+
+---
+
+### Company Crypto Creation
+
+```yaml
+crypto:
+  company:
+    enabled: true
+    balanceThreshold: 100000.0
+    balanceThresholds:
+      PRIVATE: 100000.0
+      PUBLIC: 250000.0
+      DAO: 150000.0
+    maxPerCompany: -1
+```
+
+**Parameters:**
+
+### `company.enabled`
+- **Type:** Boolean
+- **Default:** `true`
+- **Description:** Allow companies to create cryptocurrencies
+- **Requirement:** Player must have company management permissions
+
+### `company.balanceThreshold`
+- **Type:** Decimal
+- **Default:** `100000.0`
+- **Description:** Default minimum company balance to create crypto
+- **Note:** Overridden by type-specific thresholds
+
+### `company.balanceThresholds`
+- **Type:** Map of company type to balance
+- **Description:** Minimum balance required per company type
+- **PRIVATE:** $100,000 - Lower barrier for private companies
+- **PUBLIC:** $250,000 - Higher requirement for public companies
+- **DAO:** $150,000 - Middle ground for DAOs
+- **Customization:** Adjust based on your server's economy
+
+### `company.maxPerCompany`
+- **Type:** Integer
+- **Default:** `-1` (unlimited)
+- **Description:** Maximum cryptocurrencies a company can create
+
+---
+
+### Crypto Defaults
+
+```yaml
+crypto:
+  defaults:
+    startingPrice: 1.0
+    decimals: 8
+    initialVolume: 0.0
+```
+
+**Parameters:**
+
+### `defaults.startingPrice`
+- **Type:** Decimal
+- **Default:** `1.0`
+- **Description:** Starting price for new cryptocurrencies
+- **Example:** $1.00 per coin at creation
+
+### `defaults.decimals`
+- **Type:** Integer
+- **Default:** `8`
+- **Description:** Number of decimal places for prices
+- **Note:** 8 is the crypto standard (like Bitcoin satoshis)
+
+### `defaults.initialVolume`
+- **Type:** Decimal
+- **Default:** `0.0`
+- **Description:** Initial trading volume
+
+---
+
+### Crypto Trading Limits
+
+```yaml
+crypto:
+  trading:
+    minPrice: 0.00000001
+    maxPrice: 1000000.0
+```
+
+**Parameters:**
+
+### `trading.minPrice`
+- **Type:** Decimal
+- **Default:** `0.00000001`
+- **Description:** Minimum price per unit (1 satoshi equivalent)
+
+### `trading.maxPrice`
+- **Type:** Decimal
+- **Default:** `1000000.0`
+- **Description:** Maximum price per unit
+
+---
+
+### Example Configurations
+
+**High-Cost Setup (prevent spam):**
+```yaml
+crypto:
+  personal:
+    creationCost: 1000000.0  # $1 million
+    maxPerPlayer: 3
+  company:
+    balanceThresholds:
+      PRIVATE: 500000.0
+      PUBLIC: 1000000.0
+      DAO: 750000.0
+    maxPerCompany: 5
+```
+
+**Low-Cost Setup (encourage crypto creation):**
+```yaml
+crypto:
+  personal:
+    creationCost: 50000.0  # $50k
+    maxPerPlayer: -1
+  company:
+    balanceThresholds:
+      PRIVATE: 25000.0
+      PUBLIC: 50000.0
+      DAO: 35000.0
+    maxPerCompany: -1
 ```
 
 ---

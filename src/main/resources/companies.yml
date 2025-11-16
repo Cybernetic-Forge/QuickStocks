@@ -43,13 +43,13 @@ companies:
     offlinePayment: true      # Whether offline employees receive salary payments
   # ChestShop Integration (soft-depends on ChestShop plugin)
   chestshop:
-    enabled: true                # Enable company-owned chest shops
+    enabled: false                # Enable company-owned chest shops
     companyMinBalance: 1000.0    # Minimum company balance for shop purchases
     # Permission added dynamically to job titles when ChestShop is detected
     # Employees with 'chestshop' permission can manage company chest shops
   # Company plots / land ownership settings
   plots:
-    enabled: true                # Enable plot/land ownership system
+    enabled: false                # Enable plot/land ownership system
     buyPlotPrice: 10000.0        # Cost to purchase a chunk/plot
     sellPlotPrice: 8000.0        # Refund amount when selling a plot (80% of buy price)
     plotRent: -1.0               # Default rent amount per interval (-1 = free, no rent)

@@ -2,7 +2,11 @@ package net.cyberneticforge.quickstocks.api;
 
 import lombok.Getter;
 import net.cyberneticforge.quickstocks.api.managers.*;
-import net.cyberneticforge.quickstocks.core.services.*;
+import net.cyberneticforge.quickstocks.core.services.features.market.*;
+import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.WalletService;
+import net.cyberneticforge.quickstocks.core.services.features.portfolio.WatchlistService;
 import org.bukkit.plugin.Plugin;
 
 /**
@@ -58,14 +62,14 @@ public class QuickStocksAPI {
      * Private constructor - use getInstance() to get the API instance.
      */
     private QuickStocksAPI(CompanyService companyService,
-                          CompanyMarketService companyMarketService,
-                          TradingService tradingService,
-                          HoldingsService holdingsService,
-                          StockMarketService stockMarketService,
-                          InstrumentPersistenceService instrumentService,
-                          WalletService walletService,
-                          WatchlistService watchlistService,
-                          CryptoService cryptoService) {
+                           CompanyMarketService companyMarketService,
+                           TradingService tradingService,
+                           HoldingsService holdingsService,
+                           StockMarketService stockMarketService,
+                           InstrumentPersistenceService instrumentService,
+                           WalletService walletService,
+                           WatchlistService watchlistService,
+                           CryptoService cryptoService) {
         
         this.companyManager = new CompanyManager(companyService, companyMarketService);
         this.tradingManager = new TradingManager(tradingService, holdingsService);

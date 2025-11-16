@@ -32,6 +32,7 @@ public class CompanySettingsGUI implements InventoryHolder {
     private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
 
     private final Player player;
+    private final int guiSize;
 
     /**
      * -- GETTER --
@@ -46,7 +47,7 @@ public class CompanySettingsGUI implements InventoryHolder {
         this.player = player;
         this.company = company;
 
-        int guiSize = QuickStocksPlugin.getGuiConfig().getConfig().getInt("company_settings.size", 54);
+        guiSize = QuickStocksPlugin.getGuiConfig().getConfig().getInt("company_settings.size", 54);
         String title = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.title", "&6Company: &f{company_name}")
                 .replace("{company_name}", company.getName());
         this.inventory = Bukkit.createInventory(this, guiSize, ChatUT.hexComp(title));
@@ -63,14 +64,23 @@ public class CompanySettingsGUI implements InventoryHolder {
      */
     private void setupGUI() {
         try {
+            // Add decorative borders
+            addBorders();
+            
             // Add company info (top section)
             addCompanyInfo();
 
             // Add player's job info
             addPlayerJobInfo();
+            
+            // Add section headers
+            addSectionHeaders();
 
-            // Add action buttons
-            addActionButtons();
+            // Add action buttons organized by category
+            addManagementButtons();
+            addFinancialButtons();
+            addMarketButtons();
+            addPlotButtons();
 
             // Add navigation buttons
             addNavigationButtons();
@@ -79,6 +89,40 @@ public class CompanySettingsGUI implements InventoryHolder {
             logger.warning("Error setting up Company Settings GUI for " + player.getName() + ": " + e.getMessage());
             String errorMsg = QuickStocksPlugin.getGuiConfig().getConfig().getString("company_settings.error_message", "&cFailed to load company settings.");
             player.sendMessage(ChatUT.hexComp(errorMsg));
+        }
+    }
+    
+    /**
+     * Adds decorative borders to make the GUI look more professional
+     */
+    private void addBorders() {
+        try {
+            Material borderMat = QuickStocksPlugin.getGuiConfig().getItemMaterial("company_settings.border", Material.GRAY_STAINED_GLASS_PANE);
+            ItemStack border = new ItemStack(borderMat);
+            ItemMeta meta = border.getItemMeta();
+            meta.displayName(Component.text(" "));
+            border.setItemMeta(meta);
+            
+            // Add borders around sections (rows 1 and 3)
+            for (int i = 0; i < guiSize; i++) {
+                inventory.setItem(i, border);
+            }
+        } catch (Exception e) {
+            logger.debug("Error adding borders: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Adds section headers for better organization
+     */
+    private void addSectionHeaders() {
+        try {
+            addButton("section_management");
+            addButton("section_financial");
+            addButton("section_market");
+            addButton("section_territory");
+        } catch (Exception e) {
+            logger.warning("Error adding section headers: " + e.getMessage());
         }
     }
 
@@ -98,11 +142,13 @@ public class CompanySettingsGUI implements InventoryHolder {
             meta.displayName(ChatUT.hexComp(companyName));
 
             OfflinePlayer owner = Bukkit.getOfflinePlayer(UUID.fromString(company.getOwnerUuid()));
-            List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("company_settings.company_info", new Replaceable("{company_name}", company.getName())
-                    , new Replaceable("{company_type}", company.getType())
-                    , new Replaceable("{balance}", String.format("%.2f", company.getBalance()))
-                    , new Replaceable("{owner_name}", owner.getName() != null ? owner.getName() : "Unknown")
-                    , new Replaceable("{created_date}", dateFormat.format(new Date(company.getCreatedAt()))));
+            List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("company_settings.company_info",
+                    new Replaceable("{company_name}", company.getName()),
+                    new Replaceable("{company_type}", company.getType()),
+                    new Replaceable("{balance}", String.format("%.2f", company.getBalance())),
+                    new Replaceable("{owner_name}", owner.getName() != null ? owner.getName() : "Unknown"),
+                    new Replaceable("{created_date}", dateFormat.format(new Date(company.getCreatedAt()))),
+                    new Replaceable("{company_id}", company.getId()));
 
             meta.lore(lore);
             companyItem.setItemMeta(meta);
@@ -182,20 +228,44 @@ public class CompanySettingsGUI implements InventoryHolder {
     }
 
     /**
-     * Adds action buttons for quick commands
+     * Adds management section buttons (employees, jobs, invite)
      */
-    private void addActionButtons() {
+    private void addManagementButtons() {
         try {
             String playerUuid = player.getUniqueId().toString();
             Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
 
-            // View Employees button
-            addButton("view_employees");
+            // Get employee and job counts for dynamic lore
+            int employeeCount = QuickStocksPlugin.getCompanyService().getCompanyEmployees(company.getId()).size();
+            int jobCount = QuickStocksPlugin.getCompanyService().getCompanyJobs(company.getId()).size();
 
-            // View Jobs button
-            addButton("view_jobs");
+            // View Employees button - always visible
+            addButtonWithReplacements("view_employees",
+                    new Replaceable("{employee_count}", String.valueOf(employeeCount)));
 
-            // Deposit button
+            // View Jobs button - always visible
+            addButtonWithReplacements("view_jobs",
+                    new Replaceable("{job_count}", String.valueOf(jobCount)));
+
+            // Invite Player button (if player has permission)
+            if (jobOpt.isPresent() && jobOpt.get().canInvite()) {
+                addButton("invite_player");
+            }
+
+        } catch (Exception e) {
+            logger.warning("Error adding management buttons: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Adds financial section buttons (deposit, withdraw, transactions)
+     */
+    private void addFinancialButtons() {
+        try {
+            String playerUuid = player.getUniqueId().toString();
+            Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
+
+            // Deposit button - always visible
             addButton("deposit");
 
             // Withdraw button (if player has permission)
@@ -203,28 +273,88 @@ public class CompanySettingsGUI implements InventoryHolder {
                 addButton("withdraw");
             }
 
-            // Assign Job button (if player has permission)
+            // Transactions button - always visible
+            addButton("transactions");
+
+        } catch (Exception e) {
+            logger.warning("Error adding financial buttons: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Adds market section buttons (market status, IPO, shares)
+     */
+    private void addMarketButtons() {
+        try {
+            String playerUuid = player.getUniqueId().toString();
+            Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
+
+            // Market Status button - always visible
+            String marketStatus = company.isOnMarket() ? "Public" : "Private";
+            double sharePrice = 0.0;
+            double marketCap = 0.0;
+            
+            if (company.isOnMarket()) {
+                sharePrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(company);
+                marketCap = company.getBalance(); // Market cap is essentially the company's total balance
+            }
+
+            addButtonWithReplacements("market_status",
+                    new Replaceable("{market_status}", marketStatus),
+                    new Replaceable("{share_price}", String.format("%.2f", sharePrice)),
+                    new Replaceable("{market_cap}", String.format("%.2f", marketCap)));
+
+            // Go Public/Private button - always visible (toggleable if has permission)
             if (jobOpt.isPresent() && jobOpt.get().canManageCompany()) {
-                addButton("assign_job");
+                // IPO cost is the minimum balance threshold for the company type
+                Double threshold = QuickStocksPlugin.getCompanyCfg().getMarketBalanceThresholds().get(company.getType());
+                double ipoCost = threshold != null ? threshold : 0.0;
+                String buttonName = company.isOnMarket() ? "go_private" : "go_public";
+                addButtonWithReplacements(buttonName,
+                        new Replaceable("{ipo_cost}", String.format("%.2f", ipoCost)));
             }
 
-            // Invite Player button (if player has permission)
-            if (jobOpt.isPresent() && jobOpt.get().canInvite()) {
-                addButton("invite_player");
-            }
-
-            // Create Job button (if player has permission)
-            if (jobOpt.isPresent() && jobOpt.get().canCreateTitles()) {
-                addButton("create_job");
-            }
-
-            // Edit Job button (if player has permission)
-            if (jobOpt.isPresent() && jobOpt.get().canCreateTitles()) {
-                addButton("edit_job");
+            // Manage Shares button (if on market and has permission)
+            if (company.isOnMarket() && jobOpt.isPresent() && jobOpt.get().canManageCompany()) {
+                addButton("manage_shares");
             }
 
         } catch (Exception e) {
-            logger.warning("Error adding action buttons: " + e.getMessage());
+            logger.warning("Error adding market buttons: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Adds roles section buttons (create job, assign job, edit permissions)
+     */
+    private void addPlotButtons() {
+        try {
+            String playerUuid = player.getUniqueId().toString();
+            Optional<CompanyJob> jobOpt = QuickStocksPlugin.getCompanyService().getPlayerJob(company.getId(), playerUuid);
+
+            if (jobOpt.isEmpty()) {
+                return;
+            }
+
+            CompanyJob job = jobOpt.get();
+
+            // View Plots button (if player has permission)
+            if (job.canManageCompany()) {
+                addButton("view_plots");
+            }
+
+            // Edit Current Plot button (if player has permission)
+            if (job.canManagePlots()) {
+                addButton("edit_current_plot");
+            }
+
+            // Claim Plot button (if player has permission)
+            if (job.canManagePlots()) {
+                addButton("claim_plot");
+            }
+
+        } catch (Exception e) {
+            logger.warning("Error adding territory buttons: " + e.getMessage());
         }
     }
 
@@ -232,6 +362,9 @@ public class CompanySettingsGUI implements InventoryHolder {
      * Adds navigation buttons
      */
     private void addNavigationButtons() {
+        // Back button (if needed)
+        // addButton("back");
+        
         // Refresh button
         addButton("refresh");
 
@@ -243,17 +376,34 @@ public class CompanySettingsGUI implements InventoryHolder {
      * Helper method to add a button from config
      */
     private void addButton(String buttonName) {
-        String path = "company_settings." + buttonName;
-        Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial(path, Material.STONE);
-        int slot = QuickStocksPlugin.getGuiConfig().getItemSlot(path, 0);
+        addButtonWithReplacements(buttonName);
+    }
+    
+    /**
+     * Helper method to add a button from config with replacement values
+     */
+    private void addButtonWithReplacements(String buttonName, Replaceable... replacements) {
+        try {
+            String path = "company_settings." + buttonName;
+            Material material = QuickStocksPlugin.getGuiConfig().getItemMaterial(path, Material.STONE);
+            int slot = QuickStocksPlugin.getGuiConfig().getItemSlot(path, 0);
 
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName(path));
-        List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore(path, new Replaceable("{company_name}", company.getName()));
-        meta.lore(lore);
-        item.setItemMeta(meta);
-        inventory.setItem(slot, item);
+            ItemStack item = new ItemStack(material);
+            ItemMeta meta = item.getItemMeta();
+            meta.displayName(QuickStocksPlugin.getGuiConfig().getItemName(path, replacements));
+            
+            // Add company name replacement for all buttons
+            Replaceable[] allReplacements = new Replaceable[replacements.length + 1];
+            allReplacements[0] = new Replaceable("{company_name}", company.getName());
+            System.arraycopy(replacements, 0, allReplacements, 1, replacements.length);
+            
+            List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore(path, allReplacements);
+            meta.lore(lore);
+            item.setItemMeta(meta);
+            inventory.setItem(slot, item);
+        } catch (Exception e) {
+            logger.debug("Error adding button " + buttonName + ": " + e.getMessage());
+        }
     }
 
     /**

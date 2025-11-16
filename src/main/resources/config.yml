@@ -36,7 +36,7 @@ features:
   market:
     enabled: true
     display: "Market"
-    withDevice: true
+    withDevice: false
   historyEnabled: true
   topListWindowHours: 24
 

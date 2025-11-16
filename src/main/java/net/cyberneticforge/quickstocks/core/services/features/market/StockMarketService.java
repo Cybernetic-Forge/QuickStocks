@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.core.services;
+package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import lombok.Getter;
 import lombok.Setter;

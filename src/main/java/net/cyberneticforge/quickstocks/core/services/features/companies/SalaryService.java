@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.core.services;
+package net.cyberneticforge.quickstocks.core.services.features.companies;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;

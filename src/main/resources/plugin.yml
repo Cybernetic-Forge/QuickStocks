@@ -13,33 +13,41 @@ commands:
     description: "QuickStocks plugin management commands"
     usage: "/quickstocks <reload>"
     aliases: [qs]
-  stocks:
-    description: "View stock market information and quotes"
-    usage: "/stocks [symbol|material]"
-    aliases: [stock, quote]
   crypto:
     description: "Create and manage custom cryptocurrency instruments"
     usage: "/crypto create <symbol> <name>"
+    permission: quickstocks.command.crypto
+    default: false
   wallet:
     description: "Manage your wallet balance"
     usage: "/wallet [balance|add|set] [amount]"
     aliases: [money, balance]
+    permission: quickstocks.command.wallet
+    default: true
   market:
     description: "Browse and trade in the market"
     usage: "/market [browse|buy|sell|portfolio|history|watchlist]"
     aliases: [trade, trading]
+    permission: quickstocks.command.market
+    default: true
   marketdevice:
     description: "Grant Market Link Device items to players"
     usage: "/marketdevice give [player]"
     aliases: [mdevice]
+    permission: quickstocks.command.marketdevice
+    default: false
   watch:
     description: "Manage your stock watchlist"
     usage: "/watch [add|remove|list|info|clear] [symbol]"
     aliases: [watchlist, wl]
+    permission: quickstocks.command.watch
+    default: true
   company:
     description: "Manage companies and corporations"
     usage: "§cThis feature is currently disabled."
     aliases: [corp, corporation]
+    permission: quickstocks.command.company
+    default: true
     
 permissions:
   quickstocks.admin.reload:
@@ -48,10 +56,10 @@ permissions:
   quickstocks.command.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments"
     default: false
-  maksy.stocks.crypto.create:
+  quickstocks.stocks.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments (legacy)"
     default: false
-  maksy.stocks.marketdevice.give:
+  quickstocks.stocks.marketdevice.give:
     description: "Allows giving Market Link Device items to players"
     default: op
   quickstocks.wallet.add:
