@@ -1,0 +1,69 @@
+name: Build & Release
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and publish tagged release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Compute next semantic version
+        id: version
+        run: |
+          git fetch --tags
+          latest_tag=$(git tag -l 'v*' --sort=-v:refname | head -n 1)
+          if [ -z "$latest_tag" ]; then
+            latest_tag="v0.0.0"
+          fi
+
+          IFS='.' read -r major minor patch <<<"${latest_tag#v}"
+          base_branch="${{ github.base_ref }}"
+
+          if [ "$base_branch" = "dev" ]; then
+            patch=$((patch + 1))
+          elif [ "$base_branch" = "main" ]; then
+            minor=$((minor + 1))
+            patch=0
+          else
+            echo "Unsupported base branch: $base_branch" >&2
+            exit 1
+          fi
+
+          next_tag="v${major}.${minor}.${patch}"
+          echo "tag=$next_tag" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Build project
+        run: mvn -B -ntp package
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          body: |
+            Automated release for PR #${{ github.event.pull_request.number }} targeting `${{ github.base_ref }}`.
+          files: |
+            target/QuickStocks-*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
