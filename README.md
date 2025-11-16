@@ -1,96 +1,227 @@
-# QuickStocks
+# 📈 QuickStocks
 
-> A comprehensive stock market and company management plugin for Minecraft servers
+> **The Ultimate Stock Market & Company Management Plugin for Minecraft**
 
-Transform your Minecraft server into a thriving economic ecosystem where players trade stocks, create companies, and build financial empires—all within the game they love.
+Transform your Minecraft server into a sophisticated economic powerhouse. QuickStocks brings **Wall Street to your world** with realistic market simulation, company management, and financial trading—all seamlessly integrated into Minecraft.
 
 [![Version](https://img.shields.io/badge/version-1.0.0--SNAPSHOT-blue)](https://github.com/Cybernetic-Forge/QuickStocks)
 [![Minecraft](https://img.shields.io/badge/minecraft-1.21.8-green)](https://www.spigotmc.org/)
-[![Java](https://img.shields.io/badge/java-17%2B-orange)](https://adoptium.net/)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey)]()
+[![Java](https://img.shields.io/badge/java-21%2B-orange)](https://adoptium.net/)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)](https://opensource.org/licenses/MIT)
+[![Tests](https://img.shields.io/badge/tests-78%20passing-success)](Documentation/TEST_SUITE.md)
+[![Code Quality](https://img.shields.io/badge/architecture-clean-brightgreen)](Documentation/CODE_QUALITY_ANALYSIS.md)
 
 ---
 
-## 🎮 What is QuickStocks?
+## 🎮 What Makes QuickStocks Special?
 
-QuickStocks brings real-world financial markets to Minecraft. Players can:
+QuickStocks isn't just another economy plugin—it's a **fully-featured financial market simulator** that rivals real-world trading platforms. With sophisticated algorithms, realistic market behavior, and enterprise-grade architecture, it offers an unmatched economic experience.
 
-- 📊 **Trade on a realistic stock market** with dynamic pricing and 25+ market factors
-- 🏢 **Create and manage companies** with employees, roles, and shared finances
-- 💹 **Go public with IPOs** and trade company shares on the market
-- 🪙 **Create custom cryptocurrencies** - Players with $500k can create personal crypto, or companies can create their own tokens
-- 📈 **Build investment portfolios** and track performance in real-time
-- 💰 **Manage wallets** integrated with Vault economy
-- 👀 **Use watchlists** to monitor favorite instruments
-- 📱 **Access markets anywhere** with the Market Link Device
+### 💎 For Players
+- 📊 **Trade Like a Pro** - Real-time market with dynamic pricing influenced by 25+ economic factors
+- 🏢 **Build Business Empires** - Create companies, hire employees, manage finances, and expand with plots
+- 💹 **Launch Your IPO** - Take your company public and watch players invest in your vision
+- 🪙 **Create Cryptocurrencies** - Mint your own crypto (personal or company-branded)
+- 📈 **Master Investing** - Build diversified portfolios, use watchlists, track performance metrics
+- 💰 **Seamless Economy** - Integrated wallet system with Vault support
+- 📱 **Trade Anywhere** - Market Link Device for on-the-go transactions
+
+### ⚙️ For Server Administrators
+- 🚀 **Plug & Play** - Works out of the box with sensible defaults
+- 🗄️ **Enterprise Database** - SQLite, MySQL, or PostgreSQL with automatic migrations
+- 🔌 **Smart Integrations** - Optional Vault, ChestShop, and WorldGuard support
+- 🎨 **Beautiful GUIs** - Professional interfaces with full customization
+- 📊 **Performance** - Optimized for servers of all sizes with connection pooling
+- 🧪 **Production Ready** - 78 automated tests, CI/CD pipeline, clean architecture
+- 🔧 **Highly Configurable** - Multi-file config system for fine-tuned control
 
 ---
 
-## ✨ Key Features
+## 🌟 Why Choose QuickStocks?
+
+### 🎯 Realistic Market Simulation
+Not just random price changes—QuickStocks uses **sophisticated algorithms** that consider:
+- Economic indicators (inflation, interest rates, GDP, unemployment)
+- Market sentiment (fear/greed index, investor confidence)
+- Technical analysis (moving averages, support/resistance)
+- Industry trends and sector performance
+- Global events and breaking news
+- Supply/demand dynamics with slippage
+- **Circuit breakers** to prevent market crashes
+- **Trading fees** and realistic market mechanics
+
+### 🏗️ Enterprise-Grade Architecture
+Built with professional software engineering practices:
+- **Clean Architecture** - Maintainable, testable, extensible
+- **Service Layer Pattern** - Clear separation of concerns
+- **Database Migrations** - Safe, versioned schema changes
+- **Connection Pooling** - High performance with HikariCP
+- **Event System** - Full API for developers to extend
+- **Comprehensive Testing** - 78 automated test cases with MockBukkit
+- **CI/CD Pipeline** - Automated builds and test validation
+
+### 🎨 User Experience Excellence
+- **Intuitive Commands** - Tab completion and helpful hints
+- **Beautiful GUIs** - Color-coded displays with tooltips
+- **Instant Feedback** - Real-time updates and notifications
+- **Permission-Aware** - Smart interfaces that adapt to user roles
+- **Multilingual Ready** - Translation system for internationalization
+
+### 🔐 Security & Stability
+- **CodeQL Security Scanning** - Automated vulnerability detection
+- **Advisory Database Checks** - Dependency security validation
+- **Safe Transactions** - Validated operations with rollback support
+- **Rate Limiting** - Anti-spam and abuse prevention
+- **Graceful Degradation** - Works even when optional plugins unavailable
+
+---
+
+## ✨ Core Features
 
 ### 📊 Advanced Market Simulation
-- **Real-time price updates** every 5 seconds with realistic volatility
-- **Market factors** including inflation, interest rates, sector performance, and global events
-- **Circuit breakers** to halt trading during extreme movements
-- **Trading fees** and slippage for realistic market mechanics
-- **Price history** tracking with analytics and trend analysis
+The heart of QuickStocks—a **sophisticated trading engine** that behaves like real markets:
 
-### 🏢 Company Management System
-- **Create companies** (PRIVATE, PUBLIC, or DAO) with customizable roles
-- **Employee management** with job titles and permission-based access
-- **Shared finances** with deposit/withdraw capabilities
-- **Go public** and sell shares on the stock market
-- **Buyout protection** to prevent hostile takeovers
-- **Shareholder tracking** with real-time ownership percentages
+- **Real-time Price Updates** - Every 5 seconds with realistic volatility and momentum
+- **Smart Price Algorithm** - 25+ market factors including:
+  - Economic indicators (inflation, interest rates, GDP, unemployment)
+  - Market sentiment (fear/greed index, investor confidence, media buzz)
+  - Technical analysis (moving averages, support/resistance, momentum)
+  - Industry trends (sector performance, commodity prices, regulations)
+  - Global events (geopolitical changes, natural disasters, pandemics)
+  - Random events (flash crashes, social media trends, market manipulation)
+- **Circuit Breakers** - Automatic trading halts during extreme movements (±10%)
+- **Trading Fees & Slippage** - Realistic transaction costs (0.25% default) and price impact on large orders
+- **Market Analytics** - Price history, trend analysis, top gainers/losers, sector performance
+- **Multiple Instrument Types** - Stocks, cryptocurrencies, Minecraft items, company shares, indices, funds
 
-### 💰 Economy Integration
-- **Vault integration** for seamless economy plugin support
-- **Wallet system** with built-in balance management
-- **Trading fees** (default 0.25%) to prevent market manipulation
-- **Configurable costs** for company creation and operations
+### 🏢 Comprehensive Company Management
+Run your business empire with **professional-grade tools**:
 
-### 🔌 Plugin Integrations
-- **ChestShop integration** - Companies can own and manage chest shops
-  - Employee-based shop management with permission system
-  - Shop revenues and purchases tied to company balance
-  - Automatic balance validation for transactions
-  - Fully optional soft-dependency (works without ChestShop)
-- **WorldGuard integration** - Region-based permission control
-  - Custom flags for plot purchases, trading, and shop placement
-  - `quickstocks-plots` flag to control plot purchases in regions
-  - Graceful degradation when WorldGuard not installed
-  - Fully optional soft-dependency (works without WorldGuard)
+- **Company Types** - PRIVATE, PUBLIC, or DAO with distinct governance models
+- **Employee System** - Hire players, assign roles (CEO, CFO, custom titles), manage permissions
+- **Financial Operations** - Shared company treasury, deposits, withdrawals, transaction history
+- **Plot System** - Buy and manage land plots (chunks) for your company
+- **Salary System** - Automated employee payments with configurable schedules
+- **IPO Launch** - Go public on the stock market, set share prices, manage shareholders
+- **Buyout Protection** - Prevent hostile takeovers with ownership safeguards
+- **Invitation System** - 7-day expiring invites with acceptance/decline
+- **Company Settings GUI** - Professional interface for all management tasks
+- **ChestShop Integration** - Company-owned shops with employee permissions
 
-### 🎨 Beautiful User Interface
-- **Interactive market GUI** for browsing and trading
-- **Company settings GUI** with permission-aware buttons
-- **Color-coded displays** for profits, losses, and performance
-- **Helpful tooltips** and command hints throughout
-- **Tab completion** for all commands with context awareness
+### 💰 Cryptocurrency System
+Create and trade digital assets:
+
+- **Default Cryptocurrencies** - Pre-seeded popular cryptos (Bitcoin, Ethereum, Dogecoin, etc.)
+- **Personal Crypto** - Create your own cryptocurrency ($500k requirement)
+- **Company Crypto** - Companies can mint branded tokens
+- **Full Trading Support** - Cryptos trade like any other instrument
+- **Symbol Validation** - Prevents conflicts and ensures uniqueness
+- **Market Integration** - Real-time prices, history, analytics
+
+### 💼 Portfolio & Wallet Management
+Track your wealth with precision:
+
+- **Vault Integration** - Seamless connection to economy plugins (optional)
+- **Built-in Wallet** - Standalone wallet system if Vault unavailable
+- **Holdings Tracking** - Real-time portfolio with P&L calculations
+- **Performance Metrics** - Total value, unrealized gains/losses, ROI percentages
+- **Watchlist System** - Monitor favorite instruments without buying
+- **Transaction History** - Complete audit trail of all trades
+- **Query Service** - Advanced analytics and reporting
+
+### 🔌 Smart Plugin Integrations
+Optional but powerful—all soft dependencies with graceful degradation:
+
+- **Vault Economy** 
+  - Automatic detection and integration
+  - Falls back to built-in wallet if unavailable
+  - Dual-mode operation for maximum compatibility
+
+- **ChestShop Integration**
+  - Company-owned chest shops
+  - Employee-based management with permission system
+  - Shop revenue/costs tied to company balance
+  - Automatic transaction validation
+  - Works perfectly without ChestShop installed
+
+- **WorldGuard Integration**
+  - Region-based permission control
+  - Custom flags: `quickstocks-plots` for plot purchases
+  - Protection for company-owned land
+  - Graceful degradation without WorldGuard
+
+### 🎨 Beautiful User Interfaces
+Professional GUIs that make complex operations simple:
+
+- **Market Browser GUI** - Browse instruments, view live prices, execute trades
+- **Company Settings GUI** - Permission-aware management interface
+- **Plot Management GUI** - Visual plot editor for company lands
+- **Color-Coded Displays** - Green for profits, red for losses, intuitive indicators
+- **Helpful Tooltips** - Context-sensitive help on every item
+- **Tab Completion** - Smart command completion for all commands
+- **Pagination Support** - Handle large datasets smoothly
+- **Configurable Layouts** - Full customization via `guis.yml`
 
 ---
 
 ## 🚀 Quick Start
 
-### For Players
+### 🎮 For Players - Start Trading in Seconds
 
 ```bash
-/wallet                    # Check your balance
-/market                    # Browse tradeable instruments
-/stocks                    # See top 10 gainers
-/company create TechCorp PUBLIC    # Start your company
-/watch add TECH            # Track your investments
+# Check your wallet balance
+/wallet
+
+# Browse the market
+/market                          # Interactive GUI
+/stocks                          # Top 10 gainers
+
+# Research and track instruments
+/stocks DIAMOND                  # View detailed info
+/watch add DIAMOND               # Add to watchlist
+
+# Make your first trade
+/market buy DIAMOND 100          # Buy 100 shares
+
+# View your portfolio
+/market portfolio                # Holdings and P&L
+
+# Create a company
+/company create MyCorp PUBLIC    # Start your business
+
+# Go public and trade shares
+/company setsymbol MyCorp MCORP
+/company market enable MyCorp
+
+# Create cryptocurrency (requires $500k)
+/crypto create MYCOIN "My Coin"
 ```
 
-### For Server Administrators
+### ⚙️ For Server Administrators - 5-Minute Setup
 
-1. **Download** the latest QuickStocks JAR
+1. **Download** the latest QuickStocks JAR from [Releases](https://github.com/Cybernetic-Forge/QuickStocks/releases)
 2. **Place** in your server's `plugins/` folder
-3. **Restart** your server
-4. **Configure** (optional) in `plugins/QuickStocks/config.yml`
-5. **Done!** Players can start trading immediately
+3. **Start/Restart** your server
+4. **Configure** (optional) in `plugins/QuickStocks/`
+   - `config.yml` - Database, logging, feature toggles
+   - `market.yml` - Trading economy, circuit breakers, analytics
+   - `companies.yml` - Company types, costs, permissions
+   - `guis.yml` - GUI layouts and appearance
+5. **Add Dependencies** (optional):
+   - Vault (for economy integration)
+   - ChestShop (for company shops)
+   - WorldGuard (for plot protection)
+6. **Done!** Players can start trading immediately with sensible defaults
 
 📖 **[Full Installation Guide →](Documentation/Installation.md)**
+
+#### Default Configuration Highlights
+- ✅ SQLite database (no setup required)
+- ✅ Market updates every 5 seconds
+- ✅ 0.25% trading fee
+- ✅ $1,000 company creation cost
+- ✅ Circuit breakers at ±10% price movement
+- ✅ All features enabled by default
 
 ---
 
@@ -119,85 +250,194 @@ QuickStocks brings real-world financial markets to Minecraft. Players can:
 
 ---
 
-## 🎯 Use Cases
+## 🎯 Use Cases & Server Types
 
 ### 🏫 Educational Servers
-Teach economics, finance, and business management through gameplay
+Perfect for teaching economics and finance:
+- Real-world market simulation for hands-on learning
+- Company management teaches business principles
+- Safe environment to learn trading without real money
+- Great for economics courses and financial literacy programs
 
 ### 🎭 Roleplay Servers
-Create immersive economic systems for your roleplay world
+Enhance immersion with realistic economy:
+- Players can roleplay as CEOs, traders, employees
+- Company system supports business roleplay scenarios
+- Realistic financial transactions and investments
+- Plot system for company headquarters and offices
 
-### ⚔️ Competition Servers
-Host trading competitions and economic challenges
+### ⚔️ Competition & Event Servers
+Host exciting economic challenges:
+- Trading competitions with leaderboards
+- Company growth competitions
+- "Rags to riches" challenges
+- Stock market prediction games
+- Economic warfare between factions
 
-### 🎪 Event Servers
-Run special market events and company competitions
+### 🏰 Survival & Towny Servers
+Add economic depth to gameplay:
+- Trade Minecraft items on the market
+- Town economies integrated with companies
+- Player-driven market prices
+- Corporate alliances and competitions
+
+### 🎪 Mini-Game & Hub Servers
+Create unique economy-focused games:
+- Stock trading mini-games
+- Company building challenges
+- Economic simulation games
+- Financial literacy challenges
 
 ---
 
 ## 🔧 Technical Specifications
 
-- **Server Software:** Paper 1.21.8+ / Spigot / Bukkit
-- **Java Version:** 17 or higher
-- **Database:** SQLite (included), MySQL, or PostgreSQL
-- **Dependencies:** None required (Vault optional for economy integration)
-- **Performance:** Optimized for servers of all sizes with connection pooling
-- **Architecture:** Clean architecture with IoC pattern and service layers
+### System Requirements
+- **Server Software:** Paper 1.21.8+ (recommended) / Spigot / Bukkit
+- **Java Version:** Java 21 or higher (required)
+- **Database:** SQLite (included), MySQL 8.0+, or PostgreSQL 12+
+- **Memory:** Minimum 1GB recommended for the plugin
+- **Dependencies:** None required (Vault, ChestShop, WorldGuard all optional)
+
+### Performance & Scalability
+- **Connection Pooling:** HikariCP for optimal database performance
+- **Async Operations:** Non-blocking market updates and calculations
+- **Indexed Queries:** Optimized database schema for fast lookups
+- **Configurable Intervals:** Adjust update frequency based on server size
+- **Tested Scale:** Designed for servers from 10 to 1000+ players
+
+### Architecture & Code Quality
+- **Clean Architecture:** IoC pattern with service layers (core/api/infrastructure/commands/gui)
+- **Maintainable:** Clear separation of concerns, SOLID principles
+- **Extensible:** Public API with event system for developers
+- **Tested:** 78 automated tests with MockBukkit (fee calculations, trading, companies, portfolios)
+- **CI/CD:** GitHub Actions pipeline with automated testing
+- **Security:** CodeQL scanning, dependency vulnerability checks
+- **Documentation:** Comprehensive docs for users, admins, and developers
+
+### Database Features
+- **Multi-Provider:** SQLite, MySQL, PostgreSQL support
+- **Auto-Migration:** Versioned schema migrations on startup
+- **Schema Version:** V1 with 15+ tables covering all features
+- **Transaction Support:** ACID-compliant operations
+- **Query Interface:** Type-safe database operations
+- **Connection Resilience:** Automatic retry and error handling
 
 ---
 
-## 💡 Example Scenarios
+## 💡 Real-World Examples
 
-### Trading Stocks
+### 📈 Trading Stocks & Items
 ```bash
-# Check market overview
-/stocks                        # Top 10 gainers
+# Morning routine: Check the markets
+/stocks                          # View top movers
+/watch list                      # Check watchlist
 
-# Research an instrument
-/stocks MINE                   # MineCorp Industries details
+# Research a specific item
+/stocks DIAMOND                  # DIAMOND: $450.25 (+5.3%)
+                                 # Volume: 15,234 | 24h Change: +$22.75
+                                 # Market Cap: $68.5M
 
-# Add to watchlist
-/watch add MINE
+# Technical analysis
+/stocks DIAMOND                  # Shows moving averages, support/resistance
 
-# Make a purchase
-/market buy MINE 100           # Buy 100 shares
+# Execute trades
+/market buy DIAMOND 100 450      # Buy 100 @ max $450
+/market sell DIAMOND 50          # Sell 50 at market price
 
-# Check your portfolio
-/market portfolio              # View holdings and P&L
+# Review portfolio
+/market portfolio                # Total Value: $125,432.50
+                                 # Unrealized P&L: +$5,234.00 (+4.35%)
+
+# Check transaction history
+/market history                  # Last 10 trades with P&L
 ```
 
-### Running a Company
+### 🏢 Running a Company
 ```bash
-# Create your company
-/company create TechCorp PUBLIC
+# Start your business empire
+/company create TechCorp PUBLIC  # Cost: $1,000
 
-# Deposit funds
-/company deposit TechCorp 15000
+# Build your team
+/company invite TechCorp Alice CFO
+/company invite TechCorp Bob DEVELOPER
 
-# Invite employees
-/company invite TechCorp Alex CFO
+# Alice accepts the invitation
+/company invitations             # View pending
+/company accept 1                # Accept invitation #1
 
-# Set trading symbol and go public
+# Manage company finances
+/company deposit TechCorp 15000  # Invest in the business
+/company info TechCorp           # Balance: $15,000
+                                 # Employees: 3 (CEO, CFO, DEVELOPER)
+
+# Expand with real estate
+/company plot buy TechCorp       # Buy current chunk
+/company plot list TechCorp      # View owned plots
+
+# Create custom roles
+/company createjob TechCorp "Lead Engineer" MANAGE_PLOTS,DEPOSIT
+
+# Go public on the market
 /company setsymbol TechCorp TECH
-/company market enable TechCorp
+/company market enable TechCorp  # IPO Launch!
 
-# Monitor shareholders
-/market shareholders TECH
+# Monitor your stock
+/market shareholders TECH        # See who owns shares
+/stocks TECH                     # Current price and performance
+
+# Company profits can be distributed
+# Shareholders can trade TECH like any stock
+/market buy TECH 500             # Buy 500 shares of TechCorp
 ```
 
-### Creating Cryptocurrency
+### 💰 Creating Cryptocurrency
 ```bash
-# Personal cryptocurrency (requires $500k)
-/crypto create MYCOIN "My Custom Coin"
+# Personal cryptocurrency (requires $500,000 balance)
+/wallet                          # Check balance: $500,000+
+/crypto create MYCOIN "MyCustomCoin"
+                                 # MYCOIN created successfully!
+                                 # Initial supply: 1,000,000 MYCOIN
 
-# Company cryptocurrency (requires company balance threshold)
+# Company cryptocurrency (requires company balance)
+/company info TechCorp           # Balance: $500,000+
 /crypto company TechCorp TECHCOIN "TechCorp Token"
+                                 # TECHCOIN created for TechCorp!
 
-# Check your crypto
-/stocks MYCOIN                  # View details
+# Trade your crypto
+/stocks MYCOIN                   # View market data
+/market buy MYCOIN 1000          # Buy 1000 coins
+/market sell MYCOIN 500          # Sell 500 coins
 
-# Trade crypto like any other instrument
-/market buy MYCOIN 1000         # Buy 1000 coins
+# Watch it grow
+/watch add MYCOIN                # Track performance
+/watch add TECHCOIN
+
+# Crypto behaves like any tradeable instrument
+# Subject to market forces, fees, and slippage
+```
+
+### 🔍 Advanced Features
+```bash
+# Set up watchlist for portfolio tracking
+/watch add DIAMOND
+/watch add EMERALD
+/watch add TECH
+/watch list                      # Quick overview of all tracked instruments
+
+# Use Market Link Device
+/marketdevice                    # Get portable market access
+# Right-click device anywhere    → Opens market GUI
+
+# Admin operations (requires permissions)
+/wallet add PlayerName 10000     # Add balance
+/wallet set PlayerName 50000     # Set balance
+/wallet remove PlayerName 1000   # Remove balance
+
+# Company administration
+/company employees TechCorp      # List all employees
+/company jobs TechCorp           # View job titles and permissions
+/company kick TechCorp Bob       # Remove employee
 ```
 
 ---
@@ -215,75 +455,225 @@ Run special market events and company competitions
 
 ---
 
-## 🤝 Contributing
+## 🧪 Quality Assurance
 
-We welcome contributions! Whether it's:
-- 🐛 Bug reports
-- ✨ Feature requests
-- 📖 Documentation improvements
-- 💻 Code contributions
+QuickStocks is built with production-ready quality:
 
-Please check our contributing guidelines and open an issue or pull request.
+### Automated Testing
+- **78 Test Cases** - Comprehensive automated test suite
+- **MockBukkit Integration** - Full Bukkit API mocking for realistic tests
+- **JUnit 5 Framework** - Modern testing infrastructure
+- **Test Coverage:**
+  - Fee calculations and slippage
+  - Wallet operations and balance management
+  - Trading logic (buy/sell orders, validation)
+  - Company management (creation, employees, finances)
+  - Portfolio operations (holdings, P&L calculations)
 
----
+### Continuous Integration
+- **GitHub Actions Pipeline** - Automated build and test on every commit
+- **Test Validation** - PRs must pass all tests before merge
+- **Build Verification** - Ensures code compiles successfully
+- **Code Quality Checks** - Automated linting and style validation
 
-## 📜 License
+### Security
+- **CodeQL Scanning** - Automated security vulnerability detection
+- **Dependency Checks** - Advisory database validation for dependencies
+- **Safe Transactions** - Validated operations with rollback support
+- **Input Validation** - Comprehensive input sanitization
+- **Permission System** - Fine-grained access control
 
-QuickStocks is released under the MIT License. See LICENSE file for details.
+### Code Quality
+- **Clean Architecture** - SOLID principles, IoC pattern
+- **Service Layer Pattern** - Clear separation of concerns
+- **Database Migrations** - Safe, versioned schema changes
+- **Comprehensive Logging** - Configurable debug levels (0-3)
+- **Error Handling** - Graceful degradation and user-friendly messages
 
----
+See [TEST_SUITE.md](Documentation/TEST_SUITE.md) for detailed test documentation.
 
-## 🔗 Links
-
-- **[Full Documentation](Documentation/Getting-Started.md)** - Complete user and admin guides
-- **[GitHub Issues](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Report bugs and request features
-- **[bStats Statistics](https://bstats.org/plugin/bukkit/QuickStocks/24106)** - View anonymous usage statistics
-- **[Discord](https://discord.gg/your-invite)** - Get support and discuss with community
-
----
-
-## 📊 Anonymous Statistics
-
-QuickStocks collects anonymous usage statistics through [bStats](https://bstats.org/) to help us understand how the plugin is used and improve it. This data includes server counts, plugin versions, and aggregate usage metrics. No personal or player information is collected.
-
-You can view our public statistics at: https://bstats.org/plugin/bukkit/QuickStocks/24106
-
-To opt-out, set `metrics.enabled: false` in `config.yml` or disable bStats globally in `plugins/bStats/config.yml`.
-
----
-
-## 🙏 Credits
-
-Developed with ❤️ by the Cybernetic Forge team
-
-- **Architecture:** Clean architecture with IoC patterns
-- **Database:** Multi-provider support with automatic migrations
-- **UI/UX:** Adventure Components for beautiful formatting
-- **Testing:** Comprehensive test suite with MockBukkit (78 test cases)
-- **CI/CD:** Automated build pipeline with test validation
-
----
-
-## 🧪 Testing
-
-QuickStocks includes a comprehensive automated test suite:
-
-- **78 test cases** covering core business logic
-- **MockBukkit** integration for Bukkit API mocking
-- **JUnit 5** test framework
-- **GitHub Actions** CI/CD pipeline
-- **Test Coverage**: Fee calculations, wallet operations, trading logic, company management, portfolio operations
-
-See [TEST_SUITE.md](Documentation/TEST_SUITE.md) for detailed documentation.
-
-### Running Tests
-
+### Running Tests Locally
 ```bash
 # Run all tests
 mvn test
 
 # Run specific test class
 mvn test -Dtest=WalletServiceTest
+
+# Run specific test method
+mvn test -Dtest=WalletServiceTest#testAddBalance
+
+# Run with verbose output
+mvn test -X
 ```
 
 ---
+
+## 🤝 Contributing & Support
+
+### 🐛 Found a Bug?
+[Open an issue](https://github.com/Cybernetic-Forge/QuickStocks/issues) with:
+- Clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Server version, Java version, plugin version
+- Any error messages or logs
+
+### ✨ Have a Feature Request?
+We love new ideas! [Submit a feature request](https://github.com/Cybernetic-Forge/QuickStocks/issues) with:
+- Clear description of the feature
+- Use case and benefits
+- How it fits with existing features
+
+### 💻 Want to Contribute Code?
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes following our code standards
+4. Write tests for new functionality
+5. Submit a pull request
+
+See [CONTRIBUTING_TESTS.md](Documentation/CONTRIBUTING_TESTS.md) for detailed guidelines.
+
+### 📖 Documentation Improvements?
+Documentation is crucial! Help us improve:
+- Fix typos or unclear explanations
+- Add examples and use cases
+- Translate to other languages
+- Create video tutorials
+
+### 💬 Need Help?
+- **[GitHub Discussions](https://github.com/Cybernetic-Forge/QuickStocks/discussions)** - Q&A and community help
+- **[GitHub Issues](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Bug reports and feature requests
+- **[Discord](https://discord.gg/your-invite)** - Real-time chat and support
+- **[Documentation](Documentation/Getting-Started.md)** - Comprehensive guides
+
+---
+
+## 📊 Anonymous Statistics
+
+QuickStocks uses [bStats](https://bstats.org/) to collect **anonymous usage statistics**. This helps us:
+- Understand how the plugin is used
+- Prioritize features and improvements
+- Identify compatibility issues
+- Make data-driven decisions
+
+### What We Collect
+- Server count and player counts
+- Plugin version distribution
+- Minecraft server software and version
+- Java version
+- Enabled features (market, companies, etc.)
+
+### What We DON'T Collect
+- ❌ Player names or UUIDs
+- ❌ Server IP addresses or names
+- ❌ Chat messages or commands
+- ❌ Economy data or balances
+- ❌ Any personal information
+
+### View Public Statistics
+See aggregated data at: https://bstats.org/plugin/bukkit/QuickStocks/24106
+
+### Opt-Out
+To disable statistics:
+- **Per-Plugin:** Set `metrics.enabled: false` in `plugins/QuickStocks/config.yml`
+- **Globally:** Disable in `plugins/bStats/config.yml` (affects all plugins using bStats)
+
+We respect your privacy while improving the plugin for everyone.
+
+---
+
+## 🙏 Credits & Acknowledgments
+
+**Developed with ❤️ by the Cybernetic Forge Team**
+
+### Technology Stack
+- **Minecraft Platform:** Paper/Spigot/Bukkit API
+- **Language:** Java 21 with modern features
+- **Database:** Multi-provider (SQLite, MySQL, PostgreSQL) with HikariCP
+- **Architecture:** Clean architecture with IoC patterns
+- **UI Framework:** Adventure Components for rich text formatting
+- **Testing:** MockBukkit + JUnit 5 (78 automated tests)
+- **Build System:** Maven with automated CI/CD
+- **Statistics:** bStats for anonymous usage metrics
+
+### Design Philosophy
+- **Realism First** - Market behavior mirrors real-world financial markets
+- **User Experience** - Intuitive interfaces with helpful guidance
+- **Performance** - Optimized for game server environments
+- **Extensibility** - Public API and event system for developers
+- **Quality** - Comprehensive testing and security validation
+- **Maintainability** - Clean code with clear documentation
+
+### Special Thanks
+- **Paper Team** - For an excellent Minecraft server platform
+- **MockBukkit Contributors** - Making testing Minecraft plugins possible
+- **bStats Team** - Anonymous statistics platform
+- **Open Source Community** - For the amazing tools and libraries
+
+### Architecture Highlights
+- **Clean Architecture** with service layers and dependency injection
+- **Database Migrations** for safe schema evolution
+- **Connection Pooling** with HikariCP for performance
+- **Event System** for plugin developers to extend functionality
+- **Multi-file Configuration** for organized settings
+- **Centralized Logging** with configurable debug levels
+
+### Version History
+- **v1.0.0-SNAPSHOT** (Current) - Initial release with full feature set
+  - Complete market trading system with realistic simulation
+  - Comprehensive company management
+  - Cryptocurrency support (default and custom)
+  - Portfolio and wallet management
+  - ChestShop and WorldGuard integrations
+  - 78 automated tests with CI/CD pipeline
+  - Multi-database support with migrations
+
+---
+
+## 📜 License
+
+QuickStocks is released under the **MIT License**.
+
+You are free to:
+- ✅ Use commercially or personally
+- ✅ Modify and adapt the code
+- ✅ Distribute copies
+- ✅ Use in private projects
+
+See [LICENSE](LICENSE) file for full details.
+
+---
+
+## 🔗 Quick Links
+
+### Documentation
+- 📖 **[Getting Started Guide](Documentation/Getting-Started.md)** - Complete player tutorial
+- 🎮 **[Commands Overview](Documentation/Commands-Overview.md)** - All available commands
+- ⚙️ **[Installation Guide](Documentation/Installation.md)** - Server setup instructions
+- 🔧 **[Configuration Guide](Documentation/Configuration.md)** - Detailed settings reference
+- 📊 **[Database Guide](Documentation/Database.md)** - Database administration
+- 🧪 **[Test Suite](Documentation/TEST_SUITE.md)** - Testing documentation
+
+### Community & Support
+- 💬 **[GitHub Discussions](https://github.com/Cybernetic-Forge/QuickStocks/discussions)** - Q&A and community
+- 🐛 **[Issue Tracker](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Bug reports and features
+- 📊 **[bStats Dashboard](https://bstats.org/plugin/bukkit/QuickStocks/24106)** - Usage statistics
+- 💭 **[Discord Server](https://discord.gg/your-invite)** - Real-time chat support
+
+### Developer Resources
+- 🔌 **[API Documentation](src/main/java/net/cyberneticforge/quickstocks/api/README.md)** - Event system and managers
+- 📋 **[Contributing Guide](Documentation/CONTRIBUTING_TESTS.md)** - How to contribute
+- 🏗️ **[Architecture Overview](.github/copilot/features/README.md)** - System design docs
+- 📝 **[Code Quality Analysis](Documentation/CODE_QUALITY_ANALYSIS.md)** - Quality metrics
+
+---
+
+<div align="center">
+
+**⭐ Star this repository if you find QuickStocks useful!**
+
+Made with ❤️ for the Minecraft community
+
+</div>
