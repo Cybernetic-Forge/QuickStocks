@@ -8,8 +8,6 @@ Transform your Minecraft server into a sophisticated economic powerhouse. QuickS
 [![Minecraft](https://img.shields.io/badge/minecraft-1.21.8-green)](https://www.spigotmc.org/)
 [![Java](https://img.shields.io/badge/java-21%2B-orange)](https://adoptium.net/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-78%20passing-success)](Documentation/TEST_SUITE.md)
-[![Code Quality](https://img.shields.io/badge/architecture-clean-brightgreen)](Documentation/CODE_QUALITY_ANALYSIS.md)
 
 ---
 
@@ -195,7 +193,7 @@ Professional GUIs that make complex operations simple:
 
 # Create cryptocurrency (requires $500k)
 /crypto create MYCOIN "My Coin"
-```
+```a
 
 ### ⚙️ For Server Administrators - 5-Minute Setup
 
@@ -455,60 +453,6 @@ Create unique economy-focused games:
 
 ---
 
-## 🧪 Quality Assurance
-
-QuickStocks is built with production-ready quality:
-
-### Automated Testing
-- **78 Test Cases** - Comprehensive automated test suite
-- **MockBukkit Integration** - Full Bukkit API mocking for realistic tests
-- **JUnit 5 Framework** - Modern testing infrastructure
-- **Test Coverage:**
-  - Fee calculations and slippage
-  - Wallet operations and balance management
-  - Trading logic (buy/sell orders, validation)
-  - Company management (creation, employees, finances)
-  - Portfolio operations (holdings, P&L calculations)
-
-### Continuous Integration
-- **GitHub Actions Pipeline** - Automated build and test on every commit
-- **Test Validation** - PRs must pass all tests before merge
-- **Build Verification** - Ensures code compiles successfully
-- **Code Quality Checks** - Automated linting and style validation
-
-### Security
-- **CodeQL Scanning** - Automated security vulnerability detection
-- **Dependency Checks** - Advisory database validation for dependencies
-- **Safe Transactions** - Validated operations with rollback support
-- **Input Validation** - Comprehensive input sanitization
-- **Permission System** - Fine-grained access control
-
-### Code Quality
-- **Clean Architecture** - SOLID principles, IoC pattern
-- **Service Layer Pattern** - Clear separation of concerns
-- **Database Migrations** - Safe, versioned schema changes
-- **Comprehensive Logging** - Configurable debug levels (0-3)
-- **Error Handling** - Graceful degradation and user-friendly messages
-
-See [TEST_SUITE.md](Documentation/TEST_SUITE.md) for detailed test documentation.
-
-### Running Tests Locally
-```bash
-# Run all tests
-mvn test
-
-# Run specific test class
-mvn test -Dtest=WalletServiceTest
-
-# Run specific test method
-mvn test -Dtest=WalletServiceTest#testAddBalance
-
-# Run with verbose output
-mvn test -X
-```
-
----
-
 ## 🤝 Contributing & Support
 
 ### 🐛 Found a Bug?
@@ -564,13 +508,6 @@ QuickStocks uses [bStats](https://bstats.org/) to collect **anonymous usage stat
 - Minecraft server software and version
 - Java version
 - Enabled features (market, companies, etc.)
-
-### What We DON'T Collect
-- ❌ Player names or UUIDs
-- ❌ Server IP addresses or names
-- ❌ Chat messages or commands
-- ❌ Economy data or balances
-- ❌ Any personal information
 
 ### View Public Statistics
 See aggregated data at: https://bstats.org/plugin/bukkit/QuickStocks/24106
