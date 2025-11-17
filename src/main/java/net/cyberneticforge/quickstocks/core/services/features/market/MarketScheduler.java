@@ -4,6 +4,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.api.events.MarketCloseEvent;
 import net.cyberneticforge.quickstocks.api.events.MarketOpenEvent;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
+import net.cyberneticforge.quickstocks.infrastructure.config.MarketCfg;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -24,21 +25,18 @@ public class MarketScheduler {
     
     private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
-    
-    private final QuickStocksPlugin plugin;
-    private final FileConfiguration marketConfig;
-    
-    private boolean marketHoursEnabled;
-    private LocalTime openTime;
-    private LocalTime closeTime;
-    private ZoneId timezone;
+
+    private final MarketCfg marketConfig = QuickStocksPlugin.getMarketCfg();
+
+    private final boolean marketHoursEnabled = marketConfig.isMarketHoursEnabled();
+    private LocalTime openTime = marketConfig.getOpenTime();
+    private LocalTime closeTime = marketConfig.getCloseTime();
+    private ZoneId timezone = marketConfig.getTimezone();
     private boolean marketOpen;
     
     private BukkitTask checkTask;
     
-    public MarketScheduler(QuickStocksPlugin plugin, FileConfiguration marketConfig) {
-        this.plugin = plugin;
-        this.marketConfig = marketConfig;
+    public MarketScheduler() {
         loadConfiguration();
     }
     
@@ -46,21 +44,12 @@ public class MarketScheduler {
      * Loads market hours configuration.
      */
     private void loadConfiguration() {
-        marketHoursEnabled = marketConfig.getBoolean("market.hours.enabled", true);
-        
-        String openTimeStr = marketConfig.getString("market.hours.open-at", "06:00:00");
-        String closeTimeStr = marketConfig.getString("market.hours.close-at", "22:00:00");
-        String timezoneStr = marketConfig.getString("market.hours.timezone", "UTC");
-        
+
         try {
-            openTime = LocalTime.parse(openTimeStr, TIME_FORMATTER);
-            closeTime = LocalTime.parse(closeTimeStr, TIME_FORMATTER);
-            timezone = ZoneId.of(timezoneStr);
-            
             // Determine initial market state
             marketOpen = !marketHoursEnabled || isWithinMarketHours();
             
-            logger.info("Market hours configured: " + openTimeStr + " - " + closeTimeStr + " " + timezoneStr);
+            logger.info("Market hours configured: " + openTime + " - " + closeTime + " " + timezone);
             logger.info("Market is currently " + (marketOpen ? "OPEN" : "CLOSED"));
             
         } catch (Exception e) {
@@ -88,7 +77,7 @@ public class MarketScheduler {
             public void run() {
                 checkMarketHours();
             }
-        }.runTaskTimer(plugin, 20L, 20L * 60L); // Check every minute
+        }.runTaskTimer(QuickStocksPlugin.getInstance(), 20L, 20L * 60L); // Check every minute
         
         logger.info("Market hours scheduler started");
     }
