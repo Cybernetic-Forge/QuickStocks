@@ -1,6 +1,6 @@
 name: QuickStocks
 main: net.cyberneticforge.quickstocks.QuickStocksPlugin
-version: 0.0.2
+version: 0.0.3
 api-version: "1.21"
 authors:
   - MaksyKun
