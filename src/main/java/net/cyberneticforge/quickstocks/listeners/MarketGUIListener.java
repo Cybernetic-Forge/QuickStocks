@@ -3,6 +3,8 @@ package net.cyberneticforge.quickstocks.listeners;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.Company;
+import Instrument;
+import InstrumentState;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
@@ -17,6 +19,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -111,26 +114,47 @@ public class MarketGUIListener implements Listener {
         if (slot >= 9 && slot < 45) {
             String symbol = marketGUI.getStockSymbolFromSlot(slot);
             if (symbol != null && !symbol.isEmpty()) {
-                handleStockClick(player, symbol, clickType);
+                handleInstrumentClick(player, symbol, clickType);
             }
         }
     }
     
     /**
-     * Handles clicks on company shares in the market
+     * Handles clicks on any instrument in the market (company shares, crypto, or items)
      */
-    private void handleStockClick(Player player, String symbol, ClickType clickType) throws Exception {
+    private void handleInstrumentClick(Player player, String symbol, ClickType clickType) throws Exception {
         String playerUuid = player.getUniqueId().toString();
         
-        // Find company by symbol
+        // Determine the instrument type by checking different sources
+        // 1. Check if it's a company share
         Optional<Company> companyOpt = QuickStocksPlugin.getCompanyService().getCompanyByNameOrSymbol(symbol);
-        if (companyOpt.isEmpty()) {
-            Translation.Company_Error_CompanyNotFound.sendMessage(player,
-                new Replaceable("%company%", symbol));
+        if (companyOpt.isPresent()) {
+            handleCompanyShareClick(player, playerUuid, companyOpt.get(), clickType);
             return;
         }
         
-        Company company = companyOpt.get();
+        // 2. Check if it's a generic instrument (crypto or item)
+        try {
+            Optional<Instrument> instrumentOpt = 
+                QuickStocksPlugin.getInstrumentPersistenceService().getInstrumentBySymbol(symbol);
+            
+            if (instrumentOpt.isPresent()) {
+                handleGenericInstrumentClick(player, playerUuid, instrumentOpt.get(), clickType);
+                return;
+            }
+        } catch (SQLException e) {
+            logger.warning("Error looking up instrument " + symbol + ": " + e.getMessage());
+        }
+        
+        // Unknown instrument
+        Translation.Market_Error_InstrumentNotFound.sendMessage(player,
+            new Replaceable("%symbol%", symbol));
+    }
+    
+    /**
+     * Handles clicks on company shares in the market
+     */
+    private void handleCompanyShareClick(Player player, String playerUuid, Company company, ClickType clickType) throws Exception {
         
         if (!company.isOnMarket()) {
             Translation.Company_Error_NotOnMarket.sendMessage(player,
@@ -246,6 +270,160 @@ public class MarketGUIListener implements Listener {
             new Replaceable("%price%", String.format("%.2f", sharePrice)),
             new Replaceable("%balance%", String.format("%.2f", company.getBalance())),
             new Replaceable("%market_pct%", String.format("%.1f", company.getMarketPercentage())));
+    }
+    
+    /**
+     * Handles clicks on generic instruments (crypto and items)
+     */
+    private void handleGenericInstrumentClick(Player player, String playerUuid, 
+            Instrument instrument, ClickType clickType) throws Exception {
+        
+        // Get current price
+        Optional<InstrumentState> stateOpt = 
+            QuickStocksPlugin.getInstrumentPersistenceService().getInstrumentState(instrument.id());
+        
+        if (stateOpt.isEmpty()) {
+            Translation.Market_Error_PriceNotAvailable.sendMessage(player,
+                new Replaceable("%symbol%", instrument.symbol()));
+            return;
+        }
+        
+        double currentPrice = stateOpt.get().lastPrice();
+        
+        switch (clickType) {
+            case LEFT:
+                // Quick buy 1 unit
+                handleGenericInstrumentBuy(player, playerUuid, instrument, currentPrice, 1.0);
+                break;
+                
+            case RIGHT:
+                // Quick sell 1 unit
+                handleGenericInstrumentSell(player, playerUuid, instrument, currentPrice, 1.0);
+                break;
+                
+            case SHIFT_LEFT:
+            case SHIFT_RIGHT:
+                // Custom amount - close GUI and prompt for amount
+                player.closeInventory();
+                String action = clickType == ClickType.SHIFT_LEFT ? "buy" : "sell";
+                Translation.Market_Buy_CustomPrompt.sendMessage(player,
+                    new Replaceable("%action%", action),
+                    new Replaceable("%company%", instrument.displayName()),
+                    new Replaceable("%symbol%", instrument.symbol()));
+                break;
+                
+            default:
+                // Show instrument details
+                showGenericInstrumentDetails(player, instrument, stateOpt.get());
+                break;
+        }
+    }
+    
+    /**
+     * Handles buying a generic instrument (crypto or item)
+     */
+    private void handleGenericInstrumentBuy(Player player, String playerUuid, 
+            Instrument instrument, double price, double quantity) {
+        try {
+            double totalCost = price * quantity;
+            double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
+            
+            if (balance < totalCost) {
+                Translation.Company_Error_InsufficientFunds.sendMessage(player,
+                    new Replaceable("%needed%", String.format("%.2f", totalCost - balance)));
+                playErrorSound(player);
+                return;
+            }
+            
+            // Execute the purchase using TradingService
+            var result = QuickStocksPlugin.getTradingService().executeBuyOrder(playerUuid, instrument.id(), quantity);
+            
+            if (result.success()) {
+                Translation.Market_Buy_Success.sendMessage(player,
+                    new Replaceable("%qty%", String.format("%.2f", quantity)),
+                    new Replaceable("%company%", instrument.displayName()),
+                    new Replaceable("%total%", String.format("%.2f", totalCost)));
+                Translation.Market_Balance_Updated.sendMessage(player,
+                    new Replaceable("%balance%", String.format("%.2f", QuickStocksPlugin.getWalletService().getBalance(playerUuid))));
+                playSuccessSound(player);
+            } else {
+                Translation.Market_Error_TransactionFailed.sendMessage(player,
+                    new Replaceable("%error%", result.message()));
+                playErrorSound(player);
+            }
+            
+        } catch (Exception e) {
+            Translation.Market_Error_TransactionFailed.sendMessage(player,
+                new Replaceable("%error%", e.getMessage()));
+            playErrorSound(player);
+            logger.warning("Error in generic instrument buy: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Handles selling a generic instrument (crypto or item)
+     */
+    private void handleGenericInstrumentSell(Player player, String playerUuid, 
+            Instrument instrument, double price, double quantity) {
+        try {
+            // Check if player has holdings
+            var holdings = QuickStocksPlugin.getHoldingsService().getHoldings(playerUuid);
+            boolean hasHolding = holdings.stream()
+                .anyMatch(h -> h.symbol().equals(instrument.symbol()) && h.qty() >= quantity);
+            
+            if (!hasHolding) {
+                Translation.Market_Error_NoShares.sendMessage(player,
+                    new Replaceable("%company%", instrument.displayName()));
+                playErrorSound(player);
+                return;
+            }
+            
+            // Execute the sale using TradingService
+            var result = QuickStocksPlugin.getTradingService().executeSellOrder(playerUuid, instrument.id(), quantity);
+            
+            if (result.success()) {
+                double totalValue = price * quantity;
+                Translation.Market_Sell_Success.sendMessage(player,
+                    new Replaceable("%qty%", String.format("%.2f", quantity)),
+                    new Replaceable("%company%", instrument.displayName()),
+                    new Replaceable("%total%", String.format("%.2f", totalValue)));
+                Translation.Market_Balance_Updated.sendMessage(player,
+                    new Replaceable("%balance%", String.format("%.2f", QuickStocksPlugin.getWalletService().getBalance(playerUuid))));
+                playSuccessSound(player);
+            } else {
+                Translation.Market_Error_TransactionFailed.sendMessage(player,
+                    new Replaceable("%error%", result.message()));
+                playErrorSound(player);
+            }
+            
+        } catch (Exception e) {
+            Translation.Market_Error_TransactionFailed.sendMessage(player,
+                new Replaceable("%error%", e.getMessage()));
+            playErrorSound(player);
+            logger.warning("Error in generic instrument sell: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Shows detailed information about a generic instrument
+     */
+    private void showGenericInstrumentDetails(Player player, 
+            Instrument instrument,
+            InstrumentState state) {
+        
+        String typeDisplay = switch (instrument.type()) {
+            case "ITEM" -> "Item Instrument";
+            case "CRYPTO", "CUSTOM_CRYPTO" -> "Cryptocurrency";
+            default -> "Instrument";
+        };
+        
+        Translation.Market_InstrumentDetails.sendMessage(player,
+            new Replaceable("%name%", instrument.displayName()),
+            new Replaceable("%symbol%", instrument.symbol()),
+            new Replaceable("%type%", typeDisplay),
+            new Replaceable("%price%", String.format("%.2f", state.lastPrice())),
+            new Replaceable("%change_24h%", String.format("%.2f", state.change24h())),
+            new Replaceable("%volume%", String.format("%.2f", state.lastVolume())));
     }
     
     /**
