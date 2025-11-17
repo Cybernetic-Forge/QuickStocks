@@ -187,9 +187,12 @@ public class StockMarketService {
                 }
             }
             
-            // Update volume with some randomness
-            double newVolume = Math.max(0, stock.getDailyVolume() + 
-                (Math.random() - 0.5) * 100000);
+            // Update volume with more realistic changes based on current volume
+            // Volume changes are typically ±5-15% per update, not arbitrary large numbers
+            double volumeChangePercent = (Math.random() - 0.5) * 0.2; // ±10% change
+            double currentVolume = stock.getDailyVolume();
+            double minVolume = 100; // Minimum volume floor
+            double newVolume = Math.max(minVolume, currentVolume * (1 + volumeChangePercent));
             stock.updateVolume(newVolume);
         }
     }
