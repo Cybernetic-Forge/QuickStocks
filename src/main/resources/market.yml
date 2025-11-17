@@ -5,6 +5,13 @@ market:
   startOpen: true
   defaultStocks: true
   
+  # Market hours configuration
+  hours:
+    enabled: true # Enable/disable market hours restriction
+    open-at: "06:00:00" # Market opening time (HH:mm:ss format)
+    close-at: "22:00:00" # Market closing time (HH:mm:ss format)
+    timezone: "UTC" # Timezone for market hours (default: UTC, use system timezone or IANA timezone ID)
+  
   # Sub-feature toggles for fine-grained control
   features:
     watchlist: true # Enable/disable watchlist functionality

@@ -5,10 +5,12 @@ import net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import Player;
 
 import java.sql.SQLException;
 import java.util.UUID;
+import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 
 /**
  * Manages player wallet balances with Vault economy integration fallback.
@@ -145,7 +147,7 @@ public class WalletService {
      */
     private void fireBalanceChangeEvent(String playerUuid, double oldBalance, double newBalance, WalletBalanceChangeEvent.ChangeReason reason) {
         try {
-            Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
             if (player != null) {
                 WalletBalanceChangeEvent event = new WalletBalanceChangeEvent(player, oldBalance, newBalance, reason);
                 Bukkit.getPluginManager().callEvent(event);
@@ -186,7 +188,7 @@ public class WalletService {
                     .invoke(null, UUID.fromString(playerUuid));
             
             double balance = (Double) vaultEconomy.getClass().getMethod("getBalance", 
-                    Class.forName("org.bukkit.OfflinePlayer"))
+                    Class.forName("OfflinePlayer"))
                     .invoke(vaultEconomy, offlinePlayer);
             
             logger.debug("Retrieved Vault balance for " + playerUuid + ": $" + String.format("%.2f", balance));
@@ -205,18 +207,18 @@ public class WalletService {
             
             // Get current balance first
             double currentBalance = (Double) vaultEconomy.getClass().getMethod("getBalance", 
-                    Class.forName("org.bukkit.OfflinePlayer"))
+                    Class.forName("OfflinePlayer"))
                     .invoke(vaultEconomy, offlinePlayer);
             
             if (amount > currentBalance) {
                 // Need to deposit money
                 vaultEconomy.getClass().getMethod("depositPlayer", 
-                        Class.forName("org.bukkit.OfflinePlayer"), double.class)
+                        Class.forName("OfflinePlayer"), double.class)
                         .invoke(vaultEconomy, offlinePlayer, amount - currentBalance);
             } else if (amount < currentBalance) {
                 // Need to withdraw money
                 vaultEconomy.getClass().getMethod("withdrawPlayer", 
-                        Class.forName("org.bukkit.OfflinePlayer"), double.class)
+                        Class.forName("OfflinePlayer"), double.class)
                         .invoke(vaultEconomy, offlinePlayer, currentBalance - amount);
             }
             
@@ -233,7 +235,7 @@ public class WalletService {
                     .invoke(null, UUID.fromString(playerUuid));
             
             vaultEconomy.getClass().getMethod("depositPlayer", 
-                    Class.forName("org.bukkit.OfflinePlayer"), double.class)
+                    Class.forName("OfflinePlayer"), double.class)
                     .invoke(vaultEconomy, offlinePlayer, amount);
             
             logger.debug("Added $" + String.format("%.2f", amount) + " to Vault balance for " + playerUuid);
@@ -250,12 +252,12 @@ public class WalletService {
             
             // Check balance first
             double currentBalance = (Double) vaultEconomy.getClass().getMethod("getBalance", 
-                    Class.forName("org.bukkit.OfflinePlayer"))
+                    Class.forName("OfflinePlayer"))
                     .invoke(vaultEconomy, offlinePlayer);
             
             if (currentBalance >= amount) {
                 Object result = vaultEconomy.getClass().getMethod("withdrawPlayer", 
-                        Class.forName("org.bukkit.OfflinePlayer"), double.class)
+                        Class.forName("OfflinePlayer"), double.class)
                         .invoke(vaultEconomy, offlinePlayer, amount);
                 
                 logger.debug("Removed $" + String.format("%.2f", amount) + " from Vault balance for " + playerUuid);

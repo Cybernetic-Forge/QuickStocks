@@ -2,11 +2,13 @@ package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.cyberneticforge.quickstocks.api.events.InstrumentPriceUpdateEvent;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
 import net.cyberneticforge.quickstocks.core.algorithms.StockPriceCalculator;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
 import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
 import net.cyberneticforge.quickstocks.core.model.Stock;
+import org.bukkit.Bukkit;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -110,6 +112,7 @@ public class StockMarketService {
     
     /**
      * Updates all stock prices based on current market conditions.
+     * Fires InstrumentPriceUpdateEvent for each stock that has a price change.
      */
     public void updateAllStockPrices() {
         if (!marketOpen) return;
@@ -119,8 +122,25 @@ public class StockMarketService {
         
         // Then update all stock prices
         for (Stock stock : stocks.values()) {
+            double oldPrice = stock.getCurrentPrice();
             double newPrice = priceCalculator.calculateNewPrice(stock, marketInfluences);
             stock.updatePrice(newPrice);
+            
+            // Fire InstrumentPriceUpdateEvent if price changed
+            if (Math.abs(newPrice - oldPrice) > 0.0001) { // Only fire if meaningful change
+                try {
+                    InstrumentPriceUpdateEvent event = new InstrumentPriceUpdateEvent(
+                        stock.getSymbol(), // Using symbol as instrumentId for stocks
+                        stock.getSymbol(),
+                        oldPrice,
+                        newPrice,
+                        System.currentTimeMillis()
+                    );
+                    Bukkit.getPluginManager().callEvent(event);
+                } catch (Exception e) {
+                    // Don't let event firing break price updates
+                }
+            }
             
             // Update volume with some randomness
             double newVolume = Math.max(0, stock.getDailyVolume() + 

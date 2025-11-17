@@ -8,7 +8,7 @@ import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import Player;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.bukkit.entity.Player;
 
 /**
  * Service for managing custom cryptocurrency instruments created by players.
@@ -74,7 +75,7 @@ public class CryptoService {
         
         // Fire cancellable event before creating crypto
         try {
-            Player player = Bukkit.getPlayer(java.util.UUID.fromString(createdBy));
+            Player player = Bukkit.getPlayer(UUID.fromString(createdBy));
             if (player != null) {
                 CryptoCreateEvent event =
                     new CryptoCreateEvent(

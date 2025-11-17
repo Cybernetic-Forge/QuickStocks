@@ -40,6 +40,7 @@ import net.cyberneticforge.quickstocks.listeners.shops.ChestShopListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopProtectionListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopTransactionListener;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -109,6 +110,8 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private static MetricsService metricsService;
     @Getter
     private static WorldGuardHook worldGuardHook;
+    @Getter
+    private static MarketScheduler marketScheduler;
     
     // Scheduler task tracking for reload functionality
     private static BukkitRunnable salaryPaymentTask;
@@ -187,10 +190,17 @@ public final class QuickStocksPlugin extends JavaPlugin {
             watchlistService = new WatchlistService();
             instrumentPersistenceService = new InstrumentPersistenceService();
             tradingService.setStockMarketService(new StockMarketService());
+            
+            // Initialize market scheduler
+            FileConfiguration marketConfig = getConfig("market.yml");
+            marketScheduler = new MarketScheduler(this, marketConfig);
 
             initializeDefaultStocks();
             registerCommands();
             registerListeners();
+            
+            // Start market hours scheduler
+            marketScheduler.start();
 
             startSalaryPaymentScheduler();
             startRentCollectionScheduler();
@@ -214,6 +224,11 @@ public final class QuickStocksPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("QuickStocks disabling...");
+        
+        // Stop the market scheduler
+        if (marketScheduler != null) {
+            marketScheduler.stop();
+        }
         
         // Stop the market update task
         if (marketUpdateTask != null && !marketUpdateTask.isCancelled()) {

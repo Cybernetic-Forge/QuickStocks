@@ -10,6 +10,8 @@ import net.cyberneticforge.quickstocks.core.services.features.portfolio.Holdings
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -91,7 +93,7 @@ public class TradingService {
         
         // Fire cancellable event before executing trade
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
             if (player != null) {
                 ShareBuyEvent event =
                     new ShareBuyEvent(
@@ -103,7 +105,7 @@ public class TradingService {
                         currentPrice,
                         totalCost
                     );
-                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                Bukkit.getPluginManager().callEvent(event);
                 
                 if (event.isCancelled()) {
                     return new TradeResult(false, "Trade cancelled by event handler");
@@ -193,7 +195,7 @@ public class TradingService {
         
         // Fire cancellable event before executing trade
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
             if (player != null) {
                 ShareSellEvent event =
                     new ShareSellEvent(
@@ -205,7 +207,7 @@ public class TradingService {
                         currentPrice,
                         totalValue
                     );
-                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                Bukkit.getPluginManager().callEvent(event);
                 
                 if (event.isCancelled()) {
                     return new TradeResult(false, "Trade cancelled by event handler");

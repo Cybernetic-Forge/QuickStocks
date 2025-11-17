@@ -12,6 +12,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import java.util.UUID;
 
 /**
  * Service for managing player watchlists.
@@ -41,13 +44,13 @@ public class WatchlistService {
         
         // Fire cancellable event before adding to watchlist
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
             if (player != null) {
                 WatchlistAddEvent event =
                     new WatchlistAddEvent(
                         player, instrumentId, symbol != null ? symbol : instrumentId
                     );
-                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                Bukkit.getPluginManager().callEvent(event);
                 
                 if (event.isCancelled()) {
                     logger.debug("WatchlistAddEvent cancelled for player " + playerUuid);
@@ -87,13 +90,13 @@ public class WatchlistService {
         
         // Fire cancellable event before removing from watchlist
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
             if (player != null) {
                 WatchlistRemoveEvent event =
                     new WatchlistRemoveEvent(
                         player, instrumentId, symbol != null ? symbol : instrumentId
                     );
-                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                Bukkit.getPluginManager().callEvent(event);
                 
                 if (event.isCancelled()) {
                     logger.debug("WatchlistRemoveEvent cancelled for player " + playerUuid);

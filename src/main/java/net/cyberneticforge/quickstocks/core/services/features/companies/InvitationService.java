@@ -8,10 +8,12 @@ import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import Player;
 
 import java.sql.SQLException;
 import java.util.*;
+import org.bukkit.entity.Player;
+import java.util.UUID;
 
 /**
  * Service for managing company invitations.
@@ -116,7 +118,7 @@ public class InvitationService {
         
         // Fire CompanyEmployeeJoinEvent after successful join
         try {
-            Player player = Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
             if (player != null) {
                 // Get company name and job title
                 Optional<Company> companyOpt =
