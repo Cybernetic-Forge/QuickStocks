@@ -1,6 +1,8 @@
 package net.cyberneticforge.quickstocks.core.services.features.portfolio;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.WatchlistAddEvent;
+import net.cyberneticforge.quickstocks.api.events.WatchlistRemoveEvent;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
@@ -41,8 +43,8 @@ public class WatchlistService {
         try {
             org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
             if (player != null) {
-                net.cyberneticforge.quickstocks.api.events.WatchlistAddEvent event = 
-                    new net.cyberneticforge.quickstocks.api.events.WatchlistAddEvent(
+                WatchlistAddEvent event =
+                    new WatchlistAddEvent(
                         player, instrumentId, symbol != null ? symbol : instrumentId
                     );
                 org.bukkit.Bukkit.getPluginManager().callEvent(event);
@@ -87,8 +89,8 @@ public class WatchlistService {
         try {
             org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
             if (player != null) {
-                net.cyberneticforge.quickstocks.api.events.WatchlistRemoveEvent event = 
-                    new net.cyberneticforge.quickstocks.api.events.WatchlistRemoveEvent(
+                WatchlistRemoveEvent event =
+                    new WatchlistRemoveEvent(
                         player, instrumentId, symbol != null ? symbol : instrumentId
                     );
                 org.bukkit.Bukkit.getPluginManager().callEvent(event);

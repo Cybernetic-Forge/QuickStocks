@@ -1,11 +1,14 @@
 package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.CryptoCreateEvent;
 import net.cyberneticforge.quickstocks.core.model.Crypto;
 import net.cyberneticforge.quickstocks.core.model.Instrument;
 import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -71,14 +74,14 @@ public class CryptoService {
         
         // Fire cancellable event before creating crypto
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(createdBy));
+            Player player = Bukkit.getPlayer(java.util.UUID.fromString(createdBy));
             if (player != null) {
-                net.cyberneticforge.quickstocks.api.events.CryptoCreateEvent event = 
-                    new net.cyberneticforge.quickstocks.api.events.CryptoCreateEvent(
+                CryptoCreateEvent event =
+                    new CryptoCreateEvent(
                         player, symbol, displayName
                     );
-                org.bukkit.Bukkit.getPluginManager().callEvent(event);
-                
+                Bukkit.getPluginManager().callEvent(event);
+
                 if (event.isCancelled()) {
                     throw new IllegalArgumentException("Cryptocurrency creation cancelled by event handler");
                 }

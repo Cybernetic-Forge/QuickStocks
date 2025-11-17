@@ -2,6 +2,9 @@ package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import lombok.Setter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.ShareBuyEvent;
+import net.cyberneticforge.quickstocks.api.events.ShareSellEvent;
+import net.cyberneticforge.quickstocks.api.events.TransactionType;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
@@ -90,10 +93,10 @@ public class TradingService {
         try {
             org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
             if (player != null) {
-                net.cyberneticforge.quickstocks.api.events.ShareBuyEvent event = 
-                    new net.cyberneticforge.quickstocks.api.events.ShareBuyEvent(
+                ShareBuyEvent event =
+                    new ShareBuyEvent(
                         player,
-                        net.cyberneticforge.quickstocks.api.events.TransactionType.INSTRUMENT,
+                        TransactionType.INSTRUMENT,
                         instrumentId,
                         symbol != null ? symbol : instrumentId,
                         qty,
@@ -192,10 +195,10 @@ public class TradingService {
         try {
             org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
             if (player != null) {
-                net.cyberneticforge.quickstocks.api.events.ShareSellEvent event = 
-                    new net.cyberneticforge.quickstocks.api.events.ShareSellEvent(
+                ShareSellEvent event =
+                    new ShareSellEvent(
                         player,
-                        net.cyberneticforge.quickstocks.api.events.TransactionType.INSTRUMENT,
+                        TransactionType.INSTRUMENT,
                         instrumentId,
                         symbol != null ? symbol : instrumentId,
                         qty,

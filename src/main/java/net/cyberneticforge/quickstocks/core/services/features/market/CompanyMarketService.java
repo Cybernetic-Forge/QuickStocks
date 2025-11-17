@@ -1,6 +1,7 @@
 package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.CompanyIPOEvent;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
@@ -8,6 +9,7 @@ import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -94,13 +96,13 @@ public class CompanyMarketService {
         
         // Fire cancellable IPO event before enabling market
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(actorUuid));
+            Player player = Bukkit.getPlayer(UUID.fromString(actorUuid));
             if (player != null) {
-                net.cyberneticforge.quickstocks.api.events.CompanyIPOEvent event = 
-                    new net.cyberneticforge.quickstocks.api.events.CompanyIPOEvent(
+                CompanyIPOEvent event =
+                    new CompanyIPOEvent(
                         companyId, company.getName(), player
                     );
-                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                Bukkit.getPluginManager().callEvent(event);
                 
                 if (event.isCancelled()) {
                     throw new IllegalArgumentException("IPO cancelled by event handler");

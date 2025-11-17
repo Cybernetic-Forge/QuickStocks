@@ -2,12 +2,16 @@ package net.cyberneticforge.quickstocks.core.services.features.companies;
 
 import lombok.Getter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.CompanyCreateEvent;
+import net.cyberneticforge.quickstocks.api.events.CompanyEmployeeLeaveEvent;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.model.JobPermissions;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -58,13 +62,13 @@ public class CompanyService {
         
         // Fire cancellable event before creating company
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
             if (player != null) {
-                net.cyberneticforge.quickstocks.api.events.CompanyCreateEvent event = 
-                    new net.cyberneticforge.quickstocks.api.events.CompanyCreateEvent(
+                CompanyCreateEvent event =
+                    new CompanyCreateEvent(
                         player, name, type
                     );
-                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                Bukkit.getPluginManager().callEvent(event);
                 
                 if (event.isCancelled()) {
                     throw new IllegalArgumentException("Company creation cancelled by event handler");
@@ -833,13 +837,13 @@ public class CompanyService {
         
         // Fire CompanyEmployeeLeaveEvent after removal
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
             if (player != null) {
-                net.cyberneticforge.quickstocks.api.events.CompanyEmployeeLeaveEvent event = 
-                    new net.cyberneticforge.quickstocks.api.events.CompanyEmployeeLeaveEvent(
+                CompanyEmployeeLeaveEvent event =
+                    new CompanyEmployeeLeaveEvent(
                         companyId, company.getName(), player, false // wasKicked = false (voluntary)
                     );
-                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                Bukkit.getPluginManager().callEvent(event);
             }
         } catch (Exception e) {
             logger.debug("Could not fire CompanyEmployeeLeaveEvent: " + e.getMessage());

@@ -1,10 +1,14 @@
 package net.cyberneticforge.quickstocks.core.services.features.companies;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.CompanyEmployeeJoinEvent;
+import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -112,23 +116,23 @@ public class InvitationService {
         
         // Fire CompanyEmployeeJoinEvent after successful join
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
             if (player != null) {
                 // Get company name and job title
-                Optional<net.cyberneticforge.quickstocks.core.model.Company> companyOpt = 
+                Optional<Company> companyOpt =
                     QuickStocksPlugin.getCompanyService().getCompanyById(invitation.companyId());
-                Optional<net.cyberneticforge.quickstocks.core.model.CompanyJob> jobOpt = 
+                Optional<CompanyJob> jobOpt =
                     QuickStocksPlugin.getCompanyService().getJobById(invitation.jobId());
                 
                 if (companyOpt.isPresent() && jobOpt.isPresent()) {
-                    net.cyberneticforge.quickstocks.api.events.CompanyEmployeeJoinEvent event = 
-                        new net.cyberneticforge.quickstocks.api.events.CompanyEmployeeJoinEvent(
+                    CompanyEmployeeJoinEvent event =
+                        new CompanyEmployeeJoinEvent(
                             invitation.companyId(),
                             companyOpt.get().getName(),
                             player,
                             jobOpt.get().getTitle()
                         );
-                    org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                    Bukkit.getPluginManager().callEvent(event);
                 }
             }
         } catch (Exception e) {

@@ -1,8 +1,11 @@
 package net.cyberneticforge.quickstocks.core.services.features.portfolio;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.UUID;
@@ -106,7 +109,7 @@ public class WalletService {
         
         // Fire WalletBalanceChangeEvent after successful balance change
         fireBalanceChangeEvent(playerUuid, oldBalance, oldBalance + amount, 
-            net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent.ChangeReason.OTHER);
+            WalletBalanceChangeEvent.ChangeReason.OTHER);
     }
     
     /**
@@ -131,8 +134,7 @@ public class WalletService {
         
         // Fire WalletBalanceChangeEvent after successful balance change
         if (success) {
-            fireBalanceChangeEvent(playerUuid, oldBalance, oldBalance - amount,
-                net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent.ChangeReason.OTHER);
+            fireBalanceChangeEvent(playerUuid, oldBalance, oldBalance - amount, WalletBalanceChangeEvent.ChangeReason.OTHER);
         }
         
         return success;
@@ -141,16 +143,12 @@ public class WalletService {
     /**
      * Fires a WalletBalanceChangeEvent.
      */
-    private void fireBalanceChangeEvent(String playerUuid, double oldBalance, double newBalance, 
-                                       net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent.ChangeReason reason) {
+    private void fireBalanceChangeEvent(String playerUuid, double oldBalance, double newBalance, WalletBalanceChangeEvent.ChangeReason reason) {
         try {
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
             if (player != null) {
-                net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent event = 
-                    new net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent(
-                        player, oldBalance, newBalance, reason
-                    );
-                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                WalletBalanceChangeEvent event = new WalletBalanceChangeEvent(player, oldBalance, newBalance, reason);
+                Bukkit.getPluginManager().callEvent(event);
             }
         } catch (Exception e) {
             logger.debug("Could not fire WalletBalanceChangeEvent: " + e.getMessage());
