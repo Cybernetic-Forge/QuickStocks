@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.UUID;
 
 /**
  * Service for managing company invitations.

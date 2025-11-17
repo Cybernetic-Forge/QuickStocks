@@ -2,8 +2,8 @@ package net.cyberneticforge.quickstocks.api;
 
 import lombok.Getter;
 import net.cyberneticforge.quickstocks.api.managers.*;
-import net.cyberneticforge.quickstocks.core.services.features.market.*;
 import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyService;
+import net.cyberneticforge.quickstocks.core.services.features.market.*;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WalletService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WatchlistService;

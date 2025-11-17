@@ -5,6 +5,8 @@ import net.cyberneticforge.quickstocks.api.events.WatchlistAddEvent;
 import net.cyberneticforge.quickstocks.api.events.WatchlistRemoveEvent;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,8 +14,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import java.util.UUID;
 
 /**

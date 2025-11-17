@@ -5,11 +5,10 @@ import net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.UUID;
-import org.bukkit.entity.Player;
-import org.bukkit.OfflinePlayer;
 
 /**
  * Manages player wallet balances with Vault economy integration fallback.
