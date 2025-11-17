@@ -1,13 +1,19 @@
 package net.cyberneticforge.quickstocks.core.services.features.companies;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.CompanyEmployeeJoinEvent;
+import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyInvitation;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import org.bukkit.Bukkit;
+import Player;
 
 import java.sql.SQLException;
 import java.util.*;
+import org.bukkit.entity.Player;
+import java.util.UUID;
 
 /**
  * Service for managing company invitations.
@@ -109,6 +115,31 @@ public class InvitationService {
         
         // Update invitation status
         updateInvitationStatus(invitationId, CompanyInvitation.InvitationStatus.ACCEPTED);
+        
+        // Fire CompanyEmployeeJoinEvent after successful join
+        try {
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
+            if (player != null) {
+                // Get company name and job title
+                Optional<Company> companyOpt =
+                    QuickStocksPlugin.getCompanyService().getCompanyById(invitation.companyId());
+                Optional<CompanyJob> jobOpt =
+                    QuickStocksPlugin.getCompanyService().getJobById(invitation.jobId());
+                
+                if (companyOpt.isPresent() && jobOpt.isPresent()) {
+                    CompanyEmployeeJoinEvent event =
+                        new CompanyEmployeeJoinEvent(
+                            invitation.companyId(),
+                            companyOpt.get().getName(),
+                            player,
+                            jobOpt.get().getTitle()
+                        );
+                    Bukkit.getPluginManager().callEvent(event);
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("Could not fire CompanyEmployeeJoinEvent: " + e.getMessage());
+        }
         
         logger.info("Player " + playerUuid + " accepted invitation to company " + invitation.companyId());
     }

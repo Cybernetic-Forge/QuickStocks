@@ -1,11 +1,14 @@
 package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.CryptoCreateEvent;
 import net.cyberneticforge.quickstocks.core.model.Crypto;
 import net.cyberneticforge.quickstocks.core.model.Instrument;
 import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import org.bukkit.Bukkit;
+import Player;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.bukkit.entity.Player;
 
 /**
  * Service for managing custom cryptocurrency instruments created by players.
@@ -67,6 +71,26 @@ public class CryptoService {
         // Check if crypto creation is enabled
         if (!cryptoCfg.isEnabled()) {
             throw new IllegalArgumentException("Cryptocurrency creation is disabled");
+        }
+        
+        // Fire cancellable event before creating crypto
+        try {
+            Player player = Bukkit.getPlayer(UUID.fromString(createdBy));
+            if (player != null) {
+                CryptoCreateEvent event =
+                    new CryptoCreateEvent(
+                        player, symbol, displayName
+                    );
+                Bukkit.getPluginManager().callEvent(event);
+
+                if (event.isCancelled()) {
+                    throw new IllegalArgumentException("Cryptocurrency creation cancelled by event handler");
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw e; // Rethrow cancellation
+        } catch (Exception e) {
+            logger.debug("Could not fire CryptoCreateEvent: " + e.getMessage());
         }
         
         // Validate and check limits

@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Event fired when a player buys company shares.
+ * Unified event fired when a player buys any tradeable asset (instruments, shares, crypto).
  * This event is cancellable - cancel to prevent the purchase.
  */
 @Getter
@@ -19,20 +19,68 @@ public class ShareBuyEvent extends Event implements Cancellable {
     private boolean cancelled = false;
     
     private final Player buyer;
-    private final String companyId;
-    private final String companyName;
-    private final int quantity;
-    private final double pricePerShare;
+    private final TransactionType transactionType;
+    private final String assetId;        // instrumentId, companyId, or cryptoId
+    private final String assetSymbol;    // symbol or name for display
+    private final double quantity;
+    private final double pricePerUnit;
     private final double totalCost;
     
+    /**
+     * Creates a ShareBuyEvent for any type of asset purchase.
+     * 
+     * @param buyer The player making the purchase
+     * @param transactionType The type of asset being purchased
+     * @param assetId The unique identifier of the asset
+     * @param assetSymbol The symbol or display name of the asset
+     * @param quantity The quantity being purchased
+     * @param pricePerUnit The price per unit
+     * @param totalCost The total cost of the purchase
+     */
+    public ShareBuyEvent(Player buyer, TransactionType transactionType, String assetId, 
+                         String assetSymbol, double quantity, double pricePerUnit, double totalCost) {
+        this.buyer = buyer;
+        this.transactionType = transactionType;
+        this.assetId = assetId;
+        this.assetSymbol = assetSymbol;
+        this.quantity = quantity;
+        this.pricePerUnit = pricePerUnit;
+        this.totalCost = totalCost;
+    }
+    
+    /**
+     * Legacy constructor for backward compatibility with company shares.
+     * @deprecated Use {@link #ShareBuyEvent(Player, TransactionType, String, String, double, double, double)} instead
+     */
+    @Deprecated
     public ShareBuyEvent(Player buyer, String companyId, String companyName, 
                          int quantity, double pricePerShare, double totalCost) {
-        this.buyer = buyer;
-        this.companyId = companyId;
-        this.companyName = companyName;
-        this.quantity = quantity;
-        this.pricePerShare = pricePerShare;
-        this.totalCost = totalCost;
+        this(buyer, TransactionType.SHARE, companyId, companyName, quantity, pricePerShare, totalCost);
+    }
+    
+    // Legacy getters for backward compatibility
+    /**
+     * @deprecated Use {@link #getAssetId()} instead
+     */
+    @Deprecated
+    public String getCompanyId() {
+        return assetId;
+    }
+    
+    /**
+     * @deprecated Use {@link #getAssetSymbol()} instead
+     */
+    @Deprecated
+    public String getCompanyName() {
+        return assetSymbol;
+    }
+    
+    /**
+     * @deprecated Use {@link #getPricePerUnit()} instead
+     */
+    @Deprecated
+    public double getPricePerShare() {
+        return pricePerUnit;
     }
     
     @Override
@@ -47,6 +95,10 @@ public class ShareBuyEvent extends Event implements Cancellable {
     
     @Override
     public @NotNull HandlerList getHandlers() {
+        return HANDLERS;
+    }
+    
+    public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

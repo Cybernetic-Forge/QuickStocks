@@ -1,6 +1,8 @@
 package net.cyberneticforge.quickstocks.core.services.features.portfolio;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.WatchlistAddEvent;
+import net.cyberneticforge.quickstocks.api.events.WatchlistRemoveEvent;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 
@@ -10,6 +12,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import java.util.UUID;
 
 /**
  * Service for managing player watchlists.
@@ -32,6 +37,28 @@ public class WatchlistService {
     public boolean addToWatchlist(String playerUuid, String instrumentId) throws SQLException {
         if (isInWatchlist(playerUuid, instrumentId)) {
             return false; // Already in watchlist
+        }
+        
+        // Get instrument symbol for event
+        String symbol = getInstrumentSymbol(instrumentId);
+        
+        // Fire cancellable event before adding to watchlist
+        try {
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
+            if (player != null) {
+                WatchlistAddEvent event =
+                    new WatchlistAddEvent(
+                        player, instrumentId, symbol != null ? symbol : instrumentId
+                    );
+                Bukkit.getPluginManager().callEvent(event);
+                
+                if (event.isCancelled()) {
+                    logger.debug("WatchlistAddEvent cancelled for player " + playerUuid);
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("Could not fire WatchlistAddEvent: " + e.getMessage());
         }
         
         String sql = "INSERT INTO user_watchlists (player_uuid, instrument_id, added_at) VALUES (?, ?, ?)";
@@ -58,6 +85,28 @@ public class WatchlistService {
      * @throws SQLException if database error occurs
      */
     public boolean removeFromWatchlist(String playerUuid, String instrumentId) throws SQLException {
+        // Get instrument symbol for event
+        String symbol = getInstrumentSymbol(instrumentId);
+        
+        // Fire cancellable event before removing from watchlist
+        try {
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
+            if (player != null) {
+                WatchlistRemoveEvent event =
+                    new WatchlistRemoveEvent(
+                        player, instrumentId, symbol != null ? symbol : instrumentId
+                    );
+                Bukkit.getPluginManager().callEvent(event);
+                
+                if (event.isCancelled()) {
+                    logger.debug("WatchlistRemoveEvent cancelled for player " + playerUuid);
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("Could not fire WatchlistRemoveEvent: " + e.getMessage());
+        }
+        
         String sql = "DELETE FROM user_watchlists WHERE player_uuid = ? AND instrument_id = ?";
         
         try (Connection conn = databaseManager.getDb().getConnection();
@@ -69,6 +118,22 @@ public class WatchlistService {
             int rows = stmt.executeUpdate();
             logger.info("Removed instrument " + instrumentId + " from watchlist for player " + playerUuid);
             return rows > 0;
+        }
+    }
+    
+    /**
+     * Helper method to get instrument symbol.
+     */
+    private String getInstrumentSymbol(String instrumentId) {
+        try (Connection conn = databaseManager.getDb().getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT symbol FROM instruments WHERE id = ?")) {
+            stmt.setString(1, instrumentId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getString("symbol") : null;
+            }
+        } catch (Exception e) {
+            logger.debug("Could not get instrument symbol: " + e.getMessage());
+            return null;
         }
     }
     

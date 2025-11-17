@@ -17,6 +17,9 @@ General:
   FeatureDisabled: '&cThis feature is currently disabled.'
   CompaniesDisabled: '&cThe companies system is currently disabled.'
   MarketDisabled: '&cThe market system is currently disabled.'
+  MarketClosed: '&cThe market is currently closed. Trading hours: %open% - %close% %timezone%.'
+  MarketOpens: '&aThe market is now open for trading!'
+  MarketCloses: '&eThe market is now closed. See you tomorrow!'
 
 Market:
   Device:

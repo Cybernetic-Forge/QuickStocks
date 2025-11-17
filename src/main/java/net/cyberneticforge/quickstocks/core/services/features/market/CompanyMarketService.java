@@ -1,19 +1,23 @@
 package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.CompanyIPOEvent;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
+import OfflinePlayer;
+import Player;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 
 /**
  * Service for managing company market operations (shares, IPO, trading).
@@ -90,6 +94,26 @@ public class CompanyMarketService {
         // Check if already on market
         if (company.isOnMarket()) {
             throw new IllegalArgumentException("Company is already on the market");
+        }
+        
+        // Fire cancellable IPO event before enabling market
+        try {
+            Player player = Bukkit.getPlayer(UUID.fromString(actorUuid));
+            if (player != null) {
+                CompanyIPOEvent event =
+                    new CompanyIPOEvent(
+                        companyId, company.getName(), player
+                    );
+                Bukkit.getPluginManager().callEvent(event);
+                
+                if (event.isCancelled()) {
+                    throw new IllegalArgumentException("IPO cancelled by event handler");
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw e; // Rethrow cancellation
+        } catch (Exception e) {
+            logger.debug("Could not fire CompanyIPOEvent: " + e.getMessage());
         }
         
         // Create instrument entry for the company

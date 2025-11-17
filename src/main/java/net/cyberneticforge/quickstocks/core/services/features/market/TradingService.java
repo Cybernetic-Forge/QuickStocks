@@ -2,11 +2,16 @@ package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import lombok.Setter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.api.events.ShareBuyEvent;
+import net.cyberneticforge.quickstocks.api.events.ShareSellEvent;
+import net.cyberneticforge.quickstocks.api.events.TransactionType;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -83,6 +88,33 @@ public class TradingService {
             return new TradeResult(false, "Insufficient funds. Required: $" + String.format("%.2f", totalCost));
         }
 
+        // Get instrument symbol for event
+        String symbol = database.queryValue("SELECT symbol FROM instruments WHERE id = ?", instrumentId);
+        
+        // Fire cancellable event before executing trade
+        try {
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
+            if (player != null) {
+                ShareBuyEvent event =
+                    new ShareBuyEvent(
+                        player,
+                        TransactionType.INSTRUMENT,
+                        instrumentId,
+                        symbol != null ? symbol : instrumentId,
+                        qty,
+                        currentPrice,
+                        totalCost
+                    );
+                Bukkit.getPluginManager().callEvent(event);
+                
+                if (event.isCancelled()) {
+                    return new TradeResult(false, "Trade cancelled by event handler");
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("Could not fire ShareBuyEvent: " + e.getMessage());
+        }
+
         // Execute the trade in a transaction-like manner
         try {
             // Remove money from wallet
@@ -157,6 +189,33 @@ public class TradingService {
         }
 
         double totalValue = qty * currentPrice;
+
+        // Get instrument symbol for event
+        String symbol = database.queryValue("SELECT symbol FROM instruments WHERE id = ?", instrumentId);
+        
+        // Fire cancellable event before executing trade
+        try {
+            Player player = Bukkit.getPlayer(UUID.fromString(playerUuid));
+            if (player != null) {
+                ShareSellEvent event =
+                    new ShareSellEvent(
+                        player,
+                        TransactionType.INSTRUMENT,
+                        instrumentId,
+                        symbol != null ? symbol : instrumentId,
+                        qty,
+                        currentPrice,
+                        totalValue
+                    );
+                Bukkit.getPluginManager().callEvent(event);
+                
+                if (event.isCancelled()) {
+                    return new TradeResult(false, "Trade cancelled by event handler");
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("Could not fire ShareSellEvent: " + e.getMessage());
+        }
 
         // Execute the trade
         try {

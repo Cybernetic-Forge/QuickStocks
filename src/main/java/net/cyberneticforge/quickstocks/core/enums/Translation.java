@@ -27,6 +27,9 @@ public enum Translation {
     FeatureDisabled("General.FeatureDisabled"),
     CompaniesDisabled("General.CompaniesDisabled"),
     MarketDisabled("General.MarketDisabled"),
+    MarketClosed("General.MarketClosed"),
+    MarketOpens("General.MarketOpens"),
+    MarketCloses("General.MarketCloses"),
 
     Market_Device_Name("Market.Device.Name"),
     Market_Device_Given("Market.Device.Given"),
