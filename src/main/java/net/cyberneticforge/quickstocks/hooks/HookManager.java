@@ -2,6 +2,7 @@ package net.cyberneticforge.quickstocks.hooks;
 
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
+import net.cyberneticforge.quickstocks.core.enums.HookType;
 
 import java.util.Arrays;
 import java.util.HashSet;

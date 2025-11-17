@@ -3,7 +3,9 @@
   <component name="AgentMigrationStateService">
     <option name="migrationStatus" value="IN_PROGRESS" />
     <option name="pendingSessionIds">
+      <option value="7766b135-5653-4bbb-8992-5cc11efaeac7" />
       <option value="80a2bda5-dc39-41e7-83b8-76c7cfe1417e" />
+      <option value="9d79eb52-3544-4144-9e2c-422be149e432" />
       <option value="a51b9dfb-eab9-406b-99a2-5199a6c632c6" />
       <option value="c9680f53-589a-4d68-bfec-56b595da22d1" />
       <option value="d6592602-c60c-49ad-994f-bab9e979a3c7" />
@@ -11,10 +13,24 @@
     </option>
     <option name="pendingTurns">
       <map>
+        <entry key="7766b135-5653-4bbb-8992-5cc11efaeac7">
+          <value>
+            <set>
+              <option value="ecad2073-d155-4a6c-8c56-5ef72ce5f03a" />
+            </set>
+          </value>
+        </entry>
         <entry key="80a2bda5-dc39-41e7-83b8-76c7cfe1417e">
           <value>
             <set>
               <option value="0d8f84ea-dbfc-4ddc-a764-60a81a65f502" />
+            </set>
+          </value>
+        </entry>
+        <entry key="9d79eb52-3544-4144-9e2c-422be149e432">
+          <value>
+            <set>
+              <option value="28a94708-8f4e-44fb-bf18-ec0fcc84e536" />
             </set>
           </value>
         </entry>
@@ -52,12 +68,15 @@
       </map>
     </option>
     <pendingWorkingSetItems>
-      <entry key="a51b9dfb-eab9-406b-99a2-5199a6c632c6" />
-      <entry key="c9680f53-589a-4d68-bfec-56b595da22d1">
+      <entry key="7766b135-5653-4bbb-8992-5cc11efaeac7">
         <set>
-          <option value="file://$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/hooks/WorldGuardFlags.java" />
+          <option value="file://$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/enums/Translation.java" />
+          <option value="file://$PROJECT_DIR$/src/main/resources/Translations.yml" />
+          <option value="file://$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CryptoCommand.java" />
         </set>
       </entry>
+      <entry key="a51b9dfb-eab9-406b-99a2-5199a6c632c6" />
+      <entry key="c9680f53-589a-4d68-bfec-56b595da22d1" />
     </pendingWorkingSetItems>
   </component>
 </project>

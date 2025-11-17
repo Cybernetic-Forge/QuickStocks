@@ -4,7 +4,7 @@ import lombok.Setter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.api.events.ShareBuyEvent;
 import net.cyberneticforge.quickstocks.api.events.ShareSellEvent;
-import net.cyberneticforge.quickstocks.api.events.TransactionType;
+import net.cyberneticforge.quickstocks.core.enums.TransactionType;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;

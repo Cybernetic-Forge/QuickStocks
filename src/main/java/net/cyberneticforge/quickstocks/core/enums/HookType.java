@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.hooks;
+package net.cyberneticforge.quickstocks.core.enums;
 
 @SuppressWarnings("SameParameterValue")
 public enum HookType {

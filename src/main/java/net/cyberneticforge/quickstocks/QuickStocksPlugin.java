@@ -4,43 +4,33 @@ import lombok.Getter;
 import net.cyberneticforge.quickstocks.api.QuickStocksAPI;
 import net.cyberneticforge.quickstocks.commands.*;
 import net.cyberneticforge.quickstocks.core.algorithms.PriceThresholdController;
-import net.cyberneticforge.quickstocks.core.services.*;
+import net.cyberneticforge.quickstocks.core.services.MetricsService;
+import net.cyberneticforge.quickstocks.core.services.TranslationService;
+import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyPlotService;
+import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyService;
 import net.cyberneticforge.quickstocks.core.services.features.companies.InvitationService;
 import net.cyberneticforge.quickstocks.core.services.features.companies.SalaryService;
 import net.cyberneticforge.quickstocks.core.services.features.market.*;
-import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyPlotService;
-import net.cyberneticforge.quickstocks.core.services.features.companies.CompanyService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.QueryService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WalletService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WatchlistService;
+import net.cyberneticforge.quickstocks.hooks.HookManager;
+import net.cyberneticforge.quickstocks.core.enums.HookType;
+import net.cyberneticforge.quickstocks.hooks.worldguard.WorldGuardFlags;
+import net.cyberneticforge.quickstocks.hooks.worldguard.WorldGuardHook;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopHook;
-import net.cyberneticforge.quickstocks.hooks.HookManager;
-import net.cyberneticforge.quickstocks.hooks.HookType;
-import net.cyberneticforge.quickstocks.hooks.WorldGuardFlags;
-import net.cyberneticforge.quickstocks.hooks.WorldGuardHook;
-import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
-import net.cyberneticforge.quickstocks.infrastructure.config.CryptoCfg;
-import net.cyberneticforge.quickstocks.infrastructure.config.GuiConfig;
-import net.cyberneticforge.quickstocks.infrastructure.config.MarketCfg;
-import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;
+import net.cyberneticforge.quickstocks.infrastructure.config.*;
 import net.cyberneticforge.quickstocks.infrastructure.db.ConfigLoader;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseConfig;
 import net.cyberneticforge.quickstocks.infrastructure.db.DatabaseManager;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
-import net.cyberneticforge.quickstocks.listeners.CompanyEmployeesGUIListener;
-import net.cyberneticforge.quickstocks.listeners.CompanyJobEditGUIListener;
-import net.cyberneticforge.quickstocks.listeners.CompanyJobsGUIListener;
-import net.cyberneticforge.quickstocks.listeners.CompanySettingsGUIListener;
-import net.cyberneticforge.quickstocks.listeners.MarketDeviceListener;
-import net.cyberneticforge.quickstocks.listeners.MarketGUIListener;
-import net.cyberneticforge.quickstocks.listeners.PortfolioGUIListener;
+import net.cyberneticforge.quickstocks.listeners.*;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopProtectionListener;
 import net.cyberneticforge.quickstocks.listeners.shops.ChestShopTransactionListener;
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -192,8 +182,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             tradingService.setStockMarketService(new StockMarketService());
             
             // Initialize market scheduler
-            FileConfiguration marketConfig = getConfig("market.yml");
-            marketScheduler = new MarketScheduler(this, marketConfig);
+            marketScheduler = new MarketScheduler();
 
             initializeDefaultStocks();
             registerCommands();
@@ -201,6 +190,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Start market hours scheduler
             marketScheduler.start();
+            
+            // Start market price update task (every 5 minutes)
+            startMarketPriceUpdateTask();
 
             startSalaryPaymentScheduler();
             startRentCollectionScheduler();
@@ -297,7 +289,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
                 registerCommand("watch", new WatchCommand());
             }
             if (marketCfg.isCryptoCommandEnabled()) {
-                registerCommand("crypto", new CryptoCommand(cryptoService));
+                registerCommand("crypto", new CryptoCommand());
             }
         }
         
@@ -332,14 +324,14 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Register plot listener if plots are enabled
             if (companyCfg.isPlotsEnabled()) {
-                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.CompanyPlotListener(), this);
-                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.PlotEditGUIListener(), this);
-                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.PlotPermissionEditGUIListener(), this);
+                getServer().getPluginManager().registerEvents(new CompanyPlotListener(), this);
+                getServer().getPluginManager().registerEvents(new PlotEditGUIListener(), this);
+                getServer().getPluginManager().registerEvents(new PlotPermissionEditGUIListener(), this);
                 getLogger().info("Registered company plot listeners");
             }
             
             // Register ChestShop integration listeners if ChestShop is hooked and chestshop is enabled
-            if (companyCfg.isChestShopEnabled() && hookManager.isHooked(net.cyberneticforge.quickstocks.hooks.HookType.ChestShop)) {
+            if (companyCfg.isChestShopEnabled() && hookManager.isHooked(HookType.ChestShop)) {
                 ChestShopHook chestShopHook = new ChestShopHook(companyService);
                 // Register company names as valid ChestShop accounts
                 ChestShopAccountProvider accountProvider = new ChestShopAccountProvider(companyService);
@@ -359,11 +351,18 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * DEPRECATED: Example stocks have been removed. The system uses real Minecraft items and company shares instead.
      */
     private void initializeDefaultStocks() {
-        // Example stocks (MINE, CRAFT, BLOCK, PIXEL) have been removed as per issue requirements.
-        // The system now relies on:
-        // 1. Minecraft items (seeded via ItemSeeder)
-        // 2. Company shares (created via /company market enable)
-        getLogger().info("Using real market instruments (Minecraft items and company shares)");
+        // Optional: Seed common Minecraft items for trading
+        if (marketCfg.isSeedItemsOnStartup()) {
+            try {
+                ItemSeederService itemSeeder = new ItemSeederService();
+                itemSeeder.seedCommonItems(false); // Don't overwrite existing
+                getLogger().info("Seeded common Minecraft items for trading");
+            } catch (Exception e) {
+                getLogger().warning("Failed to seed items: " + e.getMessage());
+            }
+        }
+        
+        getLogger().info("Market initialized with database-backed instruments");
     }
     
     /**
@@ -436,6 +435,39 @@ public final class QuickStocksPlugin extends JavaPlugin {
             }
         };
         rentCollectionTask.runTaskTimerAsynchronously(this, 20L * 60 * 10, 20L * 60 * 10); // Run every 10 minutes
+    }
+    
+    /**
+     * Starts a task to periodically update all stock/instrument prices.
+     * Runs every 5 minutes to simulate market movements.
+     * Package-private for reload functionality.
+     */
+    public void startMarketPriceUpdateTask() {
+        // Cancel existing task if running
+        if (marketUpdateTask != null && !marketUpdateTask.isCancelled()) {
+            marketUpdateTask.cancel();
+        }
+        
+        long updateInterval = marketCfg.getUpdateInterval(); // Get from config (in seconds)
+        long updateTicks = 20L * updateInterval; // Convert to ticks
+        
+        marketUpdateTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    if (stockMarketService != null && stockMarketService.isMarketOpen()) {
+                        stockMarketService.updateAllStockPrices();
+                        pluginLogger.debug("Updated all stock prices");
+                    }
+                } catch (Exception e) {
+                    pluginLogger.warning("Error in market price update task: " + e.getMessage());
+                }
+            }
+        };
+        
+        // Start after 1 minute, then run every updateInterval seconds
+        marketUpdateTask.runTaskTimerAsynchronously(this, 20L * 60, updateTicks);
+        pluginLogger.info("Market price update task started (interval: " + updateInterval + " seconds)");
     }
     
     /**

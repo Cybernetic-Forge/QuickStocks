@@ -91,13 +91,16 @@ public class MarketInfluence {
     
     /**
      * Simulates a random fluctuation in the influence based on the factor's volatility.
+     * Uses smaller, more realistic changes that accumulate over time.
      */
     public void applyRandomFluctuation() {
-        double volatilityRange = factor.getVolatility() * 0.2; // Max 20% change per update
+        // Reduced fluctuation range: max 10% change per update (was 20%)
+        double volatilityRange = factor.getVolatility() * 0.1;
         double randomChange = (Math.random() - 0.5) * 2 * volatilityRange;
         
         double newValue = currentValue + randomChange;
-        double newIntensity = intensity + (Math.random() - 0.5) * 0.1; // Small intensity changes
+        // Smaller intensity changes: max ±2.5% per update (was ±5%)
+        double newIntensity = intensity + (Math.random() - 0.5) * 0.05;
         
         updateInfluence(newValue, newIntensity);
     }

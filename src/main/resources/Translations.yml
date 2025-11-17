@@ -55,11 +55,11 @@ Market:
   History:
     Header: '&6=== &fOrder History &6==='
     NoHistory: '&7No order history found.'
-    TransactionItem: '&7[%time%] %type% %.2f %company% @ $%price%'
+    TransactionItem: '&7[%time%] %type% %qty% %company% @ $%price%'
   Shareholders:
     Header: '&6=== &f%company% Shareholders &6==='
     NoShareholders: '&7No shareholders found.'
-    ShareholderItem: '&e%player%&7: %.2f shares (%.1f%%)'
+    ShareholderItem: '&e%player%&7: %qty% shares (%percentage%%)'
   Buy:
     Usage: '&cUsage: /market buy <company> <quantity>'
     Success: '&aSuccessfully purchased %qty% shares!'
@@ -359,7 +359,7 @@ Company:
       InvalidCycle: '&c%error%'
   Plot:
     Disabled: '&cThe plot system is currently disabled.'
-    Purchased: 
+    Purchased:
       - '&aSuccessfully purchased plot for &e%company%&a!'
       - '&7Location: &f%world% &7(&f%x%&7, &f%z%&7)'
       - '&7Price: &a$%price%'
@@ -380,3 +380,49 @@ Company:
     RentDue: '&cRent payment failed for plot at &e%world% &7(&e%x%&7, &e%z%&7). Company balance too low!'
     PlotSeized: '&cPlot at &e%world% &7(&e%x%&7, &e%z%&7) has been seized due to unpaid rent!'
     PaymentReceived: '&a💰 Salary payment received: &e$%amount% &afrom &e%company%'
+
+# Crypto command messages
+Crypto:
+  Help:
+    Usage: '&e/crypto [create|company] ...'
+    Examples:
+      - '&7Examples:'
+      - '&f/crypto create MYCOIN "My Custom Coin"'
+      - '&f/crypto company MyCompany CCOIN "Company Coin"'
+    PermissionStatus: '&ePermission: &7quickstocks.command.crypto.create &7- %status%'
+  Create:
+    Success:
+      - '&a🎉 Custom Crypto Created Successfully!'
+      - '&7Symbol: &f%symbol%'
+      - '&7Name: &f%name%'
+      - '&7Starting Price: &f$%startprice%'
+      - '&7Creation Cost: &c$%cost%'
+      - '&7Remaining Balance: &a$%balance%'
+      - '&7Instrument ID: &8%id%'
+      - '&aYour crypto is now tradeable on the market!'
+      - '&7Use &f/stocks %symbol% &7to view details'
+      - '&7Use &f/market &7to start trading!'
+  Company:
+    Success:
+      - '&a🎉 Company Crypto Created Successfully!'
+      - '&7Company: &f%company%'
+      - '&7Symbol: &f%symbol%'
+      - '&7Name: &f%name%'
+      - '&7Starting Price: &f$%startprice%'
+      - '&7Company Balance: &a$%companybalance%'
+      - '&7Instrument ID: &8%id%'
+      - '&aYour company crypto is now tradeable on the market!'
+      - '&7Use &f/stocks %symbol% &7to view details'
+      - '&7Use &f/market &7to start trading!'
+  Error:
+    PlayerOnlyPersonal: '&c❌ Only players can create custom crypto.'
+    NoPermissionPersonal: '&c❌ You don''t have permission to create custom crypto.'
+    RequiredPermission: '&7💡 Required permission: quickstocks.command.crypto.create'
+    UsageCreate: '&c❌ Usage: /crypto create <symbol> <name>'
+    ExampleCreate: '&7💡 Example: /crypto create MYCOIN "My Custom Coin"'
+    PlayerOnlyCompany: '&c❌ Only players can manage company crypto.'
+    NoPermissionCompany: '&c❌ You don''t have permission to create company crypto.'
+    UsageCompany: '&c❌ Usage: /crypto company <company> <symbol> <name>'
+    ExampleCompany: '&7💡 Example: /crypto company "MyCompany" MYCOIN "My Company Coin"'
+    CompanyNotFound: '&c❌ Company ''%company%'' not found.'
+    NotCompanyManager: '&c❌ You don''t have permission to create crypto for this company. Only managers can create company crypto.'

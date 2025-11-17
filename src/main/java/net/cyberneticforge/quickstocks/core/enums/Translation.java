@@ -323,6 +323,24 @@ public enum Translation {
     ChestShop_Transaction_Buy("ChestShop.Transaction.Buy"),
     ChestShop_Transaction_Sell("ChestShop.Transaction.Sell"),
 
+    // Crypto Messages
+    Crypto_Create_Success("Crypto.Create.Success"),
+    Crypto_Company_Success("Crypto.Company.Success"),
+    Crypto_Error_PlayerOnlyPersonal("Crypto.Error.PlayerOnlyPersonal"),
+    Crypto_Error_NoPermissionPersonal("Crypto.Error.NoPermissionPersonal"),
+    Crypto_Error_RequiredPermission("Crypto.Error.RequiredPermission"),
+    Crypto_Error_UsageCreate("Crypto.Error.UsageCreate"),
+    Crypto_Error_ExampleCreate("Crypto.Error.ExampleCreate"),
+    Crypto_Error_PlayerOnlyCompany("Crypto.Error.PlayerOnlyCompany"),
+    Crypto_Error_NoPermissionCompany("Crypto.Error.NoPermissionCompany"),
+    Crypto_Error_UsageCompany("Crypto.Error.UsageCompany"),
+    Crypto_Error_ExampleCompany("Crypto.Error.ExampleCompany"),
+    Crypto_Error_CompanyNotFound("Crypto.Error.CompanyNotFound"),
+    Crypto_Error_NotCompanyManager("Crypto.Error.NotCompanyManager"),
+    Crypto_Help_Usage("Crypto.Help.Usage"),
+    Crypto_Help_Examples("Crypto.Help.Examples"),
+    Crypto_Help_PermissionStatus("Crypto.Help.PermissionStatus"),
+
     Errors_Database("Errors.Database"),
     Errors_Internal("Errors.Internal");
 

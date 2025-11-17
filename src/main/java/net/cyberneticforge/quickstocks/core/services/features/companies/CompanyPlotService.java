@@ -6,7 +6,7 @@ import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.core.model.CompanyPlot;
 import net.cyberneticforge.quickstocks.core.model.PlotPermission;
-import net.cyberneticforge.quickstocks.hooks.HookType;
+import net.cyberneticforge.quickstocks.core.enums.HookType;
 import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
