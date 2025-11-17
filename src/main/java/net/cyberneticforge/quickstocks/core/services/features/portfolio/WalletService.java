@@ -95,12 +95,18 @@ public class WalletService {
      * Adds money to a player's balance.
      */
     public void addBalance(String playerUuid, double amount) throws SQLException {
+        double oldBalance = getBalance(playerUuid);
+        
         if (useVault) {
             addVaultBalance(playerUuid, amount);
         } else {
             double currentBalance = getBalance(playerUuid);
             setBalance(playerUuid, currentBalance + amount);
         }
+        
+        // Fire WalletBalanceChangeEvent after successful balance change
+        fireBalanceChangeEvent(playerUuid, oldBalance, oldBalance + amount, 
+            net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent.ChangeReason.OTHER);
     }
     
     /**
@@ -108,15 +114,46 @@ public class WalletService {
      * @return true if successful, false if insufficient funds
      */
     public boolean removeBalance(String playerUuid, double amount) throws SQLException {
+        double oldBalance = getBalance(playerUuid);
+        boolean success;
+        
         if (useVault) {
-            return removeVaultBalance(playerUuid, amount);
+            success = removeVaultBalance(playerUuid, amount);
         } else {
             double currentBalance = getBalance(playerUuid);
             if (currentBalance >= amount) {
                 setBalance(playerUuid, currentBalance - amount);
-                return true;
+                success = true;
+            } else {
+                success = false;
             }
-            return false;
+        }
+        
+        // Fire WalletBalanceChangeEvent after successful balance change
+        if (success) {
+            fireBalanceChangeEvent(playerUuid, oldBalance, oldBalance - amount,
+                net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent.ChangeReason.OTHER);
+        }
+        
+        return success;
+    }
+    
+    /**
+     * Fires a WalletBalanceChangeEvent.
+     */
+    private void fireBalanceChangeEvent(String playerUuid, double oldBalance, double newBalance, 
+                                       net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent.ChangeReason reason) {
+        try {
+            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            if (player != null) {
+                net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent event = 
+                    new net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent(
+                        player, oldBalance, newBalance, reason
+                    );
+                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+            }
+        } catch (Exception e) {
+            logger.debug("Could not fire WalletBalanceChangeEvent: " + e.getMessage());
         }
     }
     

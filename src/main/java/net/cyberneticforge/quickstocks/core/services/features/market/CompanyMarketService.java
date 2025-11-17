@@ -92,6 +92,26 @@ public class CompanyMarketService {
             throw new IllegalArgumentException("Company is already on the market");
         }
         
+        // Fire cancellable IPO event before enabling market
+        try {
+            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(actorUuid));
+            if (player != null) {
+                net.cyberneticforge.quickstocks.api.events.CompanyIPOEvent event = 
+                    new net.cyberneticforge.quickstocks.api.events.CompanyIPOEvent(
+                        companyId, company.getName(), player
+                    );
+                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                
+                if (event.isCancelled()) {
+                    throw new IllegalArgumentException("IPO cancelled by event handler");
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw e; // Rethrow cancellation
+        } catch (Exception e) {
+            logger.debug("Could not fire CompanyIPOEvent: " + e.getMessage());
+        }
+        
         // Create instrument entry for the company
         // This allows the company to be traded using the standard instruments infrastructure
         String instrumentId = "COMPANY_" + companyId;

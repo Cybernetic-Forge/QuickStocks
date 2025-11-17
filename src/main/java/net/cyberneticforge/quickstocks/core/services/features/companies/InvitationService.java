@@ -110,6 +110,31 @@ public class InvitationService {
         // Update invitation status
         updateInvitationStatus(invitationId, CompanyInvitation.InvitationStatus.ACCEPTED);
         
+        // Fire CompanyEmployeeJoinEvent after successful join
+        try {
+            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            if (player != null) {
+                // Get company name and job title
+                Optional<net.cyberneticforge.quickstocks.core.model.Company> companyOpt = 
+                    QuickStocksPlugin.getCompanyService().getCompanyById(invitation.companyId());
+                Optional<net.cyberneticforge.quickstocks.core.model.CompanyJob> jobOpt = 
+                    QuickStocksPlugin.getCompanyService().getJobById(invitation.jobId());
+                
+                if (companyOpt.isPresent() && jobOpt.isPresent()) {
+                    net.cyberneticforge.quickstocks.api.events.CompanyEmployeeJoinEvent event = 
+                        new net.cyberneticforge.quickstocks.api.events.CompanyEmployeeJoinEvent(
+                            invitation.companyId(),
+                            companyOpt.get().getName(),
+                            player,
+                            jobOpt.get().getTitle()
+                        );
+                    org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("Could not fire CompanyEmployeeJoinEvent: " + e.getMessage());
+        }
+        
         logger.info("Player " + playerUuid + " accepted invitation to company " + invitation.companyId());
     }
     

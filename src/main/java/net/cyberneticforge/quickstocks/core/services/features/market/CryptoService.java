@@ -69,6 +69,26 @@ public class CryptoService {
             throw new IllegalArgumentException("Cryptocurrency creation is disabled");
         }
         
+        // Fire cancellable event before creating crypto
+        try {
+            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(createdBy));
+            if (player != null) {
+                net.cyberneticforge.quickstocks.api.events.CryptoCreateEvent event = 
+                    new net.cyberneticforge.quickstocks.api.events.CryptoCreateEvent(
+                        player, symbol, displayName
+                    );
+                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                
+                if (event.isCancelled()) {
+                    throw new IllegalArgumentException("Cryptocurrency creation cancelled by event handler");
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw e; // Rethrow cancellation
+        } catch (Exception e) {
+            logger.debug("Could not fire CryptoCreateEvent: " + e.getMessage());
+        }
+        
         // Validate and check limits
         if (companyId == null) {
             // Personal crypto creation

@@ -56,6 +56,26 @@ public class CompanyService {
             throw new IllegalArgumentException("Invalid company type: " + type);
         }
         
+        // Fire cancellable event before creating company
+        try {
+            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            if (player != null) {
+                net.cyberneticforge.quickstocks.api.events.CompanyCreateEvent event = 
+                    new net.cyberneticforge.quickstocks.api.events.CompanyCreateEvent(
+                        player, name, type
+                    );
+                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                
+                if (event.isCancelled()) {
+                    throw new IllegalArgumentException("Company creation cancelled by event handler");
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw e; // Rethrow cancellation
+        } catch (Exception e) {
+            logger.debug("Could not fire CompanyCreateEvent: " + e.getMessage());
+        }
+        
         // Charge creation cost
         if (config.getCreationCost() > 0) {
             double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
@@ -811,6 +831,20 @@ public class CompanyService {
             companyId, playerUuid
         );
         
+        // Fire CompanyEmployeeLeaveEvent after removal
+        try {
+            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(playerUuid));
+            if (player != null) {
+                net.cyberneticforge.quickstocks.api.events.CompanyEmployeeLeaveEvent event = 
+                    new net.cyberneticforge.quickstocks.api.events.CompanyEmployeeLeaveEvent(
+                        companyId, company.getName(), player, false // wasKicked = false (voluntary)
+                    );
+                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+            }
+        } catch (Exception e) {
+            logger.debug("Could not fire CompanyEmployeeLeaveEvent: " + e.getMessage());
+        }
+        
         logger.info("Player " + playerUuid + " left company " + companyId);
     }
     
@@ -878,6 +912,20 @@ public class CompanyService {
             "DELETE FROM company_employees WHERE company_id = ? AND player_uuid = ?",
             companyId, targetUuid
         );
+        
+        // Fire CompanyEmployeeLeaveEvent after removal
+        try {
+            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(java.util.UUID.fromString(targetUuid));
+            if (player != null) {
+                net.cyberneticforge.quickstocks.api.events.CompanyEmployeeLeaveEvent event = 
+                    new net.cyberneticforge.quickstocks.api.events.CompanyEmployeeLeaveEvent(
+                        companyId, company.getName(), player, true // wasKicked = true
+                    );
+                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+            }
+        } catch (Exception e) {
+            logger.debug("Could not fire CompanyEmployeeLeaveEvent: " + e.getMessage());
+        }
         
         logger.info("Player " + targetUuid + " was fired from company " + companyId + " by " + actorUuid);
     }
