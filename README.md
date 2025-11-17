@@ -251,9 +251,6 @@ Create unique economy-focused games:
                                  # Volume: 15,234 | 24h Change: +$22.75
                                  # Market Cap: $68.5M
 
-# Technical analysis
-/stocks DIAMOND                  # Shows moving averages, support/resistance
-
 # Execute trades
 /market buy DIAMOND 100 450      # Buy 100 @ max $450
 /market sell DIAMOND 50          # Sell 50 at market price
@@ -355,19 +352,6 @@ Create unique economy-focused games:
 
 ---
 
-## 🎨 Screenshots
-
-<!-- [GUI Screenshot Placeholder: Market Browser Interface] -->
-*Market browser with live prices and trading options*
-
-<!-- [GUI Screenshot Placeholder: Company Settings GUI] -->
-*Company settings with permission-aware action buttons*
-
-<!-- [GUI Screenshot Placeholder: Portfolio Display] -->
-*Portfolio view with P&L calculations and performance metrics*
-
----
-
 ## 🤝 Contributing & Support
 
 ### 🐛 Found a Bug?
@@ -383,14 +367,6 @@ We love new ideas! [Submit a feature request](https://github.com/Cybernetic-Forg
 - Clear description of the feature
 - Use case and benefits
 - How it fits with existing features
-
-### 💻 Want to Contribute Code?
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes following our code standards
-4. Write tests for new functionality
-5. Submit a pull request
 
 ### 💬 Need Help?
 - **[GitHub Issues](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Bug reports and feature requests
@@ -413,12 +389,6 @@ Contributions are welcome! Please:
 - 🐛 **[Issue Tracker](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Bug reports and features
 - 📊 **[bStats Dashboard](https://bstats.org/plugin/bukkit/QuickStocks/24106)** - Usage statistics
 - 💭 **[Discord Server](https://discord.gg/your-invite)** - Real-time chat support
-
-### Developer Resources
-- 🔌 **[API Documentation](src/main/java/net/cyberneticforge/quickstocks/api/README.md)** - Event system and managers
-- 📋 **[Contributing Guide](Documentation/CONTRIBUTING_TESTS.md)** - How to contribute
-- 🏗️ **[Architecture Overview](.github/copilot/features/README.md)** - System design docs
-- 📝 **[Code Quality Analysis](Documentation/CODE_QUALITY_ANALYSIS.md)** - Quality metrics
 
 ---
 
