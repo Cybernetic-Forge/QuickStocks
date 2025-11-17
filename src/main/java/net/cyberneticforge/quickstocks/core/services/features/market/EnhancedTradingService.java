@@ -2,7 +2,7 @@ package net.cyberneticforge.quickstocks.core.services.features.market;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.OrderRequest;
-import net.cyberneticforge.quickstocks.core.model.OrderType;
+import net.cyberneticforge.quickstocks.core.enums.OrderType;
 import net.cyberneticforge.quickstocks.core.services.features.market.TradingService.TradeResult;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.infrastructure.config.TradingCfg;

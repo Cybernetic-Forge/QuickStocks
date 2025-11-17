@@ -16,7 +16,7 @@ import net.cyberneticforge.quickstocks.core.services.features.portfolio.QuerySer
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WalletService;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WatchlistService;
 import net.cyberneticforge.quickstocks.hooks.HookManager;
-import net.cyberneticforge.quickstocks.hooks.HookType;
+import net.cyberneticforge.quickstocks.core.enums.HookType;
 import net.cyberneticforge.quickstocks.hooks.worldguard.WorldGuardFlags;
 import net.cyberneticforge.quickstocks.hooks.worldguard.WorldGuardHook;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopAccountProvider;

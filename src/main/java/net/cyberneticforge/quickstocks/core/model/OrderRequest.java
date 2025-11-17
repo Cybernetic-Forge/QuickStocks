@@ -1,5 +1,7 @@
 package net.cyberneticforge.quickstocks.core.model;
 
+import net.cyberneticforge.quickstocks.core.enums.OrderType;
+
 /**
  * Represents a trading order request with all necessary parameters.
  *

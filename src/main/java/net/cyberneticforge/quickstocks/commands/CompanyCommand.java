@@ -5,7 +5,7 @@ import net.cyberneticforge.quickstocks.core.enums.Translation;
 import net.cyberneticforge.quickstocks.core.model.*;
 import net.cyberneticforge.quickstocks.gui.CompanySettingsGUI;
 import net.cyberneticforge.quickstocks.gui.PlotEditGUI;
-import net.cyberneticforge.quickstocks.hooks.HookType;
+import net.cyberneticforge.quickstocks.core.enums.HookType;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
 import org.bukkit.Bukkit;

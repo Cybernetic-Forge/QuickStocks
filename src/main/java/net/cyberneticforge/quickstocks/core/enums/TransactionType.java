@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.api.events;
+package net.cyberneticforge.quickstocks.core.enums;
 
 /**
  * Enum representing the type of transaction in a buy/sell event.
@@ -6,7 +6,7 @@ package net.cyberneticforge.quickstocks.api.events;
  */
 public enum TransactionType {
     /**
-     * Trading a standard instrument (item, crypto, etc.)
+     * Trading a standard instrument (item,, etc.)
      */
     INSTRUMENT,
     

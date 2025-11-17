@@ -6,7 +6,7 @@ import com.Acrobot.ChestShop.Events.Economy.CurrencyTransferEvent;
 import com.Acrobot.ChestShop.Events.TransactionEvent;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
-import net.cyberneticforge.quickstocks.hooks.HookType;
+import net.cyberneticforge.quickstocks.core.enums.HookType;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopHook;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;

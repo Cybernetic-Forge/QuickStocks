@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.core.model;
+package net.cyberneticforge.quickstocks.core.enums;
 
 /**
  * Enumeration of supported order types for trading operations.
