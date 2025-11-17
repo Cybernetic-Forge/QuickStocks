@@ -74,8 +74,19 @@ jobs:
           git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
           git push
 
+      - name: Clean corrupted Maven dependencies
+        run: |
+          echo "Cleaning potentially corrupted Adventure dependencies..."
+          rm -rf ~/.m2/repository/net/kyori/adventure-text-serializer-gson || true
+          rm -rf ~/.m2/repository/net/kyori/adventure-text-serializer-legacy || true
+          rm -rf ~/.m2/repository/net/kyori/adventure-text-logger-slf4j || true
+          echo "Cleaning Maven cache for Paper API..."
+          rm -rf ~/.m2/repository/io/papermc/paper || true
+          echo "Running Maven dependency resolution with forced updates..."
+          mvn -B -ntp dependency:purge-local-repository -DreResolve=true -DactTransitively=false || true
+
       - name: Build project
-        run: mvn -B -ntp package
+        run: mvn -B -ntp clean package
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
