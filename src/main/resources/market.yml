@@ -5,6 +5,11 @@ market:
   startOpen: true
   defaultStocks: true
   
+  # Item trading configuration
+  items:
+    enabled: true # Enable/disable item trading (Minecraft materials as instruments)
+    seedOnStartup: false # Automatically seed common items on first startup
+  
   # Market hours configuration
   hours:
     enabled: true # Enable/disable market hours restriction

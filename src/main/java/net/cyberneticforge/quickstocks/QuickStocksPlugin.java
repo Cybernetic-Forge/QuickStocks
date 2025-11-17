@@ -353,9 +353,22 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private void initializeDefaultStocks() {
         // Example stocks (MINE, CRAFT, BLOCK, PIXEL) have been removed as per issue requirements.
         // The system now relies on:
-        // 1. Minecraft items (seeded via ItemSeeder)
+        // 1. Minecraft items (seeded via ItemSeederService)
         // 2. Company shares (created via /company market enable)
-        getLogger().info("Using real market instruments (Minecraft items and company shares)");
+        // 3. Custom cryptocurrencies (created via /crypto command)
+        
+        // Optional: Seed common Minecraft items for trading
+        if (marketCfg.isSeedItemsOnStartup()) {
+            try {
+                ItemSeederService itemSeeder = new ItemSeederService();
+                itemSeeder.seedCommonItems(false); // Don't overwrite existing
+                getLogger().info("Seeded common Minecraft items for trading");
+            } catch (Exception e) {
+                getLogger().warning("Failed to seed items: " + e.getMessage());
+            }
+        }
+        
+        getLogger().info("Market initialized with database-backed instruments");
     }
     
     /**
