@@ -17,8 +17,8 @@ import net.cyberneticforge.quickstocks.core.services.features.portfolio.WalletSe
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.WatchlistService;
 import net.cyberneticforge.quickstocks.hooks.HookManager;
 import net.cyberneticforge.quickstocks.hooks.HookType;
-import net.cyberneticforge.quickstocks.hooks.WorldGuardFlags;
-import net.cyberneticforge.quickstocks.hooks.WorldGuardHook;
+import net.cyberneticforge.quickstocks.hooks.worldguard.WorldGuardFlags;
+import net.cyberneticforge.quickstocks.hooks.worldguard.WorldGuardHook;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopAccountProvider;
 import net.cyberneticforge.quickstocks.hooks.chestshop.ChestShopHook;
 import net.cyberneticforge.quickstocks.infrastructure.config.*;
@@ -286,7 +286,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
                 registerCommand("watch", new WatchCommand());
             }
             if (marketCfg.isCryptoCommandEnabled()) {
-                registerCommand("crypto", new CryptoCommand(cryptoService));
+                registerCommand("crypto", new CryptoCommand());
             }
         }
         
@@ -321,14 +321,14 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Register plot listener if plots are enabled
             if (companyCfg.isPlotsEnabled()) {
-                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.CompanyPlotListener(), this);
-                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.PlotEditGUIListener(), this);
-                getServer().getPluginManager().registerEvents(new net.cyberneticforge.quickstocks.listeners.PlotPermissionEditGUIListener(), this);
+                getServer().getPluginManager().registerEvents(new CompanyPlotListener(), this);
+                getServer().getPluginManager().registerEvents(new PlotEditGUIListener(), this);
+                getServer().getPluginManager().registerEvents(new PlotPermissionEditGUIListener(), this);
                 getLogger().info("Registered company plot listeners");
             }
             
             // Register ChestShop integration listeners if ChestShop is hooked and chestshop is enabled
-            if (companyCfg.isChestShopEnabled() && hookManager.isHooked(net.cyberneticforge.quickstocks.hooks.HookType.ChestShop)) {
+            if (companyCfg.isChestShopEnabled() && hookManager.isHooked(HookType.ChestShop)) {
                 ChestShopHook chestShopHook = new ChestShopHook(companyService);
                 // Register company names as valid ChestShop accounts
                 ChestShopAccountProvider accountProvider = new ChestShopAccountProvider(companyService);

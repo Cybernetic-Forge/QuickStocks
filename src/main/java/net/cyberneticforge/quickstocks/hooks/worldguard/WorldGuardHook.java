@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.hooks;
+package net.cyberneticforge.quickstocks.hooks.worldguard;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.util.Location;

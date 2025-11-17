@@ -1,4 +1,4 @@
-package net.cyberneticforge.quickstocks.hooks;
+package net.cyberneticforge.quickstocks.hooks.worldguard;
 
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.Flag;
