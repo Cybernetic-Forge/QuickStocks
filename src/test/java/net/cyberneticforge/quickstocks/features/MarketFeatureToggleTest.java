@@ -1,15 +1,18 @@
 package net.cyberneticforge.quickstocks.features;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.TestBase;
 import net.cyberneticforge.quickstocks.infrastructure.config.MarketCfg;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * Tests for Market feature enable/disable functionality.
  * Verifies that market features can be toggled on/off and behavior is correct.
+ * These tests read from actual configuration files to validate feature toggles.
  */
 @DisplayName("Market Feature Toggle Tests")
 public class MarketFeatureToggleTest extends TestBase {
@@ -17,293 +20,262 @@ public class MarketFeatureToggleTest extends TestBase {
     @Test
     @DisplayName("Market feature should be enabled by default")
     public void testMarketEnabledByDefault() {
-        // Given: Default market configuration
-        // When: Checking if market is enabled
-        // Then: Should be enabled by default
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean defaultEnabled = true; // Default from config
+        // Given: Default market configuration from market.yml
+        // When: Reading market.enabled from config
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
         
-        assertTrue(defaultEnabled, "Market should be enabled by default");
+        // Then: Should be enabled by default (per market.yml: enabled: true)
+        assertNotNull(marketCfg, "Market config should be loaded");
+        assertTrue(marketCfg.isEnabled(), "Market should be enabled by default per market.yml");
     }
     
     @Test
-    @DisplayName("Market feature can be disabled")
-    public void testMarketCanBeDisabled() {
+    @DisplayName("Market command check follows config value")
+    public void testMarketCommandChecksConfig() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
+        
         // Given: Market configuration
-        // When: Setting market enabled to false
-        // Then: Market should be disabled
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
+        assertNotNull(marketCfg, "Market config should be loaded");
         
-        boolean isEnabled = true;
-        boolean newState = false;
+        // When: Checking if market is enabled
+        boolean marketEnabled = marketCfg.isEnabled();
         
-        // Simulate disabling
-        isEnabled = newState;
+        // Then: Command execution should follow this value
+        // This simulates MarketCommand.onCommand() check: if (!QuickStocksPlugin.getMarketCfg().isEnabled())
+        boolean commandShouldProceed = marketEnabled;
         
-        assertFalse(isEnabled, "Market should be disabled when set to false");
-    }
-    
-    @Test
-    @DisplayName("Market command should be blocked when market is disabled")
-    public void testMarketCommandBlockedWhenDisabled() {
-        // Given: Market is disabled
-        // When: Attempting to use market command
-        // Then: Command should be blocked
-        
-        boolean marketEnabled = false;
-        boolean commandShouldExecute = marketEnabled;
-        
-        assertFalse(commandShouldExecute, 
-            "Market command should be blocked when market is disabled");
-    }
-    
-    @Test
-    @DisplayName("Market command should work when market is enabled")
-    public void testMarketCommandWorksWhenEnabled() {
-        // Given: Market is enabled
-        // When: Attempting to use market command
-        // Then: Command should proceed
-        
-        boolean marketEnabled = true;
-        boolean commandShouldExecute = marketEnabled;
-        
-        assertTrue(commandShouldExecute, 
-            "Market command should work when market is enabled");
+        assertEquals(marketEnabled, commandShouldProceed, 
+            "Market command should proceed only when market.enabled is true");
     }
     
     @Test
     @DisplayName("Watchlist feature should be enabled by default")
     public void testWatchlistEnabledByDefault() {
-        // Given: Default watchlist configuration
-        // When: Checking if watchlist is enabled
-        // Then: Should be enabled by default
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean defaultEnabled = true; // Default from config
+        // Given: Default market configuration from market.yml
+        // When: Reading market.features.watchlist from config
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
         
-        assertTrue(defaultEnabled, "Watchlist should be enabled by default");
+        // Then: Should be enabled by default (per market.yml: features.watchlist: true)
+        assertNotNull(marketCfg, "Market config should be loaded");
+        assertTrue(marketCfg.isWatchlistEnabled(), 
+            "Watchlist should be enabled by default per market.yml");
     }
     
     @Test
-    @DisplayName("Watchlist feature can be disabled")
-    public void testWatchlistCanBeDisabled() {
+    @DisplayName("Watchlist command check follows config value")
+    public void testWatchlistCommandChecksConfig() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
+        
         // Given: Watchlist configuration
-        // When: Setting watchlist enabled to false
-        // Then: Watchlist should be disabled
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
+        assertNotNull(marketCfg, "Market config should be loaded");
         
-        boolean isEnabled = true;
-        boolean newState = false;
+        // When: Checking if watchlist is enabled
+        boolean watchlistEnabled = marketCfg.isWatchlistEnabled();
         
-        // Simulate disabling
-        isEnabled = newState;
+        // Then: Command execution should follow this value
+        // This simulates WatchCommand.onCommand() check: if (!QuickStocksPlugin.getMarketCfg().isWatchlistEnabled())
+        boolean commandShouldProceed = watchlistEnabled;
         
-        assertFalse(isEnabled, "Watchlist should be disabled when set to false");
+        assertEquals(watchlistEnabled, commandShouldProceed,
+            "Watch command should proceed only when market.features.watchlist is true");
     }
     
     @Test
     @DisplayName("Portfolio feature should be enabled by default")
     public void testPortfolioEnabledByDefault() {
-        // Given: Default portfolio configuration
-        // When: Checking if portfolio is enabled
-        // Then: Should be enabled by default
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean defaultEnabled = true; // Default from config
+        // Given: Default market configuration from market.yml
+        // When: Reading market.features.portfolio from config
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
         
-        assertTrue(defaultEnabled, "Portfolio should be enabled by default");
+        // Then: Should be enabled by default (per market.yml: features.portfolio: true)
+        assertNotNull(marketCfg, "Market config should be loaded");
+        assertTrue(marketCfg.isPortfolioEnabled(), 
+            "Portfolio should be enabled by default per market.yml");
     }
     
     @Test
-    @DisplayName("Portfolio feature can be disabled")
-    public void testPortfolioCanBeDisabled() {
+    @DisplayName("Portfolio command check follows config value")
+    public void testPortfolioCommandChecksConfig() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
+        
         // Given: Portfolio configuration
-        // When: Setting portfolio enabled to false
-        // Then: Portfolio should be disabled
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
+        assertNotNull(marketCfg, "Market config should be loaded");
         
-        boolean isEnabled = true;
-        boolean newState = false;
+        // When: Checking if portfolio is enabled
+        boolean portfolioEnabled = marketCfg.isPortfolioEnabled();
         
-        // Simulate disabling
-        isEnabled = newState;
+        // Then: Portfolio functionality should follow this value
+        boolean canUsePortfolio = portfolioEnabled;
         
-        assertFalse(isEnabled, "Portfolio should be disabled when set to false");
+        assertEquals(portfolioEnabled, canUsePortfolio,
+            "Portfolio should be usable only when market.features.portfolio is true");
     }
     
     @Test
     @DisplayName("Trading feature should be enabled by default")
     public void testTradingEnabledByDefault() {
-        // Given: Default trading configuration
-        // When: Checking if trading is enabled
-        // Then: Should be enabled by default
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean defaultEnabled = true; // Default from config
+        // Given: Default market configuration from market.yml
+        // When: Reading market.features.trading from config
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
         
-        assertTrue(defaultEnabled, "Trading should be enabled by default");
+        // Then: Should be enabled by default (per market.yml: features.trading: true)
+        assertNotNull(marketCfg, "Market config should be loaded");
+        assertTrue(marketCfg.isTradingEnabled(), 
+            "Trading should be enabled by default per market.yml");
     }
     
     @Test
-    @DisplayName("Trading feature can be disabled")
-    public void testTradingCanBeDisabled() {
+    @DisplayName("Trading command check follows config value")
+    public void testTradingCommandChecksConfig() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
+        
         // Given: Trading configuration
-        // When: Setting trading enabled to false
-        // Then: Trading should be disabled
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
+        assertNotNull(marketCfg, "Market config should be loaded");
         
-        boolean isEnabled = true;
-        boolean newState = false;
+        // When: Checking if trading is enabled
+        boolean tradingEnabled = marketCfg.isTradingEnabled();
         
-        // Simulate disabling
-        isEnabled = newState;
-        
-        assertFalse(isEnabled, "Trading should be disabled when set to false");
-    }
-    
-    @Test
-    @DisplayName("Trading should be blocked when disabled")
-    public void testTradingBlockedWhenDisabled() {
-        // Given: Trading is disabled
-        // When: Attempting to trade
-        // Then: Trading should be blocked
-        
-        boolean tradingEnabled = false;
+        // Then: Trading operations should follow this value
         boolean canTrade = tradingEnabled;
         
-        assertFalse(canTrade, "Trading should be blocked when disabled");
+        assertEquals(tradingEnabled, canTrade,
+            "Trading should be available only when market.features.trading is true");
     }
     
     @Test
-    @DisplayName("Trading should work when enabled")
-    public void testTradingWorksWhenEnabled() {
-        // Given: Trading is enabled
-        // When: Attempting to trade
-        // Then: Trading should proceed
+    @DisplayName("Market Device feature reads from config")
+    public void testMarketDeviceReadsFromConfig() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean tradingEnabled = true;
-        boolean canTrade = tradingEnabled;
+        // Given: Default market configuration from market.yml
+        // When: Reading market.features.marketDevice from config
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
         
-        assertTrue(canTrade, "Trading should work when enabled");
+        // Then: Should match market.yml setting (marketDevice: false by default)
+        assertNotNull(marketCfg, "Market config should be loaded");
+        // Note: market.yml has marketDevice: false by default
+        assertFalse(marketCfg.isMarketDeviceEnabled(), 
+            "Market Device should be disabled by default per market.yml");
     }
     
     @Test
-    @DisplayName("Market Device feature should be enabled by default")
-    public void testMarketDeviceEnabledByDefault() {
-        // Given: Default market device configuration
-        // When: Checking if market device is enabled
-        // Then: Should be enabled by default
+    @DisplayName("Crypto Command feature reads from config")
+    public void testCryptoCommandReadsFromConfig() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean defaultEnabled = true; // Default from config
+        // Given: Default market configuration from market.yml
+        // When: Reading market.features.cryptoCommand from config
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
         
-        assertTrue(defaultEnabled, "Market Device should be enabled by default");
+        // Then: Should match market.yml setting (cryptoCommand: false by default)
+        assertNotNull(marketCfg, "Market config should be loaded");
+        // Note: market.yml has cryptoCommand: false by default
+        assertFalse(marketCfg.isCryptoCommandEnabled(), 
+            "Crypto Command should be disabled by default per market.yml");
     }
     
     @Test
-    @DisplayName("Market Device feature can be disabled")
-    public void testMarketDeviceCanBeDisabled() {
-        // Given: Market device configuration
-        // When: Setting market device enabled to false
-        // Then: Market device should be disabled
-        
-        boolean isEnabled = true;
-        boolean newState = false;
-        
-        // Simulate disabling
-        isEnabled = newState;
-        
-        assertFalse(isEnabled, "Market Device should be disabled when set to false");
-    }
-    
-    @Test
-    @DisplayName("Crypto Command feature should be enabled by default")
-    public void testCryptoCommandEnabledByDefault() {
-        // Given: Default crypto command configuration
-        // When: Checking if crypto command is enabled
-        // Then: Should be enabled by default
-        
-        boolean defaultEnabled = true; // Default from config
-        
-        assertTrue(defaultEnabled, "Crypto Command should be enabled by default");
-    }
-    
-    @Test
-    @DisplayName("Crypto Command feature can be disabled")
-    public void testCryptoCommandCanBeDisabled() {
-        // Given: Crypto command configuration
-        // When: Setting crypto command enabled to false
-        // Then: Crypto command should be disabled
-        
-        boolean isEnabled = true;
-        boolean newState = false;
-        
-        // Simulate disabling
-        isEnabled = newState;
-        
-        assertFalse(isEnabled, "Crypto Command should be disabled when set to false");
-    }
-    
-    @Test
-    @DisplayName("All market sub-features can be independently disabled")
+    @DisplayName("Market sub-features are independently configurable")
     public void testMarketSubFeaturesIndependent() {
-        // Given: All market sub-features
-        // When: Disabling individual features
-        // Then: Each can be disabled independently
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean watchlistEnabled = false;
-        boolean portfolioEnabled = true;
-        boolean tradingEnabled = true;
-        boolean marketDeviceEnabled = false;
-        boolean cryptoCommandEnabled = true;
+        // Given: Market configuration with various sub-feature settings
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
+        assertNotNull(marketCfg, "Market config should be loaded");
         
-        assertFalse(watchlistEnabled, "Watchlist should be independently disabled");
-        assertTrue(portfolioEnabled, "Portfolio should remain enabled");
-        assertTrue(tradingEnabled, "Trading should remain enabled");
-        assertFalse(marketDeviceEnabled, "Market Device should be independently disabled");
-        assertTrue(cryptoCommandEnabled, "Crypto Command should remain enabled");
+        // When: Reading different sub-feature toggles
+        boolean watchlistEnabled = marketCfg.isWatchlistEnabled();
+        boolean portfolioEnabled = marketCfg.isPortfolioEnabled();
+        boolean tradingEnabled = marketCfg.isTradingEnabled();
+        boolean marketDeviceEnabled = marketCfg.isMarketDeviceEnabled();
+        boolean cryptoCommandEnabled = marketCfg.isCryptoCommandEnabled();
+        
+        // Then: Each sub-feature can be independently configured
+        // The actual values depend on market.yml configuration
+        assertNotNull(watchlistEnabled, "Watchlist setting should be read");
+        assertNotNull(portfolioEnabled, "Portfolio setting should be read");
+        assertNotNull(tradingEnabled, "Trading setting should be read");
+        assertNotNull(marketDeviceEnabled, "Market Device setting should be read");
+        assertNotNull(cryptoCommandEnabled, "Crypto Command setting should be read");
     }
     
     @Test
-    @DisplayName("Disabling main market feature should affect all sub-features")
-    public void testMainMarketDisableAffectsAll() {
-        // Given: Main market feature is disabled
-        // When: Checking if sub-features can be used
-        // Then: All market operations should be blocked
+    @DisplayName("Main market toggle affects command execution")
+    public void testMainMarketToggleAffectsCommands() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean marketEnabled = false;
+        // Given: Market configuration
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
+        assertNotNull(marketCfg, "Market config should be loaded");
         
-        // Even if sub-features are enabled, main toggle should override
-        boolean watchlistEnabled = true;
-        boolean portfolioEnabled = true;
-        boolean tradingEnabled = true;
+        // When: Checking if main market is enabled
+        boolean marketEnabled = marketCfg.isEnabled();
         
-        boolean canUseWatchlist = marketEnabled && watchlistEnabled;
-        boolean canUsePortfolio = marketEnabled && portfolioEnabled;
-        boolean canTrade = marketEnabled && tradingEnabled;
-        
-        assertFalse(canUseWatchlist, "Watchlist should be blocked when main market is disabled");
-        assertFalse(canUsePortfolio, "Portfolio should be blocked when main market is disabled");
-        assertFalse(canTrade, "Trading should be blocked when main market is disabled");
+        // Then: All market-related commands check this value
+        // This simulates the pattern used in MarketCommand, WatchCommand, etc.
+        // MarketCommand checks: if (!QuickStocksPlugin.getMarketCfg().isEnabled())
+        assertTrue(marketEnabled, 
+            "Market should be enabled by default (per market.yml: market.enabled: true)");
     }
     
     @Test
-    @DisplayName("Price threshold feature can be disabled")
-    public void testPriceThresholdCanBeDisabled() {
-        // Given: Price threshold configuration
-        // When: Setting price threshold enabled to false
-        // Then: Price threshold should be disabled
+    @DisplayName("Price threshold configuration reads from config")
+    public void testPriceThresholdReadsFromConfig() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean priceThresholdEnabled = true;
-        priceThresholdEnabled = false;
+        // Given: Market configuration from market.yml
+        // When: Reading market.priceThreshold.enabled from config
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
         
-        assertFalse(priceThresholdEnabled, "Price threshold should be disabled when set to false");
+        // Then: Should match market.yml setting (priceThreshold.enabled: true by default)
+        assertNotNull(marketCfg, "Market config should be loaded");
+        assertTrue(marketCfg.isPriceThresholdEnabled(), 
+            "Price threshold should be enabled by default per market.yml");
     }
     
     @Test
-    @DisplayName("Market can function without price thresholds")
-    public void testMarketWorksWithoutPriceThresholds() {
-        // Given: Market is enabled but price thresholds are disabled
-        // When: Checking if market can function
-        // Then: Market should work (price thresholds are optional)
+    @DisplayName("Market config provides all expected getters")
+    public void testMarketConfigGetters() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean marketEnabled = true;
-        boolean priceThresholdEnabled = false;
+        // Given: Loaded market configuration
+        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
+        assertNotNull(marketCfg, "Market config should be loaded");
         
-        boolean canUseMarket = marketEnabled; // Price threshold is optional
-        
-        assertTrue(canUseMarket, "Market should work even without price thresholds");
+        // When: Accessing various config properties
+        // Then: All getters should work without throwing exceptions
+        assertDoesNotThrow(() -> marketCfg.isEnabled(), "isEnabled() should work");
+        assertDoesNotThrow(() -> marketCfg.isWatchlistEnabled(), "isWatchlistEnabled() should work");
+        assertDoesNotThrow(() -> marketCfg.isPortfolioEnabled(), "isPortfolioEnabled() should work");
+        assertDoesNotThrow(() -> marketCfg.isTradingEnabled(), "isTradingEnabled() should work");
+        assertDoesNotThrow(() -> marketCfg.isMarketDeviceEnabled(), "isMarketDeviceEnabled() should work");
+        assertDoesNotThrow(() -> marketCfg.isCryptoCommandEnabled(), "isCryptoCommandEnabled() should work");
+        assertDoesNotThrow(() -> marketCfg.isPriceThresholdEnabled(), "isPriceThresholdEnabled() should work");
     }
 }

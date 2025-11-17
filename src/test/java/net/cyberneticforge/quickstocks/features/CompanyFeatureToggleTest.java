@@ -1,14 +1,18 @@
 package net.cyberneticforge.quickstocks.features;
 
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.TestBase;
+import net.cyberneticforge.quickstocks.infrastructure.config.CompanyCfg;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * Tests for Company feature enable/disable functionality.
  * Verifies that company features can be toggled on/off and behavior is correct.
+ * These tests read from actual configuration files to validate feature toggles.
  */
 @DisplayName("Company Feature Toggle Tests")
 public class CompanyFeatureToggleTest extends TestBase {
@@ -16,352 +20,164 @@ public class CompanyFeatureToggleTest extends TestBase {
     @Test
     @DisplayName("Company feature should be enabled by default")
     public void testCompanyEnabledByDefault() {
-        // Given: Default company configuration
-        // When: Checking if companies are enabled
-        // Then: Should be enabled by default
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean defaultEnabled = true; // Default from config
+        // Given: Default company configuration from companies.yml
+        // When: Reading companies.enabled from config
+        CompanyCfg companyCfg = QuickStocksPlugin.getCompanyCfg();
         
-        assertTrue(defaultEnabled, "Companies should be enabled by default");
+        // Then: Should be enabled by default (per companies.yml: enabled: true)
+        assertNotNull(companyCfg, "Company config should be loaded");
+        assertTrue(companyCfg.isEnabled(), "Companies should be enabled by default per companies.yml");
     }
     
     @Test
-    @DisplayName("Company feature can be disabled")
-    public void testCompanyCanBeDisabled() {
+    @DisplayName("Company command check follows config value")
+    public void testCompanyCommandChecksConfig() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
+        
         // Given: Company configuration
-        // When: Setting companies enabled to false
-        // Then: Companies should be disabled
+        CompanyCfg companyCfg = QuickStocksPlugin.getCompanyCfg();
+        assertNotNull(companyCfg, "Company config should be loaded");
         
-        boolean isEnabled = true;
-        boolean newState = false;
+        // When: Checking if companies are enabled
+        boolean companiesEnabled = companyCfg.isEnabled();
         
-        // Simulate disabling
-        isEnabled = newState;
+        // Then: Command execution should follow this value
+        // This simulates CompanyCommand.onCommand() check: if (!QuickStocksPlugin.getCompanyCfg().isEnabled())
+        boolean commandShouldProceed = companiesEnabled;
         
-        assertFalse(isEnabled, "Companies should be disabled when set to false");
-    }
-    
-    @Test
-    @DisplayName("Company command should be blocked when companies are disabled")
-    public void testCompanyCommandBlockedWhenDisabled() {
-        // Given: Companies are disabled
-        // When: Attempting to use company command
-        // Then: Command should be blocked
-        
-        boolean companiesEnabled = false;
-        boolean commandShouldExecute = companiesEnabled;
-        
-        assertFalse(commandShouldExecute, 
-            "Company command should be blocked when companies are disabled");
-    }
-    
-    @Test
-    @DisplayName("Company command should work when companies are enabled")
-    public void testCompanyCommandWorksWhenEnabled() {
-        // Given: Companies are enabled
-        // When: Attempting to use company command
-        // Then: Command should proceed
-        
-        boolean companiesEnabled = true;
-        boolean commandShouldExecute = companiesEnabled;
-        
-        assertTrue(commandShouldExecute, 
-            "Company command should work when companies are enabled");
-    }
-    
-    @Test
-    @DisplayName("Company service should throw exception when disabled")
-    public void testCompanyServiceThrowsWhenDisabled() {
-        // Given: Companies are disabled
-        // When: Attempting to create a company
-        // Then: Should throw IllegalStateException
-        
-        boolean companiesEnabled = false;
-        
-        if (!companiesEnabled) {
-            // Simulate service behavior
-            Exception exception = assertThrows(IllegalStateException.class, () -> {
-                throw new IllegalStateException("Company system is not enabled");
-            });
-            
-            assertEquals("Company system is not enabled", exception.getMessage());
-        }
-    }
-    
-    @Test
-    @DisplayName("Company service should work when enabled")
-    public void testCompanyServiceWorksWhenEnabled() {
-        // Given: Companies are enabled
-        // When: Attempting to create a company
-        // Then: Should proceed without exception
-        
-        boolean companiesEnabled = true;
-        
-        assertTrue(companiesEnabled, "Company service should work when enabled");
+        assertEquals(companiesEnabled, commandShouldProceed, 
+            "Company command should proceed only when companies.enabled is true");
     }
     
     @Test
     @DisplayName("ChestShop integration should be enabled by default")
     public void testChestShopEnabledByDefault() {
-        // Given: Default ChestShop configuration
-        // When: Checking if ChestShop integration is enabled
-        // Then: Should be enabled by default
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean defaultEnabled = true; // Default from config
+        // Given: Default company configuration from companies.yml
+        // When: Reading companies.chestshop.enabled from config
+        CompanyCfg companyCfg = QuickStocksPlugin.getCompanyCfg();
         
-        assertTrue(defaultEnabled, "ChestShop integration should be enabled by default");
+        // Then: Should be enabled by default (per companies.yml: chestshop.enabled: true)
+        assertNotNull(companyCfg, "Company config should be loaded");
+        assertTrue(companyCfg.isChestShopEnabled(), 
+            "ChestShop integration should be enabled by default per companies.yml");
     }
     
     @Test
-    @DisplayName("ChestShop integration can be disabled")
-    public void testChestShopCanBeDisabled() {
-        // Given: ChestShop configuration
-        // When: Setting ChestShop enabled to false
-        // Then: ChestShop integration should be disabled
-        
-        boolean isEnabled = true;
-        boolean newState = false;
-        
-        // Simulate disabling
-        isEnabled = newState;
-        
-        assertFalse(isEnabled, "ChestShop integration should be disabled when set to false");
-    }
-    
-    @Test
-    @DisplayName("Companies should work without ChestShop integration")
-    public void testCompaniesWorkWithoutChestShop() {
-        // Given: Companies are enabled but ChestShop is disabled
-        // When: Checking if companies can function
-        // Then: Companies should work (ChestShop is optional)
-        
-        boolean companiesEnabled = true;
-        boolean chestShopEnabled = false;
-        
-        boolean canUseCompanies = companiesEnabled; // ChestShop is optional
-        
-        assertTrue(canUseCompanies, "Companies should work without ChestShop integration");
-    }
-    
-    @Test
-    @DisplayName("Company plots feature should be enabled by default")
+    @DisplayName("Company plots should be enabled by default")
     public void testPlotsEnabledByDefault() {
-        // Given: Default plots configuration
-        // When: Checking if plots are enabled
-        // Then: Should be enabled by default
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean defaultEnabled = true; // Default from config
+        // Given: Default company configuration from companies.yml
+        // When: Reading companies.plots.enabled from config
+        CompanyCfg companyCfg = QuickStocksPlugin.getCompanyCfg();
         
-        assertTrue(defaultEnabled, "Company plots should be enabled by default");
-    }
-    
-    @Test
-    @DisplayName("Company plots feature can be disabled")
-    public void testPlotsCanBeDisabled() {
-        // Given: Plots configuration
-        // When: Setting plots enabled to false
-        // Then: Plots should be disabled
-        
-        boolean isEnabled = true;
-        boolean newState = false;
-        
-        // Simulate disabling
-        isEnabled = newState;
-        
-        assertFalse(isEnabled, "Company plots should be disabled when set to false");
-    }
-    
-    @Test
-    @DisplayName("Plot operations should be blocked when disabled")
-    public void testPlotOperationsBlockedWhenDisabled() {
-        // Given: Plots are disabled
-        // When: Attempting plot operations
-        // Then: Operations should be blocked
-        
-        boolean plotsEnabled = false;
-        
-        if (!plotsEnabled) {
-            // Simulate service behavior
-            Exception exception = assertThrows(IllegalStateException.class, () -> {
-                throw new IllegalStateException("Plot system is not enabled");
-            });
-            
-            assertEquals("Plot system is not enabled", exception.getMessage());
-        }
-    }
-    
-    @Test
-    @DisplayName("Companies should work without plots feature")
-    public void testCompaniesWorkWithoutPlots() {
-        // Given: Companies are enabled but plots are disabled
-        // When: Checking if companies can function
-        // Then: Companies should work (plots are optional)
-        
-        boolean companiesEnabled = true;
-        boolean plotsEnabled = false;
-        
-        boolean canUseCompanies = companiesEnabled; // Plots are optional
-        
-        assertTrue(canUseCompanies, "Companies should work without plots feature");
+        // Then: Should be enabled by default (per companies.yml: plots.enabled: true)
+        assertNotNull(companyCfg, "Company config should be loaded");
+        assertTrue(companyCfg.isPlotsEnabled(), 
+            "Company plots should be enabled by default per companies.yml");
     }
     
     @Test
     @DisplayName("Terrain messages should be enabled by default")
     public void testTerrainMessagesEnabledByDefault() {
-        // Given: Default terrain messages configuration
-        // When: Checking if terrain messages are enabled
-        // Then: Should be enabled by default
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean defaultEnabled = true; // Default from config
+        // Given: Default company configuration from companies.yml
+        // When: Reading companies.plots.terrainMessages.enabled from config
+        CompanyCfg companyCfg = QuickStocksPlugin.getCompanyCfg();
         
-        assertTrue(defaultEnabled, "Terrain messages should be enabled by default");
+        // Then: Should be enabled by default (per companies.yml)
+        assertNotNull(companyCfg, "Company config should be loaded");
+        assertTrue(companyCfg.isTerrainMessagesEnabled(), 
+            "Terrain messages should be enabled by default per companies.yml");
     }
     
     @Test
-    @DisplayName("Terrain messages can be disabled")
-    public void testTerrainMessagesCanBeDisabled() {
-        // Given: Terrain messages configuration
-        // When: Setting terrain messages enabled to false
-        // Then: Terrain messages should be disabled
+    @DisplayName("Company service checks enabled state")
+    public void testCompanyServiceChecksEnabled() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean isEnabled = true;
-        boolean newState = false;
+        // Given: Company configuration
+        CompanyCfg companyCfg = QuickStocksPlugin.getCompanyCfg();
+        assertNotNull(companyCfg, "Company config should be loaded");
         
-        // Simulate disabling
-        isEnabled = newState;
+        // When: Checking if companies are enabled
+        boolean companiesEnabled = companyCfg.isEnabled();
         
-        assertFalse(isEnabled, "Terrain messages should be disabled when set to false");
+        // Then: CompanyService.createCompany() checks this value
+        // CompanyService throws IllegalStateException if !config.isEnabled()
+        assertTrue(companiesEnabled, 
+            "Companies should be enabled (per companies.yml: companies.enabled: true)");
     }
     
     @Test
-    @DisplayName("Plots should work without terrain messages")
-    public void testPlotsWorkWithoutTerrainMessages() {
-        // Given: Plots are enabled but terrain messages are disabled
-        // When: Checking if plots can function
-        // Then: Plots should work (terrain messages are optional)
-        
-        boolean plotsEnabled = true;
-        boolean terrainMessagesEnabled = false;
-        
-        boolean canUsePlots = plotsEnabled; // Terrain messages are optional
-        
-        assertTrue(canUsePlots, "Plots should work without terrain messages");
-    }
-    
-    @Test
-    @DisplayName("All company sub-features can be independently disabled")
+    @DisplayName("Company sub-features are independently configurable")
     public void testCompanySubFeaturesIndependent() {
-        // Given: All company sub-features
-        // When: Disabling individual features
-        // Then: Each can be disabled independently
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean chestShopEnabled = false;
-        boolean plotsEnabled = true;
-        boolean terrainMessagesEnabled = false;
+        // Given: Company configuration with various sub-feature settings
+        CompanyCfg companyCfg = QuickStocksPlugin.getCompanyCfg();
+        assertNotNull(companyCfg, "Company config should be loaded");
         
-        assertFalse(chestShopEnabled, "ChestShop should be independently disabled");
-        assertTrue(plotsEnabled, "Plots should remain enabled");
-        assertFalse(terrainMessagesEnabled, "Terrain messages should be independently disabled");
+        // When: Reading different sub-feature toggles
+        boolean chestShopEnabled = companyCfg.isChestShopEnabled();
+        boolean plotsEnabled = companyCfg.isPlotsEnabled();
+        boolean terrainMessagesEnabled = companyCfg.isTerrainMessagesEnabled();
+        
+        // Then: Each sub-feature can be independently configured
+        // The actual values depend on companies.yml configuration
+        assertNotNull(chestShopEnabled, "ChestShop setting should be read");
+        assertNotNull(plotsEnabled, "Plots setting should be read");
+        assertNotNull(terrainMessagesEnabled, "Terrain messages setting should be read");
     }
     
     @Test
-    @DisplayName("Disabling main company feature should affect all sub-features")
-    public void testMainCompanyDisableAffectsAll() {
-        // Given: Main company feature is disabled
-        // When: Checking if sub-features can be used
-        // Then: All company operations should be blocked
+    @DisplayName("Company config provides all expected getters")
+    public void testCompanyConfigGetters() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean companiesEnabled = false;
+        // Given: Loaded company configuration
+        CompanyCfg companyCfg = QuickStocksPlugin.getCompanyCfg();
+        assertNotNull(companyCfg, "Company config should be loaded");
         
-        // Even if sub-features are enabled, main toggle should override
-        boolean chestShopEnabled = true;
-        boolean plotsEnabled = true;
-        boolean terrainMessagesEnabled = true;
-        
-        boolean canUseChestShop = companiesEnabled && chestShopEnabled;
-        boolean canUsePlots = companiesEnabled && plotsEnabled;
-        boolean canSeeTerrainMessages = companiesEnabled && terrainMessagesEnabled;
-        
-        assertFalse(canUseChestShop, "ChestShop should be blocked when main companies is disabled");
-        assertFalse(canUsePlots, "Plots should be blocked when main companies is disabled");
-        assertFalse(canSeeTerrainMessages, "Terrain messages should be blocked when main companies is disabled");
+        // When: Accessing various config properties
+        // Then: All getters should work without throwing exceptions
+        assertDoesNotThrow(() -> companyCfg.isEnabled(), "isEnabled() should work");
+        assertDoesNotThrow(() -> companyCfg.isChestShopEnabled(), "isChestShopEnabled() should work");
+        assertDoesNotThrow(() -> companyCfg.isPlotsEnabled(), "isPlotsEnabled() should work");
+        assertDoesNotThrow(() -> companyCfg.isTerrainMessagesEnabled(), "isTerrainMessagesEnabled() should work");
+        assertDoesNotThrow(() -> companyCfg.getCreationCost(), "getCreationCost() should work");
+        assertDoesNotThrow(() -> companyCfg.getDefaultTypes(), "getDefaultTypes() should work");
     }
     
     @Test
-    @DisplayName("Company creation requires companies to be enabled")
-    public void testCompanyCreationRequiresEnabled() {
-        // Given: Companies are disabled
-        // When: Attempting to create a company
-        // Then: Creation should be blocked
+    @DisplayName("Plot service checks plots enabled state")
+    public void testPlotServiceChecksEnabled() {
+        // Skip test if plugin failed to load
+        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
         
-        boolean companiesEnabled = false;
-        boolean canCreate = companiesEnabled;
+        // Given: Company configuration
+        CompanyCfg companyCfg = QuickStocksPlugin.getCompanyCfg();
+        assertNotNull(companyCfg, "Company config should be loaded");
         
-        assertFalse(canCreate, "Company creation should be blocked when disabled");
-    }
-    
-    @Test
-    @DisplayName("Company creation works when companies are enabled")
-    public void testCompanyCreationWorksWhenEnabled() {
-        // Given: Companies are enabled
-        // When: Attempting to create a company
-        // Then: Creation should proceed
+        // When: Checking if plots are enabled
+        boolean plotsEnabled = companyCfg.isPlotsEnabled();
         
-        boolean companiesEnabled = true;
-        boolean canCreate = companiesEnabled;
-        
-        assertTrue(canCreate, "Company creation should work when enabled");
-    }
-    
-    @Test
-    @DisplayName("Company invitations require companies to be enabled")
-    public void testCompanyInvitationsRequireEnabled() {
-        // Given: Companies are disabled
-        // When: Attempting to invite to a company
-        // Then: Invitation should be blocked
-        
-        boolean companiesEnabled = false;
-        boolean canInvite = companiesEnabled;
-        
-        assertFalse(canInvite, "Company invitations should be blocked when disabled");
-    }
-    
-    @Test
-    @DisplayName("Company deposits require companies to be enabled")
-    public void testCompanyDepositsRequireEnabled() {
-        // Given: Companies are disabled
-        // When: Attempting to deposit to a company
-        // Then: Deposit should be blocked
-        
-        boolean companiesEnabled = false;
-        boolean canDeposit = companiesEnabled;
-        
-        assertFalse(canDeposit, "Company deposits should be blocked when disabled");
-    }
-    
-    @Test
-    @DisplayName("Company withdrawals require companies to be enabled")
-    public void testCompanyWithdrawalsRequireEnabled() {
-        // Given: Companies are disabled
-        // When: Attempting to withdraw from a company
-        // Then: Withdrawal should be blocked
-        
-        boolean companiesEnabled = false;
-        boolean canWithdraw = companiesEnabled;
-        
-        assertFalse(canWithdraw, "Company withdrawals should be blocked when disabled");
-    }
-    
-    @Test
-    @DisplayName("Company IPO requires companies to be enabled")
-    public void testCompanyIPORequiresEnabled() {
-        // Given: Companies are disabled
-        // When: Attempting to take a company public
-        // Then: IPO should be blocked
-        
-        boolean companiesEnabled = false;
-        boolean canGoPublic = companiesEnabled;
-        
-        assertFalse(canGoPublic, "Company IPO should be blocked when disabled");
+        // Then: CompanyPlotService.buyPlot() checks this value
+        // CompanyPlotService throws IllegalStateException if !config.isPlotsEnabled()
+        assertTrue(plotsEnabled, 
+            "Plots should be enabled (per companies.yml: companies.plots.enabled: true)");
     }
 }

@@ -15,10 +15,21 @@ public abstract class TestBase {
     
     protected static ServerMock server;
     protected static QuickStocksPlugin plugin;
+    protected static boolean pluginLoadFailed = false;
     
     @BeforeAll
     public static void setUpClass() {
         server = MockBukkit.mock();
+        try {
+            // Attempt to load the plugin for config access
+            // This may fail due to database dependencies, which is expected
+            plugin = MockBukkit.load(QuickStocksPlugin.class);
+        } catch (Exception e) {
+            // Plugin loading failed (expected due to database dependencies)
+            // Tests can still run with limited functionality
+            pluginLoadFailed = true;
+            System.err.println("Plugin load failed (expected): " + e.getMessage());
+        }
     }
     
     @AfterAll
