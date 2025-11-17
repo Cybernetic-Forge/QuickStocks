@@ -5,6 +5,7 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 @Getter
@@ -349,5 +350,9 @@ public enum Translation {
     public void sendTitle(CommandSender sender, Component subtitle, Title.Times times) {
         Title tile = Title.title(QuickStocksPlugin.getTranslationService().message(this), subtitle, times);
         sender.showTitle(tile);
+    }
+
+    public void broadcast(Replaceable... replaceables) {
+        Bukkit.broadcast(QuickStocksPlugin.getTranslationService().message(this, replaceables));
     }
 }

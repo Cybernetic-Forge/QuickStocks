@@ -146,11 +146,7 @@ public class MarketScheduler {
         Bukkit.getPluginManager().callEvent(event);
         
         // Broadcast to all online players
-        String message = Translation.MarketOpens.getMessage();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(message);
-        }
-        
+        Translation.MarketOpens.broadcast();
         logger.info("Market opened at " + LocalTime.now(timezone));
     }
     
@@ -165,10 +161,8 @@ public class MarketScheduler {
         Bukkit.getPluginManager().callEvent(event);
         
         // Broadcast to all online players
-        String message = Translation.MarketCloses.getMessage();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(message);
-        }
+        Translation.MarketCloses.broadcast();
+
         
         logger.info("Market closed at " + LocalTime.now(timezone));
     }
@@ -181,20 +175,6 @@ public class MarketScheduler {
             return true;
         }
         return marketOpen;
-    }
-    
-    /**
-     * Gets a formatted message about market hours for display.
-     */
-    public String getMarketHoursMessage() {
-        if (!marketHoursEnabled) {
-            return "";
-        }
-        
-        return Translation.MarketClosed.getMessage()
-            .replace("%open%", openTime.format(TIME_FORMATTER))
-            .replace("%close%", closeTime.format(TIME_FORMATTER))
-            .replace("%timezone%", timezone.getId());
     }
     
     /**
