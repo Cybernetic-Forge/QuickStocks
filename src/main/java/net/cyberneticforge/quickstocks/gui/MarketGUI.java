@@ -4,6 +4,8 @@ import lombok.Getter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.model.Company;
 import net.cyberneticforge.quickstocks.core.model.Crypto;
+import net.cyberneticforge.quickstocks.core.model.Instrument;
+import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.core.model.Replaceable;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import net.cyberneticforge.quickstocks.utils.ChatUT;
@@ -17,8 +19,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Professional Market GUI for QuickStocks
@@ -33,9 +37,10 @@ public class MarketGUI implements InventoryHolder {
      * Filter modes for the market GUI
      */
     public enum FilterMode {
-        ALL,      // Show both shares and crypto
-        SHARES,   // Show only company shares
-        CRYPTO    // Show only cryptocurrencies
+        ALL,              // Show all instrument types
+        COMPANY_SHARES,   // Show only company shares
+        CRYPTO_SHARES,    // Show only cryptocurrencies
+        ITEM_SHARES       // Show only item instruments
     }
 
     private final Inventory inventory;
@@ -138,8 +143,9 @@ public class MarketGUI implements InventoryHolder {
             // Determine config path based on filter mode
             String modePath = switch (filterMode) {
                 case ALL -> "market.filter.all";
-                case SHARES -> "market.filter.shares";
-                case CRYPTO -> "market.filter.crypto";
+                case COMPANY_SHARES -> "market.filter.company_shares";
+                case CRYPTO_SHARES -> "market.filter.crypto_shares";
+                case ITEM_SHARES -> "market.filter.item_shares";
             };
             
             // Get material, name, and lore from config
@@ -168,7 +174,7 @@ public class MarketGUI implements InventoryHolder {
             int slot = 9; // Start from second row
 
             // Add company shares if filter allows
-            if (filterMode == FilterMode.ALL || filterMode == FilterMode.SHARES) {
+            if (filterMode == FilterMode.ALL || filterMode == FilterMode.COMPANY_SHARES) {
                 List<Company> companiesOnMarket = QuickStocksPlugin.getCompanyService().getCompaniesOnMarket();
                 
                 for (Company company : companiesOnMarket) {
@@ -181,7 +187,7 @@ public class MarketGUI implements InventoryHolder {
             }
 
             // Add cryptocurrencies if filter allows
-            if (filterMode == FilterMode.ALL || filterMode == FilterMode.CRYPTO) {
+            if (filterMode == FilterMode.ALL || filterMode == FilterMode.CRYPTO_SHARES) {
                 List<Crypto> cryptos = QuickStocksPlugin.getCryptoService().getAllCryptos();
                 
                 for (Crypto crypto : cryptos) {
@@ -193,10 +199,24 @@ public class MarketGUI implements InventoryHolder {
                 }
             }
 
+            // Add item instruments if filter allows
+            if (filterMode == FilterMode.ALL || filterMode == FilterMode.ITEM_SHARES) {
+                List<Instrument> itemInstruments = QuickStocksPlugin.getInstrumentPersistenceService().getInstrumentsByType("ITEM");
+                
+                for (Instrument itemInstrument : itemInstruments) {
+                    if (slot >= 45) break; // Leave bottom row for navigation
+
+                    ItemStack itemItem = createItemInstrumentItem(itemInstrument);
+                    inventory.setItem(slot, itemItem);
+                    slot++;
+                }
+            }
+
             // Fill empty slots with barrier blocks
             String emptyPath = switch (filterMode) {
-                case SHARES -> "market.no_companies";
-                case CRYPTO -> "market.no_crypto";
+                case COMPANY_SHARES -> "market.no_companies";
+                case CRYPTO_SHARES -> "market.no_crypto";
+                case ITEM_SHARES -> "market.no_items";
                 case ALL -> "market.no_items";
             };
             
@@ -318,6 +338,90 @@ public class MarketGUI implements InventoryHolder {
     }
 
     /**
+     * Creates an ItemStack representing an item instrument
+     */
+    private ItemStack createItemInstrumentItem(Instrument instrument) {
+        String symbol = instrument.symbol();
+        String displayName = instrument.displayName();
+        String mcMaterial = instrument.mcMaterial();
+        
+        // Handle null values with defaults
+        if (symbol == null) symbol = "UNKNOWN";
+        if (displayName == null) displayName = "Unknown Item";
+        
+        // Get the instrument state for price information
+        try {
+            Optional<InstrumentState> stateOpt = QuickStocksPlugin.getInstrumentPersistenceService()
+                    .getInstrumentState(instrument.id());
+            
+            double price = stateOpt.map(InstrumentState::lastPrice).orElse(0.0);
+            double change24h = stateOpt.map(InstrumentState::change24h).orElse(0.0);
+            double volume = stateOpt.map(InstrumentState::lastVolume).orElse(0.0);
+            
+            // Use the actual Minecraft material for the display
+            Material material = Material.PAPER; // Default fallback
+            if (mcMaterial != null) {
+                try {
+                    material = Material.valueOf(mcMaterial);
+                } catch (IllegalArgumentException e) {
+                    logger.debug("Invalid material '" + mcMaterial + "' for item instrument, using PAPER");
+                }
+            }
+            
+            ItemStack item = new ItemStack(material);
+            ItemMeta meta = item.getItemMeta();
+            
+            // Set display name from config
+            Component name = QuickStocksPlugin.getGuiConfig().getItemName("market.item_instrument",
+                new Replaceable("{symbol}", symbol),
+                new Replaceable("{display_name}", displayName));
+            meta.displayName(name);
+            
+            // Calculate color and symbol for change
+            String changeColor = change24h >= 0 ? "&a" : "&c";
+            String changeSymbol = change24h >= 0 ? "+" : "";
+            
+            // Get lore from config with replacements
+            List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("market.item_instrument",
+                new Replaceable("{symbol}", symbol),
+                new Replaceable("{display_name}", displayName),
+                new Replaceable("{price}", String.format("%.2f", price)),
+                new Replaceable("{change_color}", changeColor),
+                new Replaceable("{change_symbol}", changeSymbol),
+                new Replaceable("{change_24h}", String.format("%.2f", change24h)),
+                new Replaceable("{volume}", String.format("%.2f", volume))
+            );
+            
+            meta.lore(lore);
+            item.setItemMeta(meta);
+            
+            return item;
+            
+        } catch (Exception e) {
+            logger.warning("Error creating item instrument display for " + symbol + ": " + e.getMessage());
+            
+            // Return a basic item on error
+            Material material = Material.PAPER;
+            if (mcMaterial != null) {
+                try {
+                    material = Material.valueOf(mcMaterial);
+                } catch (IllegalArgumentException ignored) {}
+            }
+            
+            ItemStack item = new ItemStack(material);
+            ItemMeta meta = item.getItemMeta();
+            meta.displayName(ChatUT.hexComp("&e" + displayName + " (&7" + symbol + "&e)"));
+            meta.lore(Arrays.asList(
+                ChatUT.hexComp("&cError loading price data"),
+                ChatUT.hexComp("&7Click to view details")
+            ));
+            item.setItemMeta(meta);
+            
+            return item;
+        }
+    }
+
+    /**
      * Adds navigation buttons at the bottom of the GUI
      */
     private void addNavigationButtons() {
@@ -363,13 +467,14 @@ public class MarketGUI implements InventoryHolder {
     }
 
     /**
-     * Toggles the filter mode (ALL -> SHARES -> CRYPTO -> ALL)
+     * Toggles the filter mode (ALL -> COMPANY_SHARES -> CRYPTO_SHARES -> ITEM_SHARES -> ALL)
      */
     public void toggleFilter() {
         filterMode = switch (filterMode) {
-            case ALL -> FilterMode.SHARES;
-            case SHARES -> FilterMode.CRYPTO;
-            case CRYPTO -> FilterMode.ALL;
+            case ALL -> FilterMode.COMPANY_SHARES;
+            case COMPANY_SHARES -> FilterMode.CRYPTO_SHARES;
+            case CRYPTO_SHARES -> FilterMode.ITEM_SHARES;
+            case ITEM_SHARES -> FilterMode.ALL;
         };
         refresh();
     }
