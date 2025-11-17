@@ -55,11 +55,11 @@ Market:
   History:
     Header: '&6=== &fOrder History &6==='
     NoHistory: '&7No order history found.'
-    TransactionItem: '&7[%time%] %type% %.2f %company% @ $%price%'
+    TransactionItem: '&7[%time%] %type% %qty% %company% @ $%price%'
   Shareholders:
     Header: '&6=== &f%company% Shareholders &6==='
     NoShareholders: '&7No shareholders found.'
-    ShareholderItem: '&e%player%&7: %.2f shares (%.1f%%)'
+    ShareholderItem: '&e%player%&7: %qty% shares (%percentage%%)'
   Buy:
     Usage: '&cUsage: /market buy <company> <quantity>'
     Success: '&aSuccessfully purchased %qty% shares!'

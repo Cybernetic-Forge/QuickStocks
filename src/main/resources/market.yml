@@ -8,7 +8,7 @@ market:
   # Item trading configuration
   items:
     enabled: true # Enable/disable item trading (Minecraft materials as instruments)
-    seedOnStartup: false # Automatically seed common items on first startup
+    seedOnStartup: true # Automatically seed common items on first startup
   
   # Market hours configuration
   hours:
