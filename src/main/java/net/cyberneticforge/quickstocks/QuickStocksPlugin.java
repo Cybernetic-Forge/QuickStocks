@@ -190,6 +190,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Start market hours scheduler
             marketScheduler.start();
+            
+            // Start market price update task (every 5 minutes)
+            startMarketPriceUpdateTask();
 
             startSalaryPaymentScheduler();
             startRentCollectionScheduler();
@@ -425,6 +428,39 @@ public final class QuickStocksPlugin extends JavaPlugin {
             }
         };
         rentCollectionTask.runTaskTimerAsynchronously(this, 20L * 60 * 10, 20L * 60 * 10); // Run every 10 minutes
+    }
+    
+    /**
+     * Starts a task to periodically update all stock/instrument prices.
+     * Runs every 5 minutes to simulate market movements.
+     * Package-private for reload functionality.
+     */
+    public void startMarketPriceUpdateTask() {
+        // Cancel existing task if running
+        if (marketUpdateTask != null && !marketUpdateTask.isCancelled()) {
+            marketUpdateTask.cancel();
+        }
+        
+        long updateInterval = marketCfg.getUpdateInterval(); // Get from config (in seconds)
+        long updateTicks = 20L * updateInterval; // Convert to ticks
+        
+        marketUpdateTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    if (stockMarketService != null && stockMarketService.isMarketOpen()) {
+                        stockMarketService.updateAllStockPrices();
+                        pluginLogger.debug("Updated all stock prices");
+                    }
+                } catch (Exception e) {
+                    pluginLogger.warning("Error in market price update task: " + e.getMessage());
+                }
+            }
+        };
+        
+        // Start after 1 minute, then run every updateInterval seconds
+        marketUpdateTask.runTaskTimerAsynchronously(this, 20L * 60, updateTicks);
+        pluginLogger.info("Market price update task started (interval: " + updateInterval + " seconds)");
     }
     
     /**
