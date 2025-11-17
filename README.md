@@ -11,6 +11,15 @@ Transform your Minecraft server into a sophisticated economic powerhouse. QuickS
 
 ---
 
+<div style="border-left: 4px solid #f1c40f; padding: 12px 16px; background: #fff9db; font-family: sans-serif;">
+    <strong style="font-size: 16px;">⚠️ QuickStocks is currently in <span style="color:#e67e22;">BETA</span>.</strong>
+    <p style="margin: 6px 0 0 0;">
+        This plugin is actively being improved and may receive frequent updates.<br>
+        The first released versions aim to reach full stability while polishing all core features.<br>
+        Thank you for participating in the beta phase!
+    </p>
+</div>
+
 ## 🎮 What Makes QuickStocks Special?
 
 QuickStocks isn't just another economy plugin—it's a **fully-featured financial market simulator** that rivals real-world trading platforms. With sophisticated algorithms, realistic market behavior, and enterprise-grade architecture, it offers an unmatched economic experience.
