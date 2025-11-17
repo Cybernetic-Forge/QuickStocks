@@ -192,8 +192,7 @@ public final class QuickStocksPlugin extends JavaPlugin {
             tradingService.setStockMarketService(new StockMarketService());
             
             // Initialize market scheduler
-            FileConfiguration marketConfig = getConfig("market.yml");
-            marketScheduler = new MarketScheduler(this, marketConfig);
+            marketScheduler = new MarketScheduler();
 
             initializeDefaultStocks();
             registerCommands();

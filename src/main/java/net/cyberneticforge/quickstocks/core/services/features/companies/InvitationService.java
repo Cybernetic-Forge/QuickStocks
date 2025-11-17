@@ -8,11 +8,10 @@ import net.cyberneticforge.quickstocks.core.model.CompanyJob;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
-import Player;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.*;
-import org.bukkit.entity.Player;
 import java.util.UUID;
 
 /**

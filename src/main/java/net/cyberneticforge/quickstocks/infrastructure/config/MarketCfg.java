@@ -3,6 +3,9 @@ package net.cyberneticforge.quickstocks.infrastructure.config;
 import lombok.Getter;
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
+
 /**
  * Configuration manager for market and market device settings.
  * Loads configuration from market.yml using YamlParser.
@@ -38,7 +41,13 @@ public class MarketCfg {
     private int analyticsChangeWindow;
     private int analyticsVolatilityWindow;
     private int analyticsCorrelationWindow;
-    
+
+    // Market hours
+    private boolean marketHoursEnabled;
+    private LocalTime openTime;
+    private LocalTime closeTime;
+    private ZoneId timezone;
+
     public MarketCfg() {
         config = YamlParser.loadOrExtract(QuickStocksPlugin.getInstance(), "market.yml");
         addMissingDefaults();
@@ -76,6 +85,12 @@ public class MarketCfg {
         config.addMissing("analytics.defaultWindowsMinutes.change", 1440);
         config.addMissing("analytics.defaultWindowsMinutes.volatility", 1440);
         config.addMissing("analytics.defaultWindowsMinutes.correlation", 1440);
+
+        // Market hours
+        config.addMissing("market.hours.enabled", true);
+        config.addMissing("market.hours.open-at", "06:00:00");
+        config.addMissing("market.hours.close-at", "22:00:00");
+        config.addMissing("market.hours.timezone", "UTC");
         
         config.saveChanges();
     }
@@ -110,6 +125,21 @@ public class MarketCfg {
         analyticsChangeWindow = config.getInt("analytics.defaultWindowsMinutes.change", 1440);
         analyticsVolatilityWindow = config.getInt("analytics.defaultWindowsMinutes.volatility", 1440);
         analyticsCorrelationWindow = config.getInt("analytics.defaultWindowsMinutes.correlation", 1440);
+
+        // Market hours
+        marketHoursEnabled = config.getBoolean("market.hours.enabled", true);
+        String openTimeStr = config.getString("market.hours.open-at", "06:00:00");
+        String closeTimeStr = config.getString("market.hours.close-at", "22:00:00");
+        String timezoneStr = config.getString("market.hours.timezone", "UTC");
+        try {
+            openTime = LocalTime.parse(openTimeStr);
+            closeTime = LocalTime.parse(closeTimeStr);
+            timezone = ZoneId.of(timezoneStr);
+        } catch (Exception e) {
+            openTime = LocalTime.of(6, 0);
+            closeTime = LocalTime.of(22, 0);
+            timezone = ZoneId.of("UTC");
+        }
     }
     
     /**

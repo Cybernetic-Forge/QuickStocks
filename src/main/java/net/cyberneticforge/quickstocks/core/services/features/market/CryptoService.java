@@ -8,7 +8,6 @@ import net.cyberneticforge.quickstocks.core.model.InstrumentState;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
 import org.bukkit.Bukkit;
-import Player;
 
 import java.sql.SQLException;
 import java.util.List;
