@@ -251,6 +251,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             Translation.Market_Portfolio_HoldingItem.sendMessage(player,
                 new Replaceable("%company%", name),
                 new Replaceable("%symbol%", symbol),
+                new Replaceable("%qty%", String.format("%.2f", shares)),
                 new Replaceable("%shares%", String.format("%.2f", shares)),
                 new Replaceable("%avgcost%", String.format("%.2f", avgCost)),
                 new Replaceable("%current%", String.format("%.2f", currentPrice)),
@@ -296,6 +297,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             Translation.Market_History_TransactionItem.sendMessage(player,
                 new Replaceable("%time%", timeStr),
                 new Replaceable("%type%", type),
+                new Replaceable("%qty%", String.format("%.2f", ((Number) tx.get("shares")).doubleValue())),
                 new Replaceable("%company%", name + " @ $" + String.format("%.2f", price)),
                 new Replaceable("%price%", String.format("%.2f", price)));
         }
@@ -469,6 +471,7 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             
             Translation.Market_Shareholders_ShareholderItem.sendMessage(player,
                 new Replaceable("%player%", playerName),
+                new Replaceable("%qty%", String.format("%.2f", shares)),
                 new Replaceable("%shares%", String.format("%.2f", shares)),
                 new Replaceable("%percentage%", String.format("%.1f", percentage)));
         }

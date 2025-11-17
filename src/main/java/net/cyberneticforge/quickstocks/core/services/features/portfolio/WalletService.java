@@ -4,8 +4,11 @@ import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.api.events.WalletBalanceChangeEvent;
 import net.cyberneticforge.quickstocks.infrastructure.db.Db;
 import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.sql.SQLException;
 import java.util.UUID;
@@ -14,17 +17,16 @@ import java.util.UUID;
  * Manages player wallet balances with Vault economy integration fallback.
  * If Vault is available, uses it; otherwise uses internal wallet system.
  */
-@SuppressWarnings({"JavaReflectionInvocation", "unused"})
 public class WalletService {
     
     private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Db database = QuickStocksPlugin.getDatabaseManager().getDb();
     private final boolean useVault;
-    private Object vaultEconomy; // Using Object to avoid compile-time dependency on Vault
+    private Economy vaultEconomy; // Using Object to avoid compile-time dependency on Vault
     
     public WalletService() {
-        this.useVault = setupVaultEconomy();
+        this.useVault = setupEconomy();
         
         if (useVault) {
             logger.info("WalletService initialized with Vault economy integration");
@@ -37,39 +39,16 @@ public class WalletService {
      * Attempts to set up Vault economy integration using reflection to avoid compile-time dependencies.
      * @return true if Vault is available and economy provider found, false otherwise
      */
-    private boolean setupVaultEconomy() {
-        try {
-            // Use reflection to check for Bukkit and Vault
-            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
-            Object server = bukkitClass.getMethod("getServer").invoke(null);
-            Object pluginManager = server.getClass().getMethod("getPluginManager").invoke(server);
-            Object vaultPlugin = pluginManager.getClass().getMethod("getPlugin", String.class).invoke(pluginManager, "Vault");
-            
-            if (vaultPlugin == null) {
-                logger.info("Vault plugin not found, using internal wallet system");
-                return false;
-            }
-            
-            // Get the services manager and economy service
-            Object servicesManager = server.getClass().getMethod("getServicesManager").invoke(server);
-            Class<?> economyClass = Class.forName("net.milkbowl.vault.economy.Economy");
-            Object registration = servicesManager.getClass().getMethod("getRegistration", Class.class).invoke(servicesManager, economyClass);
-            
-            if (registration == null) {
-                logger.warning("Vault found but no economy provider registered, using internal wallet system");
-                return false;
-            }
-            
-            vaultEconomy = registration.getClass().getMethod("getProvider").invoke(registration);
-            String economyName = (String) vaultEconomy.getClass().getMethod("getName").invoke(vaultEconomy);
-            logger.info("Vault economy provider found: " + economyName);
-            return true;
-            
-        } catch (Exception e) {
-            // Bukkit/Vault not available - this is normal in non-Bukkit environments like tests
-            logger.debug("Bukkit/Vault not available: " + e.getMessage() + ". Using internal wallet system.");
+    private boolean setupEconomy() {
+        if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
         }
+        RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        vaultEconomy = rsp.getProvider();
+        return true;
     }
     
     /**
@@ -181,14 +160,12 @@ public class WalletService {
     // Vault integration methods using reflection to avoid compile-time dependencies
     private double getVaultBalance(String playerUuid) {
         try {
-            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
-            Object offlinePlayer = bukkitClass.getMethod("getOfflinePlayer", UUID.class)
-                    .invoke(null, UUID.fromString(playerUuid));
-            
-            double balance = (Double) vaultEconomy.getClass().getMethod("getBalance", 
-                    Class.forName("OfflinePlayer"))
-                    .invoke(vaultEconomy, offlinePlayer);
-            
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(playerUuid));
+            if(offlinePlayer.getName() == null) {
+                logger.warning("OfflinePlayer not found for UUID: " + playerUuid);
+                return 0.0;
+            }
+            var balance = vaultEconomy.getBalance(offlinePlayer);
             logger.debug("Retrieved Vault balance for " + playerUuid + ": $" + String.format("%.2f", balance));
             return balance;
         } catch (Exception e) {
@@ -199,27 +176,19 @@ public class WalletService {
     
     private void setVaultBalance(String playerUuid, double amount) {
         try {
-            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
-            Object offlinePlayer = bukkitClass.getMethod("getOfflinePlayer", UUID.class)
-                    .invoke(null, UUID.fromString(playerUuid));
-            
-            // Get current balance first
-            double currentBalance = (Double) vaultEconomy.getClass().getMethod("getBalance", 
-                    Class.forName("OfflinePlayer"))
-                    .invoke(vaultEconomy, offlinePlayer);
-            
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(playerUuid));
+            if(offlinePlayer.getName() == null) {
+                logger.warning("OfflinePlayer not found for UUID: " + playerUuid);
+                return;
+            }
+            double currentBalance = vaultEconomy.getBalance(offlinePlayer);
             if (amount > currentBalance) {
                 // Need to deposit money
-                vaultEconomy.getClass().getMethod("depositPlayer", 
-                        Class.forName("OfflinePlayer"), double.class)
-                        .invoke(vaultEconomy, offlinePlayer, amount - currentBalance);
+                vaultEconomy.depositPlayer(offlinePlayer, amount - currentBalance);
             } else if (amount < currentBalance) {
                 // Need to withdraw money
-                vaultEconomy.getClass().getMethod("withdrawPlayer", 
-                        Class.forName("OfflinePlayer"), double.class)
-                        .invoke(vaultEconomy, offlinePlayer, currentBalance - amount);
+                vaultEconomy.withdrawPlayer(offlinePlayer, currentBalance - amount);
             }
-            
             logger.debug("Set Vault balance for " + playerUuid + " to $" + String.format("%.2f", amount));
         } catch (Exception e) {
             logger.warning("Failed to set Vault balance for " + playerUuid + ": " + e.getMessage());
@@ -228,14 +197,12 @@ public class WalletService {
     
     private void addVaultBalance(String playerUuid, double amount) {
         try {
-            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
-            Object offlinePlayer = bukkitClass.getMethod("getOfflinePlayer", UUID.class)
-                    .invoke(null, UUID.fromString(playerUuid));
-            
-            vaultEconomy.getClass().getMethod("depositPlayer", 
-                    Class.forName("OfflinePlayer"), double.class)
-                    .invoke(vaultEconomy, offlinePlayer, amount);
-            
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(playerUuid));
+            if(offlinePlayer.getName() == null) {
+                logger.warning("OfflinePlayer not found for UUID: " + playerUuid);
+                return;
+            }
+            vaultEconomy.depositPlayer(offlinePlayer, amount);
             logger.debug("Added $" + String.format("%.2f", amount) + " to Vault balance for " + playerUuid);
         } catch (Exception e) {
             logger.warning("Failed to add Vault balance for " + playerUuid + ": " + e.getMessage());
@@ -244,20 +211,15 @@ public class WalletService {
     
     private boolean removeVaultBalance(String playerUuid, double amount) {
         try {
-            Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
-            Object offlinePlayer = bukkitClass.getMethod("getOfflinePlayer", UUID.class)
-                    .invoke(null, UUID.fromString(playerUuid));
-            
-            // Check balance first
-            double currentBalance = (Double) vaultEconomy.getClass().getMethod("getBalance", 
-                    Class.forName("OfflinePlayer"))
-                    .invoke(vaultEconomy, offlinePlayer);
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(playerUuid));
+            if(offlinePlayer.getName() == null) {
+                logger.warning("OfflinePlayer not found for UUID: " + playerUuid);
+                return false;
+            }
+            double currentBalance = vaultEconomy.getBalance(offlinePlayer);
             
             if (currentBalance >= amount) {
-                Object result = vaultEconomy.getClass().getMethod("withdrawPlayer", 
-                        Class.forName("OfflinePlayer"), double.class)
-                        .invoke(vaultEconomy, offlinePlayer, amount);
-                
+                vaultEconomy.withdrawPlayer(offlinePlayer, amount);
                 logger.debug("Removed $" + String.format("%.2f", amount) + " from Vault balance for " + playerUuid);
                 return true;
             }
@@ -269,26 +231,11 @@ public class WalletService {
             return false;
         }
     }
-    
+
     /**
      * Returns true if this service is using Vault for economy operations.
      */
     public boolean isUsingVault() {
         return useVault;
-    }
-    
-    /**
-     * Gets the name of the economy provider being used.
-     */
-    public String getEconomyProviderName() {
-        if (useVault && vaultEconomy != null) {
-            try {
-                return (String) vaultEconomy.getClass().getMethod("getName").invoke(vaultEconomy);
-            } catch (Exception e) {
-                logger.warning("Failed to get economy provider name: " + e.getMessage());
-                return "Vault (Unknown Provider)";
-            }
-        }
-        return "Internal Wallet System";
     }
 }

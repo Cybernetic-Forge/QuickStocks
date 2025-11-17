@@ -190,6 +190,9 @@ public final class QuickStocksPlugin extends JavaPlugin {
             
             // Start market hours scheduler
             marketScheduler.start();
+            
+            // Start market price update task (every 5 minutes)
+            startMarketPriceUpdateTask();
 
             startSalaryPaymentScheduler();
             startRentCollectionScheduler();
@@ -348,11 +351,18 @@ public final class QuickStocksPlugin extends JavaPlugin {
      * DEPRECATED: Example stocks have been removed. The system uses real Minecraft items and company shares instead.
      */
     private void initializeDefaultStocks() {
-        // Example stocks (MINE, CRAFT, BLOCK, PIXEL) have been removed as per issue requirements.
-        // The system now relies on:
-        // 1. Minecraft items (seeded via ItemSeeder)
-        // 2. Company shares (created via /company market enable)
-        getLogger().info("Using real market instruments (Minecraft items and company shares)");
+        // Optional: Seed common Minecraft items for trading
+        if (marketCfg.isSeedItemsOnStartup()) {
+            try {
+                ItemSeederService itemSeeder = new ItemSeederService();
+                itemSeeder.seedCommonItems(false); // Don't overwrite existing
+                getLogger().info("Seeded common Minecraft items for trading");
+            } catch (Exception e) {
+                getLogger().warning("Failed to seed items: " + e.getMessage());
+            }
+        }
+        
+        getLogger().info("Market initialized with database-backed instruments");
     }
     
     /**
@@ -425,6 +435,39 @@ public final class QuickStocksPlugin extends JavaPlugin {
             }
         };
         rentCollectionTask.runTaskTimerAsynchronously(this, 20L * 60 * 10, 20L * 60 * 10); // Run every 10 minutes
+    }
+    
+    /**
+     * Starts a task to periodically update all stock/instrument prices.
+     * Runs every 5 minutes to simulate market movements.
+     * Package-private for reload functionality.
+     */
+    public void startMarketPriceUpdateTask() {
+        // Cancel existing task if running
+        if (marketUpdateTask != null && !marketUpdateTask.isCancelled()) {
+            marketUpdateTask.cancel();
+        }
+        
+        long updateInterval = marketCfg.getUpdateInterval(); // Get from config (in seconds)
+        long updateTicks = 20L * updateInterval; // Convert to ticks
+        
+        marketUpdateTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    if (stockMarketService != null && stockMarketService.isMarketOpen()) {
+                        stockMarketService.updateAllStockPrices();
+                        pluginLogger.debug("Updated all stock prices");
+                    }
+                } catch (Exception e) {
+                    pluginLogger.warning("Error in market price update task: " + e.getMessage());
+                }
+            }
+        };
+        
+        // Start after 1 minute, then run every updateInterval seconds
+        marketUpdateTask.runTaskTimerAsynchronously(this, 20L * 60, updateTicks);
+        pluginLogger.info("Market price update task started (interval: " + updateInterval + " seconds)");
     }
     
     /**

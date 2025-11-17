@@ -21,6 +21,10 @@ public class MarketCfg {
     private boolean startOpen;
     private boolean defaultStocks;
     
+    // Item trading settings
+    private boolean itemsEnabled;
+    private boolean seedItemsOnStartup;
+    
     // Sub-feature toggles
     private boolean watchlistEnabled;
     private boolean portfolioEnabled;
@@ -63,6 +67,10 @@ public class MarketCfg {
         config.addMissing("market.updateInterval", 5);
         config.addMissing("market.startOpen", true);
         config.addMissing("market.defaultStocks", true);
+        
+        // Item trading settings
+        config.addMissing("market.items.enabled", true);
+        config.addMissing("market.items.seedOnStartup", false);
 
         // Sub-feature toggles
         config.addMissing("market.features.watchlist", true);
@@ -104,6 +112,10 @@ public class MarketCfg {
         updateInterval = config.getInt("market.updateInterval", 5);
         startOpen = config.getBoolean("market.startOpen", true);
         defaultStocks = config.getBoolean("market.defaultStocks", true);
+        
+        // Item trading settings
+        itemsEnabled = config.getBoolean("market.items.enabled", true);
+        seedItemsOnStartup = config.getBoolean("market.items.seedOnStartup", false);
         
         // Sub-feature toggles
         watchlistEnabled = config.getBoolean("market.features.watchlist", true);

@@ -8,8 +8,11 @@ import net.cyberneticforge.quickstocks.core.algorithms.StockPriceCalculator;
 import net.cyberneticforge.quickstocks.core.enums.MarketFactor;
 import net.cyberneticforge.quickstocks.core.model.MarketInfluence;
 import net.cyberneticforge.quickstocks.core.model.Stock;
+import net.cyberneticforge.quickstocks.infrastructure.logging.PluginLogger;
+import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import org.bukkit.Bukkit;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -17,12 +20,16 @@ import java.util.stream.Collectors;
 /**
  * Core service that manages the stock market simulation.
  * Handles stock registration, price updates, and market factor management.
+ * Now syncs with database via InstrumentSyncService.
  */
 public class StockMarketService {
+    
+    private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();
     
     private final Map<String, Stock> stocks;
     private final List<MarketInfluence> marketInfluences;
     private final StockPriceCalculator priceCalculator;
+    private final InstrumentSyncService syncService;
     /**
      * -- GETTER --
      *  Gets the price threshold controller.
@@ -44,6 +51,8 @@ public class StockMarketService {
         this.thresholdController = null;
         this.priceCalculator = new StockPriceCalculator();
         this.marketOpen = true;
+        this.syncService = new InstrumentSyncService();
+        loadExistingStocksFromDatabase();
     }
     
     public StockMarketService(PriceThresholdController thresholdController) {
@@ -52,6 +61,22 @@ public class StockMarketService {
         this.thresholdController = thresholdController;
         this.priceCalculator = new StockPriceCalculator(thresholdController);
         this.marketOpen = true;
+        this.syncService = new InstrumentSyncService();
+        loadExistingStocksFromDatabase();
+    }
+    
+    /**
+     * Loads existing stocks from the database on initialization.
+     * This ensures continuity of prices and data across server restarts.
+     */
+    private void loadExistingStocksFromDatabase() {
+        try {
+            Map<String, Stock> loadedStocks = syncService.loadStocksFromDatabase();
+            stocks.putAll(loadedStocks);
+            logger.info("Loaded " + loadedStocks.size() + " stocks from database");
+        } catch (SQLException e) {
+            logger.warning("Failed to load stocks from database: " + e.getMessage());
+        }
     }
     
     /**
@@ -70,6 +95,7 @@ public class StockMarketService {
     
     /**
      * Registers a new stock in the market.
+     * Now syncs with database to ensure persistence.
      */
     @SuppressWarnings("unused")
     public void addStock(String symbol, String name, String sector, double initialPrice) {
@@ -92,6 +118,15 @@ public class StockMarketService {
         }
         
         stocks.put(symbol.toUpperCase(), stock);
+        
+        // Sync to database
+        try {
+            syncService.ensureInstrumentExists(stock);
+            syncService.syncPriceToDatabase(stock);
+            logger.debug("Synced new stock " + symbol + " to database");
+        } catch (SQLException e) {
+            logger.warning("Failed to sync stock " + symbol + " to database: " + e.getMessage());
+        }
     }
     
     /**
@@ -113,6 +148,7 @@ public class StockMarketService {
     /**
      * Updates all stock prices based on current market conditions.
      * Fires InstrumentPriceUpdateEvent for each stock that has a price change.
+     * Now syncs all price changes to the database.
      */
     public void updateAllStockPrices() {
         if (!marketOpen) return;
@@ -126,11 +162,20 @@ public class StockMarketService {
             double newPrice = priceCalculator.calculateNewPrice(stock, marketInfluences);
             stock.updatePrice(newPrice);
             
+            // Sync price to database
+            try {
+                syncService.syncPriceToDatabase(stock);
+            } catch (SQLException e) {
+                logger.debug("Failed to sync price for " + stock.getSymbol() + ": " + e.getMessage());
+            }
+            
             // Fire InstrumentPriceUpdateEvent if price changed
             if (Math.abs(newPrice - oldPrice) > 0.0001) { // Only fire if meaningful change
                 try {
+                    // Use actual instrument ID from database
+                    String instrumentId = syncService.getInstrumentId(stock.getSymbol());
                     InstrumentPriceUpdateEvent event = new InstrumentPriceUpdateEvent(
-                        stock.getSymbol(), // Using symbol as instrumentId for stocks
+                        instrumentId != null ? instrumentId : stock.getSymbol(),
                         stock.getSymbol(),
                         oldPrice,
                         newPrice,
@@ -142,9 +187,12 @@ public class StockMarketService {
                 }
             }
             
-            // Update volume with some randomness
-            double newVolume = Math.max(0, stock.getDailyVolume() + 
-                (Math.random() - 0.5) * 100000);
+            // Update volume with more realistic changes based on current volume
+            // Volume changes are typically ±5-15% per update, not arbitrary large numbers
+            double volumeChangePercent = (Math.random() - 0.5) * 0.2; // ±10% change
+            double currentVolume = stock.getDailyVolume();
+            double minVolume = 100; // Minimum volume floor
+            double newVolume = Math.max(minVolume, currentVolume * (1 + volumeChangePercent));
             stock.updateVolume(newVolume);
         }
     }

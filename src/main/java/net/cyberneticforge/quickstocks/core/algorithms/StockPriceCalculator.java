@@ -240,13 +240,16 @@ public class StockPriceCalculator {
     
     /**
      * Adds random market noise to simulate unpredictable events.
+     * Uses smaller, more realistic variations.
      */
     private double calculateRandomNoise(Stock stock) {
-        double baseNoise = BASE_VOLATILITY * (random.nextGaussian() * 0.5);
+        // Reduced base noise for more realistic movements
+        double baseNoise = BASE_VOLATILITY * (random.nextGaussian() * 0.3);
         
-        // Occasional larger random events (1% chance)
-        if (random.nextDouble() < 0.01) {
-            baseNoise *= (2.0 + random.nextDouble() * 3.0); // 2x to 5x multiplier
+        // Rare larger events but with smaller multipliers (0.5% chance)
+        if (random.nextDouble() < 0.005) {
+            // More modest event impacts: 1.5x to 2.5x instead of 2x to 5x
+            baseNoise *= (1.5 + random.nextDouble());
         }
         
         return baseNoise;
@@ -287,13 +290,14 @@ public class StockPriceCalculator {
     
     /**
      * Updates market influences with realistic fluctuations.
+     * Major events are rare and based on logical market conditions.
      */
     public void updateMarketInfluences(List<MarketInfluence> influences) {
         for (MarketInfluence influence : influences) {
             influence.applyRandomFluctuation();
             
-            // Occasionally apply major events
-            if (random.nextDouble() < 0.001) { // 0.1% chance per update
+            // Very rare major events (0.05% chance = ~1 per 2000 updates)
+            if (random.nextDouble() < 0.0005) {
                 applyMajorEvent(influence);
             }
         }
@@ -301,10 +305,14 @@ public class StockPriceCalculator {
     
     /**
      * Applies a major market event to an influence.
+     * Events are more subtle and logical rather than extreme.
      */
     private void applyMajorEvent(MarketInfluence influence) {
-        double eventStrength = random.nextGaussian() * 0.3; // Can be positive or negative
-        double newIntensity = Math.min(1.0, influence.getIntensity() + Math.abs(eventStrength));
+        // Reduced event strength for more realistic impact (was 0.3, now 0.15)
+        double eventStrength = random.nextGaussian() * 0.15;
+        // Intensity changes are also more modest
+        double intensityChange = Math.abs(eventStrength) * 0.5;
+        double newIntensity = Math.min(1.0, Math.max(0.3, influence.getIntensity() + intensityChange));
         
         influence.updateInfluence(
             Math.max(-1.0, Math.min(1.0, influence.getCurrentValue() + eventStrength)),

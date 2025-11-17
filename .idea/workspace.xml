@@ -4,24 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="worldguard move">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/QuickStocksPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/QuickStocksPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/events/ShareBuyEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/events/ShareBuyEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/events/ShareSellEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/events/ShareSellEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/api/events/TransactionType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/enums/TransactionType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/commands/CompanyCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/OrderRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/OrderRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/model/OrderType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/enums/OrderType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/features/companies/CompanyPlotService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/features/companies/CompanyPlotService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/features/market/EnhancedTradingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/features/market/EnhancedTradingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/features/market/TradingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/services/features/market/TradingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/hooks/HookManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/hooks/HookManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/hooks/HookType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/core/enums/HookType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopProtectionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopProtectionListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopTransactionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/cyberneticforge/quickstocks/listeners/shops/ChestShopTransactionListener.java" afterDir="false" />
-    </list>
+    <list default="true" id="b1eebba6-bb3d-48bc-8358-86c579dba532" name="Changes" comment="further fixes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -50,7 +33,7 @@
     </favorite-branches>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="dev" />
+        <entry key="$PROJECT_DIR$" value="cleanups" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -90,7 +73,7 @@
     "Shell Script.activate-plugin.sh.executor": "Run",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultAutoModeForALLUsers.v1": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "cleanups",
+    "git-widget-placeholder": "#136 on copilot/refactor-stock-mechanic-logic",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
@@ -195,22 +178,6 @@
       <workItem from="1762810517306" duration="11000" />
       <workItem from="1762958104354" duration="3980000" />
       <workItem from="1763318073393" duration="2862000" />
-    </task>
-    <task id="LOCAL-00009" summary="fixes">
-      <option name="closed" value="true" />
-      <created>1759308343557</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1759308343557</updated>
-    </task>
-    <task id="LOCAL-00010" summary="fixes">
-      <option name="closed" value="true" />
-      <created>1759313012974</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1759313012974</updated>
     </task>
     <task id="LOCAL-00011" summary="updated namespace">
       <option name="closed" value="true" />
@@ -588,7 +555,23 @@
       <option name="project" value="LOCAL" />
       <updated>1763403376194</updated>
     </task>
-    <option name="localTasksCounter" value="58" />
+    <task id="LOCAL-00058" summary="refatoring folders">
+      <option name="closed" value="true" />
+      <created>1763403779051</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1763403779051</updated>
+    </task>
+    <task id="LOCAL-00059" summary="further fixes">
+      <option name="closed" value="true" />
+      <created>1763414905743</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1763414905743</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -606,8 +589,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added ChatUT.java" />
-    <MESSAGE value="refactoring work" />
     <MESSAGE value="optimized imports" />
     <MESSAGE value="issue fixes and translation service" />
     <MESSAGE value="additions" />
@@ -631,6 +612,8 @@
     <MESSAGE value="fixed MarketScheduler" />
     <MESSAGE value="optimized import" />
     <MESSAGE value="worldguard move" />
-    <option name="LAST_COMMIT_MESSAGE" value="worldguard move" />
+    <MESSAGE value="refatoring folders" />
+    <MESSAGE value="further fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="further fixes" />
   </component>
 </project>
