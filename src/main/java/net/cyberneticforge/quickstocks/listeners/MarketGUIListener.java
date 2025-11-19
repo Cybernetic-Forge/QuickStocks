@@ -73,9 +73,9 @@ public class MarketGUIListener implements Listener {
         if (slot == 4) {
             // Filter button - cycle through filter modes
             marketGUI.toggleFilter();
-            String filterMode = marketGUI.getFilterMode().toString();
+            String filterDisplayName = marketGUI.getFilterDisplayName(marketGUI.getFilterMode());
             player.sendMessage(ChatUT.hexComp(
-                "&aFilter changed to: &e" + filterMode
+                "&aFilter changed to: &e" + filterDisplayName
             ));
             return;
         }

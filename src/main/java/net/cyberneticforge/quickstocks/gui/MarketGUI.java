@@ -192,8 +192,13 @@ public class MarketGUI implements InventoryHolder {
             
             int slot = 9; // Start from second row
 
-            // Add company shares if filter allows
-            if (filterMode == FilterMode.ALL || filterMode == FilterMode.COMPANY_SHARES) {
+            // Get feature flags
+            boolean companiesEnabled = QuickStocksPlugin.getCompanyCfg() != null && QuickStocksPlugin.getCompanyCfg().isEnabled();
+            boolean cryptoEnabled = QuickStocksPlugin.getCryptoCfg() != null && QuickStocksPlugin.getCryptoCfg().isEnabled();
+            boolean itemsEnabled = QuickStocksPlugin.getMarketCfg() != null && QuickStocksPlugin.getMarketCfg().isItemsEnabled();
+            
+            // Add company shares if filter allows and feature is enabled
+            if (companiesEnabled && (filterMode == FilterMode.ALL || filterMode == FilterMode.COMPANY_SHARES)) {
                 List<Company> companiesOnMarket = QuickStocksPlugin.getCompanyService().getCompaniesOnMarket();
                 
                 for (Company company : companiesOnMarket) {
@@ -213,8 +218,8 @@ public class MarketGUI implements InventoryHolder {
                 }
             }
 
-            // Add cryptocurrencies if filter allows
-            if (filterMode == FilterMode.ALL || filterMode == FilterMode.CRYPTO_SHARES) {
+            // Add cryptocurrencies if filter allows and feature is enabled
+            if (cryptoEnabled && (filterMode == FilterMode.ALL || filterMode == FilterMode.CRYPTO_SHARES)) {
                 List<Crypto> cryptos = QuickStocksPlugin.getCryptoService().getAllCryptos();
                 
                 for (Crypto crypto : cryptos) {
@@ -234,8 +239,8 @@ public class MarketGUI implements InventoryHolder {
                 }
             }
 
-            // Add item instruments if filter allows
-            if (filterMode == FilterMode.ALL || filterMode == FilterMode.ITEM_SHARES) {
+            // Add item instruments if filter allows and feature is enabled
+            if (itemsEnabled && (filterMode == FilterMode.ALL || filterMode == FilterMode.ITEM_SHARES)) {
                 List<Instrument> itemInstruments = QuickStocksPlugin.getInstrumentPersistenceService().getInstrumentsByType("ITEM");
                 
                 for (Instrument itemInstrument : itemInstruments) {
@@ -524,16 +529,79 @@ public class MarketGUI implements InventoryHolder {
     }
 
     /**
-     * Toggles the filter mode (ALL -> COMPANY_SHARES -> CRYPTO_SHARES -> ITEM_SHARES -> ALL)
+     * Toggles the filter mode, skipping disabled features
+     * Cycle: ALL -> COMPANY_SHARES -> CRYPTO_SHARES -> ITEM_SHARES -> ALL
+     * Features are skipped if they are disabled in configuration
      */
     public void toggleFilter() {
-        filterMode = switch (filterMode) {
-            case ALL -> FilterMode.COMPANY_SHARES;
-            case COMPANY_SHARES -> FilterMode.CRYPTO_SHARES;
-            case CRYPTO_SHARES -> FilterMode.ITEM_SHARES;
-            case ITEM_SHARES -> FilterMode.ALL;
+        // Get feature flags
+        boolean companiesEnabled = QuickStocksPlugin.getCompanyCfg() != null && QuickStocksPlugin.getCompanyCfg().isEnabled();
+        boolean cryptoEnabled = QuickStocksPlugin.getCryptoCfg() != null && QuickStocksPlugin.getCryptoCfg().isEnabled();
+        boolean itemsEnabled = QuickStocksPlugin.getMarketCfg() != null && QuickStocksPlugin.getMarketCfg().isItemsEnabled();
+        
+        // Find next available filter mode
+        FilterMode nextMode = getNextFilterMode(filterMode, companiesEnabled, cryptoEnabled, itemsEnabled);
+        
+        if (nextMode != filterMode) {
+            filterMode = nextMode;
+            refresh();
+        }
+    }
+    
+    /**
+     * Gets the next available filter mode based on enabled features
+     */
+    private FilterMode getNextFilterMode(FilterMode current, boolean companiesEnabled, boolean cryptoEnabled, boolean itemsEnabled) {
+        FilterMode[] modeOrder = {FilterMode.ALL, FilterMode.COMPANY_SHARES, FilterMode.CRYPTO_SHARES, FilterMode.ITEM_SHARES};
+        
+        // Find current mode index
+        int currentIndex = 0;
+        for (int i = 0; i < modeOrder.length; i++) {
+            if (modeOrder[i] == current) {
+                currentIndex = i;
+                break;
+            }
+        }
+        
+        // Try next modes in cycle
+        for (int i = 1; i <= modeOrder.length; i++) {
+            int nextIndex = (currentIndex + i) % modeOrder.length;
+            FilterMode candidate = modeOrder[nextIndex];
+            
+            // Check if this mode is available
+            if (isFilterModeAvailable(candidate, companiesEnabled, cryptoEnabled, itemsEnabled)) {
+                return candidate;
+            }
+        }
+        
+        // Fallback to ALL if nothing else is available
+        return FilterMode.ALL;
+    }
+    
+    /**
+     * Checks if a filter mode is available based on enabled features
+     */
+    private boolean isFilterModeAvailable(FilterMode mode, boolean companiesEnabled, boolean cryptoEnabled, boolean itemsEnabled) {
+        return switch (mode) {
+            case ALL -> true; // ALL is always available
+            case COMPANY_SHARES -> companiesEnabled;
+            case CRYPTO_SHARES -> cryptoEnabled;
+            case ITEM_SHARES -> itemsEnabled;
         };
-        refresh();
+    }
+    
+    /**
+     * Gets the display name for a filter mode from configuration
+     */
+    public String getFilterDisplayName(FilterMode mode) {
+        String configKey = switch (mode) {
+            case ALL -> "market.filter.display_names.all";
+            case COMPANY_SHARES -> "market.filter.display_names.company_shares";
+            case CRYPTO_SHARES -> "market.filter.display_names.crypto_shares";
+            case ITEM_SHARES -> "market.filter.display_names.item_shares";
+        };
+        
+        return QuickStocksPlugin.getGuiConfig().getConfig().getString(configKey, mode.toString());
     }
 
     /**

@@ -343,6 +343,12 @@ market:
   # Filter button - cycles through ALL/COMPANY_SHARES/CRYPTO_SHARES/ITEM_SHARES
   filter:
     slot: 4
+    # Display names for filter modes (configurable)
+    display_names:
+      all: 'ALL'
+      company_shares: 'COMPANY SHARES'
+      crypto_shares: 'CRYPTO'
+      item_shares: 'ITEM SHARES'
     all:
       name: '&6Filter: &eALL'
       material: COMPASS
