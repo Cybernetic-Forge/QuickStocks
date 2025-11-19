@@ -23,27 +23,6 @@ market:
       COPPER_INGOT: 8.0
       NETHERITE_INGOT: 500.0
       
-      # Building blocks (medium value)
-      STONE: 1.0
-      COBBLESTONE: 0.5
-      OAK_LOG: 3.0
-      SPRUCE_LOG: 3.0
-      BIRCH_LOG: 3.0
-      GLASS: 2.0
-      BRICK: 5.0
-      
-      # Food items (low-medium value)
-      BREAD: 4.0
-      COOKED_BEEF: 6.0
-      GOLDEN_APPLE: 50.0
-      ENCHANTED_GOLDEN_APPLE: 300.0
-      
-      # Redstone and tech (medium value)
-      REDSTONE: 10.0
-      GLOWSTONE_DUST: 15.0
-      ENDER_PEARL: 25.0
-      BLAZE_ROD: 30.0
-      
       # Rare items (high value)
       NETHER_STAR: 1000.0
       DRAGON_EGG: 5000.0

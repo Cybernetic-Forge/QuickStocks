@@ -2,10 +2,7 @@ package net.cyberneticforge.quickstocks.listeners;
 
 import net.cyberneticforge.quickstocks.QuickStocksPlugin;
 import net.cyberneticforge.quickstocks.core.enums.Translation;
-import net.cyberneticforge.quickstocks.core.model.Company;
-import Instrument;
-import InstrumentState;
-import net.cyberneticforge.quickstocks.core.model.Replaceable;
+import net.cyberneticforge.quickstocks.core.model.*;
 import net.cyberneticforge.quickstocks.core.services.features.portfolio.HoldingsService;
 import net.cyberneticforge.quickstocks.gui.MarketGUI;
 import net.cyberneticforge.quickstocks.gui.PortfolioGUI;
@@ -167,7 +164,7 @@ public class MarketGUIListener implements Listener {
         
         // 2. Check if it's a generic instrument (crypto or item)
         try {
-            Optional<Instrument> instrumentOpt = 
+            Optional<Instrument> instrumentOpt =
                 QuickStocksPlugin.getInstrumentPersistenceService().getInstrumentBySymbol(symbol);
             
             if (instrumentOpt.isPresent()) {
@@ -216,7 +213,7 @@ public class MarketGUIListener implements Listener {
                 Translation.Market_Buy_CustomPrompt.sendMessage(player,
                     new Replaceable("%action%", action),
                     new Replaceable("%company%", company.getName()),
-                    new Replaceable("%symbol%", symbol));
+                    new Replaceable("%symbol%", company.getSymbol()));
                 break;
                 
             default:
@@ -311,7 +308,7 @@ public class MarketGUIListener implements Listener {
             Instrument instrument, ClickType clickType) throws Exception {
         
         // Get current price
-        Optional<InstrumentState> stateOpt = 
+        Optional<InstrumentState> stateOpt =
             QuickStocksPlugin.getInstrumentPersistenceService().getInstrumentState(instrument.id());
         
         if (stateOpt.isEmpty()) {
