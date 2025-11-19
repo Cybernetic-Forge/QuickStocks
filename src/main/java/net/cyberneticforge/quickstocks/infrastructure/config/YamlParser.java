@@ -110,6 +110,48 @@ public class YamlParser extends YamlConfiguration implements IValuesReloadable {
             isChanged = true;
         }
     }
+    
+    /**
+     * Compares the server-side config with internal resources and adds missing keys.
+     * This ensures that when new config options are added to the plugin,
+     * existing server configs will automatically receive the new defaults.
+     * 
+     * @param resourcePath Path to the internal resource file (e.g., "/guis.yml")
+     */
+    public void addMissingFromResource(@NotNull String resourcePath) {
+        try {
+            // Load the default config from internal resources
+            FileConfiguration defaultConfig = getDefaultConfig(resourcePath);
+            if (defaultConfig == null) {
+                logger.warning("Could not load default config from resource: " + resourcePath);
+                return;
+            }
+            
+            // Get all keys from the default config (deep traversal)
+            Set<String> defaultKeys = defaultConfig.getKeys(true);
+            int addedCount = 0;
+            
+            for (String key : defaultKeys) {
+                // Only add if it doesn't exist in the server config
+                if (!this.contains(key)) {
+                    Object value = defaultConfig.get(key);
+                    // Don't add ConfigurationSection objects, only actual values
+                    if (!(value instanceof ConfigurationSection)) {
+                        this.set(key, value);
+                        addedCount++;
+                    }
+                }
+            }
+            
+            if (addedCount > 0) {
+                logger.info("Added " + addedCount + " missing configuration values from " + resourcePath);
+                isChanged = true;
+            }
+            
+        } catch (Exception e) {
+            logger.warning("Failed to add missing values from resource " + resourcePath + ": " + e.getMessage());
+        }
+    }
 
     public boolean remove(@NotNull String path) {
         if (!this.contains(path)) {

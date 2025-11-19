@@ -70,6 +70,10 @@ public class CompanyCfg {
      * Adds missing configuration entries with default values
      */
     private void addMissingDefaults() {
+        // First, add any missing values from the internal resource
+        config.addMissingFromResource("/companies.yml");
+        
+        // Then add specific defaults that might not be in the resource
         // Basic settings
         config.addMissing("companies.enabled", true);
         config.addMissing("companies.creationCost", 1000.0);

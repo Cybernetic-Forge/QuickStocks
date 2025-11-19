@@ -86,8 +86,11 @@ public enum Translation {
     Market_Balance_Updated("Market.Balance_Updated"),
     Market_Buy_CustomPrompt("Market.Buy.CustomPrompt"),
     Market_CompanyDetails("Market.CompanyDetails"),
+    Market_InstrumentDetails("Market.InstrumentDetails"),
     Market_Error_NoShares("Market.Error.NoShares"),
     Market_Error_TransactionFailed("Market.Error.TransactionFailed"),
+    Market_Error_InstrumentNotFound("Market.Error.InstrumentNotFound"),
+    Market_Error_PriceNotAvailable("Market.Error.PriceNotAvailable"),
 
     // Wallet Messages
     Wallet_Usage("Wallet.Usage"),
