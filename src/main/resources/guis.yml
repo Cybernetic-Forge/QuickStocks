@@ -411,19 +411,22 @@ market:
       agriculture: WHEAT
       default: PAPER
     lore:
+      - '&7Type: &b{instrument_type}'
+      - ''
+      - '&eShare Price: &f${price}'
       - '&eCompany Balance: &f${balance}'
       - '&eMarket Percentage: &f{market_percentage}%'
-      - '&eType: &7{type}'
+      - '&eCompany Type: &7{type}'
       - ''
-      - '&bThis is a company share'
-      - '&7Buy shares with: /market buy {company_name} <qty>'
+      - '&7Left click to buy'
+      - '&7Right click to sell'
 
   # Cryptocurrency items
   crypto_item:
     name: '&e{symbol} &7- &f{display_name}'
     material: GOLD_NUGGET
     lore:
-      - '&7Type: &6Cryptocurrency'
+      - '&7Type: &6{instrument_type}'
       - ''
       - '&ePrice: &f${price}'
       - '&e24h Change: {change_color}{change_symbol}{change_24h}%'
@@ -436,7 +439,7 @@ market:
   item_instrument:
     name: '&b{display_name} &7({symbol})'
     lore:
-      - '&7Type: &bItem Instrument'
+      - '&7Type: &b{instrument_type}'
       - ''
       - '&ePrice: &f${price}'
       - '&e24h Change: {change_color}{change_symbol}{change_24h}%'

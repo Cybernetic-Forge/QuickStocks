@@ -66,8 +66,8 @@ public class MarketGUIListener implements Listener {
     private void handleGUIClick(Player player, MarketGUI marketGUI, int slot, ClickType clickType, ItemStack item) throws Exception {
         String playerUuid = player.getUniqueId().toString();
         
-        // Handle special buttons
-        if (slot == 0 && item.getType() == Material.BOOK) {
+        // Handle special buttons using slot numbers (no Material checks)
+        if (slot == 0) {
             // Portfolio overview button
             openPortfolioGUI(player);
             return;
@@ -83,7 +83,7 @@ public class MarketGUIListener implements Listener {
             return;
         }
         
-        if (slot == 8 && item.getType() == Material.GOLD_INGOT) {
+        if (slot == 8) {
             // Wallet button - show balance info
             double balance = QuickStocksPlugin.getWalletService().getBalance(playerUuid);
             Translation.Wallet_Balance.sendMessage(player,
@@ -91,37 +91,69 @@ public class MarketGUIListener implements Listener {
             return;
         }
         
-        if (slot == 45 && item.getType() == Material.CLOCK) {
+        if (slot == 45) {
             // Refresh button
             marketGUI.refresh();
             Translation.GUI_Market_Refresh_Success.sendMessage(player);
             return;
         }
         
-        if (slot == 49 && item.getType() == Material.CHEST) {
+        if (slot == 49) {
             // Portfolio holdings button
             openPortfolioGUI(player);
             return;
         }
         
-        if (slot == 53 && item.getType() == Material.BARRIER) {
+        if (slot == 53) {
             // Close button
             player.closeInventory();
             return;
         }
         
-        // Handle stock item clicks (slots 9-44)
+        // Handle instrument clicks (slots 9-44) using HashMap
         if (slot >= 9 && slot < 45) {
-            String symbol = marketGUI.getStockSymbolFromSlot(slot);
-            if (symbol != null && !symbol.isEmpty()) {
-                handleInstrumentClick(player, symbol, clickType);
+            MarketGUI.SlotInstrument slotInstrument = marketGUI.getInstrumentFromSlot(slot);
+            if (slotInstrument != null) {
+                handleInstrumentClickFromSlot(player, slotInstrument, clickType);
             }
         }
     }
     
     /**
-     * Handles clicks on any instrument in the market (company shares, crypto, or items)
+     * Handles clicks on instruments using the SlotInstrument from the HashMap
      */
+    private void handleInstrumentClickFromSlot(Player player, MarketGUI.SlotInstrument slotInstrument, ClickType clickType) throws Exception {
+        String playerUuid = player.getUniqueId().toString();
+        
+        // Route based on instrument type from HashMap
+        switch (slotInstrument.type) {
+            case "COMPANY":
+                Company company = (Company) slotInstrument.data;
+                handleCompanyShareClick(player, playerUuid, company, clickType);
+                break;
+                
+            case "CRYPTO":
+                Crypto crypto = (Crypto) slotInstrument.data;
+                handleGenericInstrumentClick(player, playerUuid, crypto.instrument(), clickType);
+                break;
+                
+            case "ITEM":
+                Instrument instrument = (Instrument) slotInstrument.data;
+                handleGenericInstrumentClick(player, playerUuid, instrument, clickType);
+                break;
+                
+            default:
+                logger.warning("Unknown instrument type: " + slotInstrument.type);
+                Translation.Market_Error_InstrumentNotFound.sendMessage(player,
+                    new Replaceable("%symbol%", slotInstrument.symbol));
+                break;
+        }
+    }
+    
+    /**
+     * @deprecated Replaced by {@link #handleInstrumentClickFromSlot} which uses HashMap for better performance
+     */
+    @Deprecated
     private void handleInstrumentClick(Player player, String symbol, ClickType clickType) throws Exception {
         String playerUuid = player.getUniqueId().toString();
         

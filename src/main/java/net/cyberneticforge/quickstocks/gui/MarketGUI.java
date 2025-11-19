@@ -20,9 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Professional Market GUI for QuickStocks
@@ -42,6 +40,21 @@ public class MarketGUI implements InventoryHolder {
         CRYPTO_SHARES,    // Show only cryptocurrencies
         ITEM_SHARES       // Show only item instruments
     }
+    
+    /**
+     * Represents an instrument in a slot with its metadata
+     */
+    public static class SlotInstrument {
+        public final String symbol;
+        public final String type; // "COMPANY", "CRYPTO", "ITEM"
+        public final Object data; // Company, Crypto, or Instrument object
+        
+        public SlotInstrument(String symbol, String type, Object data) {
+            this.symbol = symbol;
+            this.type = type;
+            this.data = data;
+        }
+    }
 
     private final Inventory inventory;
     private final Player player;
@@ -51,6 +64,9 @@ public class MarketGUI implements InventoryHolder {
      */
     @Getter
     private FilterMode filterMode = FilterMode.ALL;
+    
+    // Map of slot number to instrument data for efficient click handling
+    private final Map<Integer, SlotInstrument> slotInstrumentMap = new HashMap<>();
 
     public MarketGUI(Player player) {
         this.player = player;
@@ -171,6 +187,9 @@ public class MarketGUI implements InventoryHolder {
      */
     private void addStocksToGUI() {
         try {
+            // Clear the slot map for refresh
+            slotInstrumentMap.clear();
+            
             int slot = 9; // Start from second row
 
             // Add company shares if filter allows
@@ -182,6 +201,14 @@ public class MarketGUI implements InventoryHolder {
 
                     ItemStack companyItem = createCompanyItem(company);
                     inventory.setItem(slot, companyItem);
+                    
+                    // Store in map for click handling
+                    slotInstrumentMap.put(slot, new SlotInstrument(
+                        company.getSymbol(),
+                        "COMPANY",
+                        company
+                    ));
+                    
                     slot++;
                 }
             }
@@ -195,6 +222,14 @@ public class MarketGUI implements InventoryHolder {
 
                     ItemStack cryptoItem = createCryptoItem(crypto);
                     inventory.setItem(slot, cryptoItem);
+                    
+                    // Store in map for click handling
+                    slotInstrumentMap.put(slot, new SlotInstrument(
+                        crypto.instrument().symbol(),
+                        "CRYPTO",
+                        crypto
+                    ));
+                    
                     slot++;
                 }
             }
@@ -208,6 +243,14 @@ public class MarketGUI implements InventoryHolder {
 
                     ItemStack itemItem = createItemInstrumentItem(itemInstrument);
                     inventory.setItem(slot, itemItem);
+                    
+                    // Store in map for click handling
+                    slotInstrumentMap.put(slot, new SlotInstrument(
+                        itemInstrument.symbol(),
+                        "ITEM",
+                        itemInstrument
+                    ));
+                    
                     slot++;
                 }
             }
@@ -244,6 +287,14 @@ public class MarketGUI implements InventoryHolder {
         String displayName = company.getName();
         String type = company.getType();
         double balance = company.getBalance();
+        
+        // Calculate share price
+        double sharePrice = 0.0;
+        try {
+            sharePrice = QuickStocksPlugin.getCompanyMarketService().calculateSharePrice(company);
+        } catch (Exception e) {
+            logger.debug("Failed to calculate share price for " + symbol + ": " + e.getMessage());
+        }
 
         // Handle null values with defaults
         if (symbol == null) symbol = "UNKNOWN";
@@ -257,7 +308,9 @@ public class MarketGUI implements InventoryHolder {
         ItemMeta meta = item.getItemMeta();
 
         // Set display name
-        Component name = QuickStocksPlugin.getGuiConfig().getItemName("market.company_item", new Replaceable("{company_name}", displayName), new Replaceable("{symbol}", symbol));
+        Component name = QuickStocksPlugin.getGuiConfig().getItemName("market.company_item", 
+            new Replaceable("{company_name}", displayName), 
+            new Replaceable("{symbol}", symbol));
         meta.displayName(name);
 
         // Create detailed lore
@@ -265,6 +318,8 @@ public class MarketGUI implements InventoryHolder {
                 new Replaceable("{company_name}", displayName),
                 new Replaceable("{symbol}", symbol),
                 new Replaceable("{type}", type),
+                new Replaceable("{instrument_type}", "Company Share"),
+                new Replaceable("{price}", String.format("%.2f", sharePrice)),
                 new Replaceable("{balance}", String.format("%.2f", balance)),
                 new Replaceable("{market_percentage}", String.format("%.1f", company.getMarketPercentage()))
         );
@@ -324,6 +379,7 @@ public class MarketGUI implements InventoryHolder {
         List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("market.crypto_item",
             new Replaceable("{symbol}", symbol),
             new Replaceable("{display_name}", displayName),
+            new Replaceable("{instrument_type}", "Cryptocurrency"),
             new Replaceable("{price}", String.format("%.8f", price)),
             new Replaceable("{change_color}", changeColor),
             new Replaceable("{change_symbol}", changeSymbol),
@@ -385,6 +441,7 @@ public class MarketGUI implements InventoryHolder {
             List<Component> lore = QuickStocksPlugin.getGuiConfig().getItemLore("market.item_instrument",
                 new Replaceable("{symbol}", symbol),
                 new Replaceable("{display_name}", displayName),
+                new Replaceable("{instrument_type}", "Item Instrument"),
                 new Replaceable("{price}", String.format("%.2f", price)),
                 new Replaceable("{change_color}", changeColor),
                 new Replaceable("{change_symbol}", changeSymbol),
@@ -480,33 +537,20 @@ public class MarketGUI implements InventoryHolder {
     }
 
     /**
-     * Gets the stock symbol from an inventory slot
+     * Gets the instrument from a slot (new HashMap-based approach)
+     * @param slot The inventory slot number
+     * @return The SlotInstrument for this slot, or null if not an instrument slot
      */
+    public SlotInstrument getInstrumentFromSlot(int slot) {
+        return slotInstrumentMap.get(slot);
+    }
+    
+    /**
+     * @deprecated Use {@link #getInstrumentFromSlot(int)} instead for better performance
+     */
+    @Deprecated
     public String getStockSymbolFromSlot(int slot) {
-        ItemStack item = inventory.getItem(slot);
-        if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
-            return null;
-        }
-        
-        String displayName = item.getItemMeta().getDisplayName();
-        String plainText = ChatUT.extractText(displayName);
-
-        // For company shares: Extract symbol from display name format: "DisplayName (SYMBOL)"
-        int startIndex = plainText.lastIndexOf('(');
-        int endIndex = plainText.lastIndexOf(')');
-
-        if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
-            return plainText.substring(startIndex + 1, endIndex);
-        }
-
-        // For crypto: Extract symbol from format: "SYMBOL - Display Name"
-        if (plainText.contains(" - ")) {
-            String[] parts = plainText.split(" - ");
-            if (parts.length > 0) {
-                return parts[0].trim();
-            }
-        }
-
-        return null;
+        SlotInstrument slotInstrument = slotInstrumentMap.get(slot);
+        return slotInstrument != null ? slotInstrument.symbol : null;
     }
 }
