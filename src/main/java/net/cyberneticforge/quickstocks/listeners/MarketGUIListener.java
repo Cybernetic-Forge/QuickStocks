@@ -232,7 +232,7 @@ public class MarketGUIListener implements Listener {
             
             if (balance < price) {
                 Translation.Company_Error_InsufficientFunds.sendMessage(player,
-                    new Replaceable("%needed%", String.format("%.2f", price - balance)));
+                    new Replaceable("%amount%", String.format("%.2f", price - balance)));
                 playErrorSound(player);
                 return;
             }
@@ -359,7 +359,7 @@ public class MarketGUIListener implements Listener {
             
             if (balance < totalCost) {
                 Translation.Company_Error_InsufficientFunds.sendMessage(player,
-                    new Replaceable("%needed%", String.format("%.2f", totalCost - balance)));
+                    new Replaceable("%amount%", String.format("%.2f", totalCost - balance)));
                 playErrorSound(player);
                 return;
             }

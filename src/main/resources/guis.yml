@@ -346,9 +346,9 @@ market:
     # Display names for filter modes (configurable)
     display_names:
       all: 'ALL'
-      company_shares: 'COMPANY SHARES'
-      crypto_shares: 'CRYPTO'
-      item_shares: 'ITEM SHARES'
+      company_shares: 'Company Shares'
+      crypto_shares: 'Crypto'
+      item_shares: 'Item Shares'
     all:
       name: '&6Filter: &eALL'
       material: COMPASS
@@ -356,10 +356,10 @@ market:
         - '&7Current Filter: &eALL'
         - ''
         - '&7Click to cycle through:'
-        - '&e• ALL &7- Show everything'
-        - '&e• COMPANY_SHARES &7- Show company shares only'
-        - '&e• CRYPTO_SHARES &7- Show cryptocurrencies only'
-        - '&e• ITEM_SHARES &7- Show item instruments only'
+        - '&e• All &7- Show everything'
+        - '&e• Company Shares &7- Show company shares only'
+        - '&e• Crypto &7- Show cryptocurrencies only'
+        - '&e• Item Shares &7- Show item instruments only'
     company_shares:
       name: '&6Filter: &eCOMPANY SHARES'
       material: PAPER
@@ -367,10 +367,10 @@ market:
         - '&7Current Filter: &eCOMPANY SHARES'
         - ''
         - '&7Click to cycle through:'
-        - '&e• ALL &7- Show everything'
-        - '&e• COMPANY_SHARES &7- Show company shares only'
-        - '&e• CRYPTO_SHARES &7- Show cryptocurrencies only'
-        - '&e• ITEM_SHARES &7- Show item instruments only'
+        - '&e• All &7- Show everything'
+        - '&e• Company Shares &7- Show company shares only'
+        - '&e• Crypto &7- Show cryptocurrencies only'
+        - '&e• Item Shares &7- Show item instruments only'
     crypto_shares:
       name: '&6Filter: &eCRYPTO'
       material: GOLD_NUGGET
@@ -378,10 +378,10 @@ market:
         - '&7Current Filter: &eCRYPTO SHARES'
         - ''
         - '&7Click to cycle through:'
-        - '&e• ALL &7- Show everything'
-        - '&e• COMPANY_SHARES &7- Show company shares only'
-        - '&e• CRYPTO_SHARES &7- Show cryptocurrencies only'
-        - '&e• ITEM_SHARES &7- Show item instruments only'
+        - '&e• All &7- Show everything'
+        - '&e• Company Shares &7- Show company shares only'
+        - '&e• Crypto &7- Show cryptocurrencies only'
+        - '&e• Item Shares &7- Show item instruments only'
     item_shares:
       name: '&6Filter: &eITEM SHARES'
       material: DIAMOND
@@ -389,10 +389,10 @@ market:
         - '&7Current Filter: &eITEM SHARES'
         - ''
         - '&7Click to cycle through:'
-        - '&e• ALL &7- Show everything'
-        - '&e• COMPANY_SHARES &7- Show company shares only'
-        - '&e• CRYPTO_SHARES &7- Show cryptocurrencies only'
-        - '&e• ITEM_SHARES &7- Show item instruments only'
+        - '&e• All &7- Show everything'
+        - '&e• Company Shares &7- Show company shares only'
+        - '&e• Crypto &7- Show cryptocurrencies only'
+        - '&e• Item Shares &7- Show item instruments only'
 
   wallet:
     name: '&6Wallet'
