@@ -63,6 +63,16 @@ public class MarketGUIListener implements Listener {
     private void handleGUIClick(Player player, MarketGUI marketGUI, int slot, ClickType clickType, ItemStack item) throws Exception {
         String playerUuid = player.getUniqueId().toString();
         
+        // Check if market is open before allowing any interactions
+        if (QuickStocksPlugin.getMarketScheduler() != null && !QuickStocksPlugin.getMarketScheduler().isMarketOpen()) {
+            Translation.MarketClosed.sendMessage(player,
+                new Replaceable("%open%", QuickStocksPlugin.getMarketCfg().getOpenTime().toString()),
+                new Replaceable("%close%", QuickStocksPlugin.getMarketCfg().getCloseTime().toString()),
+                new Replaceable("%timezone%", QuickStocksPlugin.getMarketCfg().getTimezone().toString()));
+            player.closeInventory();
+            return;
+        }
+        
         // Handle special buttons using slot numbers (no Material checks)
         if (slot == 0) {
             // Portfolio overview button
