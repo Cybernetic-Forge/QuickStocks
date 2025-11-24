@@ -31,6 +31,10 @@ public class TradingCfg {
      * Adds missing configuration entries with default values
      */
     private void addMissingDefaults() {
+        // First, add any missing values from the internal resource
+        config.addMissingFromResource("/trading.yml");
+        
+        // Then add specific defaults that might not be in the resource
         // Fee settings
         config.addMissing("trading.fee.mode", "percent");
         config.addMissing("trading.fee.percent", 0.25);
