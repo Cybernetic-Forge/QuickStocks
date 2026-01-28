@@ -1,6 +1,31 @@
 # QuickStocks - Copilot Instructions
 
+> **AI Assistant Guidelines**: This file contains comprehensive instructions for AI assistants working on QuickStocks. Follow GitHub's best practices for Copilot-enhanced repositories.
+
+## 🤖 AI-Specific Resources
+
+QuickStocks uses dedicated directories for AI-assisted development:
+
+- **📂 [`.github/skills/`](.github/skills/)** - Domain-specific knowledge and patterns
+  - Reference these skill files before working on related features
+  - Current skills: Minecraft plugin development, database migrations, clean architecture
+  
+- **📂 [`.github/docs/`](.github/docs/)** - AI-generated documentation
+  - Place all AI-generated technical documentation here
+  - Use subdirectories: features/, guides/, analysis/, api/, migrations/
+  
+- **📂 [`.github/suggestions/`](.github/suggestions/)** - AI-generated suggestions
+  - Document improvement proposals and recommendations here
+  - Organize by category: architecture/, performance/, security/, features/, etc.
+
+**When to Use These Directories:**
+1. **Before starting work** - Review relevant skills in `.github/skills/`
+2. **When documenting** - Place AI-generated docs in `.github/docs/`
+3. **When proposing improvements** - Create suggestion files in `.github/suggestions/`
+4. **When learning the codebase** - Consult existing documentation in all three directories
+
 ## 📋 Table of Contents
+- [AI-Specific Resources](#-ai-specific-resources) - AI knowledge base and documentation
 - [Quick Start](#quick-start) - Essential info for getting started
 - [Feature-Specific Documentation](#-feature-specific-documentation) - Deep dives into each feature
 - [Development Environment Setup](#development-environment-setup) - Build and dev setup
@@ -33,8 +58,51 @@ QuickStocks is a Minecraft Paper plugin (version 1.21.8) that provides a compreh
 3. Configuration changes go in appropriate YAML file (not all in config.yml)
 4. Follow the service layer pattern (don't bypass services to access DB directly)
 5. **Consult feature-specific documentation** before modifying a feature (see below)
-6. Write tests for business logic changes
-7. Update this file when making significant architectural changes
+6. **Check relevant skills** in `.github/skills/` for domain-specific patterns
+7. Write tests for business logic changes
+8. Update this file when making significant architectural changes
+9. **Document your work** by creating files in `.github/docs/` for significant changes
+10. **Propose improvements** by creating suggestion files in `.github/suggestions/`
+
+## 🔄 AI Workflow Pattern
+
+Follow this workflow when working on QuickStocks:
+
+### 1. Understand the Context
+- Read this Quick Start section thoroughly
+- Review relevant feature documentation in `.github/copilot/features/`
+- Consult applicable skills in `.github/skills/`
+- Check existing documentation in `.github/docs/` for similar work
+
+### 2. Plan Your Changes
+- Identify affected components (services, commands, database, etc.)
+- Review architectural patterns in `.github/skills/clean-architecture-patterns.md`
+- Consider impact on existing tests
+- Plan minimal, surgical changes
+
+### 3. Implement Changes
+- Follow established patterns from skill files
+- Maintain clean architecture boundaries
+- Write or update tests for business logic
+- Keep changes focused and minimal
+
+### 4. Document Your Work
+- Create implementation guides in `.github/docs/guides/`
+- Document new features in `.github/docs/features/`
+- Update architecture docs if you made structural changes
+- Include metadata: date, purpose, related files
+
+### 5. Propose Improvements
+- Identify technical debt or improvement opportunities
+- Create suggestion files in `.github/suggestions/`
+- Use the standard template (see `.github/suggestions/README.md`)
+- Categorize suggestions appropriately
+
+### 6. Test and Validate
+- Run automated tests (MockBukkit)
+- Perform manual testing on Minecraft server when needed
+- Validate that changes don't break existing functionality
+- Check for security vulnerabilities
 
 ## 📚 Feature-Specific Documentation
 
