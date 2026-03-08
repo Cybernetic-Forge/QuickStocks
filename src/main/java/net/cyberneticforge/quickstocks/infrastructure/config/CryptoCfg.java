@@ -33,6 +33,10 @@ public class CryptoCfg {
      * Adds missing configuration entries with default values
      */
     private void addMissingDefaults() {
+        // First, add any missing values from the internal resource
+        config.addMissingFromResource("/crypto.yml");
+        
+        // Then add specific defaults that might not be in the resource
         config.addMissing("crypto.enabled", true);
         
         // Personal crypto settings

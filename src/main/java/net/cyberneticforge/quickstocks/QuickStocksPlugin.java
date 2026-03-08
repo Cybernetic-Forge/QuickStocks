@@ -455,9 +455,15 @@ public final class QuickStocksPlugin extends JavaPlugin {
             @Override
             public void run() {
                 try {
-                    if (stockMarketService != null && stockMarketService.isMarketOpen()) {
+                    // Check both StockMarketService flag and MarketScheduler hours
+                    boolean schedulerAllowsTrading = marketScheduler == null || marketScheduler.isMarketOpen();
+                    boolean serviceAllowsTrading = stockMarketService != null && stockMarketService.isMarketOpen();
+                    
+                    if (schedulerAllowsTrading && serviceAllowsTrading) {
                         stockMarketService.updateAllStockPrices();
                         pluginLogger.debug("Updated all stock prices");
+                    } else {
+                        pluginLogger.debug("Skipping market update - market is closed");
                     }
                 } catch (Exception e) {
                     pluginLogger.warning("Error in market price update task: " + e.getMessage());

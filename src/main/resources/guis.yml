@@ -340,9 +340,15 @@ market:
       - ''
       - '&7Click to view detailed portfolio'
 
-  # Filter button - cycles through ALL/SHARES/CRYPTO
+  # Filter button - cycles through ALL/COMPANY_SHARES/CRYPTO_SHARES/ITEM_SHARES
   filter:
     slot: 4
+    # Display names for filter modes (configurable)
+    display_names:
+      all: 'ALL'
+      company_shares: 'Company Shares'
+      crypto_shares: 'Crypto'
+      item_shares: 'Item Shares'
     all:
       name: '&6Filter: &eALL'
       material: COMPASS
@@ -350,29 +356,43 @@ market:
         - '&7Current Filter: &eALL'
         - ''
         - '&7Click to cycle through:'
-        - '&e• ALL &7- Show everything'
-        - '&e• SHARES &7- Show company shares only'
-        - '&e• CRYPTO &7- Show cryptocurrencies only'
-    shares:
-      name: '&6Filter: &eSHARES'
+        - '&e• All &7- Show everything'
+        - '&e• Company Shares &7- Show company shares only'
+        - '&e• Crypto &7- Show cryptocurrencies only'
+        - '&e• Item Shares &7- Show item instruments only'
+    company_shares:
+      name: '&6Filter: &eCOMPANY SHARES'
       material: PAPER
       lore:
-        - '&7Current Filter: &eSHARES'
+        - '&7Current Filter: &eCOMPANY SHARES'
         - ''
         - '&7Click to cycle through:'
-        - '&e• ALL &7- Show everything'
-        - '&e• SHARES &7- Show company shares only'
-        - '&e• CRYPTO &7- Show cryptocurrencies only'
-    crypto:
+        - '&e• All &7- Show everything'
+        - '&e• Company Shares &7- Show company shares only'
+        - '&e• Crypto &7- Show cryptocurrencies only'
+        - '&e• Item Shares &7- Show item instruments only'
+    crypto_shares:
       name: '&6Filter: &eCRYPTO'
       material: GOLD_NUGGET
       lore:
-        - '&7Current Filter: &eCRYPTO'
+        - '&7Current Filter: &eCRYPTO SHARES'
         - ''
         - '&7Click to cycle through:'
-        - '&e• ALL &7- Show everything'
-        - '&e• SHARES &7- Show company shares only'
-        - '&e• CRYPTO &7- Show cryptocurrencies only'
+        - '&e• All &7- Show everything'
+        - '&e• Company Shares &7- Show company shares only'
+        - '&e• Crypto &7- Show cryptocurrencies only'
+        - '&e• Item Shares &7- Show item instruments only'
+    item_shares:
+      name: '&6Filter: &eITEM SHARES'
+      material: DIAMOND
+      lore:
+        - '&7Current Filter: &eITEM SHARES'
+        - ''
+        - '&7Click to cycle through:'
+        - '&e• All &7- Show everything'
+        - '&e• Company Shares &7- Show company shares only'
+        - '&e• Crypto &7- Show cryptocurrencies only'
+        - '&e• Item Shares &7- Show item instruments only'
 
   wallet:
     name: '&6Wallet'
@@ -397,19 +417,35 @@ market:
       agriculture: WHEAT
       default: PAPER
     lore:
+      - '&7Type: &b{instrument_type}'
+      - ''
+      - '&eShare Price: &f${price}'
       - '&eCompany Balance: &f${balance}'
       - '&eMarket Percentage: &f{market_percentage}%'
-      - '&eType: &7{type}'
+      - '&eCompany Type: &7{type}'
       - ''
-      - '&bThis is a company share'
-      - '&7Buy shares with: /market buy {company_name} <qty>'
+      - '&7Left click to buy'
+      - '&7Right click to sell'
 
   # Cryptocurrency items
   crypto_item:
     name: '&e{symbol} &7- &f{display_name}'
     material: GOLD_NUGGET
     lore:
-      - '&7Type: &6Cryptocurrency'
+      - '&7Type: &6{instrument_type}'
+      - ''
+      - '&ePrice: &f${price}'
+      - '&e24h Change: {change_color}{change_symbol}{change_24h}%'
+      - '&e24h Volume: &f{volume}'
+      - ''
+      - '&7Left click to buy'
+      - '&7Right click to sell'
+
+  # Item instrument items
+  item_instrument:
+    name: '&b{display_name} &7({symbol})'
+    lore:
+      - '&7Type: &b{instrument_type}'
       - ''
       - '&ePrice: &f${price}'
       - '&e24h Change: {change_color}{change_symbol}{change_24h}%'

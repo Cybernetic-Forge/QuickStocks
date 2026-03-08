@@ -9,6 +9,25 @@ market:
   items:
     enabled: true # Enable/disable item trading (Minecraft materials as instruments)
     seedOnStartup: true # Automatically seed common items on first startup
+    
+    # Customizable item seed configuration
+    # Format: MATERIAL_NAME: price
+    # Comment out or set price to 0 to skip seeding that item
+    seedItems:
+      # Ores and minerals (high value)
+      DIAMOND: 100.0
+      EMERALD: 80.0
+      GOLD_INGOT: 50.0
+      IRON_INGOT: 20.0
+      COAL: 5.0
+      COPPER_INGOT: 8.0
+      NETHERITE_INGOT: 500.0
+      
+      # Rare items (high value)
+      NETHER_STAR: 1000.0
+      DRAGON_EGG: 5000.0
+      ELYTRA: 750.0
+      TOTEM_OF_UNDYING: 500.0
   
   # Market hours configuration
   hours:

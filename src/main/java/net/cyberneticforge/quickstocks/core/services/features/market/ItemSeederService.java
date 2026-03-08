@@ -31,7 +31,7 @@ public class ItemSeederService {
     public void seedCommonItems(boolean overwrite) throws SQLException {
         logger.info("Seeding common tradeable items...");
         
-        Map<Material, Double> commonItems = getCommonTradeableItems();
+        Map<Material, Double> commonItems = getCommonTradeableItemsFromConfig();
         int created = 0;
         int skipped = 0;
         
@@ -58,9 +58,59 @@ public class ItemSeederService {
     }
     
     /**
-     * Returns a map of common tradeable items with their initial prices.
+     * Returns a map of common tradeable items with their initial prices from configuration.
+     * Falls back to hardcoded defaults if config is not available.
      */
-    private Map<Material, Double> getCommonTradeableItems() {
+    private Map<Material, Double> getCommonTradeableItemsFromConfig() {
+        Map<Material, Double> items = new HashMap<>();
+        
+        try {
+            // Get the market.yml YamlParser from MarketCfg
+            var marketCfg = QuickStocksPlugin.getMarketCfg();
+            if (marketCfg == null) {
+                logger.warning("MarketCfg not available, using default items");
+                return getDefaultTradeableItems();
+            }
+            
+            var config = marketCfg.getConfig();
+            var seedItemsSection = config.getConfigurationSection("market.items.seedItems");
+            
+            if (seedItemsSection != null) {
+                logger.info("Loading item seed configuration from market.yml");
+                
+                for (String materialName : seedItemsSection.getKeys(false)) {
+                    try {
+                        Material material = Material.valueOf(materialName.toUpperCase());
+                        double price = seedItemsSection.getDouble(materialName, 0.0);
+                        
+                        // Skip items with 0 or negative price
+                        if (price > 0) {
+                            items.put(material, price);
+                            logger.debug("Configured seed item: " + materialName + " at $" + price);
+                        }
+                    } catch (IllegalArgumentException e) {
+                        logger.warning("Invalid material in seed config: " + materialName);
+                    }
+                }
+                
+                if (!items.isEmpty()) {
+                    logger.info("Loaded " + items.size() + " item seeds from configuration");
+                    return items;
+                }
+            }
+        } catch (Exception e) {
+            logger.warning("Failed to load item seeds from config: " + e.getMessage());
+        }
+        
+        // Fallback to hardcoded defaults
+        logger.info("Using default item seed configuration");
+        return getDefaultTradeableItems();
+    }
+    
+    /**
+     * Returns the default hardcoded map of tradeable items (fallback).
+     */
+    private Map<Material, Double> getDefaultTradeableItems() {
         Map<Material, Double> items = new HashMap<>();
         
         // Ores and minerals (high value)
