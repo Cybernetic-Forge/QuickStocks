@@ -419,6 +419,10 @@ Contributions are welcome! Please:
 - 📋 **[Contributing Guide](Documentation/CONTRIBUTING_TESTS.md)** - How to contribute
 - 🏗️ **[Architecture Overview](.github/copilot/features/README.md)** - System design docs
 - 📝 **[Code Quality Analysis](Documentation/CODE_QUALITY_ANALYSIS.md)** - Quality metrics
+- 🤖 **[Copilot Instructions](.github/copilot-instructions.md)** - AI assistant guidelines
+- 🎯 **[AI Skills & Knowledge](.github/skills/)** - Domain-specific patterns and best practices
+- 📚 **[AI Documentation](.github/docs/)** - AI-generated technical documentation
+- 💡 **[AI Suggestions](.github/suggestions/)** - Improvement proposals and recommendations
 
 ---
 
