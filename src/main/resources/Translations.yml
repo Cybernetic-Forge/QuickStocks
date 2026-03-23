@@ -94,9 +94,19 @@ Market:
     - '&eMarket %: &f%market_pct%%'
     - '&7Use left-click to buy, right-click to sell'
     - '&7Shift+click for custom amounts'
+  InstrumentDetails:
+    - '&6=== %name% (%symbol%) ==='
+    - '&eType: &f%type%'
+    - '&ePrice: &f$%price%'
+    - '&e24h Change: &f%change_24h%%'
+    - '&e24h Volume: &f%volume%'
+    - '&7Use left-click to buy, right-click to sell'
+    - '&7Shift+click for custom amounts'
   Error:
     NoShares: '&cYou don''t have any shares of %company%!'
     TransactionFailed: '&c✗ Transaction failed: %error%'
+    InstrumentNotFound: '&cInstrument not found: %symbol%'
+    PriceNotAvailable: '&cPrice information not available for %symbol%'
 
 Wallet:
   Usage: '&cUsage: /wallet [balance|deposit|withdraw|pay <player> <amount>]'

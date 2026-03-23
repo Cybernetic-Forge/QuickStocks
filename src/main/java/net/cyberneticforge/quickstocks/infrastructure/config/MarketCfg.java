@@ -62,6 +62,10 @@ public class MarketCfg {
      * Adds missing configuration entries with default values
      */
     private void addMissingDefaults() {
+        // First, add any missing values from the internal resource
+        config.addMissingFromResource("/market.yml");
+        
+        // Then add specific defaults that might not be in the resource
         // Market settings
         config.addMissing("market.enabled", true);
         config.addMissing("market.updateInterval", 5);

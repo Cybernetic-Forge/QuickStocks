@@ -46,6 +46,15 @@ public class MarketCommand implements CommandExecutor, TabCompleter {
             Translation.MarketDisabled.sendMessage(player);
             return true;
         }
+        
+        // Check if market is open (market hours check)
+        if (QuickStocksPlugin.getMarketScheduler() != null && !QuickStocksPlugin.getMarketScheduler().isMarketOpen()) {
+            Translation.MarketClosed.sendMessage(player,
+                new Replaceable("%open%", QuickStocksPlugin.getMarketCfg().getOpenTime().toString()),
+                new Replaceable("%close%", QuickStocksPlugin.getMarketCfg().getCloseTime().toString()),
+                new Replaceable("%timezone%", QuickStocksPlugin.getMarketCfg().getTimezone().toString()));
+            return true;
+        }
 
         String playerUuid = player.getUniqueId().toString();
         
