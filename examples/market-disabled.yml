@@ -14,7 +14,6 @@ market:
     watchlist: true
     portfolio: true
     trading: true
-    marketDevice: true
     stocksCommand: true
     cryptoCommand: true
   
@@ -25,11 +24,6 @@ market:
     dampeningFactor: 0.3
     minVolumeThreshold: 100
     volumeSensitivity: 0.5
-
-marketDevice:
-  recipe:
-    enabled: false
-    shapedRecipe: true
 
 analytics:
   lambda: 0.94

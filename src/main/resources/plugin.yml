@@ -30,12 +30,6 @@ commands:
     aliases: [trade, trading]
     permission: quickstocks.command.market
     default: true
-  marketdevice:
-    description: "Grant Market Link Device items to players"
-    usage: "/marketdevice give [player]"
-    aliases: [mdevice]
-    permission: quickstocks.command.marketdevice
-    default: false
   watch:
     description: "Manage your stock watchlist"
     usage: "/watch [add|remove|list|info|clear] [symbol]"
@@ -59,9 +53,6 @@ permissions:
   quickstocks.stocks.crypto.create:
     description: "Allows players to create custom cryptocurrency instruments (legacy)"
     default: false
-  quickstocks.stocks.marketdevice.give:
-    description: "Allows giving Market Link Device items to players"
-    default: op
   quickstocks.wallet.add:
     description: "Allows players to add money to their wallet"
     default: op

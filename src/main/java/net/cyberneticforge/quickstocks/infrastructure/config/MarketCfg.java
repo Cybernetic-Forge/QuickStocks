@@ -7,7 +7,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 
 /**
- * Configuration manager for market and market device settings.
+ * Configuration manager for market settings.
  * Loads configuration from market.yml using YamlParser.
  */
 @Getter
@@ -29,7 +29,6 @@ public class MarketCfg {
     private boolean watchlistEnabled;
     private boolean portfolioEnabled;
     private boolean tradingEnabled;
-    private boolean marketDeviceEnabled;
     private boolean cryptoCommandEnabled;
     
     // Price threshold settings
@@ -80,7 +79,6 @@ public class MarketCfg {
         config.addMissing("market.features.watchlist", true);
         config.addMissing("market.features.portfolio", true);
         config.addMissing("market.features.trading", true);
-        config.addMissing("market.features.marketDevice", true);
         config.addMissing("market.features.stocksCommand", true);
         config.addMissing("market.features.cryptoCommand", true);
 
@@ -125,7 +123,6 @@ public class MarketCfg {
         watchlistEnabled = config.getBoolean("market.features.watchlist", true);
         portfolioEnabled = config.getBoolean("market.features.portfolio", true);
         tradingEnabled = config.getBoolean("market.features.trading", true);
-        marketDeviceEnabled = config.getBoolean("market.features.marketDevice", true);
         cryptoCommandEnabled = config.getBoolean("market.features.cryptoCommand", true);
         
         // Price threshold settings

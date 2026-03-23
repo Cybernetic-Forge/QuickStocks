@@ -163,23 +163,6 @@ public class MarketFeatureToggleTest extends TestBase {
     }
     
     @Test
-    @DisplayName("Market Device feature reads from config")
-    public void testMarketDeviceReadsFromConfig() {
-        // Skip test if plugin failed to load
-        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
-        
-        // Given: Default market configuration from market.yml
-        // When: Reading market.features.marketDevice from config
-        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
-        
-        // Then: Should match market.yml setting (marketDevice: false by default)
-        assertNotNull(marketCfg, "Market config should be loaded");
-        // Note: market.yml has marketDevice: false by default
-        assertFalse(marketCfg.isMarketDeviceEnabled(), 
-            "Market Device should be disabled by default per market.yml");
-    }
-    
-    @Test
     @DisplayName("Crypto Command feature reads from config")
     public void testCryptoCommandReadsFromConfig() {
         // Skip test if plugin failed to load
@@ -210,7 +193,6 @@ public class MarketFeatureToggleTest extends TestBase {
         boolean watchlistEnabled = marketCfg.isWatchlistEnabled();
         boolean portfolioEnabled = marketCfg.isPortfolioEnabled();
         boolean tradingEnabled = marketCfg.isTradingEnabled();
-        boolean marketDeviceEnabled = marketCfg.isMarketDeviceEnabled();
         boolean cryptoCommandEnabled = marketCfg.isCryptoCommandEnabled();
         
         // Then: Each sub-feature can be independently configured
@@ -218,7 +200,6 @@ public class MarketFeatureToggleTest extends TestBase {
         assertNotNull(watchlistEnabled, "Watchlist setting should be read");
         assertNotNull(portfolioEnabled, "Portfolio setting should be read");
         assertNotNull(tradingEnabled, "Trading setting should be read");
-        assertNotNull(marketDeviceEnabled, "Market Device setting should be read");
         assertNotNull(cryptoCommandEnabled, "Crypto Command setting should be read");
     }
     
@@ -274,7 +255,6 @@ public class MarketFeatureToggleTest extends TestBase {
         assertDoesNotThrow(() -> marketCfg.isWatchlistEnabled(), "isWatchlistEnabled() should work");
         assertDoesNotThrow(() -> marketCfg.isPortfolioEnabled(), "isPortfolioEnabled() should work");
         assertDoesNotThrow(() -> marketCfg.isTradingEnabled(), "isTradingEnabled() should work");
-        assertDoesNotThrow(() -> marketCfg.isMarketDeviceEnabled(), "isMarketDeviceEnabled() should work");
         assertDoesNotThrow(() -> marketCfg.isCryptoCommandEnabled(), "isCryptoCommandEnabled() should work");
         assertDoesNotThrow(() -> marketCfg.isPriceThresholdEnabled(), "isPriceThresholdEnabled() should work");
     }

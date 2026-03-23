@@ -1,138 +1,58 @@
-# QuickStocks Documentation
+# QuickStocks Feature Documentation
 
-This folder contains all documentation for the QuickStocks plugin, designed to be used with GitHub Wiki.
+This directory replaces the previous wiki-style documentation set with a feature-oriented set grounded in the current source tree.
 
-## 📁 Files Overview
+## Current code-side feature map
 
-### Core Pages
-- **`Home.md`** - Wiki landing page (GitHub Wiki entry point)
-- **`_Sidebar.md`** - Navigation sidebar for GitHub Wiki
-- **`Getting-Started.md`** - Introduction for new users
-- **`Permissions.md`** - Complete permission reference
-- **`Commands-Overview.md`** - Overview of all command domains
+| Feature | Primary code artifacts | Player/admin entry points | Notes |
+|---|---|---|---|
+| Market and trading | `MarketCommand`, `MarketGUI`, `MarketGUIListener`, `StockMarketService`, `TradingService`, `CompanyMarketService`, `MarketScheduler`, `ItemSeederService` | `/market`, market GUI, scheduled market updates | Core trading surface |
+| Wallet and portfolio | `WalletCommand`, `WalletService`, `HoldingsService`, `PortfolioGUI`, `PortfolioGUIListener` | `/wallet`, `/market portfolio`, `/market history` | Vault fallback supported |
+| Watchlist | `WatchCommand`, `WatchlistService` | `/watch`, `/market watchlist` | Separate command plus market summary |
+| Cryptocurrency | `CryptoCommand`, `CryptoService`, `CryptoCfg` | `/crypto create`, `/crypto company` | Custom personal and company instruments |
+| Companies and ownership | `CompanyCommand`, `CompanyService`, `CompanyMarketService`, company GUIs/listeners | `/company ...` | Includes IPO and shareholder flows |
+| Company plots and territory | `CompanyPlotService`, `CompanyPlotListener`, plot GUIs/listeners | `/company buyplot`, `/company sellplot`, `/company plots`, `/company nearplots`, `/company editplot` | Bundled config disables plots by default |
+| Salaries | `SalaryService`, company salary subcommands, salary scheduler | `/company salary ...` | Scheduled payments with cycle configuration |
+| Integrations | `WalletService` (Vault), `ChestShopHook`, `ChestShop...Listener`, `WorldGuardHook`, `WorldGuardFlags` | Soft dependencies plus config flags | ChestShop and WorldGuard are optional |
+| Operations and platform | `QuickStocksPlugin`, `QuickStocksCommand`, config classes, database layer, metrics | `/quickstocks reload`, config files, schedulers | Covers bootstrap, config, database, metrics |
+| API and extensibility | `QuickStocksAPI`, API managers, API event classes | External plugin integration | Current tree exposes 5 managers and 14 event classes |
 
-### Command Documentation
-- **`Commands-Stocks.md`** - Stock market commands (`/stocks`)
-- **`Commands-Crypto.md`** - Cryptocurrency commands (`/crypto`)
-- **`Commands-Wallet.md`** - Wallet management (`/wallet`)
-- **`Commands-Market.md`** - Market trading (`/market`)
-- **`Commands-Watch.md`** - Watchlist management (`/watch`)
-- **`Commands-Company.md`** - Company operations (`/company`)
-- **`Commands-MarketDevice.md`** - Market device (`/marketdevice`)
+## Important code-vs-legacy-doc mismatches
 
-### Administration
-- **`Installation.md`** - Step-by-step installation guide
-- **`Configuration.md`** - Detailed configuration reference
-- **`Database.md`** - Database management and maintenance
+- There is no `StocksCommand` class and no `stocks` entry in `plugin.yml`. Legacy docs documented `/stocks`, but the current player-facing market surface is centered on `/market`, the market GUI, `QueryService`, and the public API.
+- The market device feature has been removed from the codebase and should no longer be treated as part of the plugin scope.
+- The legacy API README claims 7 managers and 17 events. The current source tree contains 5 manager classes under `api/managers` and 14 event classes under `api/events`.
+- Legacy wallet docs/translations referenced flows like pay, deposit, and withdraw. The current `WalletCommand` exposes `balance`, `add`, and `set`.
 
-## 🚀 Setting Up GitHub Wiki
+## Replacement documentation set
 
-### Option 1: Automatic Setup (Recommended)
+- [Feature-Market-And-Trading.md](Feature-Market-And-Trading.md)
+- [Feature-Wallet-And-Portfolio.md](Feature-Wallet-And-Portfolio.md)
+- [Feature-Watchlist.md](Feature-Watchlist.md)
+- [Feature-Cryptocurrency.md](Feature-Cryptocurrency.md)
+- [Feature-Companies-And-Ownership.md](Feature-Companies-And-Ownership.md)
+- [Feature-Company-Plots-And-Territory.md](Feature-Company-Plots-And-Territory.md)
+- [Feature-Salaries.md](Feature-Salaries.md)
+- [Feature-Integrations.md](Feature-Integrations.md)
+- [Feature-Operations-And-Platform.md](Feature-Operations-And-Platform.md)
+- [Feature-API-And-Extensibility.md](Feature-API-And-Extensibility.md)
 
-1. Enable GitHub Wiki for your repository
-2. Clone the wiki repository:
-   ```bash
-   git clone https://github.com/Cybernetic-Forge/QuickStocks.wiki.git
-   ```
-3. Copy all files from this `Documentation/` folder to the wiki repo
-4. Commit and push:
-   ```bash
-   cd QuickStocks.wiki
-   git add .
-   git commit -m "Add complete documentation"
-   git push
-   ```
+## Legacy docs consolidated into these files
 
-### Option 2: Manual Setup
+- Market and trading absorbed the previous market, stocks, stock-unification, feature-toggle, testing, and item-instrument docs.
+- Wallet and portfolio absorbed the previous wallet-oriented user docs plus the wallet parts of getting-started and permissions docs.
+- Watchlist absorbed the previous watch command coverage.
+- Cryptocurrency absorbed the previous crypto command coverage and crypto-related configuration notes.
+- Companies, plots, and salaries absorbed the former company, plot, salary, WorldGuard, and ChestShop feature pages.
+- Operations and platform absorbed installation, configuration, database, logging, testing, migration, and release-process notes.
+- API and extensibility absorbed the code-side API documentation from `src/main/java/.../api`.
 
-1. Go to your repository's Wiki tab
-2. Click "Create the first page"
-3. Copy content from `Home.md` into the wiki page
-4. Create additional pages for each `.md` file
-5. Set up the sidebar using `_Sidebar.md` content
+## How to read these files
 
-## 📋 File Naming Convention
+Each feature file uses the same structure:
 
-GitHub Wiki uses specific file names:
-- `Home.md` → Main wiki page
-- `_Sidebar.md` → Sidebar navigation
-- Other files → Page URLs (e.g., `Getting-Started.md` → `/Getting-Started`)
-
-## 🔗 Internal Links
-
-All documentation uses relative links that work in GitHub Wiki:
-- `[Text](Page-Name)` - Links to another wiki page
-- `[Text](Page-Name#section)` - Links to specific section
-- External links use full URLs
-
-## 🎨 Features
-
-### Comprehensive Coverage
-- **13 documentation pages** covering all aspects
-- **~100 pages** of detailed content
-- Step-by-step tutorials and examples
-- Troubleshooting sections
-- Best practices and tips
-
-### User-Focused
-- **For Players:** Getting started, commands, tutorials
-- **For Admins:** Installation, configuration, database
-- **For Developers:** Architecture notes (in code comments)
-
-### Well-Organized
-- Clear navigation structure
-- Cross-references between related topics
-- Consistent formatting
-- Search-friendly content
-
-## 📝 Placeholder Comments
-
-Throughout the documentation, you'll find placeholder comments like:
-
-```markdown
-<!-- [GUI Screenshot Placeholder: Market Browser Interface] -->
-```
-
-These indicate where screenshots should be added in the future. To add screenshots:
-
-1. Take screenshot of the feature
-2. Upload to wiki or use image hosting
-3. Replace placeholder with: `![Description](image-url)`
-
-## ✏️ Updating Documentation
-
-When updating docs:
-
-1. Edit files in this `Documentation/` folder
-2. Test locally if possible
-3. Commit changes to main repository
-4. Sync to GitHub Wiki (repeat setup process)
-
-## 🎯 Documentation Goals
-
-This documentation aims to:
-- ✅ Help new players get started quickly
-- ✅ Provide complete command reference
-- ✅ Guide administrators through setup
-- ✅ Explain all configuration options
-- ✅ Troubleshoot common issues
-- ✅ Establish best practices
-
-## 📊 Statistics
-
-- **Total Pages:** 13
-- **Total Words:** ~85,000
-- **Command Examples:** 200+
-- **Configuration Options:** 50+
-- **Troubleshooting Sections:** 30+
-
-## 🔗 Quick Links
-
-For the complete experience, visit:
-- **[Getting Started](Getting-Started.md)** - Start here!
-- **[Commands Overview](Commands-Overview.md)** - All commands
-- **[Installation](Installation.md)** - Setup guide
-
----
-
-*Ready to transform your Minecraft economy? [Get Started →](Getting-Started.md)*
+1. Code-side scope
+2. User/admin surface
+3. Configuration and integration points
+4. Legacy docs summarized
+5. Current gaps or caveats

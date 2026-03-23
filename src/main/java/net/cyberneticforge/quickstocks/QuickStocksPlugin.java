@@ -282,9 +282,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
         // Only register market-related commands if market system is enabled
         if (marketCfg.isEnabled()) {
             registerCommand("market", new MarketCommand(databaseManager.getDb()));
-            if (marketCfg.isMarketDeviceEnabled()) {
-                registerCommand("marketdevice", new MarketDeviceCommand());
-            }
             if (marketCfg.isWatchlistEnabled()) {
                 registerCommand("watch", new WatchCommand());
             }
@@ -305,9 +302,6 @@ public final class QuickStocksPlugin extends JavaPlugin {
     private void registerListeners() {
         // Only register market-related listeners if market system is enabled
         if (marketCfg.isEnabled()) {
-            if (marketCfg.isMarketDeviceEnabled()) {
-                getServer().getPluginManager().registerEvents(new MarketDeviceListener(), this);
-            }
             if (marketCfg.isPortfolioEnabled() || marketCfg.isTradingEnabled()) {
                 getServer().getPluginManager().registerEvents(new MarketGUIListener(), this);
                 getServer().getPluginManager().registerEvents(new PortfolioGUIListener(), this);

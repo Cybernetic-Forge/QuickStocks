@@ -457,5 +457,5 @@ void tearDown() throws Exception {
 
 ## Related Documentation
 - Main instructions: `.github/copilot-instructions.md`
-- Test suite details: `Documentation/TEST_SUITE.md`
+- Test and operations details: `Documentation/Feature-Operations-And-Platform.md`
 - Contributing guide: `Documentation/CONTRIBUTING_TESTS.md`

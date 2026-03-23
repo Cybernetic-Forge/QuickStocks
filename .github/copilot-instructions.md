@@ -22,7 +22,7 @@ QuickStocks is a Minecraft Paper plugin (version 1.21.8) that provides a compreh
 - 🏗️ **Architecture**: Clean architecture with service layers (core/api/infrastructure/commands/gui)
 - 🗄️ **Database**: Multi-provider (SQLite/MySQL/PostgreSQL) with schema migrations in `src/main/resources/migrations/`
 - ⚙️ **Configuration**: Multi-file config system (config.yml, market.yml, companies.yml, guis.yml)
-- 🎮 **Commands**: All 7 commands fully implemented (/stocks, /market, /company, /crypto, /wallet, /watch, /marketdevice)
+- 🎮 **Commands**: Core commands implemented around `/market`, `/company`, `/crypto`, `/wallet`, and `/watch`
 - 🔌 **Soft Dependencies**: ChestShop, WorldGuard, Vault (all optional, plugin works without them)
 - 🧪 **Testing**: MockBukkit automated tests + manual integration testing (78 test cases)
 - 🚀 **Build**: Standard Maven; external repos may be unreachable in sandboxed environments (expected)
@@ -80,7 +80,6 @@ src/main/java/net/cyberneticforge/quickstocks/
 │   ├── CryptoCommand.java         # /crypto command
 │   ├── WalletCommand.java         # /wallet command
 │   ├── WatchCommand.java          # /watch command
-│   └── MarketDeviceCommand.java   # /marketdevice command
 ├── core/                           # Business logic layer
 │   ├── services/                  # Business logic services
 │   ├── model/                     # Data models
@@ -196,7 +195,7 @@ mvn clean package
   - Replaces all `java.util.logging.Logger` instances
 - **Usage**: `private static final PluginLogger logger = QuickStocksPlugin.getPluginLogger();`
 - **Configuration Key**: `logging.debugLevel` (0-3, default: 1)
-- **Documentation**: See `Documentation/Copilot-Changes/LOGGING_SYSTEM.md`
+- **Documentation**: See `Documentation/Feature-Operations-And-Platform.md`
 
 ### 4. Configuration System
 - **Primary Config**: `src/main/resources/config.yml`
@@ -211,7 +210,7 @@ mvn clean package
 
 - **Market Config**: `src/main/resources/market.yml`
   - Market update intervals, circuit breakers, price limits
-  - Market device configuration
+  - Market access configuration
   - Analytics settings
   - Trading economy settings (fees, slippage, position limits)
 
@@ -301,8 +300,6 @@ mvn clean package
   - Add/remove instruments from watchlist
   - View watchlist and instrument details
 
-- **Market Device** (`/marketdevice`, aliases: `mdevice`):
-  - Give Market Link Device items to players
   - Requires operator permission
 
 - **Implementation**: All command handlers are in `src/main/java/net/cyberneticforge/quickstocks/commands/`
@@ -363,7 +360,6 @@ mvn clean package
   - [x] `/crypto` - Cryptocurrency creation
   - [x] `/wallet` - Balance management
   - [x] `/watch` - Watchlist management
-  - [x] `/marketdevice` - Market Link Device
 - [x] Company/Corporation system
   - [x] Company creation and management
   - [x] Employee management with roles
@@ -707,12 +703,12 @@ mvn test -Dtest=WalletServiceTest
 mvn test -Dtest=WalletServiceTest#testAddBalance
 ```
 
-See [TEST_SUITE.md](../Documentation/TEST_SUITE.md) for detailed test documentation.
+See [Feature-Operations-And-Platform.md](../Documentation/Feature-Operations-And-Platform.md) for consolidated test and operations notes.
 
 ## Breaking Changes Log
 
 ### Previous Development History
-See `Documentation/Copilot-Changes/` for detailed implementation notes and migration guides for specific features.
+See `Documentation/README.md` and the feature files in `Documentation/` for the consolidated documentation set.
 
 ### Version 1.0.0-SNAPSHOT (Current Release)
 - **Date**: 2025-11-XX
@@ -730,7 +726,7 @@ See `Documentation/Copilot-Changes/` for detailed implementation notes and migra
   - **NEW**: Database migration system with schema versioning
   - **NEW**: Centralized logging system with debug levels
   - **NEW**: Circuit breakers and trading limits
-  - **NEW**: Market Link Device for portable market access
+  - **NEW**: Direct `/market` GUI access for portable market usage
 - **Config Files**: config.yml, market.yml, companies.yml, guis.yml
 - **Database**: SQLite (default), MySQL, PostgreSQL support
 - **Package**: net.cyberneticforge.quickstocks
@@ -917,5 +913,5 @@ mvn clean compile
 2. Review database migration logs in `schema_version` table
 3. Validate configuration file syntax (all YAML files)
 4. Check `Documentation/` folder for feature-specific guides
-5. Review `Documentation/Copilot-Changes/` for implementation details
+5. Review `Documentation/README.md` and the relevant feature file for implementation details
 6. Verify soft dependencies (ChestShop, WorldGuard, Vault) are compatible versions

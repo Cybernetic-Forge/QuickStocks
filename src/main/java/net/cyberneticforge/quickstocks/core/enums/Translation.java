@@ -32,17 +32,6 @@ public enum Translation {
     MarketOpens("General.MarketOpens"),
     MarketCloses("General.MarketCloses"),
 
-    Market_Device_Name("Market.Device.Name"),
-    Market_Device_Given("Market.Device.Given"),
-    Market_Device_Opened("Market.Device.Opened"),
-    Market_Device_Cooldown("Market.Device.Cooldown"),
-    Market_Device_WrongOwner("Market.Device.WrongOwner"),
-    Market_Device_DropPrevented("Market.Device.DropPrevented"),
-    Market_Device_SelfGiven("Market.Device.SelfGiven"),
-    Market_Device_OtherGiven("Market.Device.OtherGiven"),
-    Market_Device_Lore_Usage("Market.Device.Lore.Usage"),
-    Market_Device_Lore_Bound("Market.Device.Lore.Bound"),
-
     // Market Messages
     Market_Overview_Header("Market.Overview.Header"),
     Market_Overview_CompaniesHeader("Market.Overview.CompaniesHeader"),

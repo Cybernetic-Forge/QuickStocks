@@ -13,7 +13,6 @@ market:
     watchlist: false # Disable watchlist - players can't save favorites
     portfolio: true # Keep portfolio viewing - players can see their holdings
     trading: false # Disable trading - no buying or selling
-    marketDevice: false # Disable market device item
     stocksCommand: true # Keep stocks command - players can view stock info
     cryptoCommand: false # Disable crypto command - no custom cryptocurrency creation
   
@@ -24,11 +23,6 @@ market:
     dampeningFactor: 0.3
     minVolumeThreshold: 100
     volumeSensitivity: 0.5
-
-marketDevice:
-  recipe:
-    enabled: false
-    shapedRecipe: true
 
 analytics:
   lambda: 0.94

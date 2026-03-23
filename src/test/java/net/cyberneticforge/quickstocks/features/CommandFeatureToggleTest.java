@@ -75,25 +75,6 @@ public class CommandFeatureToggleTest extends TestBase {
     }
     
     @Test
-    @DisplayName("Market Device command checks market.features.marketDevice from config")
-    public void testMarketDeviceCommandChecksConfig() {
-        // Skip test if plugin failed to load
-        assumeFalse(pluginLoadFailed, "Plugin must be loaded to test config");
-        
-        // Given: Market configuration
-        MarketCfg marketCfg = QuickStocksPlugin.getMarketCfg();
-        assertNotNull(marketCfg, "Market config should be loaded");
-        
-        // When: Reading market.features.marketDevice
-        boolean marketDeviceEnabled = marketCfg.isMarketDeviceEnabled();
-        
-        // Then: MarketDeviceCommand.onCommand() checks this exact value
-        // Command pattern: if (!QuickStocksPlugin.getMarketCfg().isMarketDeviceEnabled()) return;
-        assertFalse(marketDeviceEnabled, 
-            "Market Device should be disabled (per market.yml: market.features.marketDevice: false)");
-    }
-    
-    @Test
     @DisplayName("All commands use QuickStocksPlugin static config getters")
     public void testCommandsUsePluginConfigGetters() {
         // Skip test if plugin failed to load

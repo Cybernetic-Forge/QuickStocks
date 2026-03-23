@@ -105,7 +105,7 @@ market:
 ## Usage
 
 ### For Players
-1. Open the market GUI with `/market` command or Market Link Device
+1. Open the market GUI with `/market`
 2. Click the filter button (slot 4) to cycle through filter modes
 3. Select ITEM_SHARES to see only tradeable Minecraft items
 4. Left-click an item to buy 1 unit

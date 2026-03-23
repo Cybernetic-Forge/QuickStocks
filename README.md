@@ -31,7 +31,7 @@ QuickStocks isn't just another economy plugin—it's a **fully-featured financia
 - 🪙 **Create Cryptocurrencies** - Mint your own crypto (personal or company-branded)
 - 📈 **Master Investing** - Build diversified portfolios, use watchlists, track performance metrics
 - 💰 **Seamless Economy** - Integrated wallet system with Vault support
-- 📱 **Trade Anywhere** - Market Link Device for on-the-go transactions
+- 📱 **Trade Anywhere** - Open the market anywhere with `/market`
 
 ### ⚙️ For Server Administrators
 - 🚀 **Plug & Play** - Works out of the box with sensible defaults
@@ -195,7 +195,7 @@ Professional GUIs that make complex operations simple:
    - WorldGuard (for plot protection)
 6. **Done!** Players can start trading immediately with sensible defaults
 
-📖 **[Full Installation Guide →](Documentation/Installation.md)**
+📖 **[Feature Documentation Index →](Documentation/README.md)**
 
 #### Default Configuration Highlights
 - ✅ SQLite database (no setup required)
@@ -344,8 +344,8 @@ Create unique economy-focused games:
 /watch add TECH
 /watch list                      # Quick overview of all tracked instruments
 
-# Use Market Link Device
-/marketdevice                    # Get portable market access
+# Open the market anywhere
+/market                          # Open the market GUI directly
 # Right-click device anywhere    → Opens market GUI
 
 # Admin operations (requires permissions)
@@ -380,19 +380,18 @@ We love new ideas! [Submit a feature request](https://github.com/Cybernetic-Forg
 ### 💬 Need Help?
 - **[GitHub Issues](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Bug reports and feature requests
 - **[Discord](https://discord.gg/Sek4PRBf)** - Real-time chat and support
-- **[Documentation](Documentation/Getting-Started.md)** - Comprehensive guides
+- **[Documentation](Documentation/README.md)** - Feature-oriented guides
 
 ---
 
 ## 🔗 Quick Links
 
 ### Documentation
-- 📖 **[Getting Started Guide](Documentation/Getting-Started.md)** - Complete player tutorial
-- 🎮 **[Commands Overview](Documentation/Commands-Overview.md)** - All available commands
-- ⚙️ **[Installation Guide](Documentation/Installation.md)** - Server setup instructions
-- 🔧 **[Configuration Guide](Documentation/Configuration.md)** - Detailed settings reference
-- 📊 **[Database Guide](Documentation/Database.md)** - Database administration
-- 🧪 **[Test Suite](Documentation/TEST_SUITE.md)** - Testing documentation
+- 📖 **[Documentation Index](Documentation/README.md)** - Full feature map
+- 📊 **[Market And Trading](Documentation/Feature-Market-And-Trading.md)** - Market flow and trading surface
+- 🏢 **[Companies And Ownership](Documentation/Feature-Companies-And-Ownership.md)** - Company lifecycle and IPOs
+- 🔧 **[Operations And Platform](Documentation/Feature-Operations-And-Platform.md)** - Config, database, reload, and runtime behavior
+- 🔌 **[Integrations](Documentation/Feature-Integrations.md)** - Vault, ChestShop, and WorldGuard
 
 ### Community & Support
 - 🐛 **[Issue Tracker](https://github.com/Cybernetic-Forge/QuickStocks/issues)** - Bug reports and features

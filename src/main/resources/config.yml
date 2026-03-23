@@ -36,7 +36,6 @@ features:
   market:
     enabled: true
     display: "Market"
-    withDevice: false
   historyEnabled: true
   topListWindowHours: 24
 
@@ -44,7 +43,7 @@ features:
 metrics:
   enabled: true  # Enable anonymous usage statistics (bStats)
 
-# NOTE: Market, Market Device, Analytics, Trading, and Companies configurations
+# NOTE: Market, Analytics, Trading, and Companies configurations
 # have been moved to separate files:
-# - market.yml - Market, Market Device, Analytics, and Trading economy settings
+# - market.yml - Market, Analytics, and Trading economy settings
 # - companies.yml - Companies/Corporations settings

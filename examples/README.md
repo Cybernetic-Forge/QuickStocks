@@ -7,7 +7,7 @@ This directory contains example configurations demonstrating different use cases
 ### market-minimal.yml
 A minimal market configuration that disables most features while keeping basic viewing functionality.
 - **Enabled:** Market overview, portfolio viewing, stocks command
-- **Disabled:** Trading, watchlist, market device, crypto command
+- **Disabled:** Trading, watchlist, crypto command
 - **Use case:** Display-only market for servers that want to show information without allowing transactions
 
 ### market-disabled.yml

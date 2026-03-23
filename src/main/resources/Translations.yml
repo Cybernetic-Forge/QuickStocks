@@ -22,18 +22,6 @@ General:
   MarketCloses: '&eThe market is now closed. See you tomorrow!'
 
 Market:
-  Device:
-    Name: '&dMarket Link Device'
-    Given: '&aMarket Device granted to %player%.'
-    Opened: '&7Opening Market...'
-    Cooldown: '&cPlease wait a moment.'
-    WrongOwner: '&cThis device is bound to %owner%.'
-    DropPrevented: '&cThis device is soulbound and cannot be dropped.'
-    SelfGiven: '&aYou received a Market Link Device!'
-    OtherGiven: '&aGave Market Link Device to %player%.'
-    Lore:
-      Usage: '&7Right-click to open the market.'
-      Bound: '&8Bound to: %player%'
   Overview:
     Header: '&6=== &fMarket Overview &6==='
     CompaniesHeader: '&eCompanies on Market:'
