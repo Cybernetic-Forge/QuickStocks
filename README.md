@@ -1,3 +1,15 @@
+<div align="center">
+  <h1>✨ Get in contact ✨</h1>
+  <p>
+    Join <strong>Cybernetic-Forge</strong> on Discord<br>
+    for support and discussions!
+  </p>
+
+  <a href="https://discord.gg/qewNHejdMT">
+    <img src="https://img.shields.io/badge/Join%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join Discord">
+  </a>
+</div>
+
 # 📈 QuickStocks
 
 > **The Ultimate Stock Market & Company Management Plugin for Minecraft**
